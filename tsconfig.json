@@ -12,6 +12,7 @@
 		}
 	],
 	"compilerOptions": {
+		"jsx": "react-jsx",
 		"types": [
 			"./worker-configuration.d.ts"
 		]
