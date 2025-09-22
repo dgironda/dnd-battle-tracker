@@ -105,7 +105,20 @@ export default function HeroManager() {
               <td>{h.player}</td>
               <td>{h.hp}</td>
               <td>{h.ac}</td>
-              <td>{h.present ? "✅" : "❌"}</td>
+              <td>
+                <span 
+                  onClick={() => setHeroes(prevHeroes => 
+                    prevHeroes.map(hero => 
+                      hero.id === h.id 
+                        ? { ...hero, present: !hero.present }
+                        : hero
+                    )
+                  )}
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
+                >
+                  {h.present ? "✅" : "❌"}
+                </span>
+              </td>
             </tr>
           ))}
         </tbody>
