@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getHeroes, storeHeroes } from './LocalStorage';
 
 interface Hero {
   id: string;
@@ -17,7 +18,12 @@ interface Hero {
 }
 
 export default function HeroManager() {
-  const [heroes, setHeroes] = useState<Hero[]>([]);
+  const [heroes, setHeroes] = useState<Hero[]>(() => {
+    return getHeroes();
+  });
+  useEffect(() => {
+    storeHeroes(heroes);
+  }, [heroes]);
   const [form, setForm] = useState<Omit<Hero, "id">>({
     name: "",
     player: "",
@@ -126,3 +132,5 @@ export default function HeroManager() {
     </div>
   );
 }
+
+export {Hero}
