@@ -27,6 +27,11 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
       return;
     }
 
+    if (!form.player.trim()) {
+      alert('Please enter a player name');
+      return;
+    }
+
     onAddHero(form);
     
     // Reset form

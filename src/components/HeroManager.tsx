@@ -33,6 +33,15 @@ export default function HeroManager() {
     );
   };
   
+  const deleteHero = (heroId: string) => {
+    const heroToDelete = heroes.find(hero => hero.id === heroId);
+    const heroName = heroToDelete ? heroToDelete.name : 'this hero';
+    
+    if (confirm(`Do you really want to delete ${heroName}?`)) {
+      setHeroes(prevHeroes => prevHeroes.filter(hero => hero.id !== heroId));
+    }
+  };
+
   const EditableCell = ({ hero, field, type = 'text' }: { 
     hero: Hero, 
     field: keyof Hero, 
@@ -94,10 +103,10 @@ export default function HeroManager() {
   };
 
   return (
-    <div style={{ marginTop: '2rem' }}>
+    <div id="heroAddManage">
       <AddHero onAddHero={addHero} />
       
-      <h2>Hero Manager</h2>
+      <h2>Hero Manager <sup>(Click to edit)</sup></h2>
            
       
       <table style={{ borderCollapse: 'collapse', width: '100%' }}>
@@ -108,10 +117,11 @@ export default function HeroManager() {
             <th style={{ border: '1px solid #ccc', padding: '8px' }}>HP</th>
             <th style={{ border: '1px solid #ccc', padding: '8px' }}>AC</th>
             <th style={{ border: '1px solid #ccc', padding: '8px' }}>Present</th>
+            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Actions</th>
           </tr>
         </thead>
-        <tbody>
-          {heroes.map((hero) => (
+        <tbody className="heroTableBody">
+          {heroes.map((hero, index) => (
             <>
               <tr key={hero.id}>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>
@@ -134,27 +144,41 @@ export default function HeroManager() {
                     {hero.present ? "✅" : "❌"}
                   </span>
                 </td>
+                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                  <button className="buttonDelete"
+                    onClick={() => deleteHero(hero.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
               
               <tr key={`${hero.id}-stats`} style={{ backgroundColor: '#f8f9fa' }}>
-                <td style={{ border: '1px solid #ccc', padding: '8px', fontSize: '12px' }}>
-                  STR: <EditableCell hero={hero} field="str" type="number" />
-                </td>
-                <td style={{ border: '1px solid #ccc', padding: '8px', fontSize: '12px' }}>
-                  DEX: <EditableCell hero={hero} field="dex" type="number" />
-                </td>
-                <td style={{ border: '1px solid #ccc', padding: '8px', fontSize: '12px' }}>
-                  CON: <EditableCell hero={hero} field="con" type="number" />
-                </td>
-                <td style={{ border: '1px solid #ccc', padding: '8px', fontSize: '12px' }}>
-                  INT: <EditableCell hero={hero} field="int" type="number" />
-                </td>
-                <td style={{ border: '1px solid #ccc', padding: '8px', fontSize: '12px' }}>
-                  WIS: <EditableCell hero={hero} field="wis" type="number" /> | 
-                  CHA: <EditableCell hero={hero} field="cha" type="number" /> | 
-                  PP: <EditableCell hero={hero} field="pp" type="number" />
+                <td 
+                  colSpan={6} 
+                  style={{ 
+                    border: '1px solid #ccc', 
+                    padding: '8px', 
+                    fontSize: '12px'
+                  }}
+                >
+                  <div className="heroStats">
+                    <span>STR: <EditableCell hero={hero} field="str" type="number" /></span>
+                    <span>DEX: <EditableCell hero={hero} field="dex" type="number" /></span>
+                    <span>CON: <EditableCell hero={hero} field="con" type="number" /></span>
+                    <span>INT: <EditableCell hero={hero} field="int" type="number" /></span>
+                    <span>WIS: <EditableCell hero={hero} field="wis" type="number" /></span>
+                    <span>CHA: <EditableCell hero={hero} field="cha" type="number" /></span>
+                    <span>PP: <EditableCell hero={hero} field="pp" type="number" /></span>
+                  </div>
                 </td>
               </tr>
+              
+              {index < heroes.length - 1 && (
+                <tr key={`${hero.id}-spacer`}>
+                  <td colSpan={6} style={{ height: '8px', border: 'none', backgroundColor: 'transparent' }}></td>
+                </tr>
+              )}
             </>
           ))}
         </tbody>
