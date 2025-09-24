@@ -1,4 +1,4 @@
-import { Hero } from './HeroManager';
+import { Hero } from './Hero';
 
 const STORAGE_KEY = "storedHeroes";
 

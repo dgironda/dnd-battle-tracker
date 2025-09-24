@@ -1,8 +1,24 @@
+:root {
+  --color-bg1: #f5f5f5;
+  --color-bg2: #d3d3d3;
+  --color-fg: #131b1f;
+  --color-btn1: #99050b;
+  --color-btn2: #e30711;
+  --color-chk1: #bebebe;
+  --color-chk2: #a7743b;
+  --color-hl1: #cca677;
+  --color-hl2: #5b0f00;
+  --color-brdr1: #ccc;
+  --color-rowodd: #ffffff;
+  --color-roweven: #f8f2eb;
+  --color-shadow: #777777;
+}
+
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f5f5f5;
+  background-color: var(--color-bg1);
 }
 
 table {
@@ -11,11 +27,46 @@ table {
 }
 
 th, td {
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-brdr1);
   padding: 0.5rem;
   text-align: center;
 }
 
 th {
-  background-color: #eee;
+  background-color: var(--color-roweven);
+}
+
+button {
+  border-radius: 0;
+  margin: 5px;
+  text-align: center;
+  text-decoration: none;
+  padding: 2vh 2vw;
+  cursor: pointer;
+  text-shadow: -1px -1px 2px var(--color-shadow);
+  background: var(--color-btn2);
+  color: var(--color-bg1);
+  border: 3px double var(--color-btn1);
+}
+
+input[type="text"] {
+  padding: 0.5rem; 
+  border: 1px solid var(--color-brdr1); 
+  border-radius: 2px;
+  line-height: 1.5rem;
+}
+
+#addHeroOuter {
+  margin-bottom: 1rem;
+  padding: 1rem; 
+  border: 1px solid var(--color-brdr1); 
+  border-radius: 4px; 
+  background-color: var(--color-bg2);
+}
+
+#addHeroInner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem; 
+  margin-bottom: 1rem;
 }
