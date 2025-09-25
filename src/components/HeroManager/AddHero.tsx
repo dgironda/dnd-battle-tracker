@@ -18,7 +18,10 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
     wis: 10,
     cha: 10,
     pp: 10,
+<<<<<<< HEAD:src/components/HeroManager/AddHero.tsx
     init: 0,
+=======
+>>>>>>> dd4c093 (Moved addHero, updateHero, deleteHero, and EditableCell to a Utils.tsx file):src/components/AddHero.tsx
     present: false,
   });
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getHeroes, storeHeroes } from './LocalStorage';
 import { Hero } from "./Hero";
 import AddHero from "./AddHero";
-
+import { createAddHero, createUpdateHero, createDeleteHero, EditableCell } from "./Utils";
 
 export default function HeroManager() {
   const [heroes, setHeroes] = useState<Hero[]>(() => {
@@ -15,6 +15,7 @@ export default function HeroManager() {
 
   const [editingField, setEditingField] = useState<string | null>(null);
 
+<<<<<<< HEAD
   const addHero = (heroData: Omit<Hero, "id">) => {
     const newHero: Hero = {
       ...heroData,
@@ -111,13 +112,17 @@ export default function HeroManager() {
 		</span>
 	  );
 	};
+=======
+  const addHero = createAddHero(setHeroes);
+  const updateHero = createUpdateHero(setHeroes);
+  const deleteHero = createDeleteHero(heroes, setHeroes);
+>>>>>>> 1709ef9 (Moved addHero, updateHero, deleteHero, and EditableCell to a Utils.tsx file)
 
   return (
     <div id="heroAddManage">
       <AddHero onAddHero={addHero} />
       
       <h2>Hero Manager <sup>(Click to edit)</sup></h2>
-           
       
       <table style={{ borderCollapse: 'collapse', width: '100%' }}>
         <thead>
@@ -135,16 +140,44 @@ export default function HeroManager() {
             <>
               <tr key={hero.id}>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                  <EditableCell hero={hero} field="name" type="text" />
+                  <EditableCell 
+                    hero={hero} 
+                    field="name" 
+                    type="text"
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    updateHero={updateHero}
+                  />
                 </td>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                  <EditableCell hero={hero} field="player" type="text" />
+                  <EditableCell 
+                    hero={hero} 
+                    field="player" 
+                    type="text"
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    updateHero={updateHero}
+                  />
                 </td>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                  <EditableCell hero={hero} field="hp" type="number" />
+                  <EditableCell 
+                    hero={hero} 
+                    field="hp" 
+                    type="number"
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    updateHero={updateHero}
+                  />
                 </td>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                  <EditableCell hero={hero} field="ac" type="number" />
+                  <EditableCell 
+                    hero={hero} 
+                    field="ac" 
+                    type="number"
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    updateHero={updateHero}
+                  />
                 </td>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>
                   <span
@@ -173,13 +206,62 @@ export default function HeroManager() {
                   }}
                 >
                   <div className="heroStats">
-                    <span>STR: <EditableCell hero={hero} field="str" type="number" /></span>
-                    <span>DEX: <EditableCell hero={hero} field="dex" type="number" /></span>
-                    <span>CON: <EditableCell hero={hero} field="con" type="number" /></span>
-                    <span>INT: <EditableCell hero={hero} field="int" type="number" /></span>
-                    <span>WIS: <EditableCell hero={hero} field="wis" type="number" /></span>
-                    <span>CHA: <EditableCell hero={hero} field="cha" type="number" /></span>
-                    <span>PP: <EditableCell hero={hero} field="pp" type="number" /></span>
+                    <span>STR: <EditableCell 
+                      hero={hero} 
+                      field="str" 
+                      type="number"
+                      editingField={editingField}
+                      setEditingField={setEditingField}
+                      updateHero={updateHero}
+                    /></span>
+                    <span>DEX: <EditableCell 
+                      hero={hero} 
+                      field="dex" 
+                      type="number"
+                      editingField={editingField}
+                      setEditingField={setEditingField}
+                      updateHero={updateHero}
+                    /></span>
+                    <span>CON: <EditableCell 
+                      hero={hero} 
+                      field="con" 
+                      type="number"
+                      editingField={editingField}
+                      setEditingField={setEditingField}
+                      updateHero={updateHero}
+                    /></span>
+                    <span>INT: <EditableCell 
+                      hero={hero} 
+                      field="int" 
+                      type="number"
+                      editingField={editingField}
+                      setEditingField={setEditingField}
+                      updateHero={updateHero}
+                    /></span>
+                    <span>WIS: <EditableCell 
+                      hero={hero} 
+                      field="wis" 
+                      type="number"
+                      editingField={editingField}
+                      setEditingField={setEditingField}
+                      updateHero={updateHero}
+                    /></span>
+                    <span>CHA: <EditableCell 
+                      hero={hero} 
+                      field="cha" 
+                      type="number"
+                      editingField={editingField}
+                      setEditingField={setEditingField}
+                      updateHero={updateHero}
+                    /></span>
+                    <span>PP: <EditableCell 
+                      hero={hero} 
+                      field="pp" 
+                      type="number"
+                      editingField={editingField}
+                      setEditingField={setEditingField}
+                      updateHero={updateHero}
+                    /></span>
                   </div>
                 </td>
               </tr>
