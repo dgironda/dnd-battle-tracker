@@ -41,66 +41,76 @@ export default function HeroManager() {
       setHeroes(prevHeroes => prevHeroes.filter(hero => hero.id !== heroId));
     }
   };
+  
+	const EditableCell = ({
+	  hero,
+	  field,
+	  type = "text",
+	}: {
+	  hero: Hero;
+	  field: keyof Hero;
+	  type?: "text" | "number";
+	}) => {
+	  const fieldKey = `${hero.id}-${field}`;
+	  const isEditing = editingField === fieldKey;
+	  const value = hero[field];
 
-  const EditableCell = ({ hero, field, type = 'text' }: { 
-    hero: Hero, 
-    field: keyof Hero, 
-    type?: 'text' | 'number' 
-  }) => {
-    const fieldKey = `${hero.id}-${field}`;
-    const isEditing = editingField === fieldKey;
-    const value = hero[field];
+	  if (isEditing && type === "number") {
+		return (
+		  <input
+			type="number"
+			value={value as number}
+			onChange={(e) => updateHero(hero.id, field, Number(e.target.value))}
+			onBlur={() => setEditingField(null)}
+			onKeyDown={(e) => {
+			  if (e.key === "Enter") {
+				setEditingField(null);
+			  }
+			}}
+			autoFocus
+			style={{ width: "60px", padding: "2px", border: "1px solid #007bff" }}
+		  />
+		);
+	  }
 
-    if (isEditing && type === 'number') {
-      return (
-        <input
-          type="number"
-          value={value as number}
-          onChange={(e) => updateHero(hero.id, field, Number(e.target.value))}
-          onBlur={() => setEditingField(null)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              setEditingField(null);
-            }
-          }}
-          autoFocus
-          style={{ width: '60px', padding: '2px', border: '1px solid #007bff' }}
-        />
-      );
-    }
+	  if (isEditing && type === "text") {
+		return (
+		  <input
+			type="text"
+			value={value as string}
+			onChange={(e) => updateHero(hero.id, field, e.target.value)}
+			onBlur={() => setEditingField(null)}
+			onKeyDown={(e) => {
+			  if (e.key === "Enter") {
+				setEditingField(null);
+			  }
+			}}
+			autoFocus
+			style={{ width: "100px", padding: "2px", border: "1px solid #007bff" }}
+		  />
+		);
+	  }
 
-    if (isEditing && type === 'text') {
-      return (
-        <input
-          type="text"
-          value={value as string}
-          onChange={(e) => updateHero(hero.id, field, e.target.value)}
-          onBlur={() => setEditingField(null)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              setEditingField(null);
-            }
-          }}
-          autoFocus
-          style={{ width: '100px', padding: '2px', border: '1px solid #007bff' }}
-        />
-      );
-    }
-
-    return (
-      <span 
-        onClick={() => setEditingField(fieldKey)}
-        style={{ 
-          cursor: 'pointer', 
-          padding: '2px 4px',
-          borderRadius: '2px',
-        }}
-        title="Click to edit"
-      >
-        {value}
-      </span>
-    );
-  };
+	  return (
+		<span
+		  onClick={() => setEditingField(fieldKey)}
+		  style={{
+			cursor: "pointer",
+			padding: "2px 4px",
+			borderRadius: "2px",
+			display: "inline-flex",
+			alignItems: "center",
+			gap: "4px",
+		  }}
+		  title="Click to edit"
+		>
+		  <span>{value}</span>
+		  <span role="button" aria-label="Edit">
+			📝
+		  </span>
+		</span>
+	  );
+	};
 
   return (
     <div id="heroAddManage">
