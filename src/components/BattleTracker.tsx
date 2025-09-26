@@ -21,7 +21,7 @@ const BattleTracker: React.FC = () => {
 
       {/* Placeholder for existing tracker UI */}
       <div>
-        <button style={{ marginBottom: "1rem" }}>Next Turn</button>
+        <button id="buttonNextTurn">Next Turn</button>
         <table>
           <thead>
             <tr>
