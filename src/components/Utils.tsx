@@ -103,6 +103,14 @@ export const EditableCell = ({
       title="Click to edit"
     >
       {value}
-    </span>
+    <span role="button" aria-label="Edit" id="edit">
+
+
+
+			📝
+
+
+		  </span></span>
+    
   );
 };
