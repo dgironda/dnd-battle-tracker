@@ -37,31 +37,31 @@ export const createDeleteHero = (
   };
 };
 
-export const EditableCell = ({ 
-  hero, 
-  field, 
+export const EditableCell = <T extends Record<string, any>>({
+  entity,
+  field,
   type = 'text',
   editingField,
   setEditingField,
-  updateHero
-}: { 
-  hero: Hero;
-  field: keyof Hero;
+  updateEntity
+}: {
+  entity: T;
+  field: keyof T;
   type?: 'text' | 'number';
   editingField: string | null;
   setEditingField: Dispatch<SetStateAction<string | null>>;
-  updateHero: (heroId: string, field: keyof Hero, value: string | number | boolean) => void;
+  updateEntity: (entityId: string, field: keyof T, value: string | number | boolean) => void;
 }) => {
-  const fieldKey = `${hero.id}-${field}`;
+  const fieldKey = `${entity.id}-${String(field)}`;
   const isEditing = editingField === fieldKey;
-  const value = hero[field];
+  const value = entity[field];
 
   if (isEditing && type === 'number') {
     return (
       <input
         type="number"
         value={value as number}
-        onChange={(e) => updateHero(hero.id, field, Number(e.target.value))}
+        onChange={(e) => updateEntity(entity.id, field, Number(e.target.value))}
         onBlur={() => setEditingField(null)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
@@ -79,7 +79,7 @@ export const EditableCell = ({
       <input
         type="text"
         value={value as string}
-        onChange={(e) => updateHero(hero.id, field, e.target.value)}
+        onChange={(e) => updateEntity(entity.id, field, e.target.value)}
         onBlur={() => setEditingField(null)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
@@ -93,24 +93,19 @@ export const EditableCell = ({
   }
 
   return (
-    <span 
+    <span
       onClick={() => setEditingField(fieldKey)}
-      style={{ 
-        cursor: 'pointer', 
+      style={{
+        cursor: 'pointer',
         padding: '2px 4px',
         borderRadius: '2px',
       }}
       title="Click to edit"
     >
       {value}
-    <span role="button" aria-label="Edit" id="edit">
-
-
-
-			📝
-
-
-		  </span></span>
-    
+      <span role="button" aria-label="Edit" className="edit">
+        📝
+      </span>
+    </span>
   );
 };
