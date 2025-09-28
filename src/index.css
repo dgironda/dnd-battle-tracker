@@ -251,6 +251,7 @@ sup {
   justify-content: space-around;
 }
 
+<<<<<<< HEAD
 .statsRow {
   background-color: var(--color-roweven);
 }
@@ -261,6 +262,8 @@ sup {
   font-size: 12px;
 }
 
+=======
+>>>>>>> a5d7063 (Start Battle button moves present heroes into the battle, battle tracker is in a good spot. One issue I need to hit is that updating heroes requires page refresh before changes will be read by start battle.)
 .edit {
   /* border: 1px black solid; */
   filter: drop-shadow(1px 2px 1px #666);

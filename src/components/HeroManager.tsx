@@ -4,6 +4,9 @@ import { Hero } from "./Hero";
 import AddHero from "./AddHero";
 import { createAddHero, createUpdateHero, createDeleteHero, EditableCell } from "./Utils";
 
+
+
+
 export default function HeroManager() {
   const [heroes, setHeroes] = useState<Hero[]>(() => {
     return getHeroes();
@@ -116,7 +119,11 @@ export default function HeroManager() {
   const addHero = createAddHero(setHeroes);
   const updateHero = createUpdateHero(setHeroes);
   const deleteHero = createDeleteHero(heroes, setHeroes);
+<<<<<<< HEAD
 >>>>>>> 1709ef9 (Moved addHero, updateHero, deleteHero, and EditableCell to a Utils.tsx file)
+=======
+  
+>>>>>>> 131cdc3 (Start Battle button moves present heroes into the battle, battle tracker is in a good spot. One issue I need to hit is that updating heroes requires page refresh before changes will be read by start battle.)
 
   return (
     <div id="heroAddManage">
@@ -141,42 +148,42 @@ export default function HeroManager() {
               <tr key={hero.id}>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>
                   <EditableCell 
-                    hero={hero} 
+                    entity={hero} 
                     field="name" 
                     type="text"
                     editingField={editingField}
                     setEditingField={setEditingField}
-                    updateHero={updateHero}
+                    updateEntity={updateHero}
                   />
                 </td>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>
                   <EditableCell 
-                    hero={hero} 
+                    entity={hero} 
                     field="player" 
                     type="text"
                     editingField={editingField}
                     setEditingField={setEditingField}
-                    updateHero={updateHero}
+                    updateEntity={updateHero}
                   />
                 </td>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>
                   <EditableCell 
-                    hero={hero} 
+                    entity={hero} 
                     field="hp" 
                     type="number"
                     editingField={editingField}
                     setEditingField={setEditingField}
-                    updateHero={updateHero}
+                    updateEntity={updateHero}
                   />
                 </td>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>
                   <EditableCell 
-                    hero={hero} 
+                    entity={hero} 
                     field="ac" 
                     type="number"
                     editingField={editingField}
                     setEditingField={setEditingField}
-                    updateHero={updateHero}
+                    updateEntity={updateHero}
                   />
                 </td>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>
@@ -207,60 +214,60 @@ export default function HeroManager() {
                 >
                   <div className="heroStats">
                     <span>STR: <EditableCell 
-                      hero={hero} 
+                      entity={hero} 
                       field="str" 
                       type="number"
                       editingField={editingField}
                       setEditingField={setEditingField}
-                      updateHero={updateHero}
+                      updateEntity={updateHero}
                     /></span>
                     <span>DEX: <EditableCell 
-                      hero={hero} 
+                      entity={hero} 
                       field="dex" 
                       type="number"
                       editingField={editingField}
                       setEditingField={setEditingField}
-                      updateHero={updateHero}
+                      updateEntity={updateHero}
                     /></span>
                     <span>CON: <EditableCell 
-                      hero={hero} 
+                      entity={hero} 
                       field="con" 
                       type="number"
                       editingField={editingField}
                       setEditingField={setEditingField}
-                      updateHero={updateHero}
+                      updateEntity={updateHero}
                     /></span>
                     <span>INT: <EditableCell 
-                      hero={hero} 
+                      entity={hero} 
                       field="int" 
                       type="number"
                       editingField={editingField}
                       setEditingField={setEditingField}
-                      updateHero={updateHero}
+                      updateEntity={updateHero}
                     /></span>
                     <span>WIS: <EditableCell 
-                      hero={hero} 
+                      entity={hero} 
                       field="wis" 
                       type="number"
                       editingField={editingField}
                       setEditingField={setEditingField}
-                      updateHero={updateHero}
+                      updateEntity={updateHero}
                     /></span>
                     <span>CHA: <EditableCell 
-                      hero={hero} 
+                      entity={hero} 
                       field="cha" 
                       type="number"
                       editingField={editingField}
                       setEditingField={setEditingField}
-                      updateHero={updateHero}
+                      updateEntity={updateHero}
                     /></span>
                     <span>PP: <EditableCell 
-                      hero={hero} 
+                      entity={hero} 
                       field="pp" 
                       type="number"
                       editingField={editingField}
                       setEditingField={setEditingField}
-                      updateHero={updateHero}
+                      updateEntity={updateHero}
                     /></span>
                   </div>
                 </td>

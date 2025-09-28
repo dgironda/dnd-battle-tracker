@@ -43,6 +43,7 @@ export const createDeleteHero = (
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // export const createAddMonster = (setMonsters: Dispatch<SetStateAction<Hero[]>>) => {
 //   return (monsterData: Omit<Monster, "id">) => {
 //     const newMonster: Monster = {
@@ -101,22 +102,31 @@ export const EditableCell = <T extends Record<string, any>>({
 export const EditableCell = ({ 
   hero, 
   field, 
+=======
+export const EditableCell = <T extends Record<string, any>>({
+  entity,
+  field,
+>>>>>>> a5d7063 (Start Battle button moves present heroes into the battle, battle tracker is in a good spot. One issue I need to hit is that updating heroes requires page refresh before changes will be read by start battle.)
   type = 'text',
   editingField,
   setEditingField,
-  updateHero
-}: { 
-  hero: Hero;
-  field: keyof Hero;
+  updateEntity
+}: {
+  entity: T;
+  field: keyof T;
   type?: 'text' | 'number';
   editingField: string | null;
   setEditingField: Dispatch<SetStateAction<string | null>>;
-  updateHero: (heroId: string, field: keyof Hero, value: string | number | boolean) => void;
+  updateEntity: (entityId: string, field: keyof T, value: string | number | boolean) => void;
 }) => {
-  const fieldKey = `${hero.id}-${field}`;
+  const fieldKey = `${entity.id}-${String(field)}`;
   const isEditing = editingField === fieldKey;
+<<<<<<< HEAD
   const value = hero[field];
 >>>>>>> dd4c093 (Moved addHero, updateHero, deleteHero, and EditableCell to a Utils.tsx file)
+=======
+  const value = entity[field];
+>>>>>>> a5d7063 (Start Battle button moves present heroes into the battle, battle tracker is in a good spot. One issue I need to hit is that updating heroes requires page refresh before changes will be read by start battle.)
 
   if (isEditing && type === 'number') {
     return (
@@ -124,10 +134,14 @@ export const EditableCell = ({
         type="number"
         value={value as number}
 <<<<<<< HEAD
+<<<<<<< HEAD
         onChange={(e) => updateEntity(entity.id, field, Number(e.target.value))}
 =======
         onChange={(e) => updateHero(hero.id, field, Number(e.target.value))}
 >>>>>>> dd4c093 (Moved addHero, updateHero, deleteHero, and EditableCell to a Utils.tsx file)
+=======
+        onChange={(e) => updateEntity(entity.id, field, Number(e.target.value))}
+>>>>>>> a5d7063 (Start Battle button moves present heroes into the battle, battle tracker is in a good spot. One issue I need to hit is that updating heroes requires page refresh before changes will be read by start battle.)
         onBlur={() => setEditingField(null)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
@@ -146,10 +160,14 @@ export const EditableCell = ({
         type="text"
         value={value as string}
 <<<<<<< HEAD
+<<<<<<< HEAD
         onChange={(e) => updateEntity(entity.id, field, e.target.value)}
 =======
         onChange={(e) => updateHero(hero.id, field, e.target.value)}
 >>>>>>> dd4c093 (Moved addHero, updateHero, deleteHero, and EditableCell to a Utils.tsx file)
+=======
+        onChange={(e) => updateEntity(entity.id, field, e.target.value)}
+>>>>>>> a5d7063 (Start Battle button moves present heroes into the battle, battle tracker is in a good spot. One issue I need to hit is that updating heroes requires page refresh before changes will be read by start battle.)
         onBlur={() => setEditingField(null)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
@@ -164,6 +182,7 @@ export const EditableCell = ({
 
   return (
 <<<<<<< HEAD
+<<<<<<< HEAD
     <span
       onClick={() => setEditingField(fieldKey)}
       style={{
@@ -174,6 +193,12 @@ export const EditableCell = ({
       style={{ 
         cursor: 'pointer', 
 >>>>>>> dd4c093 (Moved addHero, updateHero, deleteHero, and EditableCell to a Utils.tsx file)
+=======
+    <span
+      onClick={() => setEditingField(fieldKey)}
+      style={{
+        cursor: 'pointer',
+>>>>>>> a5d7063 (Start Battle button moves present heroes into the battle, battle tracker is in a good spot. One issue I need to hit is that updating heroes requires page refresh before changes will be read by start battle.)
         padding: '2px 4px',
         borderRadius: '2px',
       }}
@@ -181,11 +206,17 @@ export const EditableCell = ({
     >
       {value}
 <<<<<<< HEAD
+<<<<<<< HEAD
       <span role="button" aria-label="Edit" className="edit">
         📝
       </span>
 =======
 >>>>>>> dd4c093 (Moved addHero, updateHero, deleteHero, and EditableCell to a Utils.tsx file)
+=======
+      <span role="button" aria-label="Edit" className="edit">
+        📝
+      </span>
+>>>>>>> a5d7063 (Start Battle button moves present heroes into the battle, battle tracker is in a good spot. One issue I need to hit is that updating heroes requires page refresh before changes will be read by start battle.)
     </span>
   );
 };
