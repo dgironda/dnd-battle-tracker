@@ -1,5 +1,5 @@
-import { Hero } from './Hero';
-import { Monster } from './Monster'; // <- define like Hero
+import { Hero } from '../types/Hero';
+import { Monster } from '../types/index'; // <- define like Hero
 
 const HEROES_KEY = "storedHeroes";
 const MONSTERS_KEY = "storedMonsters";

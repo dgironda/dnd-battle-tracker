@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Hero } from "./Hero";
-import { getHeroes, storeHeroes } from "./LocalStorage";
+import { Hero } from "../types/Hero";
+import { getHeroes, storeHeroes } from "../utils/LocalStorage";
 
 
 export const useHeroes = () => {

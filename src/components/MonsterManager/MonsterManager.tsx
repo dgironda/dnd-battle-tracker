@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useMonsters } from "./useMonsters";
-import { Monster } from "./Monster";
+import { useMonsters } from "../../hooks/useMonsters";
+import { Monster } from "../../types/Monster";
 
 const MonsterManager = () => {
   const { monsters, setMonsters } = useMonsters();

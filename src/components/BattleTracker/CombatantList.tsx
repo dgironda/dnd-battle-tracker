@@ -1,4 +1,4 @@
-import { Combatant } from "../types";
+import { Combatant } from "../../types";
 
 interface Props {
   combatants: Combatant[];

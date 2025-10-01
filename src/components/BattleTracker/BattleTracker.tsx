@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import HeroManager from "./HeroManager";
-import { Hero } from "./Hero";
-import { Combatant } from "./Combatant";
-import { startBattle } from "./StartBattle";
-import { predefinedConditions } from "./Conditions";
-import { EditableCell } from "./Utils";
-import { useHeroes } from "./useHeroes";
+import HeroManager from "../HeroManager/HeroManager";
+import { Hero } from "../../types/Hero";
+import { Combatant } from "../../types/Combatant";
+import { startBattle } from "../../utils/battleUtils";
+import { predefinedConditions } from "../../constants/Conditions";
+import { EditableCell } from "../../utils/editableCell";
+import { useHeroes } from "../../hooks/useHeroes";
 
 const BattleTracker: React.FC = () => {
   const { heroes, setHeroes } = useHeroes();
   const [combatants, setCombatants] = useState<Combatant[]>([]);
-  const [showHeroManager, setShowHeroManager] = useState(false);
+  // const [showHeroManager, setShowHeroManager] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingConditions, setEditingConditions] = useState<string | null>(null);
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
@@ -184,14 +184,14 @@ const BattleTracker: React.FC = () => {
       <h1>D&D Battle Tracker</h1>
 
       {/* Toggle Hero Manager */}
-      <button
+      {/* <button
         onClick={() => setShowHeroManager((prev) => !prev)}
         style={{ marginBottom: "1rem" }}
       >
         {showHeroManager ? "Close Hero Manager" : "Open Hero Manager"}
       </button>
 
-      {showHeroManager && <HeroManager />}
+      {showHeroManager && <HeroManager />} */}
 
       {/* Battle Controls */}
       <div>

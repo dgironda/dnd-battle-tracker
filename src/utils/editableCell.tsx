@@ -1,41 +1,4 @@
 import { Dispatch, SetStateAction } from "react";
-import { Hero } from "../types/Hero";
-
-export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
-  return (heroData: Omit<Hero, "id">) => {
-    const newHero: Hero = {
-      ...heroData,
-      id: crypto.randomUUID()
-    };
-    setHeroes(prev => [...prev, newHero]);
-  };
-};
-
-export const createUpdateHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
-  return (heroId: string, field: keyof Hero, value: string | number | boolean) => {
-    setHeroes(prevHeroes =>
-      prevHeroes.map(hero =>
-        hero.id === heroId
-          ? { ...hero, [field]: value }
-          : hero
-      )
-    );
-  };
-};
-
-export const createDeleteHero = (
-  heroes: Hero[], 
-  setHeroes: Dispatch<SetStateAction<Hero[]>>
-) => {
-  return (heroId: string) => {
-    const heroToDelete = heroes.find(hero => hero.id === heroId);
-    const heroName = heroToDelete ? heroToDelete.name : 'this hero';
-    
-    if (confirm(`Do you really want to delete ${heroName}?`)) {
-      setHeroes(prevHeroes => prevHeroes.filter(hero => hero.id !== heroId));
-    }
-  };
-};
 
 export const EditableCell = <T extends Record<string, any>>({
   entity,
