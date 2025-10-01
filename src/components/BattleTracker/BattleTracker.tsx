@@ -6,6 +6,8 @@ import { startBattle } from "../../utils/battleUtils";
 import { predefinedConditions } from "../../constants/Conditions";
 import { EditableCell } from "../../utils/editableCell";
 import { useHeroes } from "../../hooks/useHeroes";
+import { InitiativeDialog } from "./InitiativeDialog";
+
 
 const BattleTracker: React.FC = () => {
   const { heroes, setHeroes } = useHeroes();
@@ -14,6 +16,8 @@ const BattleTracker: React.FC = () => {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingConditions, setEditingConditions] = useState<string | null>(null);
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
+  const [currentHero, setCurrentHero] = useState<Hero | null>(null);
+  const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
 
   const sortedCombatants = [...combatants].sort((a, b) => b.initiative - a.initiative);
 
@@ -40,11 +44,35 @@ const BattleTracker: React.FC = () => {
     }
   };
 
-  const handleStartBattle = () => {
-    const newCombatants = startBattle(heroes);
-    setCombatants(newCombatants);
-    setCurrentTurnIndex(0);
-  };
+  const handleStartBattle = async () => {
+    const presentHeroes = heroes.filter(h => h.present);
+    const newCombatants: Combatant[] = [];
+    
+    for (const hero of presentHeroes) {
+      // Show dialog and wait for initiative
+      const initiative = await new Promise<number>((resolve) => {
+        setCurrentHero(hero);
+        setInitiativeResolver(() => resolve);
+      });
+      
+      newCombatants.push({
+        id: hero.id,
+        name: hero.name,
+        currHp: hero.hp,
+        maxHp: hero.hp,
+        initiative,
+        action: false,
+        bonus: false,
+        move: false,
+        reaction: false,
+        conditions: []
+      });
+  }
+  
+  setCurrentHero(null);
+  setCombatants(newCombatants);
+  setCurrentTurnIndex(0);
+};
 
   const handleNextTurn = () => {
     if (sortedCombatants.length > 0) {
@@ -181,19 +209,7 @@ const BattleTracker: React.FC = () => {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>D&D Battle Tracker</h1>
-
-      {/* Toggle Hero Manager */}
-      {/* <button
-        onClick={() => setShowHeroManager((prev) => !prev)}
-        style={{ marginBottom: "1rem" }}
-      >
-        {showHeroManager ? "Close Hero Manager" : "Open Hero Manager"}
-      </button>
-
-      {showHeroManager && <HeroManager />} */}
-
-      {/* Battle Controls */}
+      
       <div>
         <button id="buttonStartBattle" onClick={handleStartBattle}>
           Start Battle
@@ -276,6 +292,16 @@ const BattleTracker: React.FC = () => {
         <p style={{ textAlign: 'center', color: '#6c757d', fontStyle: 'italic', marginTop: '2rem' }}>
           No combatants in battle. Start a battle to see combatants here.
         </p>
+      )}
+      {currentHero && initiativeResolver && (
+        <InitiativeDialog 
+          heroName={currentHero.name}
+          onSubmit={(init) => {
+            initiativeResolver(init);
+            setCurrentHero(null);
+            setInitiativeResolver(null);
+          }}
+        />
       )}
     </div>
   );
