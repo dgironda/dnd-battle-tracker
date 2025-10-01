@@ -1,8 +1,11 @@
 import BattleTracker from "./components/BattleTracker/BattleTracker";
 import HeroManager from "./components/HeroManager/HeroManager";
 import MonsterManager from "./components/MonsterManager/MonsterManager";
+<<<<<<< HEAD
 import About from "./About";
 import ToggleComponent from "./components/ToggleContext";
+=======
+>>>>>>> 3757b41 (reorg is up and functional)
 import { useState } from "react";
 
 function App() {

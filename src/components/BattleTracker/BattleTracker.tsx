@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import HeroManager from "../HeroManager/HeroManager";
 import { Hero, Monster, Combatant } from "../../types/index";
@@ -32,6 +33,24 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
   const { status } = useGlobalContext();
   const [hpModalCombatant, setHpModalCombatant] = useState<Combatant | null>(null);
+=======
+import React, { useState } from "react";
+import HeroManager from "../HeroManager/HeroManager";
+import { Hero } from "../../types/Hero";
+import { Combatant } from "../../types/Combatant";
+import { startBattle } from "../../utils/battleUtils";
+import { predefinedConditions } from "../../constants/Conditions";
+import { EditableCell } from "../../utils/editableCell";
+import { useHeroes } from "../../hooks/useHeroes";
+
+const BattleTracker: React.FC = () => {
+  const { heroes, setHeroes } = useHeroes();
+  const [combatants, setCombatants] = useState<Combatant[]>([]);
+  // const [showHeroManager, setShowHeroManager] = useState(false);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editingConditions, setEditingConditions] = useState<string | null>(null);
+  const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
+>>>>>>> 3757b41 (reorg is up and functional)
 
   const sortedCombatants = [...combatants].sort((a, b) => b.initiative - a.initiative);
 
@@ -57,6 +76,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
       updateCombatant(combatantId, 'conditions', updatedConditions);
     }
   };
+<<<<<<< HEAD
   
   const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
@@ -134,6 +154,14 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   setCombatants(newCombatants);
   setCurrentTurnIndex(0);
 };
+=======
+
+  const handleStartBattle = () => {
+    const newCombatants = startBattle(heroes);
+    setCombatants(newCombatants);
+    setCurrentTurnIndex(0);
+  };
+>>>>>>> 3757b41 (reorg is up and functional)
 
   const handleNextTurn = () => {
     if (sortedCombatants.length > 0) {
@@ -146,6 +174,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
             ...combatant,
             action: false,
             bonus: false,
+<<<<<<< HEAD
             move: false
           }));
           setCombatants(resetCombatants);
@@ -159,11 +188,19 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
 		  )
 		);
 		
+=======
+            move: false,
+            reaction: false
+          }));
+          setCombatants(resetCombatants);
+        }
+>>>>>>> 3757b41 (reorg is up and functional)
         
         return nextIndex;
       });
     }
   };
+<<<<<<< HEAD
   
   const getHpColor = (currHp: number, maxHp: number): string => {
   if (maxHp === 0) return '#f8f2eb';
@@ -253,6 +290,8 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
     window.removeEventListener('keydown', handleKeyPress);
   };
 }, [sortedCombatants, currentTurnIndex, updateCombatant]);
+=======
+>>>>>>> 3757b41 (reorg is up and functional)
 
   const EditableHp = ({ combatant }: { combatant: Combatant }) => {
     return (
@@ -265,7 +304,11 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
           setEditingField={setEditingField}
           updateEntity={updateCombatant}
         />
+<<<<<<< HEAD
         /{combatant.maxHp}
+=======
+        /{combatant.currHp}
+>>>>>>> 3757b41 (reorg is up and functional)
       </span>
     );
   };
@@ -275,6 +318,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
 
     if (isEditing) {
       return (
+<<<<<<< HEAD
         <div className="conditionEditOuter">
           {/* Current conditions with remove buttons */}
           <div>
@@ -286,6 +330,29 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
                 title={conditionDescriptions[conditionName] || conditionName}
               >
                 {conditionName} ×
+=======
+        <div style={{ minWidth: '200px' }}>
+          {/* Current conditions with remove buttons */}
+          <div style={{ marginBottom: '8px' }}>
+            {combatant.conditions.map((condition) => (
+              <span
+                key={condition}
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  padding: '2px 6px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  marginRight: '4px',
+                  marginBottom: '2px',
+                  cursor: 'pointer'
+                }}
+                onClick={() => removeCondition(combatant.id, condition)}
+                title="Click to remove"
+              >
+                {condition} ×
+>>>>>>> 3757b41 (reorg is up and functional)
               </span>
             ))}
           </div>
@@ -298,7 +365,11 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
                 e.target.value = '';
               }
             }}
+<<<<<<< HEAD
             className="conditionSelect"
+=======
+            style={{ width: '100%', padding: '2px', marginBottom: '4px' }}
+>>>>>>> 3757b41 (reorg is up and functional)
           >
             <option value="">Add condition...</option>
             {predefinedConditions
@@ -310,7 +381,19 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
           
           <button
             onClick={() => setEditingConditions(null)}
+<<<<<<< HEAD
             className="editConditionsDone"
+=======
+            style={{ 
+              padding: '2px 6px', 
+              fontSize: '11px',
+              backgroundColor: '#28a745',
+              color: 'white',
+              border: 'none',
+              borderRadius: '2px',
+              cursor: 'pointer'
+            }}
+>>>>>>> 3757b41 (reorg is up and functional)
           >
             Done
           </button>
@@ -321,6 +404,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
     return (
       <span 
         onClick={() => setEditingConditions(combatant.id)}
+<<<<<<< HEAD
         className="editConditions" 
         title="Click to edit conditions"
       >
@@ -335,18 +419,59 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
               </span>
             ))
           : <span className="noCondition">None</span>
+=======
+        style={{ cursor: 'pointer', padding: '2px 4px', borderRadius: '2px', minHeight: '20px', display: 'inline-block' }}
+        title="Click to edit conditions"
+      >
+        {combatant.conditions.length > 0 
+          ? combatant.conditions.map((condition) => (
+              <span
+                key={condition}
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  padding: '1px 4px',
+                  borderRadius: '8px',
+                  fontSize: '10px',
+                  marginRight: '2px'
+                }}
+              >
+                {condition}
+              </span>
+            ))
+          : <span style={{ color: '#6c757d', fontSize: '12px' }}>None</span>
+>>>>>>> 3757b41 (reorg is up and functional)
         }
       </span>
     );
   };
 
   return (
+<<<<<<< HEAD
     <div id="battleTrackerOuter">
       
+=======
+    <div style={{ padding: "2rem" }}>
+      <h1>D&D Battle Tracker</h1>
+
+      {/* Toggle Hero Manager */}
+      {/* <button
+        onClick={() => setShowHeroManager((prev) => !prev)}
+        style={{ marginBottom: "1rem" }}
+      >
+        {showHeroManager ? "Close Hero Manager" : "Open Hero Manager"}
+      </button>
+
+      {showHeroManager && <HeroManager />} */}
+
+      {/* Battle Controls */}
+>>>>>>> 3757b41 (reorg is up and functional)
       <div>
         <button id="buttonStartBattle" onClick={handleStartBattle}>
           Start Battle
         </button>
+<<<<<<< HEAD
         {/* <button id="buttonNextTurn" onClick={handleNextTurn} disabled={combatants.length === 0}>
           Next Turn
         </button> */}
@@ -364,6 +489,25 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
             <th>Move</th>
             <th>Reaction</th>
             <th>Conditions</th>
+=======
+        <button id="buttonNextTurn" onClick={handleNextTurn} disabled={combatants.length === 0}>
+          Next Turn
+        </button>
+      </div>
+
+      {/* Battle Table */}
+      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+        <thead>
+          <tr style={{ backgroundColor: '#f5f5f5' }}>
+            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Name</th>
+            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Initiative</th>
+            <th style={{ border: '1px solid #ccc', padding: '8px' }}>HP</th>
+            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Action</th>
+            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Bonus</th>
+            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Move</th>
+            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Reaction</th>
+            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Conditions</th>
+>>>>>>> 3757b41 (reorg is up and functional)
           </tr>
         </thead>
         <tbody>
@@ -372,6 +516,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
               key={combatant.id}
               style={{ 
                 backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa',
+<<<<<<< HEAD
                 borderLeft: index === currentTurnIndex ? '5px solid #777777' : 'none'
               }}
             >
@@ -411,40 +556,73 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
                 {combatant.currHp} / {combatant.maxHp}
               </td>
               <td>
+=======
+                borderLeft: index === currentTurnIndex ? '4px solid #28a745' : 'none'
+              }}
+            >
+              <td style={{ border: '1px solid #ccc', padding: '8px', fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}>
+                {combatant.name}
+                {index === currentTurnIndex && <span style={{ color: '#28a745', marginLeft: '8px' }}>← Current Turn</span>}
+              </td>
+              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
+                {combatant.initiative}
+              </td>
+              <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                <EditableHp combatant={combatant} />
+              </td>
+              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
+>>>>>>> 3757b41 (reorg is up and functional)
                 <input
                   type="checkbox"
                   checked={combatant.action}
                   onChange={(e) => updateCombatant(combatant.id, 'action', e.target.checked)}
                 />
               </td>
+<<<<<<< HEAD
               <td>
+=======
+              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
+>>>>>>> 3757b41 (reorg is up and functional)
                 <input
                   type="checkbox"
                   checked={combatant.bonus}
                   onChange={(e) => updateCombatant(combatant.id, 'bonus', e.target.checked)}
                 />
               </td>
+<<<<<<< HEAD
               <td>
+=======
+              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
+>>>>>>> 3757b41 (reorg is up and functional)
                 <input
                   type="checkbox"
                   checked={combatant.move}
                   onChange={(e) => updateCombatant(combatant.id, 'move', e.target.checked)}
                 />
               </td>
+<<<<<<< HEAD
               <td>
+=======
+              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
+>>>>>>> 3757b41 (reorg is up and functional)
                 <input
                   type="checkbox"
                   checked={combatant.reaction}
                   onChange={(e) => updateCombatant(combatant.id, 'reaction', e.target.checked)}
                 />
               </td>
+<<<<<<< HEAD
               <td>
+=======
+              <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+>>>>>>> 3757b41 (reorg is up and functional)
                 <ConditionsEditor combatant={combatant} />
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+<<<<<<< HEAD
           
       {sortedCombatants.length === 0 && (
         <p id="noCombatants">
@@ -478,6 +656,16 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
 
   );
   
+=======
+
+      {sortedCombatants.length === 0 && (
+        <p style={{ textAlign: 'center', color: '#6c757d', fontStyle: 'italic', marginTop: '2rem' }}>
+          No combatants in battle. Start a battle to see combatants here.
+        </p>
+      )}
+    </div>
+  );
+>>>>>>> 3757b41 (reorg is up and functional)
 };
 
 export default BattleTracker;

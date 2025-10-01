@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { Combatant } from "../../types/index";
+=======
+import { Combatant } from "../../types";
+>>>>>>> 3757b41 (reorg is up and functional)
 
 interface Props {
   combatants: Combatant[];

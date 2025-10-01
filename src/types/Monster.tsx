@@ -1,4 +1,5 @@
 export interface Monster {
+<<<<<<< HEAD
   id: string;
   name: string;
   link: string;
@@ -14,5 +15,12 @@ export interface Monster {
   init: number;
   hidden: boolean;
   present: boolean;
+=======
+  id: number;
+  name: string;
+  hp: number;
+  ac: number;
+  hidden: boolean;
+>>>>>>> 3757b41 (reorg is up and functional)
   conditions: string[];
 }

@@ -1,6 +1,7 @@
 const predefinedConditions = [
     'Poisoned', 'Stunned', 'Prone', 'Restrained', 'Charmed', 
     'Frightened', 'Paralyzed', 'Unconscious', 'Blinded', 'Deafened',
+<<<<<<< HEAD
     'Invisible', 'Incapacitated', 'Grappled', 'Grappling', 'Exhausted 1', 'Exhausted 2', 
     'Exhausted 3', 'Exhausted 4', 'Exhausted 5', 'Exhausted 6', 'Ready', 'Concentrating', 'Death Saves', 
     'Raging', 'Blessed', 'Baned', 'Faerie Fire', 'Hexed-Str', 'Hexed-Dex', 'Hexed-Con', 'Hexed-Int', 'Hexed-Wis', 'Hexed-Cha', 
@@ -95,3 +96,10 @@ const conditionDescriptionsTwentyFourteen: Record<string, string> = {
   'Banished': 'If you are native to the plane of existence you\’re on, you are banished to a harmless demiplane. While there, you are incapacitated. You remain there until the spell ends, at which point you reappear in the space you left or in the nearest unoccupied space if that space is occupied.\nIf you are native to a different plane of existence than the one you\’re on, you are banished with a faint popping noise, returning to your home plane. If the spell ends before 1 minute has passed, you reappear in the space you left or in the nearest unoccupied space if that space is occupied. Otherwise, you don\'t return.'
 };
   export {predefinedConditions, conditionDescriptionsTwentyTwentyFour, conditionDescriptionsTwentyFourteen}
+=======
+    'Invisible', 'Incapacitated', 'Grappled', 'Exhausted 1', 'Exhausted 2', 
+    'Exhausted 3', 'Exhausted 4', 'Exhausted 5', 'Exhausted 6', 'Ready', 'Concentrating', 'Death Saves'
+  ];
+
+  export {predefinedConditions}
+>>>>>>> 3757b41 (reorg is up and functional)

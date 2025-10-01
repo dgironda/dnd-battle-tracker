@@ -1,10 +1,14 @@
 import { Dispatch, SetStateAction } from "react";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Hero, Monster, Combatant } from "../types/index";
 
 =======
 import { Hero } from "./Hero";
 >>>>>>> dd4c093 (Moved addHero, updateHero, deleteHero, and EditableCell to a Utils.tsx file)
+=======
+import { Hero } from "../types/Hero";
+>>>>>>> 3757b41 (reorg is up and functional)
 
 export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
   return (heroData: Omit<Hero, "id">) => {

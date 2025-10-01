@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { useMonsters } from "../../hooks/useMonsters";
 import { Monster } from "../../types/Monster";
+<<<<<<< HEAD
 import { createUpdateMonster, createDeleteMonster } from "../Utils";
 import { EditableCell } from "../Utils";
 import monstersDataFourteen from "../../assets/2014monsters.json";
+=======
+>>>>>>> 3757b41 (reorg is up and functional)
 
 const MonsterManager = () => {
   const { monsters, setMonsters } = useMonsters();
   const [newMonster, setNewMonster] = useState<Monster>({
+<<<<<<< HEAD
     id: crypto.randomUUID(),
     name: "",
     link: "https://5e.tools",
@@ -90,6 +94,23 @@ const MonsterManager = () => {
 
   // 🔹 Toggle hidden/invisible
   const toggleHidden = (id: string) => {
+=======
+    id: Date.now(),
+    name: "",
+    hp: 0,
+    ac: 0,
+    hidden: false,
+    conditions: [],
+  });
+
+  const addMonster = () => {
+    if (!newMonster.name.trim()) return;
+    setMonsters([...monsters, { ...newMonster, id: Date.now() }]);
+    setNewMonster({ id: Date.now(), name: "", hp: 0, ac: 0, hidden: false, conditions: [] });
+  };
+
+  const toggleHidden = (id: number) => {
+>>>>>>> 3757b41 (reorg is up and functional)
     setMonsters(
       monsters.map((m) =>
         m.id === id
@@ -105,6 +126,7 @@ const MonsterManager = () => {
     );
   };
 
+<<<<<<< HEAD
   const [editingField, setEditingField] = useState<string | null>(null);
   const updateMonster = createUpdateMonster(setMonsters);
   const deleteMonster = createDeleteMonster(monsters, setMonsters);
@@ -151,32 +173,61 @@ const MonsterManager = () => {
           )}
         </div>
 
+=======
+  const deleteMonster = (id: number) => {
+    setMonsters(monsters.filter((m) => m.id !== id));
+  };
+
+  return (
+    <div id="monsterAddManage" style={{ marginTop: "2rem" }}>
+      <h2>Monster Manager</h2>
+      <div id="addMonsterOuter">
+        <input
+          type="text"
+          placeholder="Monster Name"
+          value={newMonster.name}
+          onChange={(e) => setNewMonster({ ...newMonster, name: e.target.value })}
+        />
+>>>>>>> 3757b41 (reorg is up and functional)
         <input
           type="number"
           placeholder="HP"
           value={newMonster.hp}
+<<<<<<< HEAD
           onChange={(e) =>
             setNewMonster({ ...newMonster, hp: Number(e.target.value) })
           }
+=======
+          onChange={(e) => setNewMonster({ ...newMonster, hp: Number(e.target.value) })}
+>>>>>>> 3757b41 (reorg is up and functional)
         />
         <input
           type="number"
           placeholder="AC"
           value={newMonster.ac}
+<<<<<<< HEAD
           onChange={(e) =>
             setNewMonster({ ...newMonster, ac: Number(e.target.value) })
           }
+=======
+          onChange={(e) => setNewMonster({ ...newMonster, ac: Number(e.target.value) })}
+>>>>>>> 3757b41 (reorg is up and functional)
         />
         <button onClick={addMonster}>Add Monster</button>
       </div>
 
       <table>
         <thead>
+<<<<<<< HEAD
           <tr key="monsterheader">
+=======
+          <tr>
+>>>>>>> 3757b41 (reorg is up and functional)
             <th>Name</th>
             <th>HP</th>
             <th>AC</th>
             <th>Hidden?</th>
+<<<<<<< HEAD
             <th>Present</th>
             <th>Actions</th>
           </tr>
@@ -286,6 +337,35 @@ const MonsterManager = () => {
             <tr key={"noMonsters"}>
               <td colSpan={6} id="noMonsters">
                 No monsters yet, try adding one.
+=======
+            <th>Conditions</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {monsters.map((m) => (
+            <tr key={m.id}>
+              <td>{m.name}</td>
+              <td>{m.hp}</td>
+              <td>{m.ac}</td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={m.hidden}
+                  onChange={() => toggleHidden(m.id)}
+                />
+              </td>
+              <td>{m.conditions.join(", ")}</td>
+              <td>
+                <button onClick={() => deleteMonster(m.id)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+          {monsters.length === 0 && (
+            <tr>
+              <td colSpan={6} style={{ textAlign: "center", color: "#666" }}>
+                No monsters yet
+>>>>>>> 3757b41 (reorg is up and functional)
               </td>
             </tr>
           )}
