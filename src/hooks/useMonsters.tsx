@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Monster } from "./Monster";
-import { getMonsters, storeMonsters } from "./LocalStorage";
+import { Monster } from "../types/index";
+import { getMonsters, storeMonsters } from "../utils/LocalStorage";
 
 export const useMonsters = () => {
   const [monsters, setMonsters] = useState<Monster[]>(() => getMonsters());

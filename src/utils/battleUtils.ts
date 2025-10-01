@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import HeroManager from "./HeroManager";
-import { Hero } from "./Hero";
-import { Combatant } from "./Combatant";
+import HeroManager from "../components/HeroManager/HeroManager";
+import { Hero } from "../types/Hero";
+import { Combatant } from "../types/Combatant";
 
 function startBattle(heroes: Hero[]): Combatant[] {
   const combatants: Combatant[] = heroes

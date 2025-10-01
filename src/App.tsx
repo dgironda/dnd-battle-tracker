@@ -1,6 +1,6 @@
-import BattleTracker from "./components/BattleTracker";
-import HeroManager from "./components/HeroManager";
-import MonsterManager from "./components/MonsterManager";
+import BattleTracker from "./components/BattleTracker/BattleTracker";
+import HeroManager from "./components/HeroManager/HeroManager";
+import MonsterManager from "./components/MonsterManager/MonsterManager";
 import { useState } from "react";
 
 function App() {

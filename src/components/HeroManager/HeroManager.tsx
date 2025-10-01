@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { getHeroes, storeHeroes } from './LocalStorage';
-import { Hero } from "./Hero";
-import AddHero from "./AddHero";
-import { createAddHero, createUpdateHero, createDeleteHero, EditableCell } from "./Utils";
+import { getHeroes, storeHeroes } from '../../utils/LocalStorage';
+import { Hero } from "../../types/Hero";
+import AddHero from "../HeroManager/AddHero";
+import { createAddHero, createUpdateHero, createDeleteHero } from "../Utils";
+import { EditableCell } from "../../utils/editableCell";
 
 
 

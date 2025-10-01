@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Hero } from "./Hero";
+import { Hero, Combatant } from '../../types/index';
 
 interface AddHeroProps {
   onAddHero: (hero: Omit<Hero, "id">) => void;
