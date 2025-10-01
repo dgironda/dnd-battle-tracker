@@ -1,16 +1,16 @@
 import { Hero } from './Hero';
+import { Monster } from './Monster'; // <- define like Hero
 
-const STORAGE_KEY = "storedHeroes";
+const HEROES_KEY = "storedHeroes";
+const MONSTERS_KEY = "storedMonsters";
 
 /**
  * Store heroes array to localStorage
- * @param heroes - Array of Hero objects to store
  */
 function storeHeroes(heroes: Hero[]): void {
   try {
-    const heroesData = heroes.length > 0 ? heroes : [];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(heroesData));
-    console.log("Stored heroes:", localStorage.getItem(STORAGE_KEY));
+    localStorage.setItem(HEROES_KEY, JSON.stringify(heroes ?? []));
+    console.log("Stored heroes:", localStorage.getItem(HEROES_KEY));
   } catch (error) {
     console.error("Error storing heroes:", error);
   }
@@ -18,43 +18,95 @@ function storeHeroes(heroes: Hero[]): void {
 
 /**
  * Retrieve heroes array from localStorage
- * @returns Array of Hero objects or empty array if none found
  */
 function getHeroes(): Hero[] {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    const loadedHeroes: Hero[] = stored ? JSON.parse(stored) : [];
-    console.log("Loaded Heroes:", loadedHeroes);
-    return loadedHeroes;
+    const stored = localStorage.getItem(HEROES_KEY);
+    return stored ? JSON.parse(stored) : [];
   } catch (error) {
-    console.error("Error loading Heroes:", error);
+    console.error("Error loading heroes:", error);
     return [];
   }
 }
 
 /**
- * Clear all stored heroes from localStorage
+ * Clear heroes
  */
 function clearHeroes(): void {
   try {
-    localStorage.removeItem(STORAGE_KEY);
-    console.log("Cleared stored heroes");
+    localStorage.removeItem(HEROES_KEY);
   } catch (error) {
     console.error("Error clearing heroes:", error);
   }
 }
 
 /**
- * Check if heroes data exists in localStorage
- * @returns true if heroes data exists, false otherwise
+ * Check if heroes data exists
  */
 function hasStoredHeroes(): boolean {
   try {
-    return localStorage.getItem(STORAGE_KEY) !== null;
+    return localStorage.getItem(HEROES_KEY) !== null;
   } catch (error) {
     console.error("Error checking for stored heroes:", error);
     return false;
   }
 }
 
-export {storeHeroes, getHeroes, clearHeroes, hasStoredHeroes}
+/**
+ * Store monsters array to localStorage
+ */
+function storeMonsters(monsters: Monster[]): void {
+  try {
+    localStorage.setItem(MONSTERS_KEY, JSON.stringify(monsters ?? []));
+    console.log("Stored monsters:", localStorage.getItem(MONSTERS_KEY));
+  } catch (error) {
+    console.error("Error storing monsters:", error);
+  }
+}
+
+/**
+ * Retrieve monsters array from localStorage
+ */
+function getMonsters(): Monster[] {
+  try {
+    const stored = localStorage.getItem(MONSTERS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error("Error loading monsters:", error);
+    return [];
+  }
+}
+
+/**
+ * Clear monsters
+ */
+function clearMonsters(): void {
+  try {
+    localStorage.removeItem(MONSTERS_KEY);
+  } catch (error) {
+    console.error("Error clearing monsters:", error);
+  }
+}
+
+/**
+ * Check if monsters data exists
+ */
+function hasStoredMonsters(): boolean {
+  try {
+    return localStorage.getItem(MONSTERS_KEY) !== null;
+  } catch (error) {
+    console.error("Error checking for stored monsters:", error);
+    return false;
+  }
+}
+
+export {
+  storeHeroes,
+  getHeroes,
+  clearHeroes,
+  hasStoredHeroes,
+  storeMonsters,
+  getMonsters,
+  clearMonsters,
+  hasStoredMonsters,
+};
