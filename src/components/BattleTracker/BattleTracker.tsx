@@ -3,7 +3,7 @@ import HeroManager from "../HeroManager/HeroManager";
 import { Hero } from "../../types/Hero";
 import { Combatant } from "../../types/Combatant";
 import { startBattle } from "../../utils/battleUtils";
-import { predefinedConditions } from "../../constants/Conditions";
+import { predefinedConditions, conditionDescriptions } from "../../constants/Conditions";
 import { EditableCell } from "../../utils/editableCell";
 import { useHeroes } from "../../hooks/useHeroes";
 import { InitiativeDialog } from "./InitiativeDialog";
@@ -120,9 +120,9 @@ const BattleTracker: React.FC = () => {
         <div style={{ minWidth: '200px' }}>
           {/* Current conditions with remove buttons */}
           <div style={{ marginBottom: '8px' }}>
-            {combatant.conditions.map((condition) => (
+            {combatant.conditions.map((conditionName) => (
               <span
-                key={condition}
+                key={conditionName}
                 style={{
                   display: 'inline-block',
                   backgroundColor: '#dc3545',
@@ -134,10 +134,10 @@ const BattleTracker: React.FC = () => {
                   marginBottom: '2px',
                   cursor: 'pointer'
                 }}
-                onClick={() => removeCondition(combatant.id, condition)}
-                title="Click to remove"
+                onClick={() => removeCondition(combatant.id, conditionName)}
+                title={conditionDescriptions[conditionName] || conditionName}
               >
-                {condition} ×
+                {conditionName} ×
               </span>
             ))}
           </div>
@@ -185,9 +185,9 @@ const BattleTracker: React.FC = () => {
         title="Click to edit conditions"
       >
         {combatant.conditions.length > 0 
-          ? combatant.conditions.map((condition) => (
+          ? combatant.conditions.map((conditionName) => (
               <span
-                key={condition}
+                key={conditionName}
                 style={{
                   display: 'inline-block',
                   backgroundColor: '#6c757d',
@@ -197,8 +197,9 @@ const BattleTracker: React.FC = () => {
                   fontSize: '10px',
                   marginRight: '2px'
                 }}
+                title={conditionDescriptions[conditionName] || conditionName}
               >
-                {condition}
+                {conditionName}
               </span>
             ))
           : <span style={{ color: '#6c757d', fontSize: '12px' }}>None</span>
