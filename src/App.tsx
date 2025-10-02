@@ -8,17 +8,21 @@ function App() {
   const [showMonsterManager, setShowMonsterManager] = useState(false);
 
   return (
-    <div style={{ textAlign: "center", marginTop: "2rem" }}>
+    <div id="display">
       <h1>D&D Battle Tracker</h1>
 
-      <button onClick={() => setShowHeroManager(!showHeroManager)}>
-        {showHeroManager ? "Close Hero Manager" : "Open Hero Manager"}
-      </button>
+      <p>
+        <button onClick={() => setShowHeroManager(!showHeroManager)}>
+          {showHeroManager ? "Close Hero Manager" : "Open Hero Manager"}
+        </button>
+      </p>
       {showHeroManager && <HeroManager />}
 
-      <button onClick={() => setShowMonsterManager(!showMonsterManager)}>
-        {showMonsterManager ? "Close Monster Manager" : "Open Monster Manager"}
-      </button>
+      <p>
+        <button onClick={() => setShowMonsterManager(!showMonsterManager)}>
+          {showMonsterManager ? "Close Monster Manager" : "Open Monster Manager"}
+        </button>
+      </p>
       {showMonsterManager && <MonsterManager />}
 
       <BattleTracker />
