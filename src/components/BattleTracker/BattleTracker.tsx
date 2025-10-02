@@ -107,7 +107,7 @@ const BattleTracker: React.FC = () => {
           setEditingField={setEditingField}
           updateEntity={updateCombatant}
         />
-        /{combatant.currHp}
+        /{combatant.maxHp}
       </span>
     );
   };
