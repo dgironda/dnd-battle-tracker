@@ -70,6 +70,15 @@ sup {
   font-weight: 200;
 }
 
+#display h1 {
+  text-align: center;
+}
+
+#display button {
+  margin-left: 2vw;
+  margin-right: auto;
+}
+
 #heroAddManage {
   margin-top: 2rem;
 }
