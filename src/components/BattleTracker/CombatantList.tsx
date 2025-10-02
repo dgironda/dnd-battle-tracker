@@ -17,9 +17,9 @@ export default function CombatantList({
     setCurrentTurn((prev) => (combatants.length ? (prev + 1) % combatants.length : 0));
   };
 
-  const updateHP = (id: string, hp: number) => {
+  const updateHP = (id: string, newHP: number) => {
     setCombatants((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, currentHP: hp } : c))
+      prev.map((combatant) => (combatant.id === id ? { ...combatant, currHp: newHP } : combatant))
     );
   };
 
@@ -53,13 +53,13 @@ export default function CombatantList({
                 <td>
                   <input
                     type="number"
-                    value={c.currentHP}
+                    value={c.currHp}
                     min={0}
-                    max={c.maxHP}
+                    max={c.maxHp}
                     onChange={(e) => updateHP(c.id, Number(e.target.value))}
                     style={{ width: "50px" }}
                   />{" "}
-                  / {c.maxHP}
+                  / {c.maxHp}
                 </td>
                 <td>{c.AC}</td>
                 <td>{c.conditions.join(", ")}</td>

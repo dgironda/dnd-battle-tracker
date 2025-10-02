@@ -2,8 +2,8 @@ export interface Combatant {
   id: string;
   name: string;
   initiative: number;
-  maxHP: number;
-  currentHP: number;
+  maxHp: number;
+  currHp: number;
   AC: number;
   STR: number;
   DEX: number;
