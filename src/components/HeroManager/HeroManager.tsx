@@ -112,7 +112,7 @@ export default function HeroManager() {
                   }}
                 >
                   <div className="heroStats">
-                    <span>STR: <EditableCell 
+                    <span title="Strength">STR: <EditableCell 
                       entity={hero} 
                       field="str" 
                       type="number"
@@ -120,7 +120,7 @@ export default function HeroManager() {
                       setEditingField={setEditingField}
                       updateEntity={updateHero}
                     /></span>
-                    <span>DEX: <EditableCell 
+                    <span title="Dexterity">DEX: <EditableCell 
                       entity={hero} 
                       field="dex" 
                       type="number"
@@ -128,7 +128,7 @@ export default function HeroManager() {
                       setEditingField={setEditingField}
                       updateEntity={updateHero}
                     /></span>
-                    <span>CON: <EditableCell 
+                    <span title="Constitution">CON: <EditableCell 
                       entity={hero} 
                       field="con" 
                       type="number"
@@ -136,7 +136,7 @@ export default function HeroManager() {
                       setEditingField={setEditingField}
                       updateEntity={updateHero}
                     /></span>
-                    <span>INT: <EditableCell 
+                    <span title="Intelligence">INT: <EditableCell 
                       entity={hero} 
                       field="int" 
                       type="number"
@@ -144,7 +144,7 @@ export default function HeroManager() {
                       setEditingField={setEditingField}
                       updateEntity={updateHero}
                     /></span>
-                    <span>WIS: <EditableCell 
+                    <span title="Wisdom">WIS: <EditableCell 
                       entity={hero} 
                       field="wis" 
                       type="number"
@@ -152,7 +152,7 @@ export default function HeroManager() {
                       setEditingField={setEditingField}
                       updateEntity={updateHero}
                     /></span>
-                    <span>CHA: <EditableCell 
+                    <span title="Charisma">CHA: <EditableCell 
                       entity={hero} 
                       field="cha" 
                       type="number"
@@ -160,9 +160,17 @@ export default function HeroManager() {
                       setEditingField={setEditingField}
                       updateEntity={updateHero}
                     /></span>
-                    <span>PP: <EditableCell 
+                    <span title="Passive Perception">PP: <EditableCell 
                       entity={hero} 
                       field="pp" 
+                      type="number"
+                      editingField={editingField}
+                      setEditingField={setEditingField}
+                      updateEntity={updateHero}
+                    /></span>
+                    <span title="Initiative Bonus">Init: <EditableCell 
+                      entity={hero} 
+                      field="init" 
                       type="number"
                       editingField={editingField}
                       setEditingField={setEditingField}
