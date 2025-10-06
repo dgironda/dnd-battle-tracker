@@ -18,6 +18,7 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
     wis: 10,
     cha: 10,
     pp: 10,
+    init: 0,
     present: false,
   });
 
@@ -47,6 +48,7 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
       wis: 0,
       cha: 0,
       pp: 0,
+      init: 0,
       present: false,
     });
   };

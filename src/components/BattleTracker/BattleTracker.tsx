@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import HeroManager from "../HeroManager/HeroManager";
-import { Hero } from "../../types/Hero";
-import { Combatant } from "../../types/Combatant";
+import { Hero, Monster, Combatant } from "../../types/index";
 import { startBattle } from "../../utils/battleUtils";
 import { predefinedConditions, conditionDescriptions } from "../../constants/Conditions";
 import { EditableCell } from "../../utils/editableCell";
 import { useHeroes } from "../../hooks/useHeroes";
+import { useMonsters } from "../../hooks/useMonsters";
 import { InitiativeDialog } from "./InitiativeDialog";
 
 
@@ -16,7 +16,8 @@ const BattleTracker: React.FC = () => {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingConditions, setEditingConditions] = useState<string | null>(null);
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
-  const [currentHero, setCurrentHero] = useState<Hero | null>(null);
+  const [currentCombatant, setCurrentCombatant] = useState<Hero | Monster | null>(null);
+  const { monsters } = useMonsters();
   const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
 
   const sortedCombatants = [...combatants].sort((a, b) => b.initiative - a.initiative);
@@ -51,13 +52,14 @@ const BattleTracker: React.FC = () => {
     for (const hero of presentHeroes) {
       // Show dialog and wait for initiative
       const initiative = await new Promise<number>((resolve) => {
-        setCurrentHero(hero);
+        setCurrentCombatant(hero);
         setInitiativeResolver(() => resolve);
       });
       
       newCombatants.push({
         id: hero.id,
         name: hero.name,
+        type: 'hero',
         currHp: hero.hp,
         maxHp: hero.hp,
         initiative,
@@ -65,11 +67,35 @@ const BattleTracker: React.FC = () => {
         bonus: false,
         move: false,
         reaction: false,
-        conditions: []
+        conditions: [],
+        stats: `Strength: ${hero.str}\nDexterity: ${hero.dex}\nConstitution: ${hero.con}\nIntelligence: ${hero.int}\nWisdom: ${hero.wis}\nCharisma: ${hero.cha}\nPassive Perception: ${hero.pp}`
       });
   }
+
+    // Process monsters
+  for (const monster of monsters) {
+    const initiative = await new Promise<number>((resolve) => {
+      setCurrentCombatant(monster);
+      setInitiativeResolver(() => resolve);
+    });
+
+    newCombatants.push({
+      id: monster.id,
+      name: monster.name,
+      type: 'monster',
+      currHp: monster.hp,
+      maxHp: monster.hp,
+      initiative,
+      action: false,
+      bonus: false,
+      move: false,
+      reaction: false,
+      conditions: monster.conditions,
+      stats: `Strength: ${monster.str}\nDexterity: ${monster.dex}\nConstitution: ${monster.con}\nIntelligence: ${monster.int}\nWisdom: ${monster.wis}\nCharisma: ${monster.cha}\nPassive Perception: ${monster.pp}`
+    });
+  }
   
-  setCurrentHero(null);
+  setCurrentCombatant(null);
   setCombatants(newCombatants);
   setCurrentTurnIndex(0);
 };
@@ -244,7 +270,7 @@ const BattleTracker: React.FC = () => {
               }}
             >
               <td style={{ border: '1px solid #ccc', padding: '8px', fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}>
-                {combatant.name}
+                <span title={combatant.stats}>{combatant.name}</span>
                 {index === currentTurnIndex && <span style={{ color: '#28a745', marginLeft: '8px' }}>← Current Turn</span>}
               </td>
               <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
@@ -294,16 +320,16 @@ const BattleTracker: React.FC = () => {
           No combatants in battle. Start a battle to see combatants here.
         </p>
       )}
-      {currentHero && initiativeResolver && (
+      {currentCombatant && initiativeResolver && (
         <InitiativeDialog 
-          heroName={currentHero.name}
+          heroName={currentCombatant.name}
           onSubmit={(init) => {
             initiativeResolver(init);
-            setCurrentHero(null);
+            setCurrentCombatant(null);
             setInitiativeResolver(null);
-          }}
-        />
-      )}
+      }}
+  />
+)}
     </div>
   );
 };
