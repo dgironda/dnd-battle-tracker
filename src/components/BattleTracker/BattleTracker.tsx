@@ -68,6 +68,7 @@ const BattleTracker: React.FC = () => {
         move: false,
         reaction: false,
         conditions: [],
+        init: hero.init,
         stats: `Strength: ${hero.str}\nDexterity: ${hero.dex}\nConstitution: ${hero.con}\nIntelligence: ${hero.int}\nWisdom: ${hero.wis}\nCharisma: ${hero.cha}\nPassive Perception: ${hero.pp}`
       });
   }
@@ -91,6 +92,7 @@ const BattleTracker: React.FC = () => {
       move: false,
       reaction: false,
       conditions: monster.conditions,
+      init: monster.init,
       stats: `Strength: ${monster.str}\nDexterity: ${monster.dex}\nConstitution: ${monster.con}\nIntelligence: ${monster.int}\nWisdom: ${monster.wis}\nCharisma: ${monster.cha}\nPassive Perception: ${monster.pp}`
     });
   }
@@ -323,6 +325,7 @@ const BattleTracker: React.FC = () => {
       {currentCombatant && initiativeResolver && (
         <InitiativeDialog 
           heroName={currentCombatant.name}
+          initiativeModifier={currentCombatant.init}
           onSubmit={(init) => {
             initiativeResolver(init);
             setCurrentCombatant(null);

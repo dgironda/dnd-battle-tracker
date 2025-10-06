@@ -79,6 +79,10 @@ sup {
   margin-right: auto;
 }
 
+#display>div {
+  margin: auto 1%;
+}
+
 #heroAddManage {
   margin-top: 2rem;
 }

@@ -11,6 +11,7 @@ interface Combatant {
   reaction: boolean;
   conditions: string[];
   stats: string;
+  init: number;
 }
 
 export {Combatant}

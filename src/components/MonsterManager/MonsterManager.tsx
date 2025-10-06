@@ -24,7 +24,7 @@ const MonsterManager = () => {
   const addMonster = () => {
     if (!newMonster.name.trim()) return;
     setMonsters([...monsters, { ...newMonster, id: crypto.randomUUID() }]);
-    setNewMonster({ id: crypto.randomUUID(), name: "", hp: 0, ac: 0, str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10, pp: 10, init: 0,hidden: false, conditions: [] });
+    setNewMonster({ id: crypto.randomUUID(), name: "", hp: 0, ac: 0, str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10, pp: 10, init: 0, hidden: false, conditions: [] });
   };
 
   const toggleHidden = (id: string) => {
@@ -101,6 +101,7 @@ const MonsterManager = () => {
                 <button onClick={() => deleteMonster(m.id)}>Delete</button>
               </td>
             </tr>
+            
           ))}
           {monsters.length === 0 && (
             <tr>

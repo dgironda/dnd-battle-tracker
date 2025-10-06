@@ -2,15 +2,18 @@ import { useState } from 'react';
 
 interface InitiativeDialogProps {
   heroName: string;
+  initiativeModifier: number;
   onSubmit: (initiative: number) => void;
 }
 
-export function InitiativeDialog({ heroName, onSubmit }: InitiativeDialogProps) {
+export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: InitiativeDialogProps) {
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
 
   const handleRandom = () => {
-    const randomInit = Math.floor(Math.random() * 20) + 1;
+    const roll = Math.floor(Math.random() * 20) + 1;
+    const randomInit = roll + initiativeModifier;
+    console.log({heroName}, {initiativeModifier}, '+', {roll})
     onSubmit(randomInit);
   };
 
