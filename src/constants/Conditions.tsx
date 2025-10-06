@@ -1,24 +1,27 @@
 const predefinedConditions = [
     'Poisoned', 'Stunned', 'Prone', 'Restrained', 'Charmed', 
     'Frightened', 'Paralyzed', 'Unconscious', 'Blinded', 'Deafened',
-    'Invisible', 'Incapacitated', 'Grappled', 'Exhausted 1', 'Exhausted 2', 
-    'Exhausted 3', 'Exhausted 4', 'Exhausted 5', 'Exhausted 6', 'Ready', 'Concentrating', 'Death Saves'
+    'Invisible', 'Incapacitated', 'Grappled', 'Grappling', 'Exhausted 1', 'Exhausted 2', 
+    'Exhausted 3', 'Exhausted 4', 'Exhausted 5', 'Exhausted 6', 'Ready', 'Concentrating', 'Death Saves', 
+    'Raging', 'Blessed', 'Baned', 'Faerie Fire', 'Hexed-Str', 'Hexed-Dex', 'Hexed-Con', 'Hexed-Int', 'Hexed-Wis', 'Hexed-Cha', 
+    'Cursed-Str', 'Cursed-Dex', 'Cursed-Con', 'Cursed-Int', 'Cursed-Wis', 'Cursed-Cha', 'Marked', 'Banished'
   ];
 
 const conditionDescriptions: Record<string, string> = {
   'Poisoned': 'You have Disadvantage on attack rolls and ability checks.',
-  'Stunned': 'You have the Incapacitated condition. You automatically fail Strength and Dexterity saving throws. Attack rolls against you have Advantage.',
-  'Prone': 'Your only movement options are to crawl or to spend an amount of movement equal to half your Speed (round down) to right yourself and thereby end the condition. If your Speed is 0, you can’t right yourself. You have Disadvantage on attack rolls. An attack roll against you has Advantage if the attacker is within 5 feet of you. Otherwise, that attack roll has Disadvantage.',
-  'Restrained': 'Your Speed is 0 and can\’t increase. Attack rolls against you have Advantage, and your attack rolls have Disadvantage. You have Disadvantage on Dexterity saving throws.',
-  'Charmed': 'You can’t attack the charmer or target the charmer with damaging abilities or magical effects. The charmer has Advantage on any ability check to interact with you socially.',
-  'Frightened': 'You have Disadvantage on ability checks and attack rolls while the source of fear is within line of sight. You can\’t willingly move closer to the source of fear.',
-  'Paralyzed': 'You have the Incapacitated condition. Your Speed is 0 and can\’t increase. You automatically fail Strength and Dexterity saving throws. Attack rolls against you have Advantage. Any attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you.',
-  'Unconscious': 'You have the Incapacitated and Prone conditions, and you drop whatever you\’re holding. When this condition ends, you remain Prone. Your Speed is 0 and can\’t increase. Attack rolls against you have Advantage. You automatically fail Strength and Dexterity saving throws. Any attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you. You\’re unaware of your surroundings.',
-  'Blinded': 'You can\’t see and automatically fail any ability check that requires sight. Attack rolls against you have Advantage, and your attack rolls have Disadvantage.',
+  'Stunned': 'You have the Incapacitated condition.\nYou automatically fail Strength and Dexterity saving throws.\nAttack rolls against you have Advantage.',
+  'Prone': 'Your only movement options are to crawl or to spend an amount of movement equal to half your Speed (round down) to right yourself and thereby end the condition.\nIf your Speed is 0, you can\’t right yourself.\nYou have Disadvantage on attack rolls.\nAn attack roll against you has Advantage if the attacker is within 5 feet of you. Otherwise, that attack roll has Disadvantage.',
+  'Restrained': 'Your Speed is 0 and can\’t increase. Attack rolls against you have Advantage, and your attack rolls have Disadvantage.\nYou have Disadvantage on Dexterity saving throws.',
+  'Charmed': 'You can\’t attack the charmer or target the charmer with damaging abilities or magical effects.\nThe charmer has Advantage on any ability check to interact with you socially.',
+  'Frightened': 'You have Disadvantage on ability checks and attack rolls while the source of fear is within line of sight.\nYou can\’t willingly move closer to the source of fear.',
+  'Paralyzed': 'You have the Incapacitated condition.\nYour Speed is 0 and can\’t increase.\nYou automatically fail Strength and Dexterity saving throws.\nAttack rolls against you have Advantage.\nAny attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you.',
+  'Unconscious': 'You have the Incapacitated and Prone conditions, and you drop whatever you\’re holding.\nWhen this condition ends, you remain Prone.\nYour Speed is 0 and can\’t increase.\nAttack rolls against you have Advantage.\nYou automatically fail Strength and Dexterity saving throws.\nAny attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you.\nYou\’re unaware of your surroundings.',
+  'Blinded': 'You can\’t see and automatically fail any ability check that requires sight.\nAttack rolls against you have Advantage, and your attack rolls have Disadvantage.',
   'Deafened': 'You can\’t hear and automatically fail any ability check that requires hearing.',
-  'Invisible': 'If you\’re Invisible when you roll Initiative, you have Advantage on the roll. You aren\’t affected by any effect that requires its target to be seen unless the effect\’s creator can somehow see you. Any equipment you are wearing or carrying is also concealed. Attack rolls against you have Disadvantage, and your attack rolls have Advantage. If a creature can somehow see you, you don\’t gain this benefit against that creature.',
-  'Incapacitated': 'You can\’t take any action, Bonus Action, or Reaction. Your Concentration is broken. You can\’t speak. If you\’re Incapacitated when you roll Initiative, you have Disadvantage on the roll.',
-  'Grappled': 'Your Speed is 0 and can\’t increase. You have Disadvantage on attack rolls against any target other than the grappler. The grappler can drag or carry you when it moves, but every foot of movement costs it 1 extra foot unless you are Tiny or two or more sizes smaller than it.',
+  'Invisible': 'If you\’re Invisible when you roll Initiative, you have Advantage on the roll.\nYou aren\’t affected by any effect that requires its target to be seen unless the effect\’s creator can somehow see you.\nAny equipment you are wearing or carrying is also concealed.\nAttack rolls against you have Disadvantage, and your attack rolls have Advantage.\nIf a creature can somehow see you, you don\’t gain this benefit against that creature.',
+  'Incapacitated': 'You can\’t take any action, Bonus Action, or Reaction.\nYour Concentration is broken.\nYou can\’t speak.\nIf you\’re Incapacitated when you roll Initiative, you have Disadvantage on the roll.',
+  'Grappled': 'Your Speed is 0 and can\’t increase.\nYou have Disadvantage on attack rolls against any target other than the grappler.\nThe grappler can drag or carry you when it moves, but every foot of movement costs it 1 extra foot unless you are Tiny or two or more sizes smaller than it.',
+  'Grappling': 'Has someone in a grapple',
   'Exhausted 1': 'Ability Checks, Attack Rolls, and Saving Throws are reduced by 2. Your Speed is reduced by 5.',
   'Exhausted 2': 'Ability Checks, Attack Rolls, and Saving Throws are reduced by 4. Your Speed is reduced by 10.',
   'Exhausted 3': 'Ability Checks, Attack Rolls, and Saving Throws are reduced by 6. Your Speed is reduced by 15.',
@@ -27,7 +30,25 @@ const conditionDescriptions: Record<string, string> = {
   'Exhausted 6': 'You are dead.',
   'Ready': 'This character has readied an action.',
   'Concentrating': 'This character is concentrating on a spell.',
-  'Death Saves': 'This player is unconscious and is making death saving throws'
+  'Death Saves': 'This player is unconscious and is making death saving throws',
+  'Raging': 'You have Resistance to Bludgeoning, Piercing, and Slashing damage.\nWhen you make an attack using Strength—with either a weapon or an Unarmed Strike—and deal damage to the target, you gain a bonus to the damage that increases as you gain levels as a Barbarian, as shown in the Rage Damage column of the Barbarian Features table.\nYou have Advantage on Strength checks and Strength saving throws.\nYou can\’t maintain Concentration, and you can\’t cast spells.', 
+  'Blessed': 'Whenever you make an attack roll or a saving throw before the spell ends, add 1d4 to the attack roll or save.', 
+  'Baned': 'Whenever you make an attack roll or a saving throw before the spell ends, subtract 1d4 from the attack roll or save.', 
+  'Faerie Fire': 'You shed dim light in a 10 foot radius and can\'t benefit from the Invisible condition.\nAttacks against you have advantaage if the attackker can see you.', 
+  'Hexed-Str': 'You take an extra 1d6 Nectrotic damage when the Hexer attacks you.\nYou have disadvantage on Strength ability checks.',
+  'Hexed-Dex': 'You take an extra 1d6 Nectrotic damage when the Hexer attacks you.\nYou have disadvantage on Dexterity ability checks.', 
+  'Hexed-Con': 'You take an extra 1d6 Nectrotic damage when the Hexer attacks you.\nYou have disadvantage on Constitution ability checks.',
+  'Hexed-Int': 'You take an extra 1d6 Nectrotic damage when the Hexer attacks you.\nYou have disadvantage on Intelligence ability checks.',
+  'Hexed-Wis': 'You take an extra 1d6 Nectrotic damage when the Hexer attacks you.\nYou have disadvantage on Wisdom ability checks.',
+  'Hexed-Cha': 'You take an extra 1d6 Nectrotic damage when the Hexer attacks you.\nYou have disadvantage on Charisma ability checks.',
+  'Cursed-Str': 'You have Disadvantage on Strength ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or be forced to take the Dodge action on that turn.\nIf you are dealt damage by the origin of your curse with an attack roll or a spell, you take an extra 1d8 Necrotic damage.', 
+  'Cursed-Dex': 'You have Disadvantage on Dexterity ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or be forced to take the Dodge action on that turn.\nIf you are dealt damage by the origin of your curse with an attack roll or a spell, you take an extra 1d8 Necrotic damage.', 
+  'Cursed-Con': 'You have Disadvantage on Concentration ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or be forced to take the Dodge action on that turn.\nIf you are dealt damage by the origin of your curse with an attack roll or a spell, you take an extra 1d8 Necrotic damage.', 
+  'Cursed-Int': 'You have Disadvantage on Intelligence ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or be forced to take the Dodge action on that turn.\nIf you are dealt damage by the origin of your curse with an attack roll or a spell, you take an extra 1d8 Necrotic damage.', 
+  'Cursed-Wis': 'You have Disadvantage on Wisdom ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or be forced to take the Dodge action on that turn.\nIf you are dealt damage by the origin of your curse with an attack roll or a spell, you take an extra 1d8 Necrotic damage.', 
+  'Cursed-Cha': 'You have Disadvantage on Charisma ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or be forced to take the Dodge action on that turn.\nIf you are dealt damage by the origin of your curse with an attack roll or a spell, you take an extra 1d8 Necrotic damage.',
+  'Marked': 'You take an extra 1d6 Force damage from the marker when you are hit with an attack roll from them.\nThey also have Advantage on any Wisdom (Perception or Survival) check made to find you.', 
+  'Banished': 'You are in a harmless demiplane for the duration (1 minute or concentration breaks).\nWhile there, you have the Incapacitated condition. When the spell ends, you reappear in the space you left or in the nearest unoccupied space if that space is occupied.'
 };
 
   export {predefinedConditions, conditionDescriptions}
