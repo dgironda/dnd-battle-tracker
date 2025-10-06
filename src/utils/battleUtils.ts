@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import HeroManager from "../components/HeroManager/HeroManager";
-import { Hero } from "../types/Hero";
-import { Combatant } from "../types/Combatant";
+import MonsterManager from "../components/MonsterManager/MonsterManager";
+import { Hero, Monster, Combatant } from "../types/index";
 
 export async function startBattle(
   heroes: Hero[], 
@@ -15,6 +15,7 @@ export async function startBattle(
     combatants.push({
       id: hero.id,
       name: hero.name,
+      type: 'hero',
       currHp: hero.hp,
       maxHp: hero.hp,
       initiative: initiative,
@@ -22,9 +23,12 @@ export async function startBattle(
       bonus: false,
       move: false,
       reaction: false,
-      conditions: []
+      conditions: [],
+      stats: `Strength: ${hero.str}\nDexterity: ${hero.dex}\nConstitution: ${hero.con}\nIntelligence: ${hero.int}\nWisdom: ${hero.wis}\nCharisma: ${hero.cha}\nPassive Perception: ${hero.pp}`
     });
   }
+
+
   
   return combatants;
 }

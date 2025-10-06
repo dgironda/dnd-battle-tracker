@@ -1,4 +1,4 @@
-import { Combatant } from "../../types";
+import { Combatant } from "../../types/index";
 
 interface Props {
   combatants: Combatant[];
@@ -48,7 +48,7 @@ export default function CombatantList({
                   backgroundColor: index === currentTurn ? "#d1ffd6" : "transparent",
                 }}
               >
-                <td>{c.name}</td>
+                <td title={c.stats}>{c.name}</td>
                 <td>{c.initiative}</td>
                 <td>
                   <input
@@ -61,7 +61,7 @@ export default function CombatantList({
                   />{" "}
                   / {c.maxHp}
                 </td>
-                <td>{c.AC}</td>
+                {/* <td>{c.AC}</td> */}
                 <td>{c.conditions.join(", ")}</td>
               </tr>
             ))}

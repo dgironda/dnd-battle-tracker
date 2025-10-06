@@ -1,6 +1,7 @@
 interface Combatant {
   id: string;
   name: string;
+  type: 'hero' | 'monster';
   initiative: number;
   currHp: number;
   maxHp: number;
@@ -9,7 +10,7 @@ interface Combatant {
   move: boolean;
   reaction: boolean;
   conditions: string[];
-
+  stats: string;
 }
 
 export {Combatant}

@@ -5,21 +5,29 @@ import { Monster } from "../../types/Monster";
 const MonsterManager = () => {
   const { monsters, setMonsters } = useMonsters();
   const [newMonster, setNewMonster] = useState<Monster>({
-    id: Date.now(),
+    id: crypto.randomUUID(),
     name: "",
     hp: 0,
     ac: 0,
+    str: 10,
+    dex: 10,
+    con: 10,
+    int: 10,
+    wis: 10,
+    cha: 10,
+    pp: 10,
+    init: 0,
     hidden: false,
     conditions: [],
   });
 
   const addMonster = () => {
     if (!newMonster.name.trim()) return;
-    setMonsters([...monsters, { ...newMonster, id: Date.now() }]);
-    setNewMonster({ id: Date.now(), name: "", hp: 0, ac: 0, hidden: false, conditions: [] });
+    setMonsters([...monsters, { ...newMonster, id: crypto.randomUUID() }]);
+    setNewMonster({ id: crypto.randomUUID(), name: "", hp: 0, ac: 0, str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10, pp: 10, init: 0,hidden: false, conditions: [] });
   };
 
-  const toggleHidden = (id: number) => {
+  const toggleHidden = (id: string) => {
     setMonsters(
       monsters.map((m) =>
         m.id === id
@@ -35,7 +43,7 @@ const MonsterManager = () => {
     );
   };
 
-  const deleteMonster = (id: number) => {
+  const deleteMonster = (id: string) => {
     setMonsters(monsters.filter((m) => m.id !== id));
   };
 

@@ -11,6 +11,7 @@ interface Hero {
   wis: number;
   cha: number;
   pp: number;
+  init: number;
   present: boolean;
 }
 
