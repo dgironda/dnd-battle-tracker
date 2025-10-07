@@ -69,7 +69,7 @@ const BattleTracker: React.FC = () => {
         reaction: false,
         conditions: [],
         init: hero.init,
-        stats: `Strength: ${hero.str}\nDexterity: ${hero.dex}\nConstitution: ${hero.con}\nIntelligence: ${hero.int}\nWisdom: ${hero.wis}\nCharisma: ${hero.cha}\nPassive Perception: ${hero.pp}`
+        stats: `Armor Class: ${hero.ac}\nStrength: ${hero.str}\nDexterity: ${hero.dex}\nConstitution: ${hero.con}\nIntelligence: ${hero.int}\nWisdom: ${hero.wis}\nCharisma: ${hero.cha}\nPassive Perception: ${hero.pp}`
       });
   }
 
@@ -93,7 +93,7 @@ const BattleTracker: React.FC = () => {
       reaction: false,
       conditions: monster.conditions,
       init: monster.init,
-      stats: `Strength: ${monster.str}\nDexterity: ${monster.dex}\nConstitution: ${monster.con}\nIntelligence: ${monster.int}\nWisdom: ${monster.wis}\nCharisma: ${monster.cha}\nPassive Perception: ${monster.pp}`
+      stats: `Armor Class: ${monster.ac}\nStrength: ${monster.str}\nDexterity: ${monster.dex}\nConstitution: ${monster.con}\nIntelligence: ${monster.int}\nWisdom: ${monster.wis}\nCharisma: ${monster.cha}\nPassive Perception: ${monster.pp}`
     });
   }
   
