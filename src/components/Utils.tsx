@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
-import { Hero } from "../types/Hero";
+import { Hero, Monster, Combatant } from "../types/index";
+
 
 export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
   return (heroData: Omit<Hero, "id">) => {
@@ -33,6 +34,42 @@ export const createDeleteHero = (
     
     if (confirm(`Do you really want to delete ${heroName}?`)) {
       setHeroes(prevHeroes => prevHeroes.filter(hero => hero.id !== heroId));
+    }
+  };
+};
+
+// export const createAddMonster = (setMonsters: Dispatch<SetStateAction<Hero[]>>) => {
+//   return (monsterData: Omit<Monster, "id">) => {
+//     const newMonster: Monster = {
+//       ...monsterData,
+//       id: crypto.randomUUID()
+//     };
+//     setMonsters(prev => [...prev, newMonster]);
+//   };
+// };
+
+export const createUpdateMonster = (setMonsters: Dispatch<SetStateAction<Monster[]>>) => {
+  return (monsterId: string, field: keyof Monster, value: string | number | boolean) => {
+    setMonsters(prevMonsters =>
+      prevMonsters.map(monster =>
+        monster.id === monsterId
+          ? { ...monster, [field]: value }
+          : monster
+      )
+    );
+  };
+};
+
+export const createDeleteMonster = (
+  monsters: Monster[], 
+  setMonsters: Dispatch<SetStateAction<Monster[]>>
+) => {
+  return (monsterId: string) => {
+    const monsterToDelete = monsters.find(monster => monster.id === monsterId);
+    const monsterName = monsterToDelete ? monsterToDelete.name : 'this monster';
+    
+    if (confirm(`Do you really want to delete ${monsterName}?`)) {
+      setMonsters(prevMonsters => prevMonsters.filter(monster => monster.id !== monsterId));
     }
   };
 };
