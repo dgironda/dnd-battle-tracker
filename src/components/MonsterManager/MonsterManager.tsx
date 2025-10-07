@@ -47,9 +47,10 @@ const MonsterManager = () => {
 
   const [editingField, setEditingField] = useState<string | null>(null);
   const updateMonster = createUpdateMonster(setMonsters);
-  const deleteMonster = (id: string) => {
-    setMonsters(monsters.filter((m) => m.id !== id));
-  };
+  // const deleteMonster = (id: string) => {
+  //   setMonsters(monsters.filter((m) => m.id !== id));
+  // };
+  const deleteMonster = createDeleteMonster(monsters, setMonsters);
 
   return (
     <div id="monsterAddManage" style={{ marginTop: "2rem" }}>
@@ -91,9 +92,35 @@ const MonsterManager = () => {
           {monsters.map((m) => (
             <>
             <tr key={m.id}>
-              <td>{m.name}</td>
-              <td>{m.hp}</td>
-              <td>{m.ac}</td>
+              <td>
+                <span title="Name"><EditableCell 
+                                    entity={m} 
+                                    field="name" 
+                                    type="text"
+                                    editingField={editingField}
+                                    setEditingField={setEditingField}
+                                    updateEntity={updateMonster}
+                                  /></span></td>
+              <td>
+                <span title="HP"><EditableCell 
+                                    entity={m} 
+                                    field="hp" 
+                                    type="number"
+                                    editingField={editingField}
+                                    setEditingField={setEditingField}
+                                    updateEntity={updateMonster}
+                                  /></span>
+                </td>
+              <td>
+                <span title="AC"><EditableCell 
+                                    entity={m} 
+                                    field="ac" 
+                                    type="number"
+                                    editingField={editingField}
+                                    setEditingField={setEditingField}
+                                    updateEntity={updateMonster}
+                                  /></span>
+              </td>
               <td>
                 <input
                   type="checkbox"

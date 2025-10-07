@@ -89,6 +89,7 @@ export default function HeroManager() {
                   <span
                     onClick={() => updateHero(hero.id, 'present', !hero.present)}
                     style={{ cursor: 'pointer', userSelect: 'none' }}
+                    title="Click to toggle"
                   >
                     {hero.present ? "✅" : "❌"}
                   </span>
