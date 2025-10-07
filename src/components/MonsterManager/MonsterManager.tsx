@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useMonsters } from "../../hooks/useMonsters";
 import { Monster } from "../../types/Monster";
+import { createUpdateMonster, createDeleteMonster } from "../Utils";
+import { EditableCell } from "../Utils";
 
 const MonsterManager = () => {
   const { monsters, setMonsters } = useMonsters();
@@ -43,6 +45,8 @@ const MonsterManager = () => {
     );
   };
 
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const updateMonster = createUpdateMonster(setMonsters);
   const deleteMonster = (id: string) => {
     setMonsters(monsters.filter((m) => m.id !== id));
   };
@@ -85,6 +89,7 @@ const MonsterManager = () => {
         </thead>
         <tbody>
           {monsters.map((m) => (
+            <>
             <tr key={m.id}>
               <td>{m.name}</td>
               <td>{m.hp}</td>
@@ -101,7 +106,84 @@ const MonsterManager = () => {
                 <button onClick={() => deleteMonster(m.id)}>Delete</button>
               </td>
             </tr>
-            
+            <tr key={`${m.id}-stats`}>
+              <td 
+                                colSpan={6} 
+                                style={{ 
+                                  border: '1px solid #ccc', 
+                                  padding: '8px', 
+                                  fontSize: '12px'
+                                }}
+                              >
+                                <div className="heroStats">
+                                  <span title="Strength">STR: <EditableCell 
+                                    entity={m} 
+                                    field="str" 
+                                    type="number"
+                                    editingField={editingField}
+                                    setEditingField={setEditingField}
+                                    updateEntity={updateMonster}
+                                  /></span>
+                                  <span title="Dexterity">DEX: <EditableCell 
+                                    entity={m} 
+                                    field="dex" 
+                                    type="number"
+                                    editingField={editingField}
+                                    setEditingField={setEditingField}
+                                    updateEntity={updateMonster}
+                                  /></span>
+                                  <span title="Constitution">CON: <EditableCell 
+                                    entity={m} 
+                                    field="con" 
+                                    type="number"
+                                    editingField={editingField}
+                                    setEditingField={setEditingField}
+                                    updateEntity={updateMonster}
+                                  /></span>
+                                  <span title="Intelligence">INT: <EditableCell 
+                                    entity={m} 
+                                    field="int" 
+                                    type="number"
+                                    editingField={editingField}
+                                    setEditingField={setEditingField}
+                                    updateEntity={updateMonster}
+                                  /></span>
+                                  <span title="Wisdom">WIS: <EditableCell 
+                                    entity={m} 
+                                    field="wis" 
+                                    type="number"
+                                    editingField={editingField}
+                                    setEditingField={setEditingField}
+                                    updateEntity={updateMonster}
+                                  /></span>
+                                  <span title="Charisma">CHA: <EditableCell 
+                                    entity={m} 
+                                    field="cha" 
+                                    type="number"
+                                    editingField={editingField}
+                                    setEditingField={setEditingField}
+                                    updateEntity={updateMonster}
+                                  /></span>
+                                  <span title="Passive Perception">PP: <EditableCell 
+                                    entity={m} 
+                                    field="pp" 
+                                    type="number"
+                                    editingField={editingField}
+                                    setEditingField={setEditingField}
+                                    updateEntity={updateMonster}
+                                  /></span>
+                                  <span title="Initiative Bonus">Init: <EditableCell 
+                                    entity={m} 
+                                    field="init" 
+                                    type="number"
+                                    editingField={editingField}
+                                    setEditingField={setEditingField}
+                                    updateEntity={updateMonster}
+                                  /></span>
+                                </div>
+                              </td>
+            </tr>
+            </>
           ))}
           {monsters.length === 0 && (
             <tr>
