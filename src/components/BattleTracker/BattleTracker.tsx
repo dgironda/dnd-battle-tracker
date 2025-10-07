@@ -7,6 +7,7 @@ import { EditableCell } from "../../utils/editableCell";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
 import { InitiativeDialog } from "./InitiativeDialog";
+import { getHeroes, getMonsters } from "../../utils/LocalStorage";
 
 
 const BattleTracker: React.FC = () => {
@@ -46,7 +47,11 @@ const BattleTracker: React.FC = () => {
   };
 
   const handleStartBattle = async () => {
-    const presentHeroes = heroes.filter(h => h.present);
+    // Get fresh data from localStorage
+    const freshHeroes = getHeroes();
+    const freshMonsters = getMonsters();
+
+    const presentHeroes = freshHeroes.filter(h => h.present);
     const newCombatants: Combatant[] = [];
     
     for (const hero of presentHeroes) {
@@ -74,7 +79,7 @@ const BattleTracker: React.FC = () => {
   }
 
     // Process monsters
-  for (const monster of monsters) {
+  for (const monster of freshMonsters) {
     const initiative = await new Promise<number>((resolve) => {
       setCurrentCombatant(monster);
       setInitiativeResolver(() => resolve);
