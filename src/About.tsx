@@ -1,14 +1,7 @@
 import React from "react";
 
 export function About() {
-    function openAbout() {
-  var about = document.getElementById("about");
-  if (about.style.display === "none") {
-    about.style.display = "block";
-  } else {
-    about.style.display = "none";
-  }
-} 
+
     return (
         <>
         <button id="aboutButton" onClick={openAbout}>About</button>
@@ -24,12 +17,12 @@ export function About() {
                     <li>You can hover over any hero or monster in the current battle to see their stats</li>
                     
                 </ul>
-                <ul>
+                <div>
                     <h3>Keyboard Shortcuts</h3>
-                    <li><span className="bold">a</span> check/uncheck current player's Action</li>
-                    <li><span className="bold">s</span> check/uncheck current player's Bonus</li>
-                    <li><span className="bold">d</span> check/uncheck current player's Movement</li>
-                </ul>
+                    <p><span className="bold">a</span> check/uncheck current player's Action</p>
+                    <p><span className="bold">s</span> check/uncheck current player's Bonus</p>
+                    <p><span className="bold">d</span> check/uncheck current player's Movement</p>
+                </div>
             </div>
             <div id="credits">
                 <p>Created by: DM Dave</p>
@@ -40,6 +33,15 @@ export function About() {
         </div>
         </>
     )
+        function openAbout() {
+  var about = document.getElementById("about");
+  if (!about) return
+  if (about.style.display === "none") {
+    about.style.display = "block";
+  } else {
+    about.style.display = "none";
+  }
+} 
 }
 
 

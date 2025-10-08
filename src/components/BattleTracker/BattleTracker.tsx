@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import HeroManager from "../HeroManager/HeroManager";
 import { Hero, Monster, Combatant } from "../../types/index";
 import { startBattle } from "../../utils/battleUtils";
-import { predefinedConditions, conditionDescriptions } from "../../constants/Conditions";
+import { predefinedConditions, conditionDescriptionsTwentyTwentyFour } from "../../constants/Conditions";
 import { EditableCell } from "../../utils/editableCell";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
@@ -46,6 +46,8 @@ const BattleTracker: React.FC = () => {
     }
   };
 
+  const conditionDescriptions = conditionDescriptionsTwentyTwentyFour;
+  
   const handleStartBattle = async () => {
     // Get fresh data from localStorage
     const freshHeroes = getHeroes();

@@ -7,7 +7,7 @@ const predefinedConditions = [
     'Cursed-Str', 'Cursed-Dex', 'Cursed-Con', 'Cursed-Int', 'Cursed-Wis', 'Cursed-Cha', 'Marked', 'Banished'
   ];
 
-const conditionDescriptions: Record<string, string> = {
+const conditionDescriptionsTwentyTwentyFour: Record<string, string> = {
   'Poisoned': 'You have Disadvantage on attack rolls and ability checks.',
   'Stunned': 'You have the Incapacitated condition.\nYou automatically fail Strength and Dexterity saving throws.\nAttack rolls against you have Advantage.',
   'Prone': 'Your only movement options are to crawl or to spend an amount of movement equal to half your Speed (round down) to right yourself and thereby end the condition.\nIf your Speed is 0, you can\’t right yourself.\nYou have Disadvantage on attack rolls.\nAn attack roll against you has Advantage if the attacker is within 5 feet of you. Otherwise, that attack roll has Disadvantage.',
@@ -35,12 +35,12 @@ const conditionDescriptions: Record<string, string> = {
   'Blessed': 'Whenever you make an attack roll or a saving throw before the spell ends, add 1d4 to the attack roll or save.', 
   'Baned': 'Whenever you make an attack roll or a saving throw before the spell ends, subtract 1d4 from the attack roll or save.', 
   'Faerie Fire': 'You shed dim light in a 10 foot radius and can\'t benefit from the Invisible condition.\nAttacks against you have advantaage if the attackker can see you.', 
-  'Hexed-Str': 'You take an extra 1d6 Nectrotic damage when the Hexer attacks you.\nYou have disadvantage on Strength ability checks.',
-  'Hexed-Dex': 'You take an extra 1d6 Nectrotic damage when the Hexer attacks you.\nYou have disadvantage on Dexterity ability checks.', 
-  'Hexed-Con': 'You take an extra 1d6 Nectrotic damage when the Hexer attacks you.\nYou have disadvantage on Constitution ability checks.',
-  'Hexed-Int': 'You take an extra 1d6 Nectrotic damage when the Hexer attacks you.\nYou have disadvantage on Intelligence ability checks.',
-  'Hexed-Wis': 'You take an extra 1d6 Nectrotic damage when the Hexer attacks you.\nYou have disadvantage on Wisdom ability checks.',
-  'Hexed-Cha': 'You take an extra 1d6 Nectrotic damage when the Hexer attacks you.\nYou have disadvantage on Charisma ability checks.',
+  'Hexed-Str': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack roll.\nYou have disadvantage on Strength ability checks.',
+  'Hexed-Dex': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack roll.\nYou have disadvantage on Dexterity ability checks.', 
+  'Hexed-Con': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack roll.\nYou have disadvantage on Constitution ability checks.',
+  'Hexed-Int': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack roll.\nYou have disadvantage on Intelligence ability checks.',
+  'Hexed-Wis': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack roll.\nYou have disadvantage on Wisdom ability checks.',
+  'Hexed-Cha': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack roll.\nYou have disadvantage on Charisma ability checks.',
   'Cursed-Str': 'You have Disadvantage on Strength ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or be forced to take the Dodge action on that turn.\nIf you are dealt damage by the origin of your curse with an attack roll or a spell, you take an extra 1d8 Necrotic damage.', 
   'Cursed-Dex': 'You have Disadvantage on Dexterity ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or be forced to take the Dodge action on that turn.\nIf you are dealt damage by the origin of your curse with an attack roll or a spell, you take an extra 1d8 Necrotic damage.', 
   'Cursed-Con': 'You have Disadvantage on Concentration ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or be forced to take the Dodge action on that turn.\nIf you are dealt damage by the origin of your curse with an attack roll or a spell, you take an extra 1d8 Necrotic damage.', 
@@ -51,4 +51,47 @@ const conditionDescriptions: Record<string, string> = {
   'Banished': 'You are in a harmless demiplane for the duration (1 minute or concentration breaks).\nWhile there, you have the Incapacitated condition. When the spell ends, you reappear in the space you left or in the nearest unoccupied space if that space is occupied.'
 };
 
-  export {predefinedConditions, conditionDescriptions}
+const conditionDescriptionsTwentyFourteen: Record<string, string> = {
+  'Poisoned': 'You have Disadvantage on attack rolls and ability checks.',
+  'Stunned': 'You have the Incapacitated condition.\nYou automatically fail Strength and Dexterity saving throws.\nAttack rolls against you have Advantage.',
+  'Prone': 'Your only movement options are to crawl or to spend an amount of movement equal to half your Speed (round down) to right yourself and thereby end the condition.\n\nYou have Disadvantage on attack rolls.\nAn attack roll against you has Advantage if the attacker is within 5 feet of you. Otherwise, that attack roll has Disadvantage.',
+  'Restrained': 'Your Speed is 0 and can\’t increase. Attack rolls against you have Advantage, and your attack rolls have Disadvantage.\nYou have Disadvantage on Dexterity saving throws.',
+  'Charmed': 'You can\’t attack the charmer or target the charmer with harmful abilities or magical effects.\nThe charmer has Advantage on any ability check to interact with you socially.',
+  'Frightened': 'You have Disadvantage on ability checks and attack rolls while the source of fear is within line of sight.\nYou can\’t willingly move closer to the source of fear.',
+  'Paralyzed': 'You have the Incapacitated condition.\nYou automatically fail Strength and Dexterity saving throws.\nAttack rolls against you have Advantage.\nAny attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you.',
+  'Unconscious': 'You have the Incapacitated condition, and you drop whatever you\’re holding and fall prone.\nYou automatically fail Strength and Dexterity saving throws.\nAttack rolls against you have Advantage.\nAny attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you.',
+  'Blinded': 'You can\’t see and automatically fail any ability check that requires sight.\nAttack rolls against you have Advantage, and your attack rolls have Disadvantage.',
+  'Deafened': 'You can\’t hear and automatically fail any ability check that requires hearing.',
+  'Invisible': 'An invisible creature is impossible to see without the aid of magic or a special sense. For the purpose of hiding, the creature is heavily obscured. The creature\'s location can be detected by any noise it makes or any tracks it leaves.\nAttack rolls against the creature have disadvantage, and the creature\'s attack rolls have advantage.',
+  'Incapacitated': 'You can\’t take any action or reaction.',
+  'Grappled': 'A grappled creature\'s speed becomes 0, and it can\'t benefit from any bonus to its speed.\nThe condition ends if the grappler is incapacitated.\nThe condition also ends if an effect removes the grappled creature from the reach of the grappler or grappling effect, such as when a creature is hurled away by the thunderwave spell.',
+  'Grappling': 'Has someone in a grapple',
+  'Exhausted 1': 'Disadvantage on ability checks',
+  'Exhausted 2': 'Speed halved',
+  'Exhausted 3': 'Disadvantage on attack rolls and saving throws',
+  'Exhausted 4': 'Hit point maximum halved',
+  'Exhausted 5': 'Speed reduced to 0',
+  'Exhausted 6': 'You are dead.',
+  'Ready': 'This character has readied an action.',
+  'Concentrating': 'This character is concentrating on a spell.',
+  'Death Saves': 'This player is unconscious and is making death saving throws',
+  'Raging': 'You have advantage on Strength checks and Strength saving throws.\nWhen you make a melee weapon attack using Strength, you gain a bonus to the damage roll that increases as you gain levels as a barbarian, as shown in the Rage Damage column of the Barbarian table.\nYou have resistance to bludgeoning, piercing, and slashing damage.\nIf you are able to cast spells, you can\’t cast them or concentrate on them while raging.', 
+  'Blessed': 'Whenever you make an attack roll or a saving throw before the spell ends, add 1d4 to the attack roll or save.', 
+  'Baned': 'Whenever you make an attack roll or a saving throw before the spell ends, subtract 1d4 from the attack roll or save.', 
+  'Faerie Fire': 'You shed dim light in a 10 foot radius and can\'t benefit from the Invisible condition.\nAttacks against you have advantaage if the attackker can see you.', 
+  'Hexed-Str': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack.\nYou have disadvantage on Strength ability checks.',
+  'Hexed-Dex': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack.\nYou have disadvantage on Dexterity ability checks.', 
+  'Hexed-Con': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack.\nYou have disadvantage on Constitution ability checks.',
+  'Hexed-Int': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack.\nYou have disadvantage on Intelligence ability checks.',
+  'Hexed-Wis': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack.\nYou have disadvantage on Wisdom ability checks.',
+  'Hexed-Cha': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack.\nYou have disadvantage on Charisma ability checks.',
+  'Cursed-Str': 'You have Disadvantage on Strength ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or waste your action doing nothing.\nIf you are dealt damage by the origin of your curse with an attack or a spell, you take an extra 1d8 Necrotic damage.', 
+  'Cursed-Dex': 'You have Disadvantage on Dexterity ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or waste your action doing nothing.\nIf you are dealt damage by the origin of your curse with an attack or a spell, you take an extra 1d8 Necrotic damage.', 
+  'Cursed-Con': 'You have Disadvantage on Concentration ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or waste your action doing nothing.\nIf you are dealt damage by the origin of your curse with an attack or a spell, you take an extra 1d8 Necrotic damage.', 
+  'Cursed-Int': 'You have Disadvantage on Intelligence ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or waste your action doing nothing.\nIf you are dealt damage by the origin of your curse with an attack or a spell, you take an extra 1d8 Necrotic damage.', 
+  'Cursed-Wis': 'You have Disadvantage on Wisdom ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or waste your action doing nothing.\nIf you are dealt damage by the origin of your curse with an attack or a spell, you take an extra 1d8 Necrotic damage.', 
+  'Cursed-Cha': 'You have Disadvantage on Charisma ability checks and saving throws.\nYou have Disadvantage on attack rolls against the origin of your curse.\nYou must succeed on a Wisdom saving throw at the start of each turn or waste your action doing nothing.\nIf you are dealt damage by the origin of your curse with an attack or a spell, you take an extra 1d8 Necrotic damage.',
+  'Marked': 'You take an extra 1d6 Force damage from the marker when you are hit with a weapon attack from them.\nThey also have Advantage on any Wisdom (Perception or Survival) check made to find you.', 
+  'Banished': 'If you are native to the plane of existence you\’re on, you are banished to a harmless demiplane. While there, you are incapacitated. You remain there until the spell ends, at which point you reappear in the space you left or in the nearest unoccupied space if that space is occupied.\nIf you are native to a different plane of existence than the one you\’re on, you are banished with a faint popping noise, returning to your home plane. If the spell ends before 1 minute has passed, you reappear in the space you left or in the nearest unoccupied space if that space is occupied. Otherwise, you don\'t return.'
+};
+  export {predefinedConditions, conditionDescriptionsTwentyTwentyFour, conditionDescriptionsTwentyFourteen}
