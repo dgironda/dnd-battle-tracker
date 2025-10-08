@@ -19,8 +19,16 @@ export function About() {
                     <li>Add and delete monsters in the Monster Manager to suit your needs for the planned battle</li>
                     <li>Press Start Battle to begin the combat with Present heroes</li>
                     <li>Check actions, movement, bonus actions, and reactions as used</li>
-                    <li>Press Next Turn when a hero or monster finishes their turn</li>
+                    <li>Turn automatically advances when Current Turn's action, bonus, and movement are checked</li>
                     <li>Add conditions as needed, you can hover over them to get a reminder of the effects</li>
+                    <li>You can hover over any hero or monster in the current battle to see their stats</li>
+                    
+                </ul>
+                <ul>
+                    <h3>Keyboard Shortcuts</h3>
+                    <li><span className="bold">a</span> check/uncheck current player's Action</li>
+                    <li><span className="bold">s</span> check/uncheck current player's Bonus</li>
+                    <li><span className="bold">d</span> check/uncheck current player's Movement</li>
                 </ul>
             </div>
             <div id="credits">

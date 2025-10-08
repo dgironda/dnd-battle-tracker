@@ -38,6 +38,10 @@ th {
   padding: 8px;
 }
 
+.bold {
+  font-weight: 800;
+}
+
 .buttonDelete {
   padding: .1rem !important;
 }

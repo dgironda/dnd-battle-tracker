@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import HeroManager from "../HeroManager/HeroManager";
 import { Hero, Monster, Combatant } from "../../types/index";
 import { startBattle } from "../../utils/battleUtils";
@@ -129,6 +129,67 @@ const BattleTracker: React.FC = () => {
     }
   };
 
+  // Advance turn when action, bonus, and move are checked
+  useEffect(() => {
+    if (sortedCombatants.length === 0) return;
+    
+    const currentCombatant = sortedCombatants[currentTurnIndex];
+    
+    // Check if all three are checked
+    if (currentCombatant.action && currentCombatant.bonus && currentCombatant.move) {
+      handleNextTurn();
+    }
+  }, [combatants, currentTurnIndex]); // Runs whenever combatants or turn index changes
+  
+  // Unchecking will set that player as Current Turn
+  useEffect(() => {
+  if (sortedCombatants.length === 0) return;
+
+  // Find first combatant that has at least one action unchecked
+  const nextTurnIndex = sortedCombatants.findIndex(combatant => 
+    !combatant.action || !combatant.bonus || !combatant.move
+  );
+
+  // If we found one and it's different from current turn, switch to it
+  if (nextTurnIndex !== -1 && nextTurnIndex !== currentTurnIndex) {
+    setCurrentTurnIndex(nextTurnIndex);
+  }
+}, [combatants]); 
+
+  // Keyboard shortcuts
+  useEffect(() => {
+  const handleKeyPress = (e: KeyboardEvent) => {
+    // Don't trigger if typing in an input field
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      return;
+    }
+
+    if (sortedCombatants.length === 0) return;
+    
+    const currentCombatant = sortedCombatants[currentTurnIndex];
+    
+    switch(e.key.toLowerCase()) {
+      case 'a':
+        updateCombatant(currentCombatant.id, 'action', !currentCombatant.action);
+        break;
+      case 's':
+        updateCombatant(currentCombatant.id, 'bonus', !currentCombatant.bonus);
+        break;
+      case 'd':
+        updateCombatant(currentCombatant.id, 'move', !currentCombatant.move);
+        break;
+    }
+  };
+
+  // Add event listener
+  window.addEventListener('keydown', handleKeyPress);
+
+  // Cleanup: remove listener when component unmounts
+  return () => {
+    window.removeEventListener('keydown', handleKeyPress);
+  };
+}, [sortedCombatants, currentTurnIndex, updateCombatant]);
+
   const EditableHp = ({ combatant }: { combatant: Combatant }) => {
     return (
       <span>
@@ -230,9 +291,9 @@ const BattleTracker: React.FC = () => {
         <button id="buttonStartBattle" onClick={handleStartBattle}>
           Start Battle
         </button>
-        <button id="buttonNextTurn" onClick={handleNextTurn} disabled={combatants.length === 0}>
+        {/* <button id="buttonNextTurn" onClick={handleNextTurn} disabled={combatants.length === 0}>
           Next Turn
-        </button>
+        </button> */}
       </div>
 
       {/* Battle Table */}
@@ -304,7 +365,7 @@ const BattleTracker: React.FC = () => {
           ))}
         </tbody>
       </table>
-
+          
       {sortedCombatants.length === 0 && (
         <p id="noCombatants">
           No combatants in battle. Start a battle to see combatants here.
@@ -321,8 +382,11 @@ const BattleTracker: React.FC = () => {
       }}
   />
 )}
+
     </div>
+
   );
+  
 };
 
 export default BattleTracker;
