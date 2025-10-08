@@ -30,22 +30,22 @@ export default function HeroManager() {
       
       <h2>Hero Manager <sup>(Click to edit)</sup></h2>
       
-      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+      <table>
         <thead>
-          <tr style={{ backgroundColor: '#f5f5f5' }}>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Name</th>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Player</th>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>HP</th>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>AC</th>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Present</th>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Actions</th>
+          <tr>
+            <th>Name</th>
+            <th>Player</th>
+            <th>HP</th>
+            <th>AC</th>
+            <th>Present</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody className="heroTableBody">
           {heroes.map((hero, index) => (
             <>
               <tr key={hero.id}>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                <td>
                   <EditableCell 
                     entity={hero} 
                     field="name" 
@@ -55,7 +55,7 @@ export default function HeroManager() {
                     updateEntity={updateHero}
                   />
                 </td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                <td>
                   <EditableCell 
                     entity={hero} 
                     field="player" 
@@ -65,7 +65,7 @@ export default function HeroManager() {
                     updateEntity={updateHero}
                   />
                 </td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                <td>
                   <EditableCell 
                     entity={hero} 
                     field="hp" 
@@ -75,7 +75,7 @@ export default function HeroManager() {
                     updateEntity={updateHero}
                   />
                 </td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                <td>
                   <EditableCell 
                     entity={hero} 
                     field="ac" 
@@ -85,16 +85,16 @@ export default function HeroManager() {
                     updateEntity={updateHero}
                   />
                 </td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                <td>
                   <span
                     onClick={() => updateHero(hero.id, 'present', !hero.present)}
-                    style={{ cursor: 'pointer', userSelect: 'none' }}
+                    className="pointer"
                     title="Click to toggle"
                   >
                     {hero.present ? "✅" : "❌"}
                   </span>
                 </td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                <td>
                   <button className="buttonDelete"
                     onClick={() => deleteHero(hero.id)}
                   >
@@ -107,8 +107,6 @@ export default function HeroManager() {
                 <td 
                   colSpan={6} 
                   style={{ 
-                    border: '1px solid #ccc', 
-                    padding: '8px', 
                     fontSize: '12px'
                   }}
                 >

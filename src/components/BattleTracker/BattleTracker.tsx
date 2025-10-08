@@ -156,17 +156,7 @@ const BattleTracker: React.FC = () => {
             {combatant.conditions.map((conditionName) => (
               <span
                 key={conditionName}
-                style={{
-                  display: 'inline-block',
-                  backgroundColor: '#dc3545',
-                  color: 'white',
-                  padding: '2px 6px',
-                  borderRadius: '12px',
-                  fontSize: '11px',
-                  marginRight: '4px',
-                  marginBottom: '2px',
-                  cursor: 'pointer'
-                }}
+                className="conditionNameEditing"
                 onClick={() => removeCondition(combatant.id, conditionName)}
                 title={conditionDescriptions[conditionName] || conditionName}
               >
@@ -214,22 +204,14 @@ const BattleTracker: React.FC = () => {
     return (
       <span 
         onClick={() => setEditingConditions(combatant.id)}
-        style={{ cursor: 'pointer', padding: '2px 4px', borderRadius: '2px', minHeight: '20px', display: 'inline-block' }}
+        className="editConditions" 
         title="Click to edit conditions"
       >
         {combatant.conditions.length > 0 
           ? combatant.conditions.map((conditionName) => (
               <span
                 key={conditionName}
-                style={{
-                  display: 'inline-block',
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  padding: '1px 4px',
-                  borderRadius: '8px',
-                  fontSize: '10px',
-                  marginRight: '2px'
-                }}
+                className="conditionName"
                 title={conditionDescriptions[conditionName] || conditionName}
               >
                 {conditionName}
@@ -242,7 +224,7 @@ const BattleTracker: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
+    <div id="battleTrackerOuter">
       
       <div>
         <button id="buttonStartBattle" onClick={handleStartBattle}>
@@ -254,17 +236,17 @@ const BattleTracker: React.FC = () => {
       </div>
 
       {/* Battle Table */}
-      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+      <table id="battleTracker">
         <thead>
-          <tr style={{ backgroundColor: '#f5f5f5' }}>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Name</th>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Initiative</th>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>HP</th>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Action</th>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Bonus</th>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Move</th>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Reaction</th>
-            <th style={{ border: '1px solid #ccc', padding: '8px' }}>Conditions</th>
+          <tr>
+            <th>Name</th>
+            <th>Initiative</th>
+            <th>HP</th>
+            <th>Action</th>
+            <th>Bonus</th>
+            <th>Move</th>
+            <th>Reaction</th>
+            <th>Conditions</th>
           </tr>
         </thead>
         <tbody>
@@ -276,45 +258,46 @@ const BattleTracker: React.FC = () => {
                 borderLeft: index === currentTurnIndex ? '4px solid #28a745' : 'none'
               }}
             >
-              <td style={{ border: '1px solid #ccc', padding: '8px', fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}>
+              {/* Do we need to update the styles above and below this? */}
+              <td style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}>
                 <span title={combatant.stats}>{combatant.name}</span>
                 {index === currentTurnIndex && <span style={{ color: '#28a745', marginLeft: '8px' }}>← Current Turn</span>}
               </td>
-              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
+              <td>
                 {combatant.initiative}
               </td>
-              <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+              <td>
                 <EditableHp combatant={combatant} />
               </td>
-              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
+              <td>
                 <input
                   type="checkbox"
                   checked={combatant.action}
                   onChange={(e) => updateCombatant(combatant.id, 'action', e.target.checked)}
                 />
               </td>
-              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
+              <td>
                 <input
                   type="checkbox"
                   checked={combatant.bonus}
                   onChange={(e) => updateCombatant(combatant.id, 'bonus', e.target.checked)}
                 />
               </td>
-              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
+              <td>
                 <input
                   type="checkbox"
                   checked={combatant.move}
                   onChange={(e) => updateCombatant(combatant.id, 'move', e.target.checked)}
                 />
               </td>
-              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
+              <td>
                 <input
                   type="checkbox"
                   checked={combatant.reaction}
                   onChange={(e) => updateCombatant(combatant.id, 'reaction', e.target.checked)}
                 />
               </td>
-              <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+              <td>
                 <ConditionsEditor combatant={combatant} />
               </td>
             </tr>
@@ -323,7 +306,7 @@ const BattleTracker: React.FC = () => {
       </table>
 
       {sortedCombatants.length === 0 && (
-        <p style={{ textAlign: 'center', color: '#6c757d', fontStyle: 'italic', marginTop: '2rem' }}>
+        <p id="noCombatants">
           No combatants in battle. Start a battle to see combatants here.
         </p>
       )}

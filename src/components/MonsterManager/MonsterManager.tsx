@@ -53,8 +53,8 @@ const MonsterManager = () => {
   const deleteMonster = createDeleteMonster(monsters, setMonsters);
 
   return (
-    <div id="monsterAddManage" style={{ marginTop: "2rem" }}>
-      <h2>Monster Manager</h2>
+    <div id="monsterAddManage">
+      <h2>Monster Manager <sup>(Click to edit)</sup></h2>
       <div id="addMonsterOuter">
         <input
           type="text"
@@ -88,7 +88,7 @@ const MonsterManager = () => {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="monsterTableBody">
           {monsters.map((m) => (
             <>
             <tr key={m.id}>
