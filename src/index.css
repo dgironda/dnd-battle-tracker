@@ -162,20 +162,10 @@ sup {
 
 }
 
-/* #heroAddManage>table, #monsterAddManage>table {
-  border-collapse: collapse;
-  width: 100%;
-} */
-
 #heroAddManage thead>tr, #monsterAddManage thead>tr, 
 #battleTracker thead>tr {
   background-color: var(--color-bg1);
 }
-
-/* #heroAddManage td, #monsterAddManage td {
-  border: 1px solid #ccc;
-  padding: 8px;
-} */
 
 #addHeroOuter {
   margin-bottom: 1rem;
@@ -208,6 +198,10 @@ sup {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
+}
+
+.statsRow {
+  background-color: var(--color-roweven);
 }
 
 .edit {

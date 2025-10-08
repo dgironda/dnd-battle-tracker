@@ -79,7 +79,7 @@ const MonsterManager = () => {
 
       <table>
         <thead>
-          <tr>
+          <tr key="monsterheader">
             <th>Name</th>
             <th>HP</th>
             <th>AC</th>
@@ -130,10 +130,10 @@ const MonsterManager = () => {
               </td>
               <td>{m.conditions.join(", ")}</td>
               <td>
-                <button onClick={() => deleteMonster(m.id)}>Delete</button>
+                <button className="buttonDelete" onClick={() => deleteMonster(m.id)}>Delete</button>
               </td>
             </tr>
-            <tr key={`${m.id}-stats`}>
+            <tr key={`${m.id}-stats`} className="statsRow">
               <td 
                                 colSpan={6} 
                                 style={{ 
