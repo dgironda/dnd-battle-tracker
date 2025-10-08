@@ -120,6 +120,33 @@ sup {
   margin: auto 1%;
 }
 
+#aboutButton {
+  margin: 1vh 1vw;
+}
+
+#about {
+  display: none;
+  z-index: 9;
+  position: absolute;
+  top: 10vh;
+  left: 1vw;
+  background-color: var(--color-hl1);
+  color: var(--color-fg);
+  margin: auto;
+  padding: 1%;
+  width: 80vw;
+}
+
+#instructions {
+  font-size: 1.1rem;
+  line-height: 1.5rem;
+}
+
+#credits {
+  margin-top: 5rem;
+  font-style: italic;
+}
+
 #heroAddManage, #monsterAddManage {
   margin-top: 2rem;
   
