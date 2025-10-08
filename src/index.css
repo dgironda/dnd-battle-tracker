@@ -34,6 +34,8 @@ th, td {
 
 th {
   background-color: var(--color-roweven);
+  border: 1px solid var(--color-brdr1);
+  padding: 8px;
 }
 
 .buttonDelete {
@@ -56,6 +58,41 @@ button {
   background: var(--color-btn2);
   color: var(--color-bg1);
   border: 3px double var(--color-btn1);
+}
+
+.editConditions {
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 2px;
+  min-height: 20px; 
+  display: inline-block;
+}
+
+.conditionName {
+  display: inline-block;
+  background-color: #6c757d;
+  color: var(--color-rowodd);
+  padding: 1px 4px;
+  border-radius: 8px;
+  font-size: .7rem;
+  margin-right: 2px;
+}
+
+.conditionNameEditing {
+  display: inline-block;
+  background-color: #dc3545;
+  color: var(--color-rowodd);
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: .8rem;
+  margin-right: 4px;
+  margin-bottom: 2px;
+  cursor: pointer;
+}
+
+.pointer {
+  cursor: pointer;
+  user-select: none;
 }
 
 input[type="text"] {
@@ -83,9 +120,26 @@ sup {
   margin: auto 1%;
 }
 
-#heroAddManage {
+#heroAddManage, #monsterAddManage {
   margin-top: 2rem;
+  
+
 }
+
+/* #heroAddManage>table, #monsterAddManage>table {
+  border-collapse: collapse;
+  width: 100%;
+} */
+
+#heroAddManage thead>tr, #monsterAddManage thead>tr, 
+#battleTracker thead>tr {
+  background-color: var(--color-bg1);
+}
+
+/* #heroAddManage td, #monsterAddManage td {
+  border: 1px solid #ccc;
+  padding: 8px;
+} */
 
 #addHeroOuter {
   margin-bottom: 1rem;
@@ -95,6 +149,14 @@ sup {
   background-color: var(--color-bg2);
 }
 
+#addHeroOuter h3 {
+  margin-top: 0;
+}
+
+.addPresent-div {
+  display: flex;
+} 
+
 #addHeroInner {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -102,7 +164,7 @@ sup {
   margin-bottom: 1rem;
 }
 
-.heroTableBody {
+.heroTableBody, .monsterTableBody {
   filter: brightness(115%);
 }
 
@@ -115,4 +177,15 @@ sup {
 .edit {
   /* border: 1px black solid; */
   filter: drop-shadow(1px 2px 1px #666);
+}
+
+#battleTrackerOuter {
+  padding: 2rem;
+}
+
+#noCombatants {
+  text-align: center; 
+  color: var(--color-chk1); 
+  font-style: italic; 
+  margin-top: 2rem;
 }

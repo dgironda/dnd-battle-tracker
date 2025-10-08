@@ -55,7 +55,7 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
 
   return (
     <div id="addHeroOuter">
-      <h3 style={{ marginTop: 0 }}>Add New Hero</h3>
+      <h3>Add New Hero</h3>
       <div id="addHeroInner">
         <input
           placeholder="Name"
@@ -81,8 +81,8 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
         />
       </div>
       
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div className="addPresent-div">
+        <label>
           <input
             type="checkbox"
             checked={form.present}
