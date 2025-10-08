@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import HeroManager from "../HeroManager/HeroManager";
 import { Hero, Monster, Combatant } from "../../types/index";
 import { startBattle } from "../../utils/battleUtils";
-import { predefinedConditions, conditionDescriptionsTwentyTwentyFour } from "../../constants/Conditions";
+import { predefinedConditions, conditionDescriptionsTwentyTwentyFour, conditionDescriptionsTwentyFourteen } from "../../constants/Conditions";
 import { EditableCell } from "../../utils/editableCell";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
 import { InitiativeDialog } from "./InitiativeDialog";
 import { getHeroes, getMonsters } from "../../utils/LocalStorage";
+import { useGlobalContext } from "../../hooks/versionContext";
 
 
 const BattleTracker: React.FC = () => {
@@ -20,6 +21,7 @@ const BattleTracker: React.FC = () => {
   const [currentCombatant, setCurrentCombatant] = useState<Hero | Monster | null>(null);
   const { monsters } = useMonsters();
   const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
+  const { status } = useGlobalContext();
 
   const sortedCombatants = [...combatants].sort((a, b) => b.initiative - a.initiative);
 
@@ -45,8 +47,8 @@ const BattleTracker: React.FC = () => {
       updateCombatant(combatantId, 'conditions', updatedConditions);
     }
   };
-
-  const conditionDescriptions = conditionDescriptionsTwentyTwentyFour;
+  
+  const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
   
   const handleStartBattle = async () => {
     // Get fresh data from localStorage
