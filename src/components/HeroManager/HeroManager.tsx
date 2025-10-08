@@ -32,7 +32,7 @@ export default function HeroManager() {
       
       <table>
         <thead>
-          <tr>
+          <tr key="heroHeader">
             <th>Name</th>
             <th>Player</th>
             <th>HP</th>
@@ -103,7 +103,7 @@ export default function HeroManager() {
                 </td>
               </tr>
               
-              <tr key={`${hero.id}-stats`} style={{ backgroundColor: '#f8f9fa' }}>
+              <tr key={`${hero.id}-stats`} className="statsRow">
                 <td 
                   colSpan={6} 
                   style={{ 
