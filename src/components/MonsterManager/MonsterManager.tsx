@@ -135,13 +135,8 @@ const MonsterManager = () => {
             </tr>
             <tr key={`${m.id}-stats`} className="statsRow">
               <td 
-                                colSpan={6} 
-                                style={{ 
-                                  border: '1px solid #ccc', 
-                                  padding: '8px', 
-                                  fontSize: '12px'
-                                }}
-                              >
+                  colSpan={6} 
+              >
                                 <div className="heroStats">
                                   <span title="Strength">STR: <EditableCell 
                                     entity={m} 
@@ -213,9 +208,9 @@ const MonsterManager = () => {
             </>
           ))}
           {monsters.length === 0 && (
-            <tr>
-              <td colSpan={6} style={{ textAlign: "center", color: "#666" }}>
-                No monsters yet
+            <tr key={"noMonsters"}>
+              <td colSpan={6} id="noMonsters">
+                No monsters yet, try adding one.
               </td>
             </tr>
           )}

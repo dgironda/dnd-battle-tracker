@@ -132,6 +132,34 @@ const BattleTracker: React.FC = () => {
       });
     }
   };
+  
+  const getHpColor = (currHp: number, maxHp: number): string => {
+  if (maxHp === 0) return '#f8f2eb';
+  
+  const percentage = Math.max(0, Math.min(1, currHp / maxHp));
+  
+  // Start color: #f8f2eb (100% HP)
+  const startR = 0xf8;
+  const startG = 0xf2;
+  const startB = 0xeb;
+  
+  // End color: #880808 (0% HP)
+  const endR = 0x88;
+  const endG = 0x08;
+  const endB = 0x08;
+  
+  // Interpolate each channel
+  const r = Math.round(endR + (startR - endR) * percentage);
+  const g = Math.round(endG + (startG - endG) * percentage);
+  const b = Math.round(endB + (startB - endB) * percentage);
+  
+  // Convert to hex
+  const rHex = r.toString(16).padStart(2, '0');
+  const gHex = g.toString(16).padStart(2, '0');
+  const bHex = b.toString(16).padStart(2, '0');
+  
+  return `#${rHex}${gHex}${bHex}`;
+};
 
   // Advance turn when action, bonus, and move are checked
   useEffect(() => {
@@ -215,9 +243,9 @@ const BattleTracker: React.FC = () => {
 
     if (isEditing) {
       return (
-        <div style={{ minWidth: '200px' }}>
+        <div className="conditionEditOuter">
           {/* Current conditions with remove buttons */}
-          <div style={{ marginBottom: '8px' }}>
+          <div>
             {combatant.conditions.map((conditionName) => (
               <span
                 key={conditionName}
@@ -238,7 +266,7 @@ const BattleTracker: React.FC = () => {
                 e.target.value = '';
               }
             }}
-            style={{ width: '100%', padding: '2px', marginBottom: '4px' }}
+            className="conditionSelect"
           >
             <option value="">Add condition...</option>
             {predefinedConditions
@@ -250,15 +278,7 @@ const BattleTracker: React.FC = () => {
           
           <button
             onClick={() => setEditingConditions(null)}
-            style={{ 
-              padding: '2px 6px', 
-              fontSize: '11px',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '2px',
-              cursor: 'pointer'
-            }}
+            className="editConditionsDone"
           >
             Done
           </button>
@@ -282,7 +302,7 @@ const BattleTracker: React.FC = () => {
                 {conditionName}
               </span>
             ))
-          : <span style={{ color: '#6c757d', fontSize: '12px' }}>None</span>
+          : <span className="noCondition">None</span>
         }
       </span>
     );
@@ -320,7 +340,7 @@ const BattleTracker: React.FC = () => {
               key={combatant.id}
               style={{ 
                 backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa',
-                borderLeft: index === currentTurnIndex ? '4px solid #28a745' : 'none'
+                borderLeft: index === currentTurnIndex ? '5px solid #777777' : 'none'
               }}
             >
               {/* Do we need to update the styles above and below this? */}
@@ -331,7 +351,11 @@ const BattleTracker: React.FC = () => {
               <td>
                 {combatant.initiative}
               </td>
-              <td>
+              <td
+              style={{ 
+                backgroundColor: getHpColor(combatant.currHp, combatant.maxHp),
+                color: combatant.currHp < combatant.maxHp * 0.5 ? 'white' : 'black'
+              }}>
                 <EditableHp combatant={combatant} />
               </td>
               <td>
