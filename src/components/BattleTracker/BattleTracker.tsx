@@ -7,19 +7,29 @@ import { EditableCell } from "../../utils/editableCell";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
 import { InitiativeDialog } from "./InitiativeDialog";
-import { getHeroes, getMonsters } from "../../utils/LocalStorage";
+import { getHeroes, storeHeroes, getMonsters, storeMonsters } from "../../utils/LocalStorage";
 import { useGlobalContext } from "../../hooks/versionContext";
+import { createDeleteMonster } from "../Utils";
 
+interface BattleTrackerProps {
+  setShowHeroManager: (show: boolean) => void;
+  setShowMonsterManager: (show: boolean) => void;
+}
 
-const BattleTracker: React.FC = () => {
+const BattleTracker: React.FC<BattleTrackerProps> = ({ 
+  setShowHeroManager, 
+  setShowMonsterManager 
+}) => {
   const { heroes, setHeroes } = useHeroes();
-  const [combatants, setCombatants] = useState<Combatant[]>([]);
   // const [showHeroManager, setShowHeroManager] = useState(false);
+  // const [showMonsterManager, setShowMonsterManager] = useState(false);
+  const [combatants, setCombatants] = useState<Combatant[]>([]);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingConditions, setEditingConditions] = useState<string | null>(null);
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
   const [currentCombatant, setCurrentCombatant] = useState<Hero | Monster | null>(null);
-  const { monsters } = useMonsters();
+  const { monsters, setMonsters } = useMonsters();
+  const deleteMonster = createDeleteMonster(monsters, setMonsters);
   const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
   const { status } = useGlobalContext();
 
@@ -49,13 +59,16 @@ const BattleTracker: React.FC = () => {
   };
   
   const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
-  
+
   const handleStartBattle = async () => {
-    // Get fresh data from localStorage
+    setShowHeroManager(false); // Close Hero Manager
+    setShowMonsterManager(false); // Close Monster Manager
+
     const freshHeroes = getHeroes();
     const freshMonsters = getMonsters();
 
     const presentHeroes = freshHeroes.filter(h => h.present);
+    const presentMonsters = freshMonsters.filter(m => m.present);
     const newCombatants: Combatant[] = [];
     
     for (const hero of presentHeroes) {
@@ -83,7 +96,7 @@ const BattleTracker: React.FC = () => {
   }
 
     // Process monsters
-  for (const monster of freshMonsters) {
+  for (const monster of presentMonsters) {
     const initiative = await new Promise<number>((resolve) => {
       setCurrentCombatant(monster);
       setInitiativeResolver(() => resolve);
@@ -104,7 +117,13 @@ const BattleTracker: React.FC = () => {
       init: monster.init,
       stats: `Armor Class: ${monster.ac}\nStrength: ${monster.str}\nDexterity: ${monster.dex}\nConstitution: ${monster.con}\nIntelligence: ${monster.int}\nWisdom: ${monster.wis}\nCharisma: ${monster.cha}\nPassive Perception: ${monster.pp}`
     });
+    // deleteMonster(monster.id)
   }
+
+  const idsToDelete = presentMonsters.map(m => m.id);
+  const updatedMonsters = freshMonsters.filter(m => !idsToDelete.includes(m.id));
+  storeMonsters(updatedMonsters);
+  
   
   setCurrentCombatant(null);
   setCombatants(newCombatants);

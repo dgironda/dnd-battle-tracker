@@ -20,13 +20,14 @@ const MonsterManager = () => {
     pp: 10,
     init: 0,
     hidden: false,
+    present: false,
     conditions: [],
   });
 
   const addMonster = () => {
     if (!newMonster.name.trim()) return;
     setMonsters([...monsters, { ...newMonster, id: crypto.randomUUID() }]);
-    setNewMonster({ id: crypto.randomUUID(), name: "", hp: 0, ac: 0, str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10, pp: 10, init: 0, hidden: false, conditions: [] });
+    setNewMonster({ id: crypto.randomUUID(), name: "", hp: 0, ac: 0, str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10, pp: 10, init: 0, hidden: false, present: false, conditions: [] });
   };
 
   const toggleHidden = (id: string) => {
@@ -47,9 +48,6 @@ const MonsterManager = () => {
 
   const [editingField, setEditingField] = useState<string | null>(null);
   const updateMonster = createUpdateMonster(setMonsters);
-  // const deleteMonster = (id: string) => {
-  //   setMonsters(monsters.filter((m) => m.id !== id));
-  // };
   const deleteMonster = createDeleteMonster(monsters, setMonsters);
 
   return (
@@ -84,7 +82,7 @@ const MonsterManager = () => {
             <th>HP</th>
             <th>AC</th>
             <th>Hidden?</th>
-            <th>Conditions</th>
+            <th>Present</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -128,7 +126,15 @@ const MonsterManager = () => {
                   onChange={() => toggleHidden(m.id)}
                 />
               </td>
-              <td>{m.conditions.join(", ")}</td>
+              <td>
+                <span
+                    onClick={() => updateMonster(m.id, 'present', !m.present)}
+                    className="pointer"
+                    title="Click to toggle"
+                  >
+                    {m.present ? "✅" : "❌"}
+                </span>  
+              </td>
               <td>
                 <button className="buttonDelete" onClick={() => deleteMonster(m.id)}>Delete</button>
               </td>

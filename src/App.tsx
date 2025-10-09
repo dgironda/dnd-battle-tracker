@@ -25,7 +25,10 @@ function App() {
       </p>
       {showMonsterManager && <MonsterManager />}
 
-      <BattleTracker />
+      <BattleTracker
+        setShowHeroManager={setShowHeroManager} 
+        setShowMonsterManager={setShowMonsterManager}  
+      />
     </div>
   );
 }

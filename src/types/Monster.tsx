@@ -12,5 +12,6 @@ export interface Monster {
   pp: number;
   init: number;
   hidden: boolean;
+  present: boolean;
   conditions: string[];
 }
