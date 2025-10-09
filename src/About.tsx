@@ -9,8 +9,10 @@ export function About() {
             <div id="instructions">
                 <ul>
                     <li>Add your parties heroes to the Hero Manager</li>
-                    <li>Add and delete monsters in the Monster Manager to suit your needs for the planned battle</li>
-                    <li>Press Start Battle to begin the combat with Present heroes</li>
+                    <li>Add monsters in the Monster Manager to suit your needs for the planned battle</li>
+                    <li>Only monsters and heroes checked present are added on Battle Start</li>
+                    <li>Monsters added to a battle are deleted from the Monster Manager</li>
+                    <li>Press Start Battle to begin the combat</li>
                     <li>Check actions, movement, bonus actions, and reactions as used</li>
                     <li>Turn automatically advances when Current Turn's action, bonus, and movement are checked</li>
                     <li>Add conditions as needed, you can hover over them to get a reminder of the effects</li>

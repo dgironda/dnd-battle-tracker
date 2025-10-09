@@ -21,8 +21,6 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   setShowMonsterManager 
 }) => {
   const { heroes, setHeroes } = useHeroes();
-  // const [showHeroManager, setShowHeroManager] = useState(false);
-  // const [showMonsterManager, setShowMonsterManager] = useState(false);
   const [combatants, setCombatants] = useState<Combatant[]>([]);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingConditions, setEditingConditions] = useState<string | null>(null);
