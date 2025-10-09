@@ -4,7 +4,7 @@
   --color-fg: #131b1f;
   --color-btn1: #99050b;
   --color-btn2: #e30711;
-  --color-chk1: #bebebe;
+  --color-chk1: #9f9f9f;
   --color-chk2: #a7743b;
   --color-hl1: #cca677;
   --color-hl2: #5b0f00;
@@ -82,6 +82,14 @@ button {
   margin-right: 2px;
 }
 
+.conditionEditOuter {
+  min-width: 200px;
+}
+
+.conditionEditOuter>div {
+  margin-bottom: 8px;
+}
+
 .conditionNameEditing {
   display: inline-block;
   background-color: #dc3545;
@@ -92,6 +100,27 @@ button {
   margin-right: 4px;
   margin-bottom: 2px;
   cursor: pointer;
+}
+
+.conditionSelect {
+  width: 100%; 
+  padding: 2px;
+  margin-bottom: 4px;
+}
+
+.editConditionsDone {
+  padding: 2px 6px; 
+  font-size: 11px;
+  background-color: #28a745;
+  color: var(--color-rowodd);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.noCondition {
+  color: #6c757d;
+  font-size: 12px;
 }
 
 .pointer {
@@ -204,16 +233,28 @@ sup {
   background-color: var(--color-roweven);
 }
 
+.statsRow>td {
+  border: 1px solid var(--color-brdr1);
+  padding: 8px;
+  font-size: 12px;
+}
+
 .edit {
   /* border: 1px black solid; */
   filter: drop-shadow(1px 2px 1px #666);
+}
+
+.heroesSpacer {
+  height: 8px;
+  border: none;
+  background-color: transparent;
 }
 
 #battleTrackerOuter {
   padding: 2rem;
 }
 
-#noCombatants {
+#noCombatants, #noMonsters, #noHeroes {
   text-align: center; 
   color: var(--color-chk1); 
   font-style: italic; 

@@ -105,10 +105,7 @@ export default function HeroManager() {
               
               <tr key={`${hero.id}-stats`} className="statsRow">
                 <td 
-                  colSpan={6} 
-                  style={{ 
-                    fontSize: '12px'
-                  }}
+                  colSpan={6}
                 >
                   <div className="heroStats">
                     <span title="Strength">STR: <EditableCell 
@@ -179,13 +176,22 @@ export default function HeroManager() {
                 </td>
               </tr>
               
+              {/* what is this below with the key hero.id-spacer? */}
               {index < heroes.length - 1 && (
                 <tr key={`${hero.id}-spacer`}>
-                  <td colSpan={6} style={{ height: '8px', border: 'none', backgroundColor: 'transparent' }}></td>
+                  <td colSpan={6} className="heroesSpacer">
+                  </td>
                 </tr>
               )}
             </>
           ))}
+                    {heroes.length === 0 && (
+            <tr key={"noHeroes"}>
+              <td colSpan={6} id="noHeroes">
+                No heroes yet, try adding one.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
