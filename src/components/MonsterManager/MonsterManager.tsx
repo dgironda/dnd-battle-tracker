@@ -3,12 +3,14 @@ import { useMonsters } from "../../hooks/useMonsters";
 import { Monster } from "../../types/Monster";
 import { createUpdateMonster, createDeleteMonster } from "../Utils";
 import { EditableCell } from "../Utils";
+import monstersDataFourteen from "../../assets/2014monsters.json";
 
 const MonsterManager = () => {
   const { monsters, setMonsters } = useMonsters();
   const [newMonster, setNewMonster] = useState<Monster>({
     id: crypto.randomUUID(),
     name: "",
+	link: "https://5e.tools",
     hp: 0,
     ac: 0,
     str: 10,
@@ -23,6 +25,38 @@ const MonsterManager = () => {
     present: false,
     conditions: [],
   });
+  
+  // handle autocomplete
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewMonster({ ...newMonster, name: value });
+
+    if (!value.trim()) {
+      setFilteredSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const matches = monstersDataFourteen
+      .filter((m) => m.name.toLowerCase().includes(value.toLowerCase()))
+      .map((m) => m.name);
+
+    setFilteredSuggestions(matches);
+    setShowSuggestions(matches.length > 0);
+  };
+
+  // clicking autocomplete suggestion
+  const handleSelectSuggestion = (name: string) => {
+    const selected = monstersDataFourteen.find((m) => m.name === name);
+    if (selected) {
+      setNewMonster({
+        ...newMonster,
+        ...selected,
+        id: crypto.randomUUID(),
+      });
+    }
+    setShowSuggestions(false);
+  };
 
   const addMonster = () => {
     if (!newMonster.name.trim()) return;
