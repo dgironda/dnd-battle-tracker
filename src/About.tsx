@@ -1,10 +1,18 @@
 import React from "react";
 
-export function About() {
+interface AboutProps {
+  isVisible: boolean;
+  onToggle: () => void;
+}
 
-    return (
-        <>
-        <button id="aboutButton" onClick={openAbout}>About</button>
+export default function About({ isVisible, onToggle }: AboutProps) {
+  return (
+    <>
+      <button onClick={onToggle}>
+        {isVisible ? "Close About" : "About"}
+      </button>
+      
+      {isVisible && (
         <div id="about">
             <div id="instructions">
                 <ul>
@@ -33,17 +41,9 @@ export function About() {
                 <p>Special Thanks: Wolf Harrington</p>
             </div>
         </div>
-        </>
-    )
-        function openAbout() {
-  var about = document.getElementById("about");
-  if (!about) return
-  if (about.style.display === "none") {
-    about.style.display = "block";
-  } else {
-    about.style.display = "none";
-  }
-} 
+        )}
+    </>
+  );
 }
 
 
