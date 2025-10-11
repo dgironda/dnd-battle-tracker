@@ -1,6 +1,7 @@
 export interface Monster {
   id: string;
   name: string;
+  link: string;
   hp: number;
   ac: number;
   str: number;

@@ -28,7 +28,7 @@ export default function HeroManager() {
     <div id="heroAddManage">
       <AddHero onAddHero={addHero} />
       
-      <h2>Hero Manager <sup>(Click to edit)</sup></h2>
+      <h2>Hero Manager</h2>
       
       <table>
         <thead>
