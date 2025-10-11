@@ -112,7 +112,7 @@ const MonsterManager = () => {
   return (
     <div id="monsterAddManage">
       <h2>
-        Monster Manager <sup>(Click to edit)</sup>
+        Monster Manager
       </h2>
 
       <div id="addMonsterOuter">
@@ -128,21 +128,6 @@ const MonsterManager = () => {
           {showSuggestions && (
             <ul
               className="suggestion-list"
-              style={{
-                position: "absolute",
-                top: "100%",
-                left: 0,
-                right: 0,
-                background: "#1e1e1e",
-                border: "1px solid #666",
-                listStyle: "none",
-                padding: 0,
-                margin: "2px 0 0 0",
-                borderRadius: "4px",
-                maxHeight: "150px",
-                overflowY: "auto",
-                zIndex: 100,
-              }}
             >
               {filteredSuggestions.map((s, idx) => (
                 <li
