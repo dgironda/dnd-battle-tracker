@@ -1,8 +1,8 @@
 interface Combatant {
   id: string;
   name: string;
+  link?: string;
   type: 'hero' | 'monster';
-  initiative: number;
   currHp: number;
   maxHp: number;
   action: boolean;
@@ -12,6 +12,7 @@ interface Combatant {
   conditions: string[];
   stats: string;
   init: number;
+  initiative: number;
 }
 
 export {Combatant}
