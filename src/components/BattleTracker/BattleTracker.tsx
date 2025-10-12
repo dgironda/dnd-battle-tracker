@@ -4,6 +4,7 @@ import { Hero, Monster, Combatant } from "../../types/index";
 import { startBattle } from "../../utils/battleUtils";
 import { predefinedConditions, conditionDescriptionsTwentyTwentyFour, conditionDescriptionsTwentyFourteen } from "../../constants/Conditions";
 import { EditableCell } from "../../utils/editableCell";
+import { HpChangeModal } from "../../utils/dmg-heal";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
 import { InitiativeDialog } from "./InitiativeDialog";
@@ -30,6 +31,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const deleteMonster = createDeleteMonster(monsters, setMonsters);
   const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
   const { status } = useGlobalContext();
+  const [hpModalCombatant, setHpModalCombatant] = useState<Combatant | null>(null);
 
   const sortedCombatants = [...combatants].sort((a, b) => b.initiative - a.initiative);
 
@@ -369,11 +371,14 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
                 {combatant.initiative}
               </td>
               <td
+              className="combatantHP"
               style={{ 
                 backgroundColor: getHpColor(combatant.currHp, combatant.maxHp),
                 color: combatant.currHp < combatant.maxHp * 0.5 ? 'white' : 'black'
-              }}>
-                <EditableHp combatant={combatant} />
+              }}
+              onClick={() => setHpModalCombatant(combatant)}
+              title="Click to change HP">
+                {combatant.currHp} / {combatant.maxHp}
               </td>
               <td>
                 <input
@@ -427,7 +432,18 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
       }}
   />
 )}
-
+{hpModalCombatant && (
+  <HpChangeModal
+    combatantName={hpModalCombatant.name}
+    currentHp={hpModalCombatant.currHp}
+    maxHp={hpModalCombatant.maxHp}
+    onSubmit={(newHp) => {
+      updateCombatant(hpModalCombatant.id, 'currHp', newHp);
+      setHpModalCombatant(null);
+    }}
+    onClose={() => setHpModalCombatant(null)}
+  />
+)}
     </div>
 
   );
