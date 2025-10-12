@@ -61,6 +61,10 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
   const handleStartBattle = async () => {
+	// Confirm with the user before starting a new battle
+	const confirmed = window.confirm("Are you sure you want to start a new battle?");
+	if (!confirmed) return; // Exit early if user says no
+	  
     setShowHeroManager(false); // Close Hero Manager
     setShowMonsterManager(false); // Close Monster Manager
 
