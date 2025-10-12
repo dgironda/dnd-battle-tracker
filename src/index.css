@@ -276,6 +276,10 @@ sup {
   padding: 2rem;
 }
 
+.combatantHP {
+  cursor: pointer;
+}
+
 #noCombatants, #noMonsters, #noHeroes {
   text-align: center; 
   color: var(--color-chk1); 
