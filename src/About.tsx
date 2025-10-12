@@ -9,15 +9,16 @@ export default function About({ isVisible, onToggle }: AboutProps) {
   return (
     <>
       <button onClick={onToggle}>
-        {isVisible ? "Close About" : "About"}
+        {isVisible ? "Close About" : "About / Instructions"}
       </button>
       
       {isVisible && (
         <div id="about">
             <div id="instructions">
                 <ul>
-                    <li>Add your parties heroes to the Hero Manager</li>
-                    <li>Add monsters in the Monster Manager to suit your needs for the planned battle</li>
+                    <li>Add your party's heroes to the Hero Manager, uncheck present for anyone not present</li>
+                    <li>Edit heroes' stats as needed, as much or as little as is useful for you</li>
+                    <li>Add monsters in the Monster Manager and mark the ones for the next battle as present</li>
                     <li>Only monsters and heroes checked present are added on Battle Start</li>
                     <li>Monsters added to a battle are deleted from the Monster Manager</li>
                     <li>Press Start Battle to begin the combat</li>
@@ -37,7 +38,7 @@ export default function About({ isVisible, onToggle }: AboutProps) {
             <div id="credits">
                 <p>Created by: DM Dave</p>
                 <p>Additional coding by: <a href="https://madmilliner.github.io/jasonPeterson/" target="_blank">Jason Peterson</a></p>
-                <p>QA Testers: Danny Cullen, Jayme Andrews, Jason Peterson</p>
+                <p>QA Testers: Danny Cullen, Jayme Andrews, Zach Dender</p>
                 <p>Special Thanks: Wolf Harrington</p>
             </div>
         </div>
