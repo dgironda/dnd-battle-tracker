@@ -276,6 +276,40 @@ sup {
   padding: 2rem;
 }
 
+
+/* test */
+        /* .monsterName {
+            cursor: pointer;
+        }
+
+        .monsterStats {
+            visibility: hidden;
+            width: 20vw;
+            background-color: var(--color-shadow);
+            color: var(--color-rowodd);
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -100px; /* Center the tooltip 
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .monsterName:hover .monsterStats {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .monsterStats a {
+            color: #00f;
+            text-decoration: underline;
+        } */
+/* test */
+
 .combatantHP {
   cursor: pointer;
 }

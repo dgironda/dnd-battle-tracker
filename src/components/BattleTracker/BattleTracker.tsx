@@ -91,7 +91,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
         reaction: false,
         conditions: [],
         init: hero.init,
-        stats: `Armor Class: ${hero.ac}\nStrength: ${hero.str}\nDexterity: ${hero.dex}\nConstitution: ${hero.con}\nIntelligence: ${hero.int}\nWisdom: ${hero.wis}\nCharisma: ${hero.cha}\nPassive Perception: ${hero.pp}`
+        stats: `Player: ${hero.player}\n\nArmor Class: ${hero.ac}\nStrength: ${hero.str}\nDexterity: ${hero.dex}\nConstitution: ${hero.con}\nIntelligence: ${hero.int}\nWisdom: ${hero.wis}\nCharisma: ${hero.cha}\nPassive Perception: ${hero.pp}`
       });
   }
 
@@ -115,7 +115,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
       reaction: false,
       conditions: monster.conditions,
       init: monster.init,
-      stats: `Armor Class: ${monster.ac}\nStrength: ${monster.str}\nDexterity: ${monster.dex}\nConstitution: ${monster.con}\nIntelligence: ${monster.int}\nWisdom: ${monster.wis}\nCharisma: ${monster.cha}\nPassive Perception: ${monster.pp}`
+      stats: `Armor Class: ${monster.ac}\nStrength: ${monster.str}\nDexterity: ${monster.dex}\nConstitution: ${monster.con}\nIntelligence: ${monster.int}\nWisdom: ${monster.wis}\nCharisma: ${monster.cha}\nPassive Perception: ${monster.pp}\n\n${monster.link}`
     });
     // deleteMonster(monster.id)
   }
@@ -210,7 +210,6 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   // Keyboard shortcuts
   useEffect(() => {
   const handleKeyPress = (e: KeyboardEvent) => {
-    // Don't trigger if typing in an input field
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
       return;
     }
@@ -241,21 +240,22 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   };
 }, [sortedCombatants, currentTurnIndex, updateCombatant]);
 
-  const EditableHp = ({ combatant }: { combatant: Combatant }) => {
-    return (
-      <span>
-        <EditableCell
-          entity={combatant}
-          field="currHp"
-          type="number"
-          editingField={editingField}
-          setEditingField={setEditingField}
-          updateEntity={updateCombatant}
-        />
-        /{combatant.maxHp}
-      </span>
-    );
-  };
+// I think we can delete EditableHp, commenting out for now to make sure
+  // const EditableHp = ({ combatant }: { combatant: Combatant }) => {
+  //   return (
+  //     <span>
+  //       <EditableCell
+  //         entity={combatant}
+  //         field="currHp"
+  //         type="number"
+  //         editingField={editingField}
+  //         setEditingField={setEditingField}
+  //         updateEntity={updateCombatant}
+  //       />
+  //       /{combatant.maxHp}
+  //     </span>
+  //   );
+  // };
 
   const ConditionsEditor = ({ combatant }: { combatant: Combatant }) => {
     const isEditing = editingConditions === combatant.id;

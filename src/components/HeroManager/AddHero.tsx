@@ -19,7 +19,7 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
     cha: 10,
     pp: 10,
     init: 0,
-    present: false,
+    present: true,
   });
 
   const handleAddHero = () => {
@@ -82,14 +82,14 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
       </div>
       
       <div className="addPresent-div">
-        <label>
+        {/* <label>
           <input
             type="checkbox"
             checked={form.present}
             onChange={(e) => setForm({ ...form, present: e.target.checked })}
           />
           Present?
-        </label>
+        </label> */}
         <button onClick={handleAddHero}>
           Add Hero
         </button>

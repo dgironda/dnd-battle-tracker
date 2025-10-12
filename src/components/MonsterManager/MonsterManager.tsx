@@ -3,6 +3,7 @@ import { useMonsters } from "../../hooks/useMonsters";
 import { Monster } from "../../types/Monster";
 import { createUpdateMonster, createDeleteMonster } from "../Utils";
 import { EditableCell } from "../Utils";
+import { useGlobalContext } from "../../hooks/versionContext";
 import monstersDataFourteen from "../../assets/2014monsters.json";
 
 const MonsterManager = () => {
@@ -26,6 +27,10 @@ const MonsterManager = () => {
     conditions: [],
   });
 
+  const { status } = useGlobalContext();
+  const monstersData = monstersDataFourteen
+  // const monstersData = status === 'twentyFourteen' ? monstersDataFourteen : monstersDataTwentyFour; // Turn this on when monstersDataTwentyFour is added above
+
   // 🔹 Autocomplete states
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -41,7 +46,7 @@ const MonsterManager = () => {
       return;
     }
 
-    const matches = monstersDataFourteen
+    const matches = monstersData
       .filter((m) => m.name.toLowerCase().includes(value.toLowerCase()))
       .map((m) => m.name);
 
@@ -51,7 +56,7 @@ const MonsterManager = () => {
 
   // 🔹 When user clicks a suggestion
   const handleSelectSuggestion = (name: string) => {
-    const selected = monstersDataFourteen.find((m) => m.name === name);
+    const selected = monstersData.find((m) => m.name === name);
     if (selected) {
       setNewMonster({
         ...newMonster,
