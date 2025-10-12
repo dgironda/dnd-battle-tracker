@@ -105,6 +105,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
     newCombatants.push({
       id: monster.id,
       name: monster.name,
+	  link: monster.link,
       type: 'monster',
       currHp: monster.hp,
       maxHp: monster.hp,
@@ -371,10 +372,27 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
               }}
             >
               {/* Do we need to update the styles above and below this? */}
-              <td style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}>
-                <span title={combatant.stats}>{combatant.name}</span>
-                {index === currentTurnIndex && <span style={{ color: '#28a745', marginLeft: '8px' }}>← Current Turn</span>}
-              </td>
+			  <td style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}>
+				  {combatant.type === "monster" && combatant.link ? (
+					<a 
+					  href={combatant.link} 
+					  target="_blank" 
+					  rel="noopener noreferrer" 
+					  title={combatant.stats}
+					  style={{ color: '#007bff', textDecoration: 'none' }}
+					  onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+					  onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+					>
+					  {combatant.name}
+					</a>
+				  ) : (
+					<span title={combatant.stats}>{combatant.name}</span>
+				  )}
+				  {index === currentTurnIndex && (
+					<span style={{ color: '#28a745', marginLeft: '8px' }}>← Current Turn</span>
+				  )}
+			  </td>
+
               <td>
                 {combatant.initiative}
               </td>
