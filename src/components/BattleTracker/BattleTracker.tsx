@@ -141,11 +141,19 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
             ...combatant,
             action: false,
             bonus: false,
-            move: false,
-            reaction: false
+            move: false
           }));
           setCombatants(resetCombatants);
         }
+		
+		// reset reaction for the next combatant
+		const nextCombatantId = sortedCombatants[nextIndex].id;
+		setCombatants(prevCombatants =>
+		  prevCombatants.map(c =>
+			c.id === nextCombatantId ? { ...c, reaction: false } : c
+		  )
+		);
+		
         
         return nextIndex;
       });
