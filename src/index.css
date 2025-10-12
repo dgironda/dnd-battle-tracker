@@ -266,6 +266,15 @@ sup {
   filter: brightness(115%);
 }
 
+.heroTableBody td, .monsterTableBody td{
+  background-color:white;
+}
+
+.heroTableBody .statsRow td, .monsterTableBody .statsRow td{
+  background-color:lightgrey;
+}
+
+
 .heroStats {
   display: flex;
   flex-wrap: wrap;
