@@ -4,13 +4,18 @@ interface HpChangeModalProps {
   combatantName: string;
   currentHp: number;
   maxHp: number;
+  conditions: string[];
   onSubmit: (newHp: number) => void;
   onClose: () => void;
 }
 
-export function HpChangeModal({ combatantName, currentHp, maxHp, onSubmit, onClose }: HpChangeModalProps) {
+export function HpChangeModal({ combatantName, currentHp, maxHp, conditions, onSubmit, onClose }: HpChangeModalProps) {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
+
+  const isConcentrating = conditions.includes('Concentrating');
+  const isDying = conditions.includes('Death Saves')
+  
 
   const handleDamage = () => {
     const damageAmount = parseInt(amount);
@@ -24,6 +29,10 @@ export function HpChangeModal({ combatantName, currentHp, maxHp, onSubmit, onClo
     }
     
     const newHp = Math.max(0, currentHp - damageAmount);
+    const damageToConcentration = Math.floor(damageAmount / 2);
+    const concentrationCheck = Math.max(10, damageToConcentration);
+    if (isConcentrating) {
+      alert(`Did they pass a DC ${concentrationCheck} concentration check?\nIf yes, great; if no then remove concentration.`) };
     onSubmit(newHp);
     onClose();
   };
@@ -38,7 +47,7 @@ export function HpChangeModal({ combatantName, currentHp, maxHp, onSubmit, onClo
       setError('Healing must be positive');
       return;
     }
-    
+    if (isDying) {alert(`${combatantName} is now stable and no longer needs to make death saving throws`)}
     const newHp = Math.min(maxHp, currentHp + healAmount);
     onSubmit(newHp);
     onClose();

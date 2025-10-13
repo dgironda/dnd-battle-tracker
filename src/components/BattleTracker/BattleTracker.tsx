@@ -437,6 +437,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
     combatantName={hpModalCombatant.name}
     currentHp={hpModalCombatant.currHp}
     maxHp={hpModalCombatant.maxHp}
+    conditions={hpModalCombatant.conditions}
     onSubmit={(newHp) => {
       updateCombatant(hpModalCombatant.id, 'currHp', newHp);
       setHpModalCombatant(null);
