@@ -10,6 +10,7 @@ function App() {
   const [showMonsterManager, setShowMonsterManager] = useState(false);
   const [openPanel, setOpenPanel] = useState<'hero' | 'monster' | 'about' | null>(null);
 
+
   return (
     <>
     <div id="header">

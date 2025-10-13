@@ -8,7 +8,7 @@ import { HpChangeModal } from "../../utils/dmg-heal";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
 import { InitiativeDialog } from "./InitiativeDialog";
-import { getHeroes, storeHeroes, getMonsters, storeMonsters } from "../../utils/LocalStorage";
+import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, storeCombatants } from "../../utils/LocalStorage";
 import { useGlobalContext } from "../../hooks/versionContext";
 import { createDeleteMonster } from "../Utils";
 
@@ -22,10 +22,16 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   setShowMonsterManager 
 }) => {
   const { heroes, setHeroes } = useHeroes();
-  const [combatants, setCombatants] = useState<Combatant[]>([]);
+    const [combatants, setCombatants] = useState<Combatant[]>(() => {
+    return getCombatants() || [];
+  });
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingConditions, setEditingConditions] = useState<string | null>(null);
-  const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
+  const [currentTurnIndex, setCurrentTurnIndex] = useState(() => {
+    const saved = localStorage.getItem('currentTurnIndex');
+    return saved ? parseInt(saved) : 0;
+  });
+  const [hasSavedCombat, setHasSavedCombat] = useState(false);
   const [currentCombatant, setCurrentCombatant] = useState<Hero | Monster | null>(null);
   const { monsters, setMonsters } = useMonsters();
   const deleteMonster = createDeleteMonster(monsters, setMonsters);
@@ -34,6 +40,11 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const [hpModalCombatant, setHpModalCombatant] = useState<Combatant | null>(null);
 
   const sortedCombatants = [...combatants].sort((a, b) => b.initiative - a.initiative);
+  
+  useEffect(() => {
+    const saved = getCombatants();
+    setHasSavedCombat(saved && saved.length > 0);
+  }, []);
 
   const updateCombatant = (combatantId: string, field: keyof Combatant, value: any) => {
     const updatedCombatants = combatants.map(combatant =>
@@ -61,6 +72,8 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
   const handleStartBattle = async () => {
+    localStorage.removeItem('combatants');
+    localStorage.removeItem('currentTurnIndex');
     setShowHeroManager(false); // Close Hero Manager
     setShowMonsterManager(false); // Close Monster Manager
 
@@ -207,6 +220,14 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   }
 }, [combatants]); 
 
+  // Save on every state change
+useEffect(() => {
+  if (combatants.length > 0) {
+    storeCombatants(combatants);
+    localStorage.setItem('currentTurnIndex', currentTurnIndex.toString());
+  }
+}, [combatants, currentTurnIndex]);
+
   // Keyboard shortcuts
   useEffect(() => {
   const handleKeyPress = (e: KeyboardEvent) => {
@@ -329,7 +350,33 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
 
   return (
     <div id="battleTrackerOuter">
-      
+      {/* #7: Resume Combat UI */}
+      {hasSavedCombat && combatants.length === 0 && (
+        <div style={{ 
+          backgroundColor: '#fff3cd', 
+          padding: '1rem', 
+          marginBottom: '1rem',
+          borderRadius: '4px',
+          border: '1px solid #ffc107'
+        }}>
+          <p style={{ margin: '0 0 0.5rem 0' }}>
+            ⚠️ Combat in progress detected!
+          </p>
+          <button 
+            onClick={() => {
+              const saved = getCombatants();
+              if (saved) setCombatants(saved);
+              setHasSavedCombat(false);
+            }}
+            style={{ marginRight: '0.5rem' }}
+          >
+            Resume Combat
+          </button>
+          <button onClick={handleStartBattle}>
+            Start New Combat
+          </button>
+        </div>
+      )}
       <div>
         <button id="buttonStartBattle" onClick={handleStartBattle}>
           Start Battle

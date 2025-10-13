@@ -1,8 +1,10 @@
-import { Hero } from '../types/Hero';
-import { Monster } from '../types/index'; // <- define like Hero
+import { Hero, Monster, Combatant } from '../types/index';
+import CombatantList from '../components/BattleTracker/CombatantList';
+// import {combatants, currentTurn}
 
 const HEROES_KEY = "storedHeroes";
 const MONSTERS_KEY = "storedMonsters";
+const COMBATANTS_KEY = "storedCombatants";
 
 /**
  * Store heroes array to localStorage
@@ -100,6 +102,54 @@ function hasStoredMonsters(): boolean {
   }
 }
 
+/**
+ * Store combatants array to localStorage
+ */
+function storeCombatants(combatants: Combatant[]): void {
+  try {
+    localStorage.setItem(COMBATANTS_KEY, JSON.stringify(combatants ?? []));
+    console.log("Stored combatants:", localStorage.getItem(COMBATANTS_KEY));
+  } catch (error) {
+    console.error("Error storing combatants:", error);
+  }
+}
+
+/**
+ * Retrieve combatants array from localStorage
+ */
+function getCombatants(): Combatant[] {
+  try {
+    const stored = localStorage.getItem(COMBATANTS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error("Error loading combatants:", error);
+    return [];
+  }
+}
+
+/**
+ * Clear combatants
+ */
+function clearCombatants(): void {
+  try {
+    localStorage.removeItem(COMBATANTS_KEY);
+  } catch (error) {
+    console.error("Error clearing combatants:", error);
+  }
+}
+
+/**
+ * Check if combatants data exists
+ */
+function hasStoredCombatants(): boolean {
+  try {
+    return localStorage.getItem(COMBATANTS_KEY) !== null;
+  } catch (error) {
+    console.error("Error checking for stored combatants:", error);
+    return false;
+  }
+}
+
 export {
   storeHeroes,
   getHeroes,
@@ -109,4 +159,8 @@ export {
   getMonsters,
   clearMonsters,
   hasStoredMonsters,
+  storeCombatants,
+  getCombatants,
+  clearCombatants,
+  hasStoredCombatants,
 };
