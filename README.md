@@ -1,69 +1,25 @@
-# React + TypeScript + Vite
+# D&D Battle Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## About
 
-Currently, two official plugins are available:
+### Instructions
+- Add your party's heroes to the **Hero Manager**.
+- Add monsters in the **Monster Manager** to suit your needs for the planned battle.
+- Only monsters and heroes **checked as present** are added on Battle Start.
+- Monsters added to a battle are **deleted from the Monster Manager**.
+- Press **Start Battle** to begin the combat.
+- Check actions, movement, bonus actions, and reactions as used.
+- Turn automatically advances when the **Current Turn's** action, bonus, and movement are checked.
+- Add conditions as needed — you can hover over them to see a reminder of the effects.
+- You can hover over any hero or monster in the current battle to see their stats.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+#### Keyboard Shortcuts
+- **a** — check/uncheck current player's **Action**  
+- **s** — check/uncheck current player's **Bonus**  
+- **d** — check/uncheck current player's **Movement**  
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Credits
+- **Created by:** DM Dave  
+- **Additional coding by:** [Jason Peterson](https://madmilliner.github.io/jasonPeterson/)  
+- **QA Testers:** Danny Cullen, Jayme Andrews, Jason Peterson  
+- **Special Thanks:** Wolf Harrington

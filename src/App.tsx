@@ -33,7 +33,21 @@ function App() {
     </div>
     <div id="display">
       <h1>D&D Battle Tracker</h1>
-
+		  
+	  {/* Patreon link */}
+  <div style={{ margin: '1rem 0', textAlign: 'center' }}>
+    <a 
+      href="https://patreon.com/DNDDMDave?utm_medium=unknown&utm_source=battle_tracker&utm_campaign=main_site&utm_content=copyLink" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none' }}
+    >
+      <span style={{ fontWeight: 'bold', color: '#e85b46', fontSize: '16px' }}>
+        Support us on Patreon!
+      </span>
+    </a>
+  </div>
+  
       {/* <p>
         <button onClick={() => setShowHeroManager(!showHeroManager)}>
           {showHeroManager ? "Close Hero Manager" : "Open Hero Manager"}

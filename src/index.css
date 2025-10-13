@@ -1,24 +1,28 @@
+/* Import IM Fell English SC font */
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap');
+
 :root {
-  --color-bg1: #f5f5f5;
-  --color-bg2: #d3d3d3;
-  --color-fg: #131b1f;
-  --color-btn1: #99050b;
-  --color-btn2: #e30711;
-  --color-chk1: #9f9f9f;
-  --color-chk2: #a7743b;
-  --color-hl1: #cca677;
-  --color-hl2: #5b0f00;
-  --color-brdr1: #ccc;
+  --color-bg1: #f8f3e7;       /* slightly parchment-like */
+  --color-bg2: #e6dfd3;       /* subtle secondary background */
+  --color-fg: #131b1f;        /* main text color */
+  --color-btn1: #6a0500;      /* dark button border */
+  --color-btn2: #b3190e;      /* button background */
+  --color-chk1: #8b8b8b;      /* disabled text / info */
+  --color-chk2: #a7743b;      /* secondary highlight */
+  --color-hl1: #d6b88c;       /* popup / panel background */
+  --color-hl2: #5b0f00;       /* header / highlight */
+  --color-brdr1: #b5a37b;     /* table borders */
   --color-rowodd: #ffffff;
   --color-roweven: #f8f2eb;
-  --color-shadow: #777777;
+  --color-shadow: #555555;
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Caudex', serif;
   margin: 0;
   padding: 0;
   background-color: var(--color-bg1);
+  color: var(--color-fg);
 }
 
 table {
@@ -30,12 +34,14 @@ th, td {
   border: 1px solid var(--color-brdr1);
   padding: 0.5rem;
   text-align: center;
+  font-family: 'Caudex', serif;
 }
 
 th {
   background-color: var(--color-roweven);
   border: 1px solid var(--color-brdr1);
   padding: 8px;
+  color: var(--color-hl2);
 }
 
 .bold {
@@ -62,6 +68,7 @@ button {
   background: var(--color-btn2);
   color: var(--color-bg1);
   border: 3px double var(--color-btn1);
+  font-family: 'Caudex', serif;
 }
 
 .editConditions {
@@ -70,6 +77,7 @@ button {
   border-radius: 2px;
   min-height: 20px; 
   display: inline-block;
+  font-family: 'Caudex', serif;
 }
 
 .conditionName {
@@ -80,6 +88,7 @@ button {
   border-radius: 8px;
   font-size: .7rem;
   margin-right: 2px;
+  font-family: 'Caudex', serif;
 }
 
 .conditionEditOuter {
@@ -100,12 +109,14 @@ button {
   margin-right: 4px;
   margin-bottom: 2px;
   cursor: pointer;
+  font-family: 'Caudex', serif;
 }
 
 .conditionSelect {
   width: 100%; 
   padding: 2px;
   margin-bottom: 4px;
+  font-family: 'Caudex', serif;
 }
 
 .editConditionsDone {
@@ -116,11 +127,13 @@ button {
   border: none;
   border-radius: 2px;
   cursor: pointer;
+  font-family: 'Caudex', serif;
 }
 
 .noCondition {
   color: #6c757d;
   font-size: 12px;
+  font-family: 'Caudex', serif;
 }
 
 .pointer {
@@ -133,6 +146,7 @@ input[type="text"] {
   border: 1px solid var(--color-brdr1); 
   border-radius: 2px;
   line-height: 1.5rem;
+  font-family: 'Caudex', serif;
 }
 
 sup {
@@ -142,6 +156,10 @@ sup {
 
 #display h1 {
   text-align: center;
+  font-family: 'Caudex', serif;
+  font-size: 2.5rem;
+  color: var(--color-hl2);
+  text-shadow: 2px 2px 4px var(--color-shadow);
 }
 
 #display button {
@@ -156,6 +174,7 @@ sup {
 #header {
   display: flex;
   justify-content: space-between;
+  font-family: 'Caudex', serif;
 }
 
 #aboutButton {
@@ -163,7 +182,6 @@ sup {
 }
 
 #about {
-  /* display: none; */
   z-index: 9;
   position: absolute;
   top: 10vh;
@@ -173,6 +191,7 @@ sup {
   margin: auto;
   padding: 2vw;
   width: 90vw;
+  font-family: 'Caudex', serif;
 }
 
 #instructions {
@@ -183,6 +202,7 @@ sup {
 #credits {
   margin-top: 5rem;
   font-style: italic;
+  font-family: 'Caudex', serif;
 }
 
 #heroAddManage, #monsterAddManage {
@@ -194,7 +214,7 @@ sup {
   background-color: var(--color-hl1);
   width: 90vw;
   padding: 2vw;
-
+  font-family: 'Caudex', serif;
 }
 
 #heroAddManage thead>tr, #monsterAddManage thead>tr, 
@@ -239,11 +259,21 @@ sup {
   max-height: 150px;
   overflow: auto;
   z-index: 100;
+  font-family: 'Caudex', serif;
 }
 
 .heroTableBody, .monsterTableBody {
   filter: brightness(115%);
 }
+
+.heroTableBody td, .monsterTableBody td{
+  background-color:white;
+}
+
+.heroTableBody .statsRow td, .monsterTableBody .statsRow td{
+  background-color:lightgrey;
+}
+
 
 .heroStats {
   display: flex;
@@ -262,7 +292,6 @@ sup {
 }
 
 .edit {
-  /* border: 1px black solid; */
   filter: drop-shadow(1px 2px 1px #666);
 }
 
@@ -276,40 +305,6 @@ sup {
   padding: 2rem;
 }
 
-
-/* test */
-        /* .monsterName {
-            cursor: pointer;
-        }
-
-        .monsterStats {
-            visibility: hidden;
-            width: 20vw;
-            background-color: var(--color-shadow);
-            color: var(--color-rowodd);
-            text-align: center;
-            border-radius: 5px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 100%;
-            left: 50%;
-            margin-left: -100px; /* Center the tooltip 
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .monsterName:hover .monsterStats {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .monsterStats a {
-            color: #00f;
-            text-decoration: underline;
-        } */
-/* test */
-
 .combatantHP {
   cursor: pointer;
 }
@@ -319,4 +314,5 @@ sup {
   color: var(--color-chk1); 
   font-style: italic; 
   margin-top: 2rem;
+  font-family: 'Caudex', serif;
 }

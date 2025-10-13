@@ -72,8 +72,9 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
   const handleStartBattle = async () => {
-    localStorage.removeItem('combatants');
-    localStorage.removeItem('currentTurnIndex');
+	// Confirm with the user before starting a new battle
+	const confirmed = window.confirm("Are you sure you want to start a new battle?");
+	if (!confirmed) return; // Exit early if user says no
     setShowHeroManager(false); // Close Hero Manager
     setShowMonsterManager(false); // Close Monster Manager
 
@@ -118,6 +119,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
     newCombatants.push({
       id: monster.id,
       name: monster.name,
+	  link: monster.link,
       type: 'monster',
       currHp: monster.hp,
       maxHp: monster.hp,
@@ -154,11 +156,19 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
             ...combatant,
             action: false,
             bonus: false,
-            move: false,
-            reaction: false
+            move: false
           }));
           setCombatants(resetCombatants);
         }
+		
+		// reset reaction for the next combatant
+		const nextCombatantId = sortedCombatants[nextIndex].id;
+		setCombatants(prevCombatants =>
+		  prevCombatants.map(c =>
+			c.id === nextCombatantId ? { ...c, reaction: false } : c
+		  )
+		);
+		
         
         return nextIndex;
       });
@@ -410,10 +420,27 @@ useEffect(() => {
               }}
             >
               {/* Do we need to update the styles above and below this? */}
-              <td style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}>
-                <span title={combatant.stats}>{combatant.name}</span>
-                {index === currentTurnIndex && <span style={{ color: '#28a745', marginLeft: '8px' }}>← Current Turn</span>}
-              </td>
+			  <td style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}>
+				  {combatant.type === "monster" && combatant.link ? (
+					<a 
+					  href={combatant.link} 
+					  target="_blank" 
+					  rel="noopener noreferrer" 
+					  title={combatant.stats}
+					  style={{ color: '#007bff', textDecoration: 'none' }}
+					  onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+					  onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+					>
+					  {combatant.name}
+					</a>
+				  ) : (
+					<span title={combatant.stats}>{combatant.name}</span>
+				  )}
+				  {index === currentTurnIndex && (
+					<span style={{ color: '#28a745', marginLeft: '8px' }}>← Current Turn</span>
+				  )}
+			  </td>
+
               <td>
                 {combatant.initiative}
               </td>

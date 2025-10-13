@@ -19,12 +19,14 @@ export async function startBattle(
       currHp: hero.hp,
       maxHp: hero.hp,
       initiative: initiative,
+	  init: initiative,
       action: false,
       bonus: false,
       move: false,
       reaction: false,
       conditions: [],
-      stats: `Strength: ${hero.str}\nDexterity: ${hero.dex}\nConstitution: ${hero.con}\nIntelligence: ${hero.int}\nWisdom: ${hero.wis}\nCharisma: ${hero.cha}\nPassive Perception: ${hero.pp}`
+      stats: `Strength: ${hero.str}\nDexterity: ${hero.dex}\nConstitution: ${hero.con}\nIntelligence: ${hero.int}\nWisdom: ${hero.wis}\nCharisma: ${hero.cha}\nPassive Perception: ${hero.pp}`,
+	  link: ""
     });
   }
 
