@@ -1,41 +1,75 @@
 import { useState } from 'react';
+import { Combatant } from '../types';
+import { ConcentrationCheckModal } from './concentrationCheck';
+import { useGlobalContext } from '../hooks/versionContext';
 
 interface HpChangeModalProps {
+  combatantId: string; // Add this
   combatantName: string;
   currentHp: number;
   maxHp: number;
   conditions: string[];
   onSubmit: (newHp: number) => void;
+  onRemoveCondition: (condition: string) => void; // Add this
+  onUpdateBoth?: (newHp: number, newConditions: string[]) => void;
   onClose: () => void;
 }
 
-export function HpChangeModal({ combatantName, currentHp, maxHp, conditions, onSubmit, onClose }: HpChangeModalProps) {
+export function HpChangeModal({ combatantName, currentHp, maxHp, conditions, onSubmit, onRemoveCondition, onUpdateBoth, onClose }: HpChangeModalProps) {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
-
+  const [showConcentrationCheck, setShowConcentrationCheck] = useState(false);
+  const [concentrationDC, setConcentrationDC] = useState(10);
+  const { status } = useGlobalContext();
   const isConcentrating = conditions.includes('Concentrating');
   const isDying = conditions.includes('Death Saves')
   
 
   const handleDamage = () => {
-    const damageAmount = parseInt(amount);
-    if (isNaN(damageAmount) || amount.trim() === '') {
-      setError('Please enter a valid number');
-      return;
-    }
-    if (damageAmount < 0) {
-      setError('Damage must be positive');
-      return;
-    }
-    
-    const newHp = Math.max(0, currentHp - damageAmount);
+  const damageAmount = parseInt(amount);
+  if (isNaN(damageAmount) || amount.trim() === '') {
+    setError('Please enter a valid number');
+    return;
+  }
+  
+  
+  if (isConcentrating && damageAmount > 0) {
     const damageToConcentration = Math.floor(damageAmount / 2);
-    const concentrationCheck = Math.max(10, damageToConcentration);
-    if (isConcentrating) {
-      alert(`Did they pass a DC ${concentrationCheck} concentration check?\nIf yes, great; if no then remove concentration.`) };
-    onSubmit(newHp);
-    onClose();
-  };
+    // const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
+    const dc = status === 'twentyFourteen' ? Math.max(10, damageToConcentration) : Math.min(Math.max(10, damageToConcentration), 30);
+    
+    setConcentrationDC(dc);
+    setShowConcentrationCheck(true);
+    
+    return;
+  }
+  
+  // Apply damage normally if not concentrating
+  const newHp = Math.max(0, currentHp - damageAmount);
+  onSubmit(newHp);
+  onClose();
+};
+
+const handleConcentrationPass = () => {
+  // They passed - apply damage and keep concentrating
+  const damageAmount = parseInt(amount);
+  const newHp = Math.max(0, currentHp - damageAmount);
+  onSubmit(newHp);
+  setShowConcentrationCheck(false);
+  onClose();
+};
+
+const handleConcentrationFail = () => {
+  // They failed - apply damage and remove concentrating
+  const damageAmount = parseInt(amount);
+  const newHp = Math.max(0, currentHp - damageAmount);
+  const newConditions = conditions.filter(c => c !== 'Concentrating');
+  setShowConcentrationCheck(false);
+  if (onUpdateBoth) {
+    onUpdateBoth(newHp, newConditions);
+  }
+  
+};
 
   const handleHeal = () => {
     const healAmount = parseInt(amount);
@@ -177,6 +211,14 @@ export function HpChangeModal({ combatantName, currentHp, maxHp, conditions, onS
           Cancel
         </button>
       </div>
+      {showConcentrationCheck && (
+  <ConcentrationCheckModal
+    combatantName={combatantName}
+    dc={concentrationDC}
+    onPass={handleConcentrationPass}
+    onFail={handleConcentrationFail}
+  />
+)}
     </div>
   );
 }
