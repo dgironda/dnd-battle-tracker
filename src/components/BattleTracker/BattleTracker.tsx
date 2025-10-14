@@ -508,13 +508,25 @@ useEffect(() => {
 )}
 {hpModalCombatant && (
   <HpChangeModal
+    combatantId={hpModalCombatant.id}
     combatantName={hpModalCombatant.name}
     currentHp={hpModalCombatant.currHp}
     maxHp={hpModalCombatant.maxHp}
     conditions={hpModalCombatant.conditions}
     onSubmit={(newHp) => {
       updateCombatant(hpModalCombatant.id, 'currHp', newHp);
-      setHpModalCombatant(null);
+    }}
+    onRemoveCondition={(condition) => {
+      const updated = hpModalCombatant.conditions.filter(c => c !== condition);
+      updateCombatant(hpModalCombatant.id, 'conditions', updated);
+    }}
+    onUpdateBoth={(newHp, newConditions) => {
+      setCombatants(prev => prev.map(c => 
+        c.id === hpModalCombatant.id 
+          ? { ...c, currHp: newHp, conditions: newConditions }
+          : c
+      ));
+      setHpModalCombatant(null); // Close modal here after update
     }}
     onClose={() => setHpModalCombatant(null)}
   />
