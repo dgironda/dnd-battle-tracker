@@ -466,34 +466,41 @@ useEffect(() => {
               title="Click to change HP">
                 {combatant.currHp} / {combatant.maxHp}
               </td>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={combatant.action}
-                  onChange={(e) => updateCombatant(combatant.id, 'action', e.target.checked)}
-                />
-              </td>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={combatant.bonus}
-                  onChange={(e) => updateCombatant(combatant.id, 'bonus', e.target.checked)}
-                />
-              </td>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={combatant.move}
-                  onChange={(e) => updateCombatant(combatant.id, 'move', e.target.checked)}
-                />
-              </td>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={combatant.reaction}
-                  onChange={(e) => updateCombatant(combatant.id, 'reaction', e.target.checked)}
-                />
-              </td>
+			  
+			  {/* Added disabling of checkboxes on "Dead", might want to do this on "Death Saves" after prompt to roll and count of Saves/Fails? */}
+			  <td>
+			    <input
+				  type="checkbox"
+				  checked={combatant.action}
+				  disabled={combatant.conditions.includes('Dead')}
+				  onChange={(e) => updateCombatant(combatant.id, 'action', e.target.checked)}
+			    />
+			  </td>
+			  <td>
+			    <input
+				  type="checkbox"
+				  checked={combatant.bonus}
+				  disabled={combatant.conditions.includes('Dead')}
+				  onChange={(e) => updateCombatant(combatant.id, 'bonus', e.target.checked)}
+			    />
+			  </td>
+			  <td>
+			    <input
+				  type="checkbox"
+				  checked={combatant.move}
+				  disabled={combatant.conditions.includes('Dead')}
+				  onChange={(e) => updateCombatant(combatant.id, 'move', e.target.checked)}
+			    />
+			  </td>
+			  <td>
+			    <input
+				  type="checkbox"
+				  checked={combatant.reaction}
+				  disabled={combatant.conditions.includes('Dead')}
+				  onChange={(e) => updateCombatant(combatant.id, 'reaction', e.target.checked)}
+			    />
+			  </td>
+
               <td>
                 <ConditionsEditor combatant={combatant} />
               </td>
