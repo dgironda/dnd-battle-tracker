@@ -75,6 +75,34 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   
   const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
+  const getHpColor = (currHp: number, maxHp: number): string => {
+  if (maxHp === 0) return '#f8f2eb';
+  
+  const percentage = Math.max(0, Math.min(1, currHp / maxHp));
+  
+  // Start color: #f8f2eb (100% HP)
+  const startR = 0xf8;
+  const startG = 0xf2;
+  const startB = 0xeb;
+  
+  // End color: #880808 (0% HP)
+  const endR = 0x88;
+  const endG = 0x08;
+  const endB = 0x08;
+  
+  // Interpolate each channel
+  const r = Math.round(endR + (startR - endR) * percentage);
+  const g = Math.round(endG + (startG - endG) * percentage);
+  const b = Math.round(endB + (startB - endB) * percentage);
+  
+  // Convert to hex
+  const rHex = r.toString(16).padStart(2, '0');
+  const gHex = g.toString(16).padStart(2, '0');
+  const bHex = b.toString(16).padStart(2, '0');
+  
+  return `#${rHex}${gHex}${bHex}`;
+};
+  
   const handleStartBattle = async () => {
     setRoundNumber(1)
 	// Confirm with the user before starting a new battle
@@ -151,63 +179,52 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
 };
 
   const handleNextTurn = () => {
-    if (sortedCombatants.length > 0) {
-      setCurrentTurnIndex((prevIndex) => {
-        const nextIndex = (prevIndex + 1) % sortedCombatants.length;
-        
-        // If we've cycled back to the first combatant, reset all action states
-        if (nextIndex === 0) {
-          const resetCombatants = sortedCombatants.map(combatant => ({
-            ...combatant,
-            action: false,
-            bonus: false,
-            move: false
-          }));
-          setCombatants(resetCombatants);
-          setRoundNumber(roundNumber + 1)
+  if (sortedCombatants.length === 0) return;
+  
+  setCurrentTurnIndex((prevIndex) => {
+    let nextIndex = (prevIndex + 1) % sortedCombatants.length;
+    let attempts = 0;
+    const maxAttempts = sortedCombatants.length; // Prevent infinite loop
+    
+    // Skip dead combatants
+     while (
+            attempts < maxAttempts && 
+            sortedCombatants[nextIndex].conditions.includes('Dead')
+        ) {
+            nextIndex = (nextIndex + 1) % sortedCombatants.length;
+            attempts++;
         }
-		
-		// reset reaction for the next combatant
-		const nextCombatantId = sortedCombatants[nextIndex].id;
-		setCombatants(prevCombatants =>
-		  prevCombatants.map(c =>
-			c.id === nextCombatantId ? { ...c, reaction: false } : c
-		  )
-		);
-		
-        
-        return nextIndex;
-      });
+    if (attempts === maxAttempts) {
+            console.warn("All combatants are dead. No turns left.");
+            return prevIndex; // or handle as needed (e.g., reset the game)
+        }
+    // If we've cycled back to the first combatant (or first alive combatant), new round
+    if (nextIndex === 0 || (nextIndex < prevIndex && attempts > 0)) {
+      const resetCombatants = sortedCombatants.map(combatant => ({
+        ...combatant,
+        action: false,
+        bonus: false,
+        move: false
+      }));
+      setCombatants(resetCombatants);
+      setRoundNumber(prev => prev + 1);
     }
-  };
-  
-  const getHpColor = (currHp: number, maxHp: number): string => {
-  if (maxHp === 0) return '#f8f2eb';
-  
-  const percentage = Math.max(0, Math.min(1, currHp / maxHp));
-  
-  // Start color: #f8f2eb (100% HP)
-  const startR = 0xf8;
-  const startG = 0xf2;
-  const startB = 0xeb;
-  
-  // End color: #880808 (0% HP)
-  const endR = 0x88;
-  const endG = 0x08;
-  const endB = 0x08;
-  
-  // Interpolate each channel
-  const r = Math.round(endR + (startR - endR) * percentage);
-  const g = Math.round(endG + (startG - endG) * percentage);
-  const b = Math.round(endB + (startB - endB) * percentage);
-  
-  // Convert to hex
-  const rHex = r.toString(16).padStart(2, '0');
-  const gHex = g.toString(16).padStart(2, '0');
-  const bHex = b.toString(16).padStart(2, '0');
-  
-  return `#${rHex}${gHex}${bHex}`;
+    
+    // Reset reaction for the next combatant (if they're not dead)
+    if (!sortedCombatants[nextIndex].conditions.includes('Dead')) {
+      const nextCombatantId = sortedCombatants[nextIndex].id;
+      setCombatants(prevCombatants =>
+        prevCombatants.map(c =>
+          c.id === nextCombatantId ? { ...c, reaction: false } : c
+        )
+      );
+    }
+    
+    return nextIndex;
+  });
 };
+  
+
 
   // Advance turn when action, bonus, and move are checked
   useEffect(() => {
@@ -215,19 +232,23 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
     
     const currentCombatant = sortedCombatants[currentTurnIndex];
     
-    // Check if all three are checked
-    if (currentCombatant.action && currentCombatant.bonus && currentCombatant.move) {
-      handleNextTurn();
-    }
-  }, [combatants, currentTurnIndex]); // Runs whenever combatants or turn index changes
+    // Skip if dead OR if all three are checked
+  if (
+    currentCombatant.conditions.includes('Dead') ||
+    (currentCombatant.action && currentCombatant.bonus && currentCombatant.move)
+  ) {
+    handleNextTurn();
+  }
+}, [combatants, currentTurnIndex]);
   
   // Unchecking will set that player as Current Turn
   useEffect(() => {
   if (sortedCombatants.length === 0) return;
 
-  // Find first combatant that has at least one action unchecked
-  const nextTurnIndex = sortedCombatants.findIndex(combatant => 
-    !combatant.action || !combatant.bonus || !combatant.move
+  // Find first combatant that has at least one action unchecked and is not dead
+  const nextTurnIndex = sortedCombatants.findIndex(combatant =>
+    !combatant.conditions.includes('Dead') && // Add this check
+    (!combatant.action || !combatant.bonus || !combatant.move)
   );
 
   // If we found one and it's different from current turn, switch to it
@@ -276,23 +297,6 @@ useEffect(() => {
     window.removeEventListener('keydown', handleKeyPress);
   };
 }, [sortedCombatants, currentTurnIndex, updateCombatant]);
-
-// I think we can delete EditableHp, commenting out for now to make sure
-  // const EditableHp = ({ combatant }: { combatant: Combatant }) => {
-  //   return (
-  //     <span>
-  //       <EditableCell
-  //         entity={combatant}
-  //         field="currHp"
-  //         type="number"
-  //         editingField={editingField}
-  //         setEditingField={setEditingField}
-  //         updateEntity={updateCombatant}
-  //       />
-  //       /{combatant.maxHp}
-  //     </span>
-  //   );
-  // };
 
   const ConditionsEditor = ({ combatant }: { combatant: Combatant }) => {
     const isEditing = editingConditions === combatant.id;
