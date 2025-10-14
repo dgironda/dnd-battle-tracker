@@ -8,9 +8,10 @@ import { HpChangeModal } from "../../utils/dmg-heal";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
 import { InitiativeDialog } from "./InitiativeDialog";
-import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, storeCombatants } from "../../utils/LocalStorage";
+import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getRoundNumber, storeCombatants } from "../../utils/LocalStorage";
 import { useGlobalContext } from "../../hooks/versionContext";
 import { createDeleteMonster } from "../Utils";
+import RoundNumberSpan from "./RoundNumber";
 
 interface BattleTrackerProps {
   setShowHeroManager: (show: boolean) => void;
@@ -40,6 +41,9 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const [hpModalCombatant, setHpModalCombatant] = useState<Combatant | null>(null);
 
   const sortedCombatants = [...combatants].sort((a, b) => b.initiative - a.initiative);
+  const [roundNumber, setRoundNumber] = useState(() => {
+    return getRoundNumber();
+  });
   
   useEffect(() => {
     const saved = getCombatants();
@@ -72,6 +76,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
   const handleStartBattle = async () => {
+    setRoundNumber(1)
 	// Confirm with the user before starting a new battle
 	const confirmed = window.confirm("Are you sure you want to start a new battle?");
 	if (!confirmed) return; // Exit early if user says no
@@ -159,6 +164,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
             move: false
           }));
           setCombatants(resetCombatants);
+          setRoundNumber(roundNumber + 1)
         }
 		
 		// reset reaction for the next combatant
@@ -233,7 +239,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   // Save on every state change
 useEffect(() => {
   if (combatants.length > 0) {
-    storeCombatants(combatants);
+    storeCombatants(combatants, roundNumber);
     localStorage.setItem('currentTurnIndex', currentTurnIndex.toString());
   }
 }, [combatants, currentTurnIndex]);
@@ -391,6 +397,8 @@ useEffect(() => {
         <button id="buttonStartBattle" onClick={handleStartBattle}>
           Start Battle
         </button>
+        <RoundNumberSpan
+        roundNumber={roundNumber} />
         {/* <button id="buttonNextTurn" onClick={handleNextTurn} disabled={combatants.length === 0}>
           Next Turn
         </button> */}

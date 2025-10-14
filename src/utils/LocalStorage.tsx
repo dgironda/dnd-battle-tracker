@@ -1,6 +1,6 @@
 import { Hero, Monster, Combatant } from '../types/index';
-import CombatantList from '../components/BattleTracker/CombatantList';
-// import {combatants, currentTurn}
+
+
 
 const HEROES_KEY = "storedHeroes";
 const MONSTERS_KEY = "storedMonsters";
@@ -105,10 +105,11 @@ function hasStoredMonsters(): boolean {
 /**
  * Store combatants array to localStorage
  */
-function storeCombatants(combatants: Combatant[]): void {
+function storeCombatants(combatants: Combatant[], round: number): void {
   try {
     localStorage.setItem(COMBATANTS_KEY, JSON.stringify(combatants ?? []));
     console.log("Stored combatants:", localStorage.getItem(COMBATANTS_KEY));
+    localStorage.setItem('roundNumber', round.toString())
   } catch (error) {
     console.error("Error storing combatants:", error);
   }
@@ -127,14 +128,20 @@ function getCombatants(): Combatant[] {
   }
 }
 
+function getRoundNumber(): number {
+  const stored = localStorage.getItem('roundNumber');
+  return stored ? parseInt(stored) : 0;
+};
+
 /**
  * Clear combatants
  */
 function clearCombatants(): void {
   try {
     localStorage.removeItem(COMBATANTS_KEY);
+    localStorage.removeItem('roundNumber');
   } catch (error) {
-    console.error("Error clearing combatants:", error);
+    console.error("Error clearing combatants or round:", error);
   }
 }
 
@@ -161,6 +168,7 @@ export {
   hasStoredMonsters,
   storeCombatants,
   getCombatants,
+  getRoundNumber,
   clearCombatants,
   hasStoredCombatants,
 };

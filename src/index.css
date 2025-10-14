@@ -301,6 +301,11 @@ sup {
   background-color: transparent;
 }
 
+#round {
+  margin-left: 5vw;
+  font-size: 1.25rem;
+}
+
 #battleTrackerOuter {
   padding: 2rem;
 }
