@@ -51,11 +51,11 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   }, []);
 
   const updateCombatant = (combatantId: string, field: keyof Combatant, value: any) => {
-    const updatedCombatants = combatants.map(combatant =>
-      combatant.id === combatantId ? { ...combatant, [field]: value } : combatant
-    );
-    setCombatants(updatedCombatants);
-  };
+  const updatedCombatants = combatants.map(combatant =>
+    combatant.id === combatantId ? { ...combatant, [field]: value } : combatant
+  );
+  setCombatants(updatedCombatants);
+};
 
   const addCondition = (combatantId: string, condition: string) => {
     const combatant = combatants.find(c => c.id === combatantId);
@@ -128,7 +128,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
       newCombatants.push({
         id: hero.id,
         name: hero.name,
-        type: 'hero',
+        identity: 'hero',
         currHp: hero.hp,
         maxHp: hero.hp,
         initiative,
@@ -153,7 +153,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
       id: monster.id,
       name: monster.name,
 	  link: monster.link,
-      type: 'monster',
+      identity: 'monster',
       currHp: monster.hp,
       maxHp: monster.hp,
       initiative,
@@ -433,7 +433,7 @@ useEffect(() => {
             >
               {/* Do we need to update the styles above and below this? */}
 			  <td style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}>
-				  {combatant.type === "monster" && combatant.link ? (
+				  {combatant.identity === "monster" && combatant.link ? (
 					<a 
 					  href={combatant.link} 
 					  target="_blank" 
@@ -525,11 +525,16 @@ useEffect(() => {
     currentHp={hpModalCombatant.currHp}
     maxHp={hpModalCombatant.maxHp}
     conditions={hpModalCombatant.conditions}
+    identity={hpModalCombatant.identity}
     onSubmit={(newHp) => {
       updateCombatant(hpModalCombatant.id, 'currHp', newHp);
     }}
     onRemoveCondition={(condition) => {
       const updated = hpModalCombatant.conditions.filter(c => c !== condition);
+      updateCombatant(hpModalCombatant.id, 'conditions', updated);
+    }}
+    onAddCondition={(newCondition) => {
+      const updated = [...hpModalCombatant.conditions, newCondition];
       updateCombatant(hpModalCombatant.id, 'conditions', updated);
     }}
     onUpdateBoth={(newHp, newConditions) => {

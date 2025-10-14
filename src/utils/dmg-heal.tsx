@@ -1,26 +1,29 @@
 import { useState } from 'react';
-import { Combatant } from '../types';
+import { Combatant } from '../types/index';
 import { ConcentrationCheckModal } from './concentrationCheck';
 import { useGlobalContext } from '../hooks/versionContext';
 
 interface HpChangeModalProps {
-  combatantId: string; // Add this
+  combatantId: string;
   combatantName: string;
   currentHp: number;
   maxHp: number;
   conditions: string[];
+  identity: 'hero' | 'monster';
   onSubmit: (newHp: number) => void;
-  onRemoveCondition: (condition: string) => void; // Add this
+  onRemoveCondition: (condition: string) => void;
+  onAddCondition: (condition: string) => void;
   onUpdateBoth?: (newHp: number, newConditions: string[]) => void;
   onClose: () => void;
 }
 
-export function HpChangeModal({ combatantName, currentHp, maxHp, conditions, onSubmit, onRemoveCondition, onUpdateBoth, onClose }: HpChangeModalProps) {
+export function HpChangeModal({ combatantName, currentHp, maxHp, identity, conditions, onSubmit, onRemoveCondition, onAddCondition, onUpdateBoth, onClose }: HpChangeModalProps) {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   const [showConcentrationCheck, setShowConcentrationCheck] = useState(false);
   const [concentrationDC, setConcentrationDC] = useState(10);
   const { status } = useGlobalContext();
+  // const [condition, setConditions] = useState<string[]>(conditions)
   const isConcentrating = conditions.includes('Concentrating');
   const isDying = conditions.includes('Death Saves')
   
@@ -46,6 +49,25 @@ export function HpChangeModal({ combatantName, currentHp, maxHp, conditions, onS
   
   // Apply damage normally if not concentrating
   const newHp = Math.max(0, currentHp - damageAmount);
+  let updatedConditions = [...conditions];
+  
+  // Auto-add death condition
+  if (newHp <= 0) {
+    if (identity === 'hero' && !conditions.includes('Death Saves')) {
+      updatedConditions.push('Death Saves');
+    } else if (identity === 'monster' && !conditions.includes('Dead')) {
+      updatedConditions.push('Dead');
+    }
+  }
+  
+  // If conditions changed, use onUpdateBoth
+  if (updatedConditions.length !== conditions.length && onUpdateBoth) {
+    onUpdateBoth(newHp, updatedConditions);
+    setShowConcentrationCheck(false);
+    return; // Don't call onSubmit separately
+  }
+  
+  // Otherwise just update HP
   onSubmit(newHp);
   onClose();
 };
