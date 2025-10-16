@@ -207,7 +207,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
         move: false
       }));
       setCombatants(resetCombatants);
-      setRoundNumber(prev => prev + 1);
+      setRoundNumber(roundNumber + 1);
     }
     
     // Reset reaction for the next combatant (if they're not dead)
