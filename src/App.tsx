@@ -37,7 +37,7 @@ function App() {
 	  {/* Patreon link */}
   <div style={{ margin: '1rem 0', textAlign: 'center' }}>
     <a 
-      href="https://patreon.com/DNDDMDave?utm_medium=unknown&utm_source=battle_tracker&utm_campaign=main_site&utm_content=copyLink" 
+      href="https://patreon.com/SimTech?utm_medium=unknown&utm_source=battle_tracker&utm_campaign=main_site&utm_content=copyLink" 
       target="_blank" 
       rel="noopener noreferrer"
       style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none' }}
