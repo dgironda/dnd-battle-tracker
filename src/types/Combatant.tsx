@@ -2,7 +2,7 @@ interface Combatant {
   id: string;
   name: string;
   link?: string;
-  identity: 'hero' | 'monster';
+  type: 'hero' | 'monster';
   currHp: number;
   maxHp: number;
   action: boolean;

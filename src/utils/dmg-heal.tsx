@@ -9,7 +9,7 @@ interface HpChangeModalProps {
   currentHp: number;
   maxHp: number;
   conditions: string[];
-  identity: 'hero' | 'monster';
+  type: 'hero' | 'monster';
   onSubmit: (newHp: number) => void;
   onRemoveCondition: (condition: string) => void;
   onAddCondition: (condition: string) => void;
@@ -17,7 +17,7 @@ interface HpChangeModalProps {
   onClose: () => void;
 }
 
-export function HpChangeModal({ combatantName, currentHp, maxHp, identity, conditions, onSubmit, onRemoveCondition, onAddCondition, onUpdateBoth, onClose }: HpChangeModalProps) {
+export function HpChangeModal({ combatantName, currentHp, maxHp, type, conditions, onSubmit, onRemoveCondition, onAddCondition, onUpdateBoth, onClose }: HpChangeModalProps) {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   const [showConcentrationCheck, setShowConcentrationCheck] = useState(false);
@@ -53,9 +53,9 @@ export function HpChangeModal({ combatantName, currentHp, maxHp, identity, condi
   
   // Auto-add death condition
   if (newHp <= 0) {
-    if (identity === 'hero' && !conditions.includes('Death Saves')) {
+    if (type === 'hero' && !conditions.includes('Death Saves')) {
       updatedConditions.push('Death Saves');
-    } else if (identity === 'monster' && !conditions.includes('Dead')) {
+    } else if (type === 'monster' && !conditions.includes('Dead')) {
       updatedConditions.push('Dead');
     }
   }

@@ -128,7 +128,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
       newCombatants.push({
         id: hero.id,
         name: hero.name,
-        identity: 'hero',
+        type: 'hero',
         currHp: hero.hp,
         maxHp: hero.hp,
         initiative,
@@ -153,7 +153,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
       id: monster.id,
       name: monster.name,
 	  link: monster.link,
-      identity: 'monster',
+      type: 'monster',
       currHp: monster.hp,
       maxHp: monster.hp,
       initiative,
@@ -433,7 +433,7 @@ useEffect(() => {
             >
               {/* Do we need to update the styles above and below this? */}
 			  <td style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}>
-				  {combatant.identity === "monster" && combatant.link ? (
+				  {combatant.type === "monster" && combatant.link ? (
 					<a 
 					  href={combatant.link} 
 					  target="_blank" 
@@ -532,7 +532,7 @@ useEffect(() => {
     currentHp={hpModalCombatant.currHp}
     maxHp={hpModalCombatant.maxHp}
     conditions={hpModalCombatant.conditions}
-    identity={hpModalCombatant.identity}
+    type={hpModalCombatant.type}
     onSubmit={(newHp) => {
       updateCombatant(hpModalCombatant.id, 'currHp', newHp);
     }}
