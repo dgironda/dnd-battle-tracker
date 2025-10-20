@@ -1,8 +1,14 @@
 // contexts/CombatContext.tsx
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Hero, Monster, Combatant } from "../../types/index";
+import { createContext, useContext, useState, useEffect } from 'react';
 import { InitiativeDialog } from './InitiativeDialog';
-import { getHeroes, getMonsters, getCombatants, getRoundNumber, storeHeroes, storeMonsters, storeCombatants } from '../../utils/LocalStorage';
+import { Hero, Monster, Combatant } from "../../types/index";
+import {
+  getMonsters,
+  getCombatants,
+  getRoundNumber,
+  storeMonsters,
+  storeCombatants
+} from '../../utils/LocalStorage';
 import { useMonsters } from "../../hooks/useMonsters";
 
 interface CombatContextType {
@@ -12,7 +18,7 @@ interface CombatContextType {
   setCurrentTurnIndex: (i: number) => void;
   roundNumber: number;
   setRoundNumber: (r: number) => void;
-  addMonsterToCombat: (id: string) => Promise<void>;
+  addMonsterToCombat: (monster: Monster) => Promise<void>;
   currentCombatant: Hero | Monster | null;
   setCurrentCombatant: (c: Hero | Monster | null) => void;
   initiativeResolver: ((init: number) => void) | null;
@@ -22,20 +28,18 @@ interface CombatContextType {
 const CombatContext = createContext<CombatContextType | null>(null);
 
 export function CombatProvider({ children }: { children: React.ReactNode }) {
-  const { monsters, setMonsters } = useMonsters();
-     const [combatants, setCombatants] = useState<Combatant[]>(() => {
-      return getCombatants() || [];
-    });
+  const { monsters } = useMonsters();
+
+  const [combatants, setCombatants] = useState<Combatant[]>(() => getCombatants() || []);
   const [currentTurnIndex, setCurrentTurnIndex] = useState(() => {
     const saved = localStorage.getItem('currentTurnIndex');
     return saved ? parseInt(saved) : 0;
   });
-   const [roundNumber, setRoundNumber] = useState(() => {
-      return getRoundNumber();
-    });
+  const [roundNumber, setRoundNumber] = useState(() => getRoundNumber());
   const [currentCombatant, setCurrentCombatant] = useState<Hero | Monster | null>(null);
   const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
 
+  // Store updates in localStorage when things change
   useEffect(() => {
     if (combatants.length > 0) {
       localStorage.setItem('currentTurnIndex', currentTurnIndex.toString());
@@ -43,58 +47,57 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
     }
   }, [combatants, currentTurnIndex, roundNumber]);
 
+  /**
+   * Adds a monster into an *existing combat*, with initiative dialog
+   */
+  const addMonsterToCombat = async (monster: Monster) => {
+    if (!monster) return;
 
-    const addMonsterToCombat = async (monsterId:string) => {
-        // Get the monster you want to add
-        const monster = monsters.find(m => m.id === monsterId);
-        console.log('1. Monster found:', monster?.name);
-        
-        if (!monster) return;
-        setCurrentCombatant(monster);
-        console.log('2. About to set currentCombatant and wait for initiative');
-  console.log('3. currentCombatant before:', currentCombatant);
-  console.log('4. initiativeResolver before:', initiativeResolver);
-        // Get initiative for the monster
-        const initiative = await new Promise<number>((resolve) => {
-                console.log('5. Inside Promise, setting currentCombatant');
-            setCurrentCombatant(monster);
-                console.log('6. Setting initiativeResolver');
-            setInitiativeResolver(() => resolve);
-                console.log('7. Waiting for initiative dialog');
-        });
-        console.log('8. Initiative received:', initiative);
-        console.log('Initiative received:', initiative);
-        
-        const newCombatant: Combatant = {
-            id: monster.id,
-            name: monster.name,
-            link: monster.link,
-            type: 'monster',
-            currHp: monster.hp,
-            maxHp: monster.hp,
-            initiative: initiative,
-            action: false,
-            bonus: false,
-            move: false,
-            reaction: false,
-            conditions: monster.conditions,
-            init: monster.init,
-            stats: `Armor Class: ${monster.ac}\nStrength: ${monster.str}\nDexterity: ${monster.dex}\nConstitution: ${monster.con}\nIntelligence: ${monster.int}\nWisdom: ${monster.wis}\nCharisma: ${monster.cha}\nPassive Perception: ${monster.pp}\n\n${monster.link}`
-        };
-        // console.log("addMonsterToCombat newCombatant: ", newCombatant)
-        
-        setCombatants([...combatants, newCombatant]);
-        const freshMonsters = getMonsters();
-        const updatedMonsters = freshMonsters.filter(m => m.id !== monsterId);
-        storeMonsters(updatedMonsters);
-        
-        // Re-sort will happen automatically
-        setCurrentCombatant(null);
+    // Trigger the initiative dialog by setting currentCombatant
+    const initiative = await new Promise<number>((resolve) => {
+      setCurrentCombatant(monster);
+      setInitiativeResolver(() => resolve);
+    });
+
+    // Create Combatant entry
+    const newCombatant: Combatant = {
+      id: monster.id,
+      name: monster.name,
+      link: monster.link,
+      type: 'monster',
+      identity: 'monster',
+      currHp: monster.hp,
+      maxHp: monster.hp,
+      initiative,
+      init: initiative,
+      action: false,
+      bonus: false,
+      move: false,
+      reaction: false,
+      conditions: monster.conditions ?? [],
+      stats: `Armor Class: ${monster.ac}\nSTR: ${monster.str}\nDEX: ${monster.dex}\nCON: ${monster.con}\nINT: ${monster.int}\nWIS: ${monster.wis}\nCHA: ${monster.cha}\nPP: ${monster.pp}\n\n${monster.link || ''}`,
     };
 
+    // Add and sort by initiative (descending)
+    setCombatants((prev) => {
+      const updated = [...prev, newCombatant].sort((a, b) => b.initiative - a.initiative);
+      storeCombatants(updated, roundNumber);
+      return updated;
+    });
 
-  return (
-    <CombatContext.Provider value={{
+    // Remove monster from selection pool
+    const freshMonsters = getMonsters();
+    const updatedMonsters = freshMonsters.filter((m) => m.id !== monster.id);
+    storeMonsters(updatedMonsters);
+
+    // Clear dialog context
+    setCurrentCombatant(null);
+    setInitiativeResolver(null);
+  };
+
+return (
+  <CombatContext.Provider
+    value={{
       combatants,
       setCombatants,
       currentTurnIndex,
@@ -102,14 +105,30 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       roundNumber,
       setRoundNumber,
       addMonsterToCombat,
-      currentCombatant, // Add these to context
+      currentCombatant,
       setCurrentCombatant,
       initiativeResolver,
-      setInitiativeResolver
-    }}>
-      {children}
-    </CombatContext.Provider>
-  );
+      setInitiativeResolver,
+    }}
+  >
+    {children}
+
+    {/*Render the InitiativeDialog when a combatant and resolver exist */}
+    {initiativeResolver && currentCombatant && (
+      <InitiativeDialog
+        heroName={currentCombatant.name}
+        initiativeModifier={currentCombatant.init || 0}
+        onSubmit={(initiative: number) => {
+          initiativeResolver(initiative);
+          setInitiativeResolver(null);
+          setCurrentCombatant(null);
+        }}
+      />
+    )}
+  </CombatContext.Provider>
+);
+
+
 }
 
 export function useCombat() {

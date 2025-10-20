@@ -253,7 +253,7 @@ const MonsterManager = () => {
                 <td>
                   <button
                     className="buttonAddMonsterToCombat"
-                    onClick={() => addMonsterToCombat(m.id)}
+                    onClick={() => addMonsterToCombat(m)}
                   >
                     Add to Existing Combat
                   </button>
