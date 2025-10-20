@@ -65,7 +65,6 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       name: monster.name,
       link: monster.link,
       type: 'monster',
-//      identity: 'monster', //commented out to build, not sure if we need?
       currHp: monster.hp,
       maxHp: monster.hp,
       initiative,
