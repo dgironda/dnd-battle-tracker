@@ -4,6 +4,8 @@ import MonsterManager from "./components/MonsterManager/MonsterManager";
 import About from "./About";
 import ToggleComponent from "./components/ToggleContext";
 import { useState } from "react";
+import { CombatProvider } from "./components/BattleTracker/CombatContext";
+
 
 function App() {
   const [showHeroManager, setShowHeroManager] = useState(false);
@@ -12,8 +14,9 @@ function App() {
 
 
   return (
-    <>
+    <CombatProvider>
     <div id="header">
+      
       <About 
         isVisible={openPanel === 'about'} 
         onToggle={() => setOpenPanel(openPanel === 'about' ? null : 'about')} 
@@ -66,8 +69,9 @@ function App() {
         setShowHeroManager={setShowHeroManager} 
         setShowMonsterManager={setShowMonsterManager}  
       />
+      
     </div>
-    </>
+    </CombatProvider>
   );
 }
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useCombat } from './CombatContext';
 
 interface InitiativeDialogProps {
   heroName: string;
@@ -7,7 +8,9 @@ interface InitiativeDialogProps {
 }
 
 export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: InitiativeDialogProps) {
-  const [inputValue, setInputValue] = useState('');
+  const { initiativeResolver, setInitiativeResolver } = useCombat();
+  const [inputValue, setInputValue] = useState<number>(0);
+    // const [tempValue, setTempValue] = useState<string>('');
   const [error, setError] = useState('');
 
   const handleRandom = () => {
@@ -18,20 +21,23 @@ export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: Ini
   };
 
   const handleSubmit = () => {
-    const parsed = parseInt(inputValue);
-    if (isNaN(parsed) || inputValue.trim() === '') {
-      setError('Please enter a valid number');
-      return;
-    }
-    setError('');
-    onSubmit(parsed);
-  };
+    const parsed = inputValue; 
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSubmit();
+    if (initiativeResolver) {
+        initiativeResolver(parsed); 
+        setInitiativeResolver(null);  
     }
-  };
+
+    if (isNaN(parsed) || parsed <= 0) {
+        setError('Please enter a valid number greater than zero');
+        return;
+    }
+
+    setError('');
+    onSubmit(parsed); 
+    if (!initiativeResolver) return null;
+};
+
 
   return (
     <div style={{
@@ -60,8 +66,12 @@ export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: Ini
           min={1}
           max={40}
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onChange={(e) => {
+        const value = e.target.value;
+        const numericValue = value ? parseFloat(value) : 0;
+        setInputValue(numericValue); 
+    }}
+          // onKeyPress={handleKeyPress}
           placeholder="Enter initiative value"
           autoFocus
           style={{

@@ -7,6 +7,7 @@ import { EditableCell } from "../../utils/editableCell";
 import { HpChangeModal } from "../../utils/dmg-heal";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
+import { useCombat } from "./CombatContext";
 import { InitiativeDialog } from "./InitiativeDialog";
 import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getRoundNumber, storeCombatants } from "../../utils/LocalStorage";
 import { useGlobalContext } from "../../hooks/versionContext";
@@ -23,15 +24,16 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   setShowMonsterManager 
 }) => {
   const { heroes, setHeroes } = useHeroes();
-    const [combatants, setCombatants] = useState<Combatant[]>(() => {
-    return getCombatants() || [];
-  });
+  //   const [combatants, setCombatants] = useState<Combatant[]>(() => {
+  //   return getCombatants() || [];
+  // });
+  const { combatants, setCombatants, currentTurnIndex, setCurrentTurnIndex, roundNumber, setRoundNumber } = useCombat();
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingConditions, setEditingConditions] = useState<string | null>(null);
-  const [currentTurnIndex, setCurrentTurnIndex] = useState(() => {
-    const saved = localStorage.getItem('currentTurnIndex');
-    return saved ? parseInt(saved) : 0;
-  });
+  // const [currentTurnIndex, setCurrentTurnIndex] = useState(() => {
+  //   const saved = localStorage.getItem('currentTurnIndex');
+  //   return saved ? parseInt(saved) : 0;
+  // });
   const [hasSavedCombat, setHasSavedCombat] = useState(false);
   const [currentCombatant, setCurrentCombatant] = useState<Hero | Monster | null>(null);
   const { monsters, setMonsters } = useMonsters();
@@ -41,9 +43,9 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const [hpModalCombatant, setHpModalCombatant] = useState<Combatant | null>(null);
 
   const sortedCombatants = [...combatants].sort((a, b) => b.initiative - a.initiative);
-  const [roundNumber, setRoundNumber] = useState(() => {
-    return getRoundNumber();
-  });
+  // const [roundNumber, setRoundNumber] = useState(() => {
+  //   return getRoundNumber();
+  // });
   
   useEffect(() => {
     const saved = getCombatants();
@@ -178,50 +180,47 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   setCurrentTurnIndex(0);
 };
 
-  const handleNextTurn = () => {
+const handleNextTurn = () => {
   if (sortedCombatants.length === 0) return;
-  
-  setCurrentTurnIndex((prevIndex) => {
-    let nextIndex = (prevIndex + 1) % sortedCombatants.length;
-    let attempts = 0;
-    const maxAttempts = sortedCombatants.length; // Prevent infinite loop
-    
-    // Skip dead combatants
-     while (
-            attempts < maxAttempts && 
-            sortedCombatants[nextIndex].conditions.includes('Dead')
-        ) {
-            nextIndex = (nextIndex + 1) % sortedCombatants.length;
-            attempts++;
-        }
-    if (attempts === maxAttempts) {
-            console.warn("All combatants are dead. No turns left.");
-            return prevIndex; // or handle as needed (e.g., reset the game)
-        }
-    // If we've cycled back to the first combatant (or first alive combatant), new round
-    if (nextIndex === 0 || (nextIndex < prevIndex && attempts > 0)) {
-      const resetCombatants = sortedCombatants.map(combatant => ({
-        ...combatant,
-        action: false,
-        bonus: false,
-        move: false
-      }));
-      setCombatants(resetCombatants);
-      setRoundNumber(roundNumber + 1);
-    }
-    
-    // Reset reaction for the next combatant (if they're not dead)
-    if (!sortedCombatants[nextIndex].conditions.includes('Dead')) {
-      const nextCombatantId = sortedCombatants[nextIndex].id;
-      setCombatants(prevCombatants =>
-        prevCombatants.map(c =>
-          c.id === nextCombatantId ? { ...c, reaction: false } : c
-        )
-      );
-    }
-    
-    return nextIndex;
-  });
+
+  let nextIndex = (currentTurnIndex + 1) % sortedCombatants.length;
+  let attempts = 0;
+  const maxAttempts = sortedCombatants.length;
+
+  while (
+    attempts < maxAttempts &&
+    sortedCombatants[nextIndex].conditions.includes('Dead')
+  ) {
+    nextIndex = (nextIndex + 1) % sortedCombatants.length;
+    attempts++;
+  }
+
+  if (attempts === maxAttempts) {
+    console.warn("All combatants are dead. No turns left.");
+    return;
+  }
+
+  // Reset ALL combatants at the start of a new round
+  if (nextIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
+    const resetCombatants = combatants.map(c => ({
+      ...c,
+      action: false,
+      bonus: false,
+      move: false,
+      reaction: false
+    }));
+    setCombatants(resetCombatants);
+    setRoundNumber(roundNumber + 1);
+    setCurrentTurnIndex(nextIndex);
+  } else {
+    // Just reset reaction for the next combatant
+    const nextCombatantId = sortedCombatants[nextIndex].id;
+    const updatedCombatants = combatants.map(c =>
+      c.id === nextCombatantId ? { ...c, reaction: false } : c
+    );
+    setCombatants(updatedCombatants);
+    setCurrentTurnIndex(nextIndex);
+  }
 };
   
 
@@ -229,9 +228,14 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   // Advance turn when action, bonus, and move are checked
   useEffect(() => {
     if (sortedCombatants.length === 0) return;
-    
     const currentCombatant = sortedCombatants[currentTurnIndex];
-    
+   
+    console.log('Auto-advance check:', currentCombatant.name, {
+    action: currentCombatant.action,
+    bonus: currentCombatant.bonus,
+    move: currentCombatant.move
+  });
+
     // Skip if dead OR if all three are checked
   if (
     currentCombatant.conditions.includes('Dead') ||
@@ -515,15 +519,19 @@ useEffect(() => {
         </p>
       )}
       {currentCombatant && initiativeResolver && (
+        <>
+        {console.log('InitiativeDialog rendering for:', currentCombatant.name)}
         <InitiativeDialog 
           heroName={currentCombatant.name}
           initiativeModifier={currentCombatant.init}
           onSubmit={(init) => {
+            console.log('Initiative submitted:', init);
             initiativeResolver(init);
             setCurrentCombatant(null);
             setInitiativeResolver(null);
       }}
   />
+  </>
 )}
 {hpModalCombatant && (
   <HpChangeModal
@@ -545,11 +553,12 @@ useEffect(() => {
       updateCombatant(hpModalCombatant.id, 'conditions', updated);
     }}
     onUpdateBoth={(newHp, newConditions) => {
-      setCombatants(prev => prev.map(c => 
-        c.id === hpModalCombatant.id 
+      const updatedCombatants = combatants.map(c =>
+        c.id === hpModalCombatant.id
           ? { ...c, currHp: newHp, conditions: newConditions }
           : c
-      ));
+      );
+      setCombatants(updatedCombatants);
       setHpModalCombatant(null); // Close modal here after update
     }}
     onClose={() => setHpModalCombatant(null)}

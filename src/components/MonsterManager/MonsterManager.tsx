@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useMonsters } from "../../hooks/useMonsters";
 import { Monster } from "../../types/Monster";
 import { createUpdateMonster, createDeleteMonster } from "../Utils";
 import { EditableCell } from "../Utils";
 import { useGlobalContext } from "../../hooks/versionContext";
+import { useCombat } from "../BattleTracker/CombatContext";
+import { InitiativeDialog } from "../BattleTracker/InitiativeDialog";
 import monstersDataFourteen from "../../assets/2014monsters.json";
 
 const MonsterManager = () => {
@@ -30,6 +32,7 @@ const MonsterManager = () => {
   const { status } = useGlobalContext();
   const monstersData = monstersDataFourteen
   // const monstersData = status === 'twentyFourteen' ? monstersDataFourteen : monstersDataTwentyFour; // Turn this on when monstersDataTwentyFour is added above
+  const { addMonsterToCombat } = useCombat();
 
   // 🔹 Autocomplete states
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
@@ -181,7 +184,9 @@ const MonsterManager = () => {
             <th>Name</th>
             <th>HP</th>
             <th>AC</th>
-            <th>Hidden?</th>
+            <th title="If checked, monster starts combat as invisible.">
+              Hidden?
+            </th>
             <th>Present</th>
             <th>Actions</th>
           </tr>
@@ -246,6 +251,12 @@ const MonsterManager = () => {
                   </span>
                 </td>
                 <td>
+                  <button
+                    className="buttonAddMonsterToCombat"
+                    onClick={() => addMonsterToCombat(m.id)}
+                  >
+                    Add to Existing Combat
+                  </button>
                   <button
                     className="buttonDelete"
                     onClick={() => deleteMonster(m.id)}

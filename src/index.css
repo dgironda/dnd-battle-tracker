@@ -48,7 +48,7 @@ th {
   font-weight: 800;
 }
 
-.buttonDelete {
+.buttonDelete, .buttonAddMonsterToCombat {
   padding: .1rem !important;
 }
 
