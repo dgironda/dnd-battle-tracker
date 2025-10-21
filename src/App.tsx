@@ -3,7 +3,7 @@ import HeroManager from "./components/HeroManager/HeroManager";
 import MonsterManager from "./components/MonsterManager/MonsterManager";
 import About from "./About";
 import ToggleComponent from "./components/ToggleContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CombatProvider } from "./components/BattleTracker/CombatContext";
 
 
@@ -12,7 +12,31 @@ function App() {
   const [showMonsterManager, setShowMonsterManager] = useState(false);
   const [openPanel, setOpenPanel] = useState<'hero' | 'monster' | 'about' | null>(null);
 
+    // Manager Keyboard shortcuts
+    useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      
+      switch(e.key.toLowerCase()) {
+        case 'w':
+          setOpenPanel(openPanel === 'monster' ? null : 'monster');
+          break;
+        case 'e':
+          setOpenPanel(openPanel === 'hero' ? null : 'hero');
+          break;
+      }
+    };
   
+    // Add event listener
+    window.addEventListener('keydown', handleKeyPress);
+  
+    // Cleanup: remove listener when component unmounts
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  });
 
   return (
     <CombatProvider>
