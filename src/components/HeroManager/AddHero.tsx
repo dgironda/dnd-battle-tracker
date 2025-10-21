@@ -28,10 +28,10 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
       return;
     }
 
-    if (!form.player.trim()) {
-      alert('Please enter a player name');
-      return;
-    }
+    // if (!form.player.trim()) {
+    //   alert('Please enter a player name');
+    //   return;
+    // }
 
     onAddHero(form);
     
@@ -51,6 +51,14 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
       init: 0,
       present: true,
     });
+    
+  };
+
+  const keyDownAddHero = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault(); 
+      handleAddHero(); 
+    }
   };
 
   return (
@@ -60,23 +68,27 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
         <input
           placeholder="Name"
           value={form.name}
+          onKeyDown={keyDownAddHero}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
         <input
           placeholder="Player"
           value={form.player}
+          onKeyDown={keyDownAddHero}
           onChange={(e) => setForm({ ...form, player: e.target.value })}
         />
         <input
           type="number"
           placeholder="HP"
           value={form.hp || ''}
+          onKeyDown={keyDownAddHero}
           onChange={(e) => setForm({ ...form, hp: Number(e.target.value) || 0 })}
         />
         <input
           type="number"
           placeholder="AC"
           value={form.ac || ''}
+          onKeyDown={keyDownAddHero}
           onChange={(e) => setForm({ ...form, ac: Number(e.target.value) || 0 })}
         />
       </div>

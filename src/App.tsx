@@ -11,6 +11,9 @@ function App() {
   const [showHeroManager, setShowHeroManager] = useState(false);
   const [showMonsterManager, setShowMonsterManager] = useState(false);
   const [openPanel, setOpenPanel] = useState<'hero' | 'monster' | 'about' | null>(null);
+  
+  const handleClosePanel = () => setOpenPanel(null);
+  
 
     // Manager Keyboard shortcuts
     useEffect(() => {
@@ -50,12 +53,12 @@ function App() {
       <button title="Add, Update, and Delete Heroes" onClick={() => setOpenPanel(openPanel === 'hero' ? null : 'hero')}>
         {openPanel === 'hero' ? "Close Hero Manager" : "Hero Manager"}
       </button>
-      {openPanel === 'hero' && <HeroManager />}
+      {openPanel === 'hero' && (<HeroManager onClose={handleClosePanel}/>)}
       
       <button title="Add, Update, and Delete Monsters" onClick={() => setOpenPanel(openPanel === 'monster' ? null : 'monster')}>
         {openPanel === 'monster' ? "Close Monster Manager" : "Monster Manager"}
       </button>
-      {openPanel === 'monster' && <MonsterManager />}
+      {openPanel === 'monster' && (<MonsterManager onClose={handleClosePanel}/>)}
       
       <ToggleComponent />
     </div>

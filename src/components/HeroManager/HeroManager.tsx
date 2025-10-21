@@ -6,9 +6,11 @@ import { createAddHero, createUpdateHero, createDeleteHero } from "../Utils";
 import { EditableCell } from "../../utils/editableCell";
 
 
+interface HeroManagerProps {
+  onClose: () => void;
+}
 
-
-export default function HeroManager() {
+const HeroManager: React.FC<HeroManagerProps> = ({onClose}) => {
   const [heroes, setHeroes] = useState<Hero[]>(() => {
     return getHeroes();
   });
@@ -192,8 +194,13 @@ export default function HeroManager() {
               </td>
             </tr>
           )}
+          
         </tbody>
       </table>
+      <p className="saveClose">
+            <button title="Save and Close" onClick={onClose}>Save and Close</button>
+          </p>
     </div>
   );
 }
+export default HeroManager

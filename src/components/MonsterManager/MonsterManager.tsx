@@ -9,7 +9,11 @@ import { InitiativeDialog } from "../BattleTracker/InitiativeDialog";
 import monstersDataFourteen from "../../assets/2014monsters.json";
 import monstersDataTwentyFour from "../../assets/2024monsters.json"
 
-const MonsterManager = () => {
+interface MonsterManagerProps {
+  onClose: () => void;
+}
+
+const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
   const { monsters, setMonsters } = useMonsters();
   const [newMonster, setNewMonster] = useState<Monster>({
     id: crypto.randomUUID(),
@@ -33,6 +37,7 @@ const MonsterManager = () => {
   const { status } = useGlobalContext();
   // const monstersData = monstersDataFourteen
   const monstersData = status === 'twentyFourteen' ? monstersDataFourteen : monstersDataTwentyFour; // Turn this on when monstersDataTwentyFour is added above
+  const [showMonsterManager, setShowMonsterManager] = useState(true);
   const { addMonsterToCombat } = useCombat();
 
   // 🔹 Autocomplete states
@@ -117,6 +122,12 @@ const MonsterManager = () => {
   const [editingField, setEditingField] = useState<string | null>(null);
   const updateMonster = createUpdateMonster(setMonsters);
   const deleteMonster = createDeleteMonster(monsters, setMonsters);
+  const keyDownAddMonster = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault(); 
+      addMonster(); 
+    }
+  };
 
   return (
     <div id="monsterAddManage">
@@ -129,8 +140,10 @@ const MonsterManager = () => {
         <div className="nameInputWrapper" style={{ position: "relative" }}>
           <input
             type="text"
+            size={50}
             placeholder="Monster Name"
             value={newMonster.name}
+            onKeyDown={keyDownAddMonster}
             onChange={handleNameChange}
             autoComplete="off"
           />
@@ -160,7 +173,7 @@ const MonsterManager = () => {
           )}
         </div>
 
-        <input
+        {/* <input
           type="number"
           placeholder="HP"
           value={newMonster.hp}
@@ -175,8 +188,8 @@ const MonsterManager = () => {
           onChange={(e) =>
             setNewMonster({ ...newMonster, ac: Number(e.target.value) })
           }
-        />
-        <button onClick={addMonster}>Add Monster</button>
+        /> */}
+        <div><button onClick={addMonster}>Add Monster</button></div>
       </div>
 
       <table>
@@ -302,6 +315,7 @@ const MonsterManager = () => {
                   </div>
                 </td>
               </tr>
+              
             </>
           ))}
 
@@ -314,6 +328,9 @@ const MonsterManager = () => {
           )}
         </tbody>
       </table>
+      <p className="saveClose">
+                    <button title="Save and Close" onClick={onClose}>Save and Close</button>
+              </p>
     </div>
   );
 };
