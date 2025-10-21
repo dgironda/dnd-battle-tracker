@@ -253,7 +253,11 @@ const MonsterManager = () => {
                 <td>
                   <button
                     className="buttonAddMonsterToCombat"
-                    onClick={() => addMonsterToCombat(m)}
+					onClick={async () => {
+						  await addMonsterToCombat(m); // Wait for initiative dialog to finish
+						  deleteMonster(m.id, true);   // Then remove from monster manager, the true parameter skips the prompt
+						}}
+
                   >
                     Add to Existing Combat
                   </button>

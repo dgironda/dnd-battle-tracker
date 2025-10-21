@@ -64,11 +64,11 @@ export const createDeleteMonster = (
   monsters: Monster[], 
   setMonsters: Dispatch<SetStateAction<Monster[]>>
 ) => {
-  return (monsterId: string) => {
+  return (monsterId: string, skipPrompt = false) => {
     const monsterToDelete = monsters.find(monster => monster.id === monsterId);
     const monsterName = monsterToDelete ? monsterToDelete.name : 'this monster';
     
-    if (confirm(`Do you really want to delete ${monsterName}?`)) {
+    if (skipPrompt || confirm(`Do you really want to delete ${monsterName}?`)) {
       setMonsters(prevMonsters => prevMonsters.filter(monster => monster.id !== monsterId));
     }
   };
