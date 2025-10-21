@@ -33,12 +33,12 @@ export default function HeroManager() {
       <table>
         <thead>
           <tr key="heroHeader">
-            <th>Name</th>
-            <th>Player</th>
-            <th>HP</th>
-            <th>AC</th>
-            <th>Present</th>
-            <th>Actions</th>
+            <th title="Hero's name">Name</th>
+            <th title="Player controlling this hero">Player</th>
+            <th title="Maximum HP amount, current can be adjusted in battle">HP</th>
+            <th title="Armor Class">AC</th>
+            <th title="Are they present for this Battle">Present</th>
+            <th></th>
           </tr>
         </thead>
         <tbody className="heroTableBody">
@@ -95,7 +95,7 @@ export default function HeroManager() {
                   </span>
                 </td>
                 <td>
-                  <button className="buttonDelete"
+                  <button title="Delete this hero, will ask for comfirmation" className="buttonDelete"
                     onClick={() => deleteHero(hero.id)}
                   >
                     Delete

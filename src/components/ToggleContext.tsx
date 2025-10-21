@@ -5,7 +5,7 @@ const ToggleComponent: React.FC = () => {
   const { status, toggleStatus } = useGlobalContext();
 
   return (
-       <button id='' onClick={toggleStatus}>
+       <button title='D&D 5e 2014 or 2024' id='buttonVersion' onClick={toggleStatus}>
         D&D rules version: {status === 'twentyFourteen' ? '2014' : '2024'}
       </button>
   );

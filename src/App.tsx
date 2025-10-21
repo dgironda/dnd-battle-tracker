@@ -12,6 +12,7 @@ function App() {
   const [showMonsterManager, setShowMonsterManager] = useState(false);
   const [openPanel, setOpenPanel] = useState<'hero' | 'monster' | 'about' | null>(null);
 
+  
 
   return (
     <CombatProvider>
@@ -22,12 +23,12 @@ function App() {
         onToggle={() => setOpenPanel(openPanel === 'about' ? null : 'about')} 
       />
       
-      <button onClick={() => setOpenPanel(openPanel === 'hero' ? null : 'hero')}>
+      <button title="Add, Update, and Delete Heroes" onClick={() => setOpenPanel(openPanel === 'hero' ? null : 'hero')}>
         {openPanel === 'hero' ? "Close Hero Manager" : "Hero Manager"}
       </button>
       {openPanel === 'hero' && <HeroManager />}
       
-      <button onClick={() => setOpenPanel(openPanel === 'monster' ? null : 'monster')}>
+      <button title="Add, Update, and Delete Monsters" onClick={() => setOpenPanel(openPanel === 'monster' ? null : 'monster')}>
         {openPanel === 'monster' ? "Close Monster Manager" : "Monster Manager"}
       </button>
       {openPanel === 'monster' && <MonsterManager />}
@@ -50,21 +51,6 @@ function App() {
       </span>
     </a>
   </div>
-  
-      {/* <p>
-        <button onClick={() => setShowHeroManager(!showHeroManager)}>
-          {showHeroManager ? "Close Hero Manager" : "Open Hero Manager"}
-        </button>
-      </p>
-      {showHeroManager && <HeroManager />}
-
-      <p>
-        <button onClick={() => setShowMonsterManager(!showMonsterManager)}>
-          {showMonsterManager ? "Close Monster Manager" : "Open Monster Manager"}
-        </button>
-      </p>
-      {showMonsterManager && <MonsterManager />} */}
-
       <BattleTracker
         setShowHeroManager={setShowHeroManager} 
         setShowMonsterManager={setShowMonsterManager}  

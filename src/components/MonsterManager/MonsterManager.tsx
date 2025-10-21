@@ -146,7 +146,7 @@ const MonsterManager = () => {
                     cursor: "pointer",
                   }}
                   onMouseEnter={(e) =>
-                    ((e.target as HTMLElement).style.background = "#333")
+                    ((e.target as HTMLElement).style.background = "#888")
                   }
                   onMouseLeave={(e) =>
                     ((e.target as HTMLElement).style.background = "transparent")
@@ -181,14 +181,14 @@ const MonsterManager = () => {
       <table>
         <thead>
           <tr key="monsterheader">
-            <th>Name</th>
-            <th>HP</th>
-            <th>AC</th>
+            <th title="Monster's name, unique names are recommended">Name</th>
+            <th title="Maximum HP amount, current can be adjusted in battle">HP</th>
+            <th title="Armor Class">AC</th>
             <th title="If checked, monster starts combat as invisible.">
               Hidden?
             </th>
-            <th>Present</th>
-            <th>Actions</th>
+            <th title="Are they present for this Battle">Present</th>
+            <th></th>
           </tr>
         </thead>
 
@@ -252,6 +252,7 @@ const MonsterManager = () => {
                 </td>
                 <td>
                   <button
+                    title="Add this monster to the battle in progress."
                     className="buttonAddMonsterToCombat"
 					onClick={async () => {
 						  await addMonsterToCombat(m); // Wait for initiative dialog to finish
@@ -259,9 +260,10 @@ const MonsterManager = () => {
 						}}
 
                   >
-                    Add to Existing Combat
+                    Add to Existing Battle
                   </button>
                   <button
+                    title="Delete this monster, will ask for comfirmation"
                     className="buttonDelete"
                     onClick={() => deleteMonster(m.id)}
                   >

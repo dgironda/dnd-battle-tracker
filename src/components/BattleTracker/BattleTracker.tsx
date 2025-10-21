@@ -269,7 +269,7 @@ useEffect(() => {
   }
 }, [combatants, currentTurnIndex]);
 
-  // Keyboard shortcuts
+  // Action, Bonus, Movement Keyboard shortcuts
   useEffect(() => {
   const handleKeyPress = (e: KeyboardEvent) => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
@@ -402,7 +402,7 @@ useEffect(() => {
         </div>
       )}
       <div>
-        <button id="buttonStartBattle" onClick={handleStartBattle}>
+        <button title="Start a new Battle" id="buttonStartBattle" onClick={handleStartBattle}>
           Start Battle
         </button>
         <RoundNumberSpan
@@ -416,14 +416,14 @@ useEffect(() => {
       <table id="battleTracker">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Initiative</th>
-            <th>HP</th>
-            <th>Action</th>
-            <th>Bonus</th>
-            <th>Move</th>
-            <th>Reaction</th>
-            <th>Conditions</th>
+            <th title="Hero/Monster Name">Name</th>
+            <th title="Initiative, either input or rolled">Initiative</th>
+            <th title="Current HP / Maximum HP">HP</th>
+            <th title="Check if this combatant is using, passing, or holding their action">Action</th>
+            <th title="Check if this combatant is using or passing their bonus action">Bonus</th>
+            <th title="Check if this combatant is using or passing their movement">Move</th>
+            <th title="Check if this combatant has used their reaction, resets on their next turn">Reaction</th>
+            <th title="Input any conditions as they come up, hover over their name for a reminder of the effects. Reminder text changes depending on which version is selected in the upper right.">Conditions</th>
           </tr>
         </thead>
         <tbody>
