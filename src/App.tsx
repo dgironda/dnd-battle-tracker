@@ -48,7 +48,7 @@ function App() {
       />
       
       <button title="Add, Update, and Delete Heroes" onClick={() => setOpenPanel(openPanel === 'hero' ? null : 'hero')}>
-        {openPanel === 'hero' ? `Close Hero Manager<sup>(e)</sup>` : "Hero Manager"}
+        {openPanel === 'hero' ? "Close Hero Manager" : "Hero Manager"}
       </button>
       {openPanel === 'hero' && <HeroManager />}
       

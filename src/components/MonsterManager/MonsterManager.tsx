@@ -7,6 +7,7 @@ import { useGlobalContext } from "../../hooks/versionContext";
 import { useCombat } from "../BattleTracker/CombatContext";
 import { InitiativeDialog } from "../BattleTracker/InitiativeDialog";
 import monstersDataFourteen from "../../assets/2014monsters.json";
+import monstersDataTwentyFour from "../../assets/2024monsters.json"
 
 const MonsterManager = () => {
   const { monsters, setMonsters } = useMonsters();
@@ -30,8 +31,8 @@ const MonsterManager = () => {
   });
 
   const { status } = useGlobalContext();
-  const monstersData = monstersDataFourteen
-  // const monstersData = status === 'twentyFourteen' ? monstersDataFourteen : monstersDataTwentyFour; // Turn this on when monstersDataTwentyFour is added above
+  // const monstersData = monstersDataFourteen
+  const monstersData = status === 'twentyFourteen' ? monstersDataFourteen : monstersDataTwentyFour; // Turn this on when monstersDataTwentyFour is added above
   const { addMonsterToCombat } = useCombat();
 
   // 🔹 Autocomplete states
