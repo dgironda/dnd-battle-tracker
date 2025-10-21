@@ -1,4 +1,5 @@
 import { Hero, Monster, Combatant } from '../types/index';
+import { useGlobalContext } from '../hooks/versionContext';
 
 
 
@@ -156,6 +157,8 @@ function hasStoredCombatants(): boolean {
     return false;
   }
 }
+
+
 
 export {
   storeHeroes,

@@ -71,6 +71,10 @@ button {
   font-family: 'Caudex', serif;
 }
 
+button:hover {
+  filter: brightness(130%);
+}
+
 .editConditions {
   cursor: pointer;
   padding: 2px 4px;
@@ -192,6 +196,7 @@ sup {
   padding: 2vw;
   width: 90vw;
   font-family: 'Caudex', serif;
+  border: .5rem solid var(--color-hl2);
 }
 
 #instructions {
@@ -215,6 +220,7 @@ sup {
   width: 90vw;
   padding: 2vw;
   font-family: 'Caudex', serif;
+  border: .5rem solid var(--color-hl2);
 }
 
 #heroAddManage thead>tr, #monsterAddManage thead>tr, 
@@ -320,4 +326,16 @@ sup {
   font-style: italic; 
   margin-top: 2rem;
   font-family: 'Caudex', serif;
+}
+
+#buttonVersion {
+  font-weight: 700;
+}
+
+.twentyFour {
+  filter: hue-rotate(150deg);
+}
+
+.fourteen {
+  filter: hue-rotate(235deg);
 }
