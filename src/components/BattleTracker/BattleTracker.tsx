@@ -419,9 +419,9 @@ useEffect(() => {
             <th title="Hero/Monster Name">Name</th>
             <th title="Initiative, either input or rolled">Initiative</th>
             <th title="Current HP / Maximum HP">HP</th>
-            <th title="Check if this combatant is using, passing, or holding their action">Action</th>
-            <th title="Check if this combatant is using or passing their bonus action">Bonus</th>
-            <th title="Check if this combatant is using or passing their movement">Move</th>
+            <th title="Check if this combatant is using, passing, or holding their action">Action<sup>(a)</sup></th>
+            <th title="Check if this combatant is using or passing their bonus action">Bonus<sup>(s)</sup></th>
+            <th title="Check if this combatant is using or passing their movement">Move<sup>(d)</sup></th>
             <th title="Check if this combatant has used their reaction, resets on their next turn">Reaction</th>
             <th title="Input any conditions as they come up, hover over their name for a reminder of the effects. Reminder text changes depending on which version is selected in the upper right.">Conditions</th>
           </tr>
