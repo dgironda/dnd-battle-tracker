@@ -49,7 +49,7 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
       cha: 10,
       pp: 10,
       init: 0,
-      present: false,
+      present: true,
     });
   };
 
