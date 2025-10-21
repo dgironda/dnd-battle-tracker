@@ -51,12 +51,12 @@ function App() {
       />
       
       <button title="Add, Update, and Delete Heroes" onClick={() => setOpenPanel(openPanel === 'hero' ? null : 'hero')}>
-        {openPanel === 'hero' ? "Close Hero Manager" : "Hero Manager"}
+        {openPanel === 'hero' ? (<span>Close Hero Manager<sup>(e)</sup></span>) : (<span>Hero Manager<sup>(e)</sup></span>)}
       </button>
       {openPanel === 'hero' && (<HeroManager onClose={handleClosePanel}/>)}
       
       <button title="Add, Update, and Delete Monsters" onClick={() => setOpenPanel(openPanel === 'monster' ? null : 'monster')}>
-        {openPanel === 'monster' ? "Close Monster Manager" : "Monster Manager"}
+        {openPanel === 'monster' ? (<span>Close Monster Manager<sup>(w)</sup></span>) : (<span>Monster Manager<sup>(w)</sup></span>)}
       </button>
       {openPanel === 'monster' && (<MonsterManager onClose={handleClosePanel}/>)}
       
