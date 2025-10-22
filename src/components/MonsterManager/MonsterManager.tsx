@@ -198,7 +198,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
             <th title="Monster's name, unique names are recommended">Name</th>
             <th title="Maximum HP amount, current can be adjusted in battle">HP</th>
             <th title="Armor Class">AC</th>
-            <th title="If checked, monster starts combat as invisible.">
+            <th title="If checked, monster starts the battle as invisible.">
               Hidden?
             </th>
             <th title="Are they present for this Battle">Present</th>

@@ -14,6 +14,7 @@ import { useGlobalContext } from "../../hooks/versionContext";
 import { createDeleteMonster } from "../Utils";
 import RoundNumberSpan from "./RoundNumber";
 
+
 interface BattleTrackerProps {
   setShowHeroManager: (show: boolean) => void;
   setShowMonsterManager: (show: boolean) => void;
@@ -384,7 +385,7 @@ useEffect(() => {
           border: '1px solid #ffc107'
         }}>
           <p style={{ margin: '0 0 0.5rem 0' }}>
-            ⚠️ Combat in progress detected!
+            ⚠️ Battle in progress detected!
           </p>
           <button 
             onClick={() => {
