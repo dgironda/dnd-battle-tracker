@@ -22,6 +22,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <PostHogProvider client={posthog}>
       <App />
     </PostHogProvider>
+
   </React.StrictMode>
   </GlobalProvider>
 );
