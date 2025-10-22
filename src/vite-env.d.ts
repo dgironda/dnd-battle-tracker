@@ -1,1 +1,3 @@
 /// <reference types="vite/client" />
+VITE_PUBLIC_POSTHOG_KEY=phc_lOk8adXogZ6F0V5sakTyFOhesuKZtPceffx2vTYAi5d
+VITE_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
