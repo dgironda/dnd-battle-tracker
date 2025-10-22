@@ -458,7 +458,17 @@ useEffect(() => {
 			  </td>
 
               <td>
-                {combatant.initiative}
+                {/* {combatant.initiative} */}
+                <span title="Initiative">
+                                    <EditableCell
+                                      entity={combatant}
+                                      field="initiative"
+                                      type="number"
+                                      editingField={editingField}
+                                      setEditingField={setEditingField}
+                                      updateEntity={updateCombatant}
+                                    />
+                                  </span>
               </td>
               <td
               className="combatantHP"
