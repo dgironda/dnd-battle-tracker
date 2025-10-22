@@ -332,7 +332,11 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
                     <button title="Save and Close" onClick={onClose}>Save and Close</button>
               </p>
     </div>
+    
   );
+  setTimeout(() => {
+            document.getElementById('myInput')?.focus();
+        }, 500);
 };
 
 export default MonsterManager;

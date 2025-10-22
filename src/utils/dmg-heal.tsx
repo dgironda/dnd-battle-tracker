@@ -13,7 +13,7 @@ interface HpChangeModalProps {
   onSubmit: (newHp: number) => void;
   onRemoveCondition: (condition: string) => void;
   onAddCondition: (condition: string) => void;
-  onUpdateBoth?: (newHp: number, newConditions: string[]) => void;
+  onUpdateBoth: (newHp: number, newConditions: string[]) => void;
   onClose: () => void;
 }
 
@@ -95,6 +95,7 @@ const handleConcentrationFail = () => {
 
   const handleHeal = () => {
     const healAmount = parseInt(amount);
+    const newHp = Math.min(maxHp, currentHp + healAmount);
     if (isNaN(healAmount) || amount.trim() === '') {
       setError('Please enter a valid number');
       return;
@@ -103,9 +104,13 @@ const handleConcentrationFail = () => {
       setError('Healing must be positive');
       return;
     }
-    if (isDying) {alert(`${combatantName} is now stable and no longer needs to make death saving throws`)}
-    const newHp = Math.min(maxHp, currentHp + healAmount);
-    onSubmit(newHp);
+    if (isDying) {
+      alert(`${combatantName} is now stable and no longer needs to make death saving throws`);
+      const newConditions = conditions.filter(c => c !== 'Death Saves');
+      onUpdateBoth(newHp, newConditions);
+     } else {onSubmit(newHp);}
+    
+    
     onClose();
   };
 
