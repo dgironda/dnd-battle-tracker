@@ -119,43 +119,23 @@ const handleConcentrationFail = () => {
 
   return (
     <div 
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000
-      }}
+      className='hpChangeModalOuter'
       onClick={onClose}
     >
       <div 
-        style={{
-          backgroundColor: 'white',
-          padding: '2rem',
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          minWidth: '400px'
-        }}
+        className='hpChangeModalInner'
         onClick={(e) => e.stopPropagation()}
       >
         <h3 style={{ marginTop: 0 }}>
           {combatantName}
         </h3>
         
-        <div style={{ 
-          fontSize: '18px', 
-          marginBottom: '1rem',
-          color: '#666'
-        }}>
-          Current HP: <strong>{currentHp}</strong> / {maxHp}
+        <div className='hpChangeModalCurrent'>
+          Current HP: {currentHp} / {maxHp}
         </div>
         
         <input
+          className='hpChangeModalInput'
           type="number"
           value={amount}
           onChange={(e) => {
@@ -165,14 +145,7 @@ const handleConcentrationFail = () => {
           onKeyDown={handleKeyPress}
           placeholder="Enter amount"
           autoFocus
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            fontSize: '16px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            marginBottom: '0.5rem'
-          }}
+          
         />
         
         {error && (
@@ -181,54 +154,24 @@ const handleConcentrationFail = () => {
           </p>
         )}
         
-        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+        <div className='hpChangeModalButtonBox'>
           <button
             onClick={handleDamage}
-            style={{
-              flex: 1,
-              padding: '0.75rem',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontWeight: 'bold'
-            }}
+            className='hpChangeModalDmgButton'
           >
             Take Damage
           </button>
           <button
             onClick={handleHeal}
-            style={{
-              flex: 1,
-              padding: '0.75rem',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontWeight: 'bold'
-            }}
+            className='hpChangeModalHealButton'
           >
             Heal
           </button>
         </div>
         
         <button
+          className='hpChangeModalCancelButton'
           onClick={onClose}
-          style={{
-            width: '100%',
-            marginTop: '0.5rem',
-            padding: '0.5rem',
-            backgroundColor: '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
         >
           Cancel
         </button>

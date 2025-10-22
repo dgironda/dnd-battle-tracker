@@ -74,6 +74,18 @@ export const createDeleteMonster = (
   };
 };
 
+export const createUpdateCombatant = (setCombatants: Dispatch<SetStateAction<Combatant[]>>) => {
+  return (combatantId: string, field: keyof Combatant, value: string | number | boolean) => {
+    setCombatants(prevCombatants =>
+      prevCombatants.map(combatant =>
+        combatant.id === combatantId
+          ? { ...combatant, [field]: value }
+          : combatant
+      )
+    );
+  };
+};
+
 export const EditableCell = <T extends Record<string, any>>({
   entity,
   field,

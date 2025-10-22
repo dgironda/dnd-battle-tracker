@@ -166,10 +166,10 @@ sup {
   text-shadow: 2px 2px 4px var(--color-shadow);
 }
 
-#display button {
+/* #display button {
   margin-left: 2vw;
   margin-right: auto;
-}
+} */
 
 #display>div {
   margin: auto 1%;
@@ -333,6 +333,85 @@ sup {
 
 .combatantHP {
   cursor: pointer;
+}
+
+.hpChangeModalOuter {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;    
+}
+
+.hpChangeModalInner {
+  background-color: var(--color-rowodd);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 400px;
+}
+
+.hpChangeModalCurrent {
+  font-size: 18px; 
+  margin-bottom: 1rem;
+  color: var(--color-shadow);
+}
+
+.hpChangeModalInput {
+  width: 90%;
+  padding: 0.75rem;
+  margin: .5rem auto;
+  font-size: 16px;
+  border: 1px solid var(--color-brdr1);
+  border-radius: 4px;
+}
+
+.hpChangeModalButtonBox {
+  display: flex; 
+  gap: 0.5rem; 
+  margin: .5rem 5%;
+  width: 90%;
+}
+
+.hpChangeModalDmgButton {
+  flex: 1;
+  padding: 0.75rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.hpChangeModalHealButton {
+  flex: 1;
+  padding: 0.75rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.hpChangeModalCancelButton {
+  width: 75%;
+  margin: 0.5rem 10%;
+  padding: 0.5rem;
+  background-color: var(--color-shadow);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 #noCombatants, #noMonsters, #noHeroes {
