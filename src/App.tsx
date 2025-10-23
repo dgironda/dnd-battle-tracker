@@ -41,6 +41,33 @@ function App() {
     };
   });
 
+  // Patreon OAuth
+  const [isSupporter, setIsSupporter] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+    if (code) {
+      // Store the code so we know they’ve logged in
+      localStorage.setItem("patreon_code", code);
+      setIsSupporter(true);
+
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (localStorage.getItem("patreon_code")) {
+      setIsSupporter(true);
+    }
+  }, []);
+
+  const handlePatreonLogin = () => {
+    const clientId = import.meta.env.VITE_PATREON_CLIENT_ID;
+    const redirectUri = import.meta.env.VITE_PATREON_REDIRECT_URI;
+    const authUrl = `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;
+    window.location.href = authUrl;
+  };
+
+
   return (
     <CombatProvider>
     <div id="header">
@@ -66,18 +93,29 @@ function App() {
       <h1>D&D Battle Tracker</h1>
 		  
 	  {/* Patreon link */}
-  <div style={{ margin: '1rem 0', textAlign: 'center' }}>
-    <a 
-      href="https://patreon.com/SimTech?utm_medium=unknown&utm_source=battle_tracker&utm_campaign=main_site&utm_content=copyLink" 
-      target="_blank" 
-      rel="noopener noreferrer"
-      style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none' }}
-    >
-      <span style={{ fontWeight: 'bold', color: '#e85b46', fontSize: '16px' }}>
-        Support us on Patreon!
-      </span>
-    </a>
-  </div>
+      <div style={{ margin: '1rem 0', textAlign: 'center' }}>
+        {!isSupporter ? (
+            <button
+                onClick={handlePatreonLogin}
+                style={{
+                  backgroundColor: '#e85b46',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 20px',
+                  cursor: 'pointer'
+                }}
+            >
+              Support us on Patreon!
+            </button>
+        ) : (
+            <p style={{ color: '#4caf50', fontWeight: 'bold' }}>
+              ✅ Thank you for your support!
+            </p>
+        )}
+      </div>
+
       <BattleTracker
         setShowHeroManager={setShowHeroManager} 
         setShowMonsterManager={setShowMonsterManager}  
