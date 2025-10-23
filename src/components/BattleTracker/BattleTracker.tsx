@@ -185,6 +185,10 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
 
 const handleNextTurn = () => {
   if (sortedCombatants.length === 0) return;
+  let currentCombatant = sortedCombatants[currentTurnIndex];
+  currentCombatant.action = true;
+  currentCombatant.bonus = true;
+  currentCombatant.move = true;
 
   let nextIndex = (currentTurnIndex + 1) % sortedCombatants.length;
   let attempts = 0;
