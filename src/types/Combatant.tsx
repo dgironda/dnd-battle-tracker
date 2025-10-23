@@ -13,6 +13,7 @@ interface Combatant {
   stats: string;
   init: number;
   initiative: number;
+  deathsaves: boolean[];
 }
 
 export {Combatant}

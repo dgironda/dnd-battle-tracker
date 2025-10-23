@@ -141,6 +141,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
         reaction: false,
         conditions: [],
         init: hero.init,
+        deathsaves: [],
         stats: `Player: ${hero.player}\n\nArmor Class: ${hero.ac}\nStrength: ${hero.str}\nDexterity: ${hero.dex}\nConstitution: ${hero.con}\nIntelligence: ${hero.int}\nWisdom: ${hero.wis}\nCharisma: ${hero.cha}\nPassive Perception: ${hero.pp}`
       });
   }
@@ -166,6 +167,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
       reaction: false,
       conditions: monster.conditions,
       init: monster.init,
+      deathsaves: [],
       stats: `Armor Class: ${monster.ac}\nStrength: ${monster.str}\nDexterity: ${monster.dex}\nConstitution: ${monster.con}\nIntelligence: ${monster.int}\nWisdom: ${monster.wis}\nCharisma: ${monster.cha}\nPassive Perception: ${monster.pp}\n\n${monster.link}`
     });
     // deleteMonster(monster.id)
@@ -224,11 +226,24 @@ const handleNextTurn = () => {
   }
 };
   
-
+  // Auto-open HP modal for death saves
+  useEffect(() => {
+  if (sortedCombatants.length === 0) return;
+  if (hpModalCombatant !== null) return;
+  
+  const currentCombatant = sortedCombatants[currentTurnIndex];
+  if (currentCombatant.conditions.includes('Death Saves')) {
+    setHpModalCombatant(currentCombatant);
+    updateCombatant(currentCombatant.id, 'action', currentCombatant.action);
+    updateCombatant(currentCombatant.id, 'bonus', currentCombatant.bonus);
+    updateCombatant(currentCombatant.id, 'move', currentCombatant.move);
+  }
+}, [currentTurnIndex, sortedCombatants, hpModalCombatant]);
 
   // Advance turn when action, bonus, and move are checked
   useEffect(() => {
     if (sortedCombatants.length === 0) return;
+    if (hpModalCombatant !== null) return;
     const currentCombatant = sortedCombatants[currentTurnIndex];
    
     console.log('Auto-advance check:', currentCombatant.name, {
@@ -552,6 +567,7 @@ useEffect(() => {
     maxHp={hpModalCombatant.maxHp}
     conditions={hpModalCombatant.conditions}
     type={hpModalCombatant.type}
+    deathsaves={hpModalCombatant.deathsaves || []}
     onSubmit={(newHp) => {
       updateCombatant(hpModalCombatant.id, 'currHp', newHp);
     }}
@@ -571,6 +587,16 @@ useEffect(() => {
       );
       setCombatants(updatedCombatants);
       setHpModalCombatant(null); // Close modal here after update
+    }}
+    onUpdateDeathSaves={(saves) => {
+      console.log('BattleTracker onUpdateDeathSaves called with:', saves);
+      console.log('Updating combatant ID:', hpModalCombatant.id);
+      const updated = combatants.map(c =>
+        c.id === hpModalCombatant.id ? { ...c, deathsaves: saves } : c
+      );
+      console.log('Updated combatants:', updated);
+      setCombatants(updated);
+      setHpModalCombatant({ ...hpModalCombatant, deathsaves: saves });
     }}
     onClose={() => setHpModalCombatant(null)}
   />

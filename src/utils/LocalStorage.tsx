@@ -109,7 +109,7 @@ function hasStoredMonsters(): boolean {
 function storeCombatants(combatants: Combatant[], round: number): void {
   try {
     localStorage.setItem(COMBATANTS_KEY, JSON.stringify(combatants ?? []));
-    console.log("Stored combatants:", localStorage.getItem(COMBATANTS_KEY));
+    // console.log("Stored combatants:", localStorage.getItem(COMBATANTS_KEY));
     localStorage.setItem('roundNumber', round.toString())
   } catch (error) {
     console.error("Error storing combatants:", error);

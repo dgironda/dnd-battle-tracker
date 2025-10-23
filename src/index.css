@@ -356,6 +356,20 @@ sup {
   min-width: 400px;
 }
 
+.deathSavesBox {
+  background-color: #fff3cd;
+  padding: .5rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border: 1px solid #ffc107;
+}
+
+.deathSavesButtons {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
 .hpChangeModalCurrent {
   font-size: 18px; 
   margin-bottom: 1rem;
