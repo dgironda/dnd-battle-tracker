@@ -11,15 +11,17 @@ interface HpChangeModalProps {
   conditions: string[];
   type: 'hero' | 'monster';
   deathsaves: boolean[];
+  currentCombatantID: string;
   onSubmit: (newHp: number) => void;
   onRemoveCondition: (condition: string) => void;
   onAddCondition: (condition: string) => void;
   onUpdateBoth: (newHp: number, newConditions: string[]) => void;
   onUpdateDeathSaves: (saves: boolean[]) => void;
   onClose: () => void;
+  handleNextTurn: () => void;
 }
 
-export function HpChangeModal({ combatantName, currentHp, maxHp, type, conditions, deathsaves, onSubmit, onRemoveCondition, onAddCondition, onUpdateBoth, onUpdateDeathSaves, onClose }: HpChangeModalProps) {
+export function HpChangeModal({ combatantId, currentCombatantID, combatantName, currentHp, maxHp, type, conditions, deathsaves, onSubmit, onRemoveCondition, onAddCondition, onUpdateBoth, onUpdateDeathSaves, onClose, handleNextTurn }: HpChangeModalProps) {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   const [showConcentrationCheck, setShowConcentrationCheck] = useState(false);
@@ -40,12 +42,15 @@ export function HpChangeModal({ combatantName, currentHp, maxHp, type, condition
     }
     const newSaves = [...deathsaves, true];
     console.log('New deathSaves:', newSaves);
+    if (combatantId === currentCombatantID) {handleNextTurn}
     onUpdateDeathSaves(newSaves);
     
     // If 3 successes, stabilize
     if (newSaves.filter(s => s === true).length >= 3) {
       onRemoveCondition('Death Saves');
       alert(`${combatantName} is stabilized!`);
+      const resetSaves: boolean[] = [];
+      onUpdateDeathSaves(resetSaves);
       onClose();
     }
   };
@@ -59,6 +64,7 @@ export function HpChangeModal({ combatantName, currentHp, maxHp, type, condition
     }
     const newSaves = [...deathsaves, false];
     console.log('New deathSaves:', newSaves);
+    if (combatantId === currentCombatantID) {handleNextTurn}
     onUpdateDeathSaves(newSaves);
     
     // If 3 failures, dead
@@ -66,6 +72,8 @@ export function HpChangeModal({ combatantName, currentHp, maxHp, type, condition
       onRemoveCondition('Death Saves');
       onAddCondition('Dead');
       alert(`${combatantName} has died!`);
+      const resetSaves: boolean[] = [];
+      onUpdateDeathSaves(resetSaves);
       onClose();
     }
   };
@@ -168,9 +176,8 @@ const handleConcentrationFail = () => {
     if (isDying) {
       alert(`${combatantName} is now stable and no longer needs to make death saving throws`);
       const newConditions = conditions.filter(c => c !== 'Death Saves');
-      if (onUpdateDeathSaves) {
-        onUpdateDeathSaves([]); // Clear death saves
-      }
+      const resetSaves: boolean[] = [];
+      onUpdateDeathSaves(resetSaves);
       onUpdateBoth(newHp, newConditions);
      } else {onSubmit(newHp);}
     

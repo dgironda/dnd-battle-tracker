@@ -568,6 +568,7 @@ useEffect(() => {
     conditions={hpModalCombatant.conditions}
     type={hpModalCombatant.type}
     deathsaves={hpModalCombatant.deathsaves || []}
+    currentCombatantID={sortedCombatants[currentTurnIndex].id}
     onSubmit={(newHp) => {
       updateCombatant(hpModalCombatant.id, 'currHp', newHp);
     }}
@@ -598,7 +599,9 @@ useEffect(() => {
       setCombatants(updated);
       setHpModalCombatant({ ...hpModalCombatant, deathsaves: saves });
     }}
-    onClose={() => setHpModalCombatant(null)}
+    onClose={() => 
+    setHpModalCombatant(null)}
+    handleNextTurn={handleNextTurn}
   />
 )}
     </div>
