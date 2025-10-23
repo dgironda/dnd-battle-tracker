@@ -5,6 +5,7 @@ import About from "./About";
 import ToggleComponent from "./components/ToggleContext";
 import { useState, useEffect } from "react";
 import { CombatProvider } from "./components/BattleTracker/CombatContext";
+import PatreonOverlay from "./components/PatreonOverlay";
 
 
 function App() {
@@ -59,6 +60,20 @@ function App() {
       setIsSupporter(true);
     }
   }, []);
+  
+  //Overlay
+  const [overlayVisible, setOverlayVisible] = useState(true);
+
+  useEffect(() => {
+    const hasCode = localStorage.getItem("patreon_code");
+    const urlCode = new URLSearchParams(window.location.search).get("code");
+
+    if (hasCode || urlCode) {
+      setOverlayVisible(false);
+    }
+  }, []);
+
+
 
   const handlePatreonLogin = () => {
     const clientId = import.meta.env.VITE_PATREON_CLIENT_ID;
@@ -70,6 +85,9 @@ function App() {
 
   return (
     <CombatProvider>
+
+    {overlayVisible && <PatreonOverlay onClose={() => setOverlayVisible(false)} />}
+      
     <div id="header">
       
       <About 
