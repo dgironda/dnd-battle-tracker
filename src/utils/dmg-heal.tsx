@@ -42,12 +42,14 @@ export function HpChangeModal({ combatantId, currentCombatantID, combatantName, 
     }
     const newSaves = [...deathsaves, true];
     console.log('New deathSaves:', newSaves);
-    if (combatantId === currentCombatantID) {handleNextTurn}
+    if (combatantId === currentCombatantID) {handleNextTurn()}
     onUpdateDeathSaves(newSaves);
     
     // If 3 successes, stabilize
     if (newSaves.filter(s => s === true).length >= 3) {
       onRemoveCondition('Death Saves');
+      let dsCondition = conditions.indexOf('Death Saves');
+      conditions.splice(dsCondition, 1);
       alert(`${combatantName} is stabilized!`);
       const resetSaves: boolean[] = [];
       onUpdateDeathSaves(resetSaves);
@@ -64,13 +66,16 @@ export function HpChangeModal({ combatantId, currentCombatantID, combatantName, 
     }
     const newSaves = [...deathsaves, false];
     console.log('New deathSaves:', newSaves);
-    if (combatantId === currentCombatantID) {handleNextTurn}
+    if (combatantId === currentCombatantID) {handleNextTurn()}
     onUpdateDeathSaves(newSaves);
     
     // If 3 failures, dead
     if (newSaves.filter(s => s === false).length >= 3) {
       onRemoveCondition('Death Saves');
       onAddCondition('Dead');
+      let dsCondition = conditions.indexOf('Death Saves');
+      conditions.splice(dsCondition, 1);
+      conditions.push("Dead");
       alert(`${combatantName} has died!`);
       const resetSaves: boolean[] = [];
       onUpdateDeathSaves(resetSaves);
