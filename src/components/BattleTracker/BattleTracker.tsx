@@ -207,8 +207,11 @@ const handleNextTurn = () => {
     return;
   }
 
+  // reset reaction for the next combatant
+    updateCombatant(currentCombatant.id, 'reaction', false);
+    setCurrentTurnIndex(nextIndex);
   // Reset ALL combatants at the start of a new round
-  if (currentTurnIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
+  if (nextIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
     const resetCombatants = combatants.map(c => ({
       ...c,
       action: false,
@@ -217,18 +220,35 @@ const handleNextTurn = () => {
     })).sort((a, b) => b.initiative - a.initiative);
     console.log("Reset Round", resetCombatants)
     setCombatants(resetCombatants);
-    updateCombatant(currentCombatant.id, 'reaction', false);
-    setRoundNumber(roundNumber + 1);
-    setCurrentTurnIndex(nextIndex);
-  } else {
-    // Just reset reaction for the next combatant
-    const nextCombatantId = sortedCombatants[nextIndex].id;
-    const updatedCombatants = combatants.map(c =>
-      c.id === nextCombatantId ? { ...c, reaction: false } : c
-    ).sort((a, b) => b.initiative - a.initiative);
-    setCombatants(updatedCombatants);
-    setCurrentTurnIndex(nextIndex);
+    setRoundNumber(roundNumber +1)
   }
+
+  // // Reset ALL combatants at the start of a new round
+  // if (currentTurnIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
+  //   const resetCombatants = combatants.map(c => ({
+  //     ...c,
+  //     action: false,
+  //     bonus: false,
+  //     move: false
+  //   })).sort((a, b) => b.initiative - a.initiative);
+  //   console.log("Reset Round", resetCombatants)
+  //   setCombatants(resetCombatants);
+  //   updateCombatant(currentCombatant.id, 'reaction', false);
+  //   setRoundNumber(roundNumber + 1);
+  //   setCurrentTurnIndex(nextIndex);
+  // } else {
+  //   // Just reset reaction for the next combatant
+  //   const nextCombatantId = sortedCombatants[nextIndex].id;
+  //   const updatedCombatants = combatants.map(c =>
+  //     c.id === nextCombatantId ? { ...c, reaction: false } : c
+  //   ).sort((a, b) => b.initiative - a.initiative);
+  //   setCombatants(updatedCombatants);
+  //   setCurrentTurnIndex(nextIndex);
+  // }
+  console.log("After Handle Next Turn:", combatants)
+    currentCombatant.action = false;
+    currentCombatant.bonus = false;
+    currentCombatant.move = false;
 };
   
   // Auto-open HP modal for death saves
@@ -246,8 +266,7 @@ const handleNextTurn = () => {
 
   // Advance turn when action, bonus, and move are checked
   useEffect(() => {
-    if (sortedCombatants.length === 0) return;
-    if (hpModalCombatant !== null) return;
+    if (sortedCombatants.length === 0 || hpModalCombatant !== null) return;
     const currentCombatant = sortedCombatants[currentTurnIndex];
    
     console.log('Auto-advance check:', currentCombatant.name, {
@@ -594,7 +613,7 @@ useEffect(() => {
     }}
     onUpdateDeathSaves={(saves) => {
       console.log('BattleTracker onUpdateDeathSaves called with:', saves);
-      console.log('Updating combatant ID:', hpModalCombatant.id);
+      console.log('Updating combatant:', hpModalCombatant.name);
       const updated = combatants.map(c =>
         c.id === hpModalCombatant.id ? { ...c, deathsaves: saves } : c
       ).sort((a, b) => b.initiative - a.initiative);

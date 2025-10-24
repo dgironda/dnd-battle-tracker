@@ -34,14 +34,11 @@ export function HpChangeModal({ combatantId, currentCombatantID, combatantName, 
   // const failures = deathsaves.filter(s => s === false).length;
   
   const addDeathSaveSuccess = () => {
-    console.log('Adding death save success');
-    console.log('Current deathSaves:', deathsaves);
     if (!onUpdateDeathSaves) {
             console.log('onUpdateDeathSaves is not defined!');
             return;
     }
     const newSaves = [...deathsaves, true];
-    console.log('New deathSaves:', newSaves);
     if (combatantId === currentCombatantID) {handleNextTurn()}
     onUpdateDeathSaves(newSaves);
     
@@ -58,14 +55,11 @@ export function HpChangeModal({ combatantId, currentCombatantID, combatantName, 
   };
 
   const addDeathSaveFailure = () => {
-    console.log('Adding death save failure');
-    console.log('Current deathSaves:', deathsaves);
     if (!onUpdateDeathSaves) {
       console.log('onUpdateDeathSaves is not defined!');
       return;
     }
     const newSaves = [...deathsaves, false];
-    console.log('New deathSaves:', newSaves);
     if (combatantId === currentCombatantID) {handleNextTurn()}
     onUpdateDeathSaves(newSaves);
     
@@ -122,7 +116,7 @@ export function HpChangeModal({ combatantId, currentCombatantID, combatantName, 
   const newHp = Math.max(0, currentHp - damageAmount);
   let updatedConditions = [...conditions];
   
-  // Auto-add death condition
+  // Auto-add death save or dead condition
   if (newHp <= 0) {
     if (type === 'hero' && !conditions.includes('Death Saves')) {
       updatedConditions.push('Death Saves');

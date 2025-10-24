@@ -13,7 +13,7 @@ const COMBATANTS_KEY = "storedCombatants";
 function storeHeroes(heroes: Hero[]): void {
   try {
     localStorage.setItem(HEROES_KEY, JSON.stringify(heroes ?? []));
-    console.log("Stored heroes:", localStorage.getItem(HEROES_KEY));
+    // console.log("Stored heroes:", localStorage.getItem(HEROES_KEY));
   } catch (error) {
     console.error("Error storing heroes:", error);
   }
@@ -61,7 +61,7 @@ function hasStoredHeroes(): boolean {
 function storeMonsters(monsters: Monster[]): void {
   try {
     localStorage.setItem(MONSTERS_KEY, JSON.stringify(monsters ?? []));
-    console.log("Stored monsters:", localStorage.getItem(MONSTERS_KEY));
+    // console.log("Stored monsters:", localStorage.getItem(MONSTERS_KEY));
   } catch (error) {
     console.error("Error storing monsters:", error);
   }
