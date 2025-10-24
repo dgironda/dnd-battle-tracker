@@ -56,7 +56,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const updateCombatant = (combatantId: string, field: keyof Combatant, value: any) => {
   const updatedCombatants = combatants.map(combatant =>
     combatant.id === combatantId ? { ...combatant, [field]: value } : combatant
-  );
+  ).sort((a, b) => b.initiative - a.initiative);
   setCombatants(updatedCombatants);
 };
 
@@ -208,14 +208,16 @@ const handleNextTurn = () => {
   }
 
   // Reset ALL combatants at the start of a new round
-  if (nextIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
+  if (currentTurnIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
     const resetCombatants = combatants.map(c => ({
       ...c,
       action: false,
       bonus: false,
       move: false
-    }));
+    })).sort((a, b) => b.initiative - a.initiative);
+    console.log("Reset Round", resetCombatants)
     setCombatants(resetCombatants);
+    updateCombatant(currentCombatant.id, 'reaction', false);
     setRoundNumber(roundNumber + 1);
     setCurrentTurnIndex(nextIndex);
   } else {
@@ -223,7 +225,7 @@ const handleNextTurn = () => {
     const nextCombatantId = sortedCombatants[nextIndex].id;
     const updatedCombatants = combatants.map(c =>
       c.id === nextCombatantId ? { ...c, reaction: false } : c
-    );
+    ).sort((a, b) => b.initiative - a.initiative);
     setCombatants(updatedCombatants);
     setCurrentTurnIndex(nextIndex);
   }
@@ -586,7 +588,7 @@ useEffect(() => {
         c.id === hpModalCombatant.id
           ? { ...c, currHp: newHp, conditions: newConditions }
           : c
-      );
+      ).sort((a, b) => b.initiative - a.initiative);
       setCombatants(updatedCombatants);
       setHpModalCombatant(null); // Close modal here after update
     }}
@@ -595,7 +597,7 @@ useEffect(() => {
       console.log('Updating combatant ID:', hpModalCombatant.id);
       const updated = combatants.map(c =>
         c.id === hpModalCombatant.id ? { ...c, deathsaves: saves } : c
-      );
+      ).sort((a, b) => b.initiative - a.initiative);
       console.log('Updated combatants:', updated);
       setCombatants(updated);
       setHpModalCombatant({ ...hpModalCombatant, deathsaves: saves });

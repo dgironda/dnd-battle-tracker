@@ -19,7 +19,7 @@ export default function CombatantList({
 
   const updateHP = (id: string, newHP: number) => {
     setCombatants((prev) =>
-      prev.map((combatant) => (combatant.id === id ? { ...combatant, currHp: newHP } : combatant))
+      prev.map((combatant) => (combatant.id === id ? { ...combatant, currHp: newHP } : combatant)).sort((a, b) => b.initiative - a.initiative)
     );
   };
 
