@@ -213,8 +213,7 @@ const handleNextTurn = () => {
       ...c,
       action: false,
       bonus: false,
-      move: false,
-      reaction: false
+      move: false
     }));
     setCombatants(resetCombatants);
     setRoundNumber(roundNumber + 1);
@@ -232,15 +231,14 @@ const handleNextTurn = () => {
   
   // Auto-open HP modal for death saves
   useEffect(() => {
-  if (sortedCombatants.length === 0) return;
-  if (hpModalCombatant !== null) return;
+  if (sortedCombatants.length === 0 || hpModalCombatant !== null) return;
   
   const currentCombatant = sortedCombatants[currentTurnIndex];
   if (currentCombatant.conditions.includes('Death Saves')) {
     setHpModalCombatant(currentCombatant);
-    updateCombatant(currentCombatant.id, 'action', currentCombatant.action);
-    updateCombatant(currentCombatant.id, 'bonus', currentCombatant.bonus);
-    updateCombatant(currentCombatant.id, 'move', currentCombatant.move);
+    updateCombatant(currentCombatant.id, 'action', true);
+    updateCombatant(currentCombatant.id, 'bonus', true);
+    updateCombatant(currentCombatant.id, 'move', true);
   }
 }, [currentTurnIndex, sortedCombatants, hpModalCombatant]);
 
@@ -478,7 +476,6 @@ useEffect(() => {
 			  </td>
 
               <td>
-                {/* {combatant.initiative} */}
                 <span title="Initiative">
                                     <EditableCell
                                       entity={combatant}
@@ -506,7 +503,7 @@ useEffect(() => {
 			    <input
 				  type="checkbox"
 				  checked={combatant.action}
-				  disabled={combatant.conditions.includes('Dead')}
+				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'action', e.target.checked)}
 			    />
 			  </td>
@@ -514,7 +511,7 @@ useEffect(() => {
 			    <input
 				  type="checkbox"
 				  checked={combatant.bonus}
-				  disabled={combatant.conditions.includes('Dead')}
+				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'bonus', e.target.checked)}
 			    />
 			  </td>
@@ -522,7 +519,7 @@ useEffect(() => {
 			    <input
 				  type="checkbox"
 				  checked={combatant.move}
-				  disabled={combatant.conditions.includes('Dead')}
+				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'move', e.target.checked)}
 			    />
 			  </td>
@@ -530,7 +527,7 @@ useEffect(() => {
 			    <input
 				  type="checkbox"
 				  checked={combatant.reaction}
-				  disabled={combatant.conditions.includes('Dead')}
+				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'reaction', e.target.checked)}
 			    />
 			  </td>
