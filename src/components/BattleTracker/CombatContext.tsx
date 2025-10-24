@@ -73,6 +73,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       bonus: false,
       move: false,
       reaction: false,
+      deathsaves: [],
       conditions: monster.conditions ?? [],
       stats: `Armor Class: ${monster.ac}\nSTR: ${monster.str}\nDEX: ${monster.dex}\nCON: ${monster.con}\nINT: ${monster.int}\nWIS: ${monster.wis}\nCHA: ${monster.cha}\nPP: ${monster.pp}\n\n${monster.link || ''}`,
     };
