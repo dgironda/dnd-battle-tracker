@@ -207,9 +207,11 @@ const handleNextTurn = () => {
     return;
   }
 
+  setCurrentTurnIndex(nextIndex);
   // reset reaction for the next combatant
+    currentCombatant = sortedCombatants[currentTurnIndex];
     updateCombatant(currentCombatant.id, 'reaction', false);
-    setCurrentTurnIndex(nextIndex);
+    console.log(currentCombatant.name, "Reaction", currentCombatant.reaction)
   // Reset ALL combatants at the start of a new round
   if (nextIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
     const resetCombatants = combatants.map(c => ({
@@ -245,7 +247,7 @@ const handleNextTurn = () => {
   //   setCombatants(updatedCombatants);
   //   setCurrentTurnIndex(nextIndex);
   // }
-  console.log("After Handle Next Turn:", combatants)
+  console.log("After Handle Next Turn:", combatants, "Current Turn", currentCombatant.name)
     currentCombatant.action = false;
     currentCombatant.bonus = false;
     currentCombatant.move = false;
