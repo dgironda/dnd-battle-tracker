@@ -20,6 +20,7 @@ export async function startBattle(
       maxHp: hero.hp,
       initiative: initiative,
 	  init: initiative,
+      deathsaves: [],
       action: false,
       bonus: false,
       move: false,
