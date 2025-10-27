@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import HeroManager from "../HeroManager/HeroManager";
 import { Hero, Monster, Combatant } from "../../types/index";
 import { startBattle } from "../../utils/battleUtils";
@@ -123,9 +123,9 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
     
     for (const hero of presentHeroes) {
       // Show dialog and wait for initiative
-      const initiative = await new Promise<number>((resolve) => {
+      const initiative = await new Promise<number>((resolve, reject) => {
         setCurrentCombatant(hero);
-        setInitiativeResolver(() => resolve);
+        setInitiativeResolver(resolve);
       });
       
       newCombatants.push({
@@ -207,50 +207,33 @@ const handleNextTurn = () => {
     return;
   }
 
-  setCurrentTurnIndex(nextIndex);
-  // reset reaction for the next combatant
-    currentCombatant = sortedCombatants[currentTurnIndex];
-    updateCombatant(currentCombatant.id, 'reaction', false);
-    console.log(currentCombatant.name, "Reaction", currentCombatant.reaction)
   // Reset ALL combatants at the start of a new round
-  if (nextIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
-    const resetCombatants = combatants.map(c => ({
-      ...c,
-      action: false,
-      bonus: false,
-      move: false
-    })).sort((a, b) => b.initiative - a.initiative);
+  if (currentTurnIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
+    const resetCombatants = combatants.map(c => {
+    if (!c.conditions.includes('Dead')) {
+      return { ...c, action: false, bonus: false, move: false };
+    }
+    return c; // Keep dead combatants unchanged
+  }).sort((a, b) => b.initiative - a.initiative);
     console.log("Reset Round", resetCombatants)
     setCombatants(resetCombatants);
-    setRoundNumber(roundNumber +1)
+    updateCombatant(currentCombatant.id, 'reaction', false);
+    setRoundNumber(roundNumber + 1);
+    setCurrentTurnIndex(nextIndex);
+  } else {
+    // Just reset reaction for the next combatant
+    const nextCombatantId = sortedCombatants[nextIndex].id;
+    const updatedCombatants = combatants.map(c =>
+      c.id === nextCombatantId ? { ...c, reaction: false } : c
+    ).sort((a, b) => b.initiative - a.initiative);
+    setCombatants(updatedCombatants);
+    setCurrentTurnIndex(nextIndex);
   }
-
-  // // Reset ALL combatants at the start of a new round
-  // if (currentTurnIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
-  //   const resetCombatants = combatants.map(c => ({
-  //     ...c,
-  //     action: false,
-  //     bonus: false,
-  //     move: false
-  //   })).sort((a, b) => b.initiative - a.initiative);
-  //   console.log("Reset Round", resetCombatants)
-  //   setCombatants(resetCombatants);
-  //   updateCombatant(currentCombatant.id, 'reaction', false);
-  //   setRoundNumber(roundNumber + 1);
-  //   setCurrentTurnIndex(nextIndex);
-  // } else {
-  //   // Just reset reaction for the next combatant
-  //   const nextCombatantId = sortedCombatants[nextIndex].id;
-  //   const updatedCombatants = combatants.map(c =>
-  //     c.id === nextCombatantId ? { ...c, reaction: false } : c
-  //   ).sort((a, b) => b.initiative - a.initiative);
-  //   setCombatants(updatedCombatants);
-  //   setCurrentTurnIndex(nextIndex);
-  // }
-  console.log("After Handle Next Turn:", combatants, "Current Turn", currentCombatant.name)
-    currentCombatant.action = false;
-    currentCombatant.bonus = false;
-    currentCombatant.move = false;
+  
+    combatants[nextIndex].action = false;
+    combatants[nextIndex].bonus = false;
+    combatants[nextIndex].move = false;
+    console.log("After Handle Next Turn:", combatants, "Current Turn", currentCombatant.name)
 };
   
   // Auto-open HP modal for death saves
@@ -260,6 +243,7 @@ const handleNextTurn = () => {
   const currentCombatant = sortedCombatants[currentTurnIndex];
   if (currentCombatant.conditions.includes('Death Saves')) {
     setHpModalCombatant(currentCombatant);
+    console.log(currentCombatant.name," needs to make a death saving throw.")
     updateCombatant(currentCombatant.id, 'action', true);
     updateCombatant(currentCombatant.id, 'bonus', true);
     updateCombatant(currentCombatant.id, 'move', true);
@@ -274,16 +258,16 @@ const handleNextTurn = () => {
     console.log('Auto-advance check:', currentCombatant.name, {
     action: currentCombatant.action,
     bonus: currentCombatant.bonus,
-    move: currentCombatant.move
+    move: currentCombatant.move,
+    conditions: currentCombatant.conditions
   });
 
     // Skip if dead OR if all three are checked
-  if (
-    currentCombatant.conditions.includes('Dead') ||
-    (currentCombatant.action && currentCombatant.bonus && currentCombatant.move)
-  ) {
+  if (!currentCombatant.conditions.includes('Dead') &&
+  (currentCombatant.action && currentCombatant.bonus && currentCombatant.move)) {
     handleNextTurn();
-  }
+}
+
 }, [combatants, currentTurnIndex]);
   
   // Unchecking will set that player as Current Turn
@@ -312,26 +296,26 @@ useEffect(() => {
 
   // Action, Bonus, Movement Keyboard shortcuts
   useEffect(() => {
-  const handleKeyPress = (e: KeyboardEvent) => {
-    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-      return;
-    }
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
 
-    if (sortedCombatants.length === 0) return;
-    
-    const currentCombatant = sortedCombatants[currentTurnIndex];
-    
-    switch(e.key.toLowerCase()) {
-      case 'a':
-        updateCombatant(currentCombatant.id, 'action', !currentCombatant.action);
-        break;
-      case 's':
-        updateCombatant(currentCombatant.id, 'bonus', !currentCombatant.bonus);
-        break;
-      case 'd':
-        updateCombatant(currentCombatant.id, 'move', !currentCombatant.move);
-        break;
-    }
+      if (sortedCombatants.length === 0) return;
+      
+      const currentCombatant = sortedCombatants[currentTurnIndex];
+      
+      switch(e.key.toLowerCase()) {
+        case 'a':
+          updateCombatant(currentCombatant.id, 'action', !currentCombatant.action);
+          break;
+        case 's':
+          updateCombatant(currentCombatant.id, 'bonus', !currentCombatant.bonus);
+          break;
+        case 'd':
+          updateCombatant(currentCombatant.id, 'move', !currentCombatant.move);
+          break;
+      }
   };
 
   // Add event listener
