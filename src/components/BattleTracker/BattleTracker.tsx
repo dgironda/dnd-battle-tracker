@@ -601,10 +601,10 @@ useEffect(() => {
       const updated = [...hpModalCombatant.conditions, newCondition];
       updateCombatant(hpModalCombatant.id, 'conditions', updated);
     }}
-    onUpdateBoth={(newHp, newConditions) => {
+    onUpdateBoth={(newHp, newtHp, newConditions) => {
       const updatedCombatants = combatants.map(c =>
         c.id === hpModalCombatant.id
-          ? { ...c, currHp: newHp, conditions: newConditions }
+          ? { ...c, currHp: newHp, tHp: newtHp, conditions: newConditions }
           : c
       ).sort((a, b) => b.initiative - a.initiative);
       setCombatants(updatedCombatants);

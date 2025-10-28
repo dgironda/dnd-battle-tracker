@@ -139,7 +139,10 @@ export const EditableCell = <T extends Record<string, any>>({
       <input
         type="text"
         value={inputValue as string}
-        onChange={(e) => updateEntity(entity.id, field, e.target.value)}
+        onChange={(e) => {
+                    setInputValue(e.target.value as any); // Type assertion
+                    updateEntity(entity.id, field, e.target.value);
+                }}
         onBlur={() => setEditingField(null)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {

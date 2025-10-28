@@ -18,7 +18,7 @@ interface HpChangeModalProps {
   onSubmit: (newHp: number, newtHp: number) => void;
   onRemoveCondition: (condition: string) => void;
   onAddCondition: (condition: string) => void;
-  onUpdateBoth: (newHp: number, newConditions: string[]) => void;
+  onUpdateBoth: (newHp: number, newtHp: number, newConditions: string[]) => void;
   onUpdateDeathSaves: (saves: boolean[]) => void;
   onClose: () => void;
   handleNextTurn: () => void;
@@ -137,15 +137,16 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
         updatedConditions.push('Dead');
       }
     }
-    
+    let newtHp = Math.max(0, tHp - damageAmount)
+    console.log("New Temp HP", newtHp)
     // If conditions changed, use onUpdateBoth
     if (updatedConditions.length !== conditions.length && onUpdateBoth) {
-      onUpdateBoth(newHp, updatedConditions);
+      onUpdateBoth(newHp, newtHp, updatedConditions);
       setShowConcentrationCheck(false);
       return; // Don't call onSubmit separately
     }
     
-    let newtHp = Math.max(0, tHp - damageAmount)
+    
     // Otherwise just update HP
     onSubmit(newHp, newtHp);
     onClose();
@@ -154,8 +155,13 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
 const handleConcentrationPass = () => {
   // They passed - apply damage and keep concentrating
   const damageAmount = parseInt(amount);
-  const newHp = Math.max(0, currentHp - damageAmount);
-  onSubmit(newHp, tHp);
+  let newHp:number ;
+  if (tHp > 0) {
+    let updatedDamageAmount = Math.max(0, damageAmount - tHp);
+    newHp = Math.max(0, currentHp - updatedDamageAmount)}
+  else {newHp = Math.max(0, currentHp - damageAmount);}
+  let newtHp = Math.max(0, tHp - damageAmount)
+  onSubmit(newHp, newtHp);
   setShowConcentrationCheck(false);
   onClose();
 };
@@ -163,11 +169,16 @@ const handleConcentrationPass = () => {
 const handleConcentrationFail = () => {
   // They failed - apply damage and remove concentrating
   const damageAmount = parseInt(amount);
-  const newHp = Math.max(0, currentHp - damageAmount);
+  let newHp:number ;
+  if (tHp > 0) {
+    let updatedDamageAmount = Math.max(0, damageAmount - tHp);
+    newHp = Math.max(0, currentHp - updatedDamageAmount)}
+  else {newHp = Math.max(0, currentHp - damageAmount);}
+  let newtHp = Math.max(0, tHp - damageAmount)
   const newConditions = conditions.filter(c => c !== 'Concentrating');
   setShowConcentrationCheck(false);
   if (onUpdateBoth) {
-    onUpdateBoth(newHp, newConditions);
+    onUpdateBoth(newHp, newtHp, newConditions);
   }
   
 };
@@ -188,7 +199,7 @@ const handleConcentrationFail = () => {
       const newConditions = conditions.filter(c => c !== 'Death Saves');
       const resetSaves: boolean[] = [];
       onUpdateDeathSaves(resetSaves);
-      onUpdateBoth(newHp, newConditions);
+      onUpdateBoth(newHp, tHp, newConditions);
      } else {onSubmit(newHp, tHp);}
     
     
