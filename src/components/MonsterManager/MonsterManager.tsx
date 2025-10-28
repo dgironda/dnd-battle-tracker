@@ -44,6 +44,12 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  const [duplicateCount, setDuplicateCount] = useState(1);
+  const handleDuplicateCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = Math.max(1, parseInt(e.target.value)) || 1; // Prevent negative or zero
+  setDuplicateCount(value);
+};
+
   // 🔹 Handle typing in the name input
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -76,31 +82,57 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
     setShowSuggestions(false);
   };
 
-  // 🔹 Add monster to table
-  const addMonster = () => {
-    if (!newMonster.name.trim()) return;
-    setMonsters([...monsters, { ...newMonster, id: crypto.randomUUID() }]);
-    setNewMonster({
+  // 🔹 Add monster or monsters to table
+  const addMonsters = (count:number) => {
+  if (!newMonster.name.trim() || count <= 0) return;
+
+    let newMonsters = [];
+    const existingNames = new Set(monsters.map(monster => monster.name));
+
+
+  for (let i = 0; i < count; i++) {
+    let uniqueName = newMonster.name;
+    let suffix = 1;
+
+  while (existingNames.has(uniqueName)) {
+      uniqueName = `${newMonster.name} ${suffix}`; // Append number for uniqueness
+      suffix++;
+    }
+
+  newMonsters.push({
+      ...newMonster,
       id: crypto.randomUUID(),
-      name: "",
-      link: "https://5e.tools",
-      hp: 0,
-      ac: 0,
-      str: 10,
-      dex: 10,
-      con: 10,
-      int: 10,
-      wis: 10,
-      cha: 10,
-      pp: 10,
-      init: 0,
-      hidden: false,
-      present: false,
-      conditions: [],
+      name: uniqueName,
     });
-    setFilteredSuggestions([]);
-    setShowSuggestions(false);
-  };
+    existingNames.add(uniqueName);
+  }
+
+  setMonsters((prevMonsters) => [...prevMonsters, ...newMonsters]);
+
+  // Reset newMonster info
+  setNewMonster({
+    id: crypto.randomUUID(),
+    name: "",
+    link: "https://5e.tools",
+    hp: 0,
+    ac: 0,
+    str: 10,
+    dex: 10,
+    con: 10,
+    int: 10,
+    wis: 10,
+    cha: 10,
+    pp: 10,
+    init: 0,
+    hidden: false,
+    present: false,
+    conditions: [],
+  });
+  
+  setFilteredSuggestions([]);
+  setShowSuggestions(false);
+  setDuplicateCount(1);
+};
 
   // 🔹 Toggle hidden/invisible
   const toggleHidden = (id: string) => {
@@ -125,7 +157,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
   const keyDownAddMonster = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault(); 
-      addMonster(); 
+      addMonsters(1); 
     }
   };
 
@@ -189,7 +221,17 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
             setNewMonster({ ...newMonster, ac: Number(e.target.value) })
           }
         /> */}
-        <div><button onClick={addMonster}>Add Monster</button></div>
+        <div><button onClick={() => addMonsters(1)}>Add Monster</button></div>
+        <div>
+          <input
+            type="number"
+            min="1"
+            max="50"
+            value={duplicateCount}
+            onChange={handleDuplicateCountChange}
+          />
+          <button onClick={() => addMonsters(duplicateCount)}>Add Monsters</button>
+        </div>
       </div>
 
       <table>
