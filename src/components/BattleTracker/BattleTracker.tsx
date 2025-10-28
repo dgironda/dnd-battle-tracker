@@ -123,9 +123,9 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
     
     for (const hero of presentHeroes) {
       // Show dialog and wait for initiative
-      const initiative = await new Promise<number>((resolve, reject) => {
+      const initiative = await new Promise<number>((resolve) => {
         setCurrentCombatant(hero);
-        setInitiativeResolver(resolve);
+        setInitiativeResolver(() => resolve);
       });
       
       newCombatants.push({
