@@ -1,27 +1,31 @@
 import { useState } from 'react';
 import { Combatant } from '../types/index';
+import { EditableCell } from '../components/Utils';
 import { ConcentrationCheckModal } from './concentrationCheck';
 import { useGlobalContext } from '../hooks/versionContext';
 
 interface HpChangeModalProps {
+  combatant: Combatant;
   combatantId: string;
   combatantName: string;
   currentHp: number;
   maxHp: number;
+  tHp: number;
   conditions: string[];
   type: 'hero' | 'monster';
   deathsaves: boolean[];
   currentCombatantID: string;
-  onSubmit: (newHp: number) => void;
+  onSubmit: (newHp: number, newtHp: number) => void;
   onRemoveCondition: (condition: string) => void;
   onAddCondition: (condition: string) => void;
   onUpdateBoth: (newHp: number, newConditions: string[]) => void;
   onUpdateDeathSaves: (saves: boolean[]) => void;
   onClose: () => void;
   handleNextTurn: () => void;
+  updateCombatant: (combatantId: string, field: keyof Combatant, value: any) => void;
 }
 
-export function HpChangeModal({ combatantId, currentCombatantID, combatantName, currentHp, maxHp, type, conditions, deathsaves, onSubmit, onRemoveCondition, onAddCondition, onUpdateBoth, onUpdateDeathSaves, onClose, handleNextTurn }: HpChangeModalProps) {
+export function HpChangeModal({ combatant, combatantId, currentCombatantID, combatantName, currentHp, maxHp, tHp, type, conditions, deathsaves, onSubmit, onRemoveCondition, onAddCondition, onUpdateBoth, onUpdateDeathSaves, onClose, handleNextTurn, updateCombatant }: HpChangeModalProps) {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   const [showConcentrationCheck, setShowConcentrationCheck] = useState(false);
@@ -32,6 +36,7 @@ export function HpChangeModal({ combatantId, currentCombatantID, combatantName, 
   const isDying = conditions.includes('Death Saves')
   // const successes = deathsaves.filter(s => s === true).length;
   // const failures = deathsaves.filter(s => s === false).length;
+  const [editingField, setEditingField] = useState<string | null>(null);
   
   const addDeathSaveSuccess = () => {
     if (!onUpdateDeathSaves) {
@@ -79,72 +84,78 @@ export function HpChangeModal({ combatantId, currentCombatantID, combatantName, 
   
 
   const handleDamage = () => {
-  const damageAmount = parseInt(amount);
-  if (isNaN(damageAmount) || amount.trim() === '') {
-    setError('Please enter a valid number');
-    return;
-  }
-  if (currentHp === 0 && isDying) {
-      if (!onUpdateDeathSaves) return;
-      
-      const newSaves = [...deathsaves, false, false]; // Add 2 failures
-      onUpdateDeathSaves(newSaves);
-      
-      const newFailures = newSaves.filter(s => s === false).length;
-      if (newFailures >= 3) {
-        onRemoveCondition('Death Saves');
-        onAddCondition('Dead');
-        alert(`${combatantName} has died.`);
-      } 
-      onClose();
+    const damageAmount = parseInt(amount);
+    if (isNaN(damageAmount) || amount.trim() === '') {
+      setError('Please enter a valid number');
       return;
     }
+    if (currentHp === 0 && isDying) {
+        if (!onUpdateDeathSaves) return;
+        
+        const newSaves = [...deathsaves, false, false]; // Add 2 failures
+        onUpdateDeathSaves(newSaves);
+        
+        const newFailures = newSaves.filter(s => s === false).length;
+        if (newFailures >= 3) {
+          onRemoveCondition('Death Saves');
+          onAddCondition('Dead');
+          alert(`${combatantName} has died.`);
+        } 
+        onClose();
+        return;
+      }
 
-  
-  if (isConcentrating && damageAmount > 0) {
-    const damageToConcentration = Math.floor(damageAmount / 2);
-    // const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
-    const dc = status === 'twentyFourteen' ? Math.max(10, damageToConcentration) : Math.min(Math.max(10, damageToConcentration), 30);
     
-    setConcentrationDC(dc);
-    setShowConcentrationCheck(true);
-    
-    return;
-  }
-  
-  // Apply damage normally if not concentrating
-  const newHp = Math.max(0, currentHp - damageAmount);
-  let updatedConditions = [...conditions];
-  
-  // Auto-add death save or dead condition
-  if (newHp <= 0) {
-    if (type === 'hero' && !conditions.includes('Death Saves')) {
-      updatedConditions.push('Death Saves');
-       if (onUpdateDeathSaves) {
-          onUpdateDeathSaves([]); // Initialize empty death saves array
-        }
-    } else if (type === 'monster' && !conditions.includes('Dead')) {
-      updatedConditions.push('Dead');
+    if (isConcentrating && damageAmount > 0) {
+      const damageToConcentration = Math.floor(damageAmount / 2);
+      // const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
+      const dc = status === 'twentyFourteen' ? Math.max(10, damageToConcentration) : Math.min(Math.max(10, damageToConcentration), 30);
+      
+      setConcentrationDC(dc);
+      setShowConcentrationCheck(true);
+      
+      return;
     }
-  }
-  
-  // If conditions changed, use onUpdateBoth
-  if (updatedConditions.length !== conditions.length && onUpdateBoth) {
-    onUpdateBoth(newHp, updatedConditions);
-    setShowConcentrationCheck(false);
-    return; // Don't call onSubmit separately
-  }
-  
-  // Otherwise just update HP
-  onSubmit(newHp);
-  onClose();
+    
+    let updatedConditions = [...conditions];
+    let newHp:number ;
+    // Apply damage normally if not concentrating
+    if (tHp > 0) {
+      let updatedDamageAmount = Math.max(0, damageAmount - tHp);
+      newHp = Math.max(0, currentHp - updatedDamageAmount)}
+    else {newHp = Math.max(0, currentHp - damageAmount);}
+    
+    
+    // Auto-add death save or dead condition
+    if (newHp <= 0) {
+      if (type === 'hero' && !conditions.includes('Death Saves')) {
+        updatedConditions.push('Death Saves');
+        if (onUpdateDeathSaves) {
+            onUpdateDeathSaves([]); // Initialize empty death saves array
+          }
+      } else if (type === 'monster' && !conditions.includes('Dead')) {
+        updatedConditions.push('Dead');
+      }
+    }
+    
+    // If conditions changed, use onUpdateBoth
+    if (updatedConditions.length !== conditions.length && onUpdateBoth) {
+      onUpdateBoth(newHp, updatedConditions);
+      setShowConcentrationCheck(false);
+      return; // Don't call onSubmit separately
+    }
+    
+    let newtHp = Math.max(0, tHp - damageAmount)
+    // Otherwise just update HP
+    onSubmit(newHp, newtHp);
+    onClose();
 };
 
 const handleConcentrationPass = () => {
   // They passed - apply damage and keep concentrating
   const damageAmount = parseInt(amount);
   const newHp = Math.max(0, currentHp - damageAmount);
-  onSubmit(newHp);
+  onSubmit(newHp, tHp);
   setShowConcentrationCheck(false);
   onClose();
 };
@@ -178,7 +189,7 @@ const handleConcentrationFail = () => {
       const resetSaves: boolean[] = [];
       onUpdateDeathSaves(resetSaves);
       onUpdateBoth(newHp, newConditions);
-     } else {onSubmit(newHp);}
+     } else {onSubmit(newHp, tHp);}
     
     
     onClose();
@@ -265,7 +276,18 @@ const handleConcentrationFail = () => {
 
         {/* hp, dmg, heal */}
         <div className='hpChangeModalCurrent'>
-          Current HP: {currentHp} / {maxHp}
+          Current HP: {currentHp} / {maxHp} 
+        </div>
+        <div>
+          Temporary HP🛡️:
+          <EditableCell
+                                                entity={combatant}
+                                                field="tHp"
+                                                type="number"
+                                                editingField={editingField}
+                                                setEditingField={setEditingField}
+                                                updateEntity={updateCombatant}
+                                              /><span title='Temp HP, click to edit'></span>
         </div>
         
         <input

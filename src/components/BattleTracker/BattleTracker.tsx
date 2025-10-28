@@ -56,7 +56,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const updateCombatant = (combatantId: string, field: keyof Combatant, value: any) => {
   const updatedCombatants = combatants.map(combatant =>
     combatant.id === combatantId ? { ...combatant, [field]: value } : combatant
-  ).sort((a, b) => b.initiative - a.initiative);
+  ).sort((a, b) => b.initiative - a.initiative);  
   setCombatants(updatedCombatants);
 };
 
@@ -134,6 +134,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
         type: 'hero',
         currHp: hero.hp,
         maxHp: hero.hp,
+        tHp: 0,
         initiative,
         action: false,
         bonus: false,
@@ -160,6 +161,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
       type: 'monster',
       currHp: monster.hp,
       maxHp: monster.hp,
+      tHp: 0,
       initiative,
       action: false,
       bonus: false,
@@ -502,8 +504,11 @@ useEffect(() => {
               }}
               onClick={() => setHpModalCombatant(combatant)}
               title="Click to change HP">
-                {combatant.currHp} / {combatant.maxHp}
-              </td>
+                <>{combatant.tHp > 0 && (
+                  <p className="thp">🛡️( {combatant.tHp} )</p>
+                  )}
+                {combatant.currHp} / {combatant.maxHp}   
+              </></td>
 			  
 			  {/* Added disabling of checkboxes on "Dead", might want to do this on "Death Saves" after prompt to roll and count of Saves/Fails? */}
 			  <td>
@@ -569,16 +574,24 @@ useEffect(() => {
 )}
 {hpModalCombatant && (
   <HpChangeModal
+    combatant={hpModalCombatant}
     combatantId={hpModalCombatant.id}
     combatantName={hpModalCombatant.name}
     currentHp={hpModalCombatant.currHp}
     maxHp={hpModalCombatant.maxHp}
+    tHp={hpModalCombatant.tHp}
     conditions={hpModalCombatant.conditions}
     type={hpModalCombatant.type}
     deathsaves={hpModalCombatant.deathsaves || []}
     currentCombatantID={sortedCombatants[currentTurnIndex].id}
-    onSubmit={(newHp) => {
-      updateCombatant(hpModalCombatant.id, 'currHp', newHp);
+    onSubmit={(newHp, newtHp) => {
+      // updateCombatant(hpModalCombatant.id, 'currHp', newHp);
+      const updatedCombatants = combatants.map(c =>
+        c.id === hpModalCombatant.id
+          ? { ...c, currHp: newHp, tHp: newtHp, }
+          : c
+      ).sort((a, b) => b.initiative - a.initiative);
+      setCombatants(updatedCombatants);
     }}
     onRemoveCondition={(condition) => {
       const updated = hpModalCombatant.conditions.filter(c => c !== condition);
@@ -610,6 +623,7 @@ useEffect(() => {
     onClose={() => 
     setHpModalCombatant(null)}
     handleNextTurn={handleNextTurn}
+    updateCombatant={updateCombatant}
   />
 )}
     </div>

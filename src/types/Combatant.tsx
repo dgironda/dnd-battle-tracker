@@ -5,6 +5,7 @@ interface Combatant {
   type: 'hero' | 'monster';
   currHp: number;
   maxHp: number;
+  tHp: number;
   action: boolean;
   bonus: boolean;
   move: boolean;

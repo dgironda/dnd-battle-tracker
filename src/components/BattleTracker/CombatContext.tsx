@@ -67,6 +67,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       type: 'monster',
       currHp: monster.hp,
       maxHp: monster.hp,
+      tHp: 0,
       initiative,
       init: initiative,
       action: false,
