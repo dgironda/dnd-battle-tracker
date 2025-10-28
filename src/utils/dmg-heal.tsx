@@ -281,13 +281,13 @@ const handleConcentrationFail = () => {
         <div>
           Temporary HP🛡️:
           <EditableCell
-                                                entity={combatant}
-                                                field="tHp"
-                                                type="number"
-                                                editingField={editingField}
-                                                setEditingField={setEditingField}
-                                                updateEntity={updateCombatant}
-                                              /><span title='Temp HP, click to edit'></span>
+            entity={combatant}
+            field="tHp"
+            type="number"
+            editingField={editingField}
+            setEditingField={setEditingField}
+            updateEntity={updateCombatant}
+          /><span title='Temp HP, click to edit'></span>
         </div>
         
         <input

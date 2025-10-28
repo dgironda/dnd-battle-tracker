@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { Hero, Monster, Combatant } from "../types/index";
+import { useEffect, useState } from "react";
 
 
 export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
@@ -99,18 +100,28 @@ export const EditableCell = <T extends Record<string, any>>({
   type?: 'text' | 'number';
   editingField: string | null;
   setEditingField: Dispatch<SetStateAction<string | null>>;
-  updateEntity: (entityId: string, field: keyof T, value: string | number | boolean) => void;
+  updateEntity: (entityId: string, field: keyof T, value: string | number ) => void;
 }) => {
   const fieldKey = `${entity.id}-${String(field)}`;
   const isEditing = editingField === fieldKey;
-  const value = entity[field];
+  const [inputValue, setInputValue] = useState(entity[field]);
+  useEffect(() => {
+        setInputValue(entity[field]);
+    }, [entity[field]]);
 
   if (isEditing && type === 'number') {
+
     return (
       <input
         type="number"
-        value={value as number}
-        onChange={(e) => updateEntity(entity.id, field, Number(e.target.value))}
+        value={inputValue}
+        onChange={(e) => {
+                    const newValue = Number(e.target.value);
+                    if (!isNaN(newValue)) {
+                        setInputValue(newValue as any);  // Update local state
+                        updateEntity(entity.id, field, newValue);  // Push update
+                    }
+                }}
         onBlur={() => setEditingField(null)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
@@ -127,7 +138,7 @@ export const EditableCell = <T extends Record<string, any>>({
     return (
       <input
         type="text"
-        value={value as string}
+        value={inputValue as string}
         onChange={(e) => updateEntity(entity.id, field, e.target.value)}
         onBlur={() => setEditingField(null)}
         onKeyDown={(e) => {
@@ -151,7 +162,7 @@ export const EditableCell = <T extends Record<string, any>>({
       }}
       title="Click to edit"
     >
-      {value}
+      {inputValue}
       <span role="button" aria-label="Edit" className="edit">
         📝
       </span>
