@@ -174,6 +174,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
             type="text"
             size={50}
             placeholder="Monster Name"
+            id="monster-name"
             value={newMonster.name}
             onKeyDown={keyDownAddMonster}
             onChange={handleNameChange}
@@ -227,7 +228,9 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
             type="number"
             min="1"
             max="50"
+            placeholder="1"
             value={duplicateCount}
+            id="duplicate-count"
             onChange={handleDuplicateCountChange}
           />
           <button onClick={() => addMonsters(duplicateCount)}>Add Monsters</button>

@@ -51,7 +51,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   useEffect(() => {
     const saved = getCombatants();
     setHasSavedCombat(saved && saved.length > 0);
-  }, []);
+  }, [combatants]);
 
   const updateCombatant = (combatantId: string, field: keyof Combatant, value: any) => {
   const updatedCombatants = combatants.map(combatant =>
@@ -208,9 +208,10 @@ const handleNextTurn = () => {
     console.warn("All combatants are dead. No turns left.");
     return;
   }
-
+  // debugging
+  console.log("nextIndex: ", nextIndex, "currentTurnIndex: ", currentTurnIndex, "attempts: ", attempts)
   // Reset ALL combatants at the start of a new round
-  if (currentTurnIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
+  if (nextIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
     const resetCombatants = combatants.map(c => {
     if (!c.conditions.includes('Dead')) {
       return { ...c, action: false, bonus: false, move: false };
@@ -219,23 +220,26 @@ const handleNextTurn = () => {
   }).sort((a, b) => b.initiative - a.initiative);
     console.log("Reset Round", resetCombatants)
     setCombatants(resetCombatants);
-    updateCombatant(currentCombatant.id, 'reaction', false);
+    // updateCombatant(currentCombatant.id, 'reaction', false);
     setRoundNumber(roundNumber + 1);
-    setCurrentTurnIndex(nextIndex);
-  } else {
-    // Just reset reaction for the next combatant
+    // setCurrentTurnIndex(nextIndex);
+  } 
+    // reset reaction for the next combatant
     const nextCombatantId = sortedCombatants[nextIndex].id;
     const updatedCombatants = combatants.map(c =>
       c.id === nextCombatantId ? { ...c, reaction: false } : c
     ).sort((a, b) => b.initiative - a.initiative);
     setCombatants(updatedCombatants);
     setCurrentTurnIndex(nextIndex);
-  }
   
-    combatants[nextIndex].action = false;
-    combatants[nextIndex].bonus = false;
-    combatants[nextIndex].move = false;
-    console.log("After Handle Next Turn:", combatants, "Current Turn", currentCombatant.name)
+  
+    // Update next combatant action states
+  if (nextIndex < updatedCombatants.length) {
+    updatedCombatants[nextIndex].action = false;
+    updatedCombatants[nextIndex].bonus = false;
+    updatedCombatants[nextIndex].move = false;
+    console.log("After Handle Next Turn:", updatedCombatants, "Current Turn", sortedCombatants[nextIndex].name);
+  }
 };
   
   // Auto-open HP modal for death saves
@@ -250,7 +254,7 @@ const handleNextTurn = () => {
     updateCombatant(currentCombatant.id, 'bonus', true);
     updateCombatant(currentCombatant.id, 'move', true);
   }
-}, [currentTurnIndex, sortedCombatants, hpModalCombatant]);
+}, [currentTurnIndex]);
 
   // Advance turn when action, bonus, and move are checked
   useEffect(() => {
@@ -270,7 +274,7 @@ const handleNextTurn = () => {
     handleNextTurn();
 }
 
-}, [combatants, currentTurnIndex]);
+}, [combatants]);
   
   // Unchecking will set that player as Current Turn
   useEffect(() => {
@@ -486,15 +490,15 @@ useEffect(() => {
 
               <td>
                 <span title="Initiative">
-                                    <EditableCell
-                                      entity={combatant}
-                                      field="initiative"
-                                      type="number"
-                                      editingField={editingField}
-                                      setEditingField={setEditingField}
-                                      updateEntity={updateCombatant}
-                                    />
-                                  </span>
+                  <EditableCell
+                    entity={combatant}
+                    field="initiative"
+                    type="number"
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    updateEntity={updateCombatant}
+                  />
+                </span>
               </td>
               <td
               className="combatantHP"
@@ -513,7 +517,9 @@ useEffect(() => {
 			  {/* Added disabling of checkboxes on "Dead", might want to do this on "Death Saves" after prompt to roll and count of Saves/Fails? */}
 			  <td>
 			    <input
+          key={combatant.id}
 				  type="checkbox"
+          id={`${combatant.id}-action`}
 				  checked={combatant.action}
 				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'action', e.target.checked)}
@@ -521,7 +527,9 @@ useEffect(() => {
 			  </td>
 			  <td>
 			    <input
+          key={combatant.id}
 				  type="checkbox"
+          id={`${combatant.id}-bonus`}
 				  checked={combatant.bonus}
 				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'bonus', e.target.checked)}
@@ -529,7 +537,9 @@ useEffect(() => {
 			  </td>
 			  <td>
 			    <input
+          key={combatant.id}
 				  type="checkbox"
+          id={`${combatant.id}-move`}
 				  checked={combatant.move}
 				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'move', e.target.checked)}
@@ -537,7 +547,9 @@ useEffect(() => {
 			  </td>
 			  <td>
 			    <input
+          key={combatant.id}
 				  type="checkbox"
+          id={`${combatant.id}-reaction`}
 				  checked={combatant.reaction}
 				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'reaction', e.target.checked)}
