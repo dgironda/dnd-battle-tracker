@@ -207,12 +207,16 @@ const handleNextTurn = () => {
 
   // Reset ALL combatants at the start of a new round
   if (nextIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
-    const resetCombatants = combatants.map(c => {
+    const nextCombatantId = sortedCombatants[nextIndex].id;
+    const resetCombatants = combatants
+  .map(c => {
     if (!c.conditions.includes('Dead')) {
       return { ...c, action: false, bonus: false, move: false };
     }
-    return c; // Keep dead combatants unchanged
-  }).sort((a, b) => b.initiative - a.initiative);
+    return c;
+  })
+  .sort((a, b) => b.initiative - a.initiative)
+  .map(c => c.id === nextCombatantId ? { ...c, reaction: false } : c);
 
     setCombatants(resetCombatants);
     setRoundNumber(roundNumber + 1);
