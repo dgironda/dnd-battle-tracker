@@ -40,24 +40,10 @@ export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: Ini
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
-      }}
+      id='initiativeDialogOuter'
     >
       <div
-        style={{
-          backgroundColor: 'white',
-          padding: '2rem',
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          minWidth: '400px',
-        }}
+        id='initiativeDialogInner'
       >
         <h3 style={{ marginTop: 0 }}>Enter Initiative for {heroName}</h3>
 
@@ -72,50 +58,24 @@ export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: Ini
           }}
           placeholder="Enter initiative value"
           autoFocus
-          style={{
-            width: '100%',
-            padding: '0.5rem',
-            fontSize: '16px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            marginBottom: '0.5rem',
-          }}
         />
 
         {error && (
-          <p style={{ color: '#dc3545', fontSize: '14px', margin: '0.5rem 0' }}>
+          <p>
             {error}
           </p>
         )}
 
-        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+        <div>
           <button
             onClick={handleSubmit}
-            style={{
-              flex: 1,
-              padding: '0.75rem',
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '16px',
-            }}
+            id='submitInit'
           >
             OK
           </button>
           <button
             onClick={handleRandom}
-            style={{
-              flex: 1,
-              padding: '0.75rem',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '16px',
-            }}
+            id='randomInit'
           >
             Random (1–20)
           </button>

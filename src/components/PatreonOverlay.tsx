@@ -40,51 +40,24 @@ export default function PatreonOverlay({ onClose }: PatreonOverlayProps) {
 
     return (
         <div
-            style={{
-                position: "fixed",
-                inset: 0,
-                background: "rgba(0, 0, 0, 0.85)",
-                color: "white",
-                zIndex: 9999,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                textAlign: "center",
-                padding: "2rem",
-            }}
+            id="patreonOverlayDiv"
         >
-            <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>
+            <h1>
                 Thank you for using our Battle Tracker!
             </h1>
-            <p style={{ fontSize: "1.2rem", marginBottom: "2rem", maxWidth: "600px" }}>
+            <p>
                 Support Simulacrum Technologies on Patreon to help us keep improving, or just continue to your tracker.
             </p>
-            <div style={{ display: "flex", gap: "1rem" }}>
+            <div>
                 <button
                     onClick={handlePatreonLogin}
-                    style={{
-                        backgroundColor: "#e85b46",
-                        color: "white",
-                        fontWeight: "bold",
-                        border: "none",
-                        borderRadius: "8px",
-                        padding: "12px 24px",
-                        cursor: "pointer",
-                    }}
+                    id="patreonLogin"
                 >
                     Login / Support us on Patreon
                 </button>
                 <button
                     onClick={handleContinue}
-                    style={{
-                        backgroundColor: "#444",
-                        color: "white",
-                        border: "1px solid #777",
-                        borderRadius: "8px",
-                        padding: "12px 24px",
-                        cursor: "pointer",
-                    }}
+                    id="patreonContinue"
                 >
                     Continue
                 </button>

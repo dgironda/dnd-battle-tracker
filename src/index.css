@@ -2,19 +2,21 @@
 @import url('https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap');
 
 :root {
-  --color-bg1: #f8f3e7;       /* slightly parchment-like */
-  --color-bg2: #e6dfd3;       /* subtle secondary background */
-  --color-fg: #131b1f;        /* main text color */
-  --color-btn1: #6a0500;      /* dark button border */
-  --color-btn2: #b3190e;      /* button background */
-  --color-chk1: #8b8b8b;      /* disabled text / info */
-  --color-chk2: #a7743b;      /* secondary highlight */
-  --color-hl1: #d6b88c;       /* popup / panel background */
-  --color-hl2: #5b0f00;       /* header / highlight */
-  --color-brdr1: #b5a37b;     /* table borders */
-  --color-rowodd: #ffffff;
-  --color-roweven: #f8f2eb;
-  --color-shadow: #555555;
+  color-scheme: light dark;
+  --color-bg1: light-dark(#f8f3e7, #1d1f21);      /* slightly parchment-like vs dark background */
+  --color-bg2: light-dark(#e6dfd3, #232528);      /* subtle secondary background vs slightly lighter dark */
+  --color-fg: light-dark(#131b1f, #6e5f5f);       /* main text color */
+  --color-btn1: light-dark(#6a0500, #9b1c20);     /* dark button border vs lighter border */
+  --color-btn2: light-dark(#b3190e, #e95348);     /* button background for light vs lighter dark */
+  --color-chk1: light-dark(#8b8b8b, #a1a1a1);     /* disabled text / info */
+  --color-chk2: light-dark(#a7743b, #c89e63);     /* secondary highlight */
+  --color-hl1: light-dark(#d6b88c, #313335);       /* popup / panel background */
+  --color-hl2: light-dark(#5b0f00, #e49668);       /* header / highlight */
+  --color-brdr1: light-dark(#b5a37b, #b5a37b);     /* consistent table borders */
+  --color-rowodd: light-dark(#ffffff, #3c3f43);    /* row odd colors */
+  --color-roweven: light-dark(#f8f2eb, #484c51);   /* row even colors */
+  --color-shadow: light-dark(#555555, #aca9a9);    /* shadow */
+  --transparent: rgba(0, 0, 0, 0.85);
 }
 
 body {
@@ -210,6 +212,75 @@ sup {
   font-family: 'Caudex', serif;
 }
 
+#patreonLink {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+#patreonLink>button {
+  background-color: #e85b46;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+#patreonLink>p {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+#patreonOverlayDiv {
+  position: fixed;
+  inset: 0;
+  background-color: var(--transparent);
+  color: white;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+#patreonOverlayDiv>h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+#patreonOverlayDiv>p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+}
+
+#patreonOverlayDiv>div {
+  display: flex;
+  gap: 1rem;
+}
+
+#patreonLogin {
+  background-color: #e85b46;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  cursor: pointer;
+}
+
+#patreonContinue {
+  background-color: #444;
+  color: white;
+  border: 1px solid #777;
+  border-radius: 8px;
+  padding: 12px 24px;
+  cursor: pointer;
+}
+
 #heroAddManage, #monsterAddManage {
   margin-top: 2rem;
   position: absolute;
@@ -308,6 +379,24 @@ sup {
   filter: drop-shadow(1px 2px 1px #666);
 }
 
+.editableCellNum {
+  width: 60px;
+  padding: 2px; 
+  border: 1px solid var(--color-brdr1);
+}
+
+.editableCellTxt {
+  width: 100px;
+  padding: 2px; 
+  border: 1px solid var(--color-brdr1);
+}
+
+.setEditingField {
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
 .heroesSpacer {
   height: 8px;
   border: none;
@@ -327,6 +416,67 @@ sup {
   font-size: 1.25rem;
 }
 
+#initiativeDialogOuter {
+  position: fixed;
+  inset: 0;
+  background-color: var(--transparent);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#initiativeDialogInner {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 400px;
+}
+
+#initiativeDialogInner>input {
+  width: 100%;
+  padding: .5rem;
+  font-size: 16px;
+  border: 1px solid var(--color-brdr1);
+  border-radius: 4px;
+  margin-bottom: .5rem;
+}
+
+#initiativeDialogInner>p {
+  color: #dc3545;
+  font-size: 14px;
+  margin: .5rem 0;
+}
+
+#initiativeDialogInner>div {
+  display: flex;
+  gap: .5rem;
+  margin-top: 1rem;
+}
+
+#submitInit {
+  flex: 1;
+  padding: .75rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#randomInit {
+  flex: 1;
+  padding: .75rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
 #battleTrackerOuter {
   padding: 2rem;
 }
@@ -341,7 +491,7 @@ sup {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--transparent);
   z-index: 1000;
   display: flex;
   justify-content: center;

@@ -111,24 +111,15 @@ function App() {
       <h1>D&D Battle Tracker</h1>
 		  
 	  {/* Patreon link */}
-      <div style={{ margin: '1rem 0', textAlign: 'center' }}>
+      <div id="patreonLink">
         {!isSupporter ? (
             <button
                 onClick={handlePatreonLogin}
-                style={{
-                  backgroundColor: '#e85b46',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '10px 20px',
-                  cursor: 'pointer'
-                }}
             >
               Support us on Patreon!
             </button>
         ) : (
-            <p style={{ color: '#4caf50', fontWeight: 'bold' }}>
+            <p>
               ✅ Thank you for your support!
             </p>
         )}
