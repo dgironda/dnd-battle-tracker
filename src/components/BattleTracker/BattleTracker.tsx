@@ -629,8 +629,11 @@ useEffect(() => {
       setCombatants(updated);
       setHpModalCombatant({ ...hpModalCombatant, deathsaves: saves });
     }}
-    onClose={() => 
-      setHpModalCombatant(null)}
+    onClose={() => {
+      const currentCombatant = sortedCombatants[currentTurnIndex];
+      if (currentCombatant.id === hpModalCombatant.id && currentCombatant.conditions.includes('Death Saves')
+      ) {handleNextTurn()}
+      setHpModalCombatant(null)}}
     handleNextTurn={handleNextTurn}
     updateCombatant={updateCombatant}
   />

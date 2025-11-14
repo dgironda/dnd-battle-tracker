@@ -42,7 +42,7 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
             return;
     }
     const newSaves = [...deathsaves, true];
-    if (combatantId === currentCombatantID) {handleNextTurn()}
+    // if (combatantId === currentCombatantID) {handleNextTurn()}
     onUpdateDeathSaves(newSaves);
     
     // If 3 successes, stabilize
@@ -63,7 +63,7 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
       return;
     }
     const newSaves = [...deathsaves, false];
-    if (combatantId === currentCombatantID) {handleNextTurn()}
+    // if (combatantId === currentCombatantID) {handleNextTurn()}
     onUpdateDeathSaves(newSaves);
     
     // If 3 failures, dead
