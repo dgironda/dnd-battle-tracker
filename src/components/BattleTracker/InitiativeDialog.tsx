@@ -45,7 +45,7 @@ export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: Ini
       <div
         id='initiativeDialogInner'
       >
-        <h3 style={{ marginTop: 0 }}>Enter Initiative for {heroName}</h3>
+        <h3>Enter Initiative for {heroName}</h3>
 
         <input
           type="number"

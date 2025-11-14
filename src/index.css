@@ -2,7 +2,11 @@
 @import url('https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap');
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+
+  &:has(#light-dark:checked) {
+    color-scheme: dark;
+  }
   --color-bg1: light-dark(#f8f3e7, #1d1f21);      /* slightly parchment-like vs dark background */
   --color-bg2: light-dark(#e6dfd3, #232528);      /* subtle secondary background vs slightly lighter dark */
   --color-fg: light-dark(#131b1f, #6e5f5f);       /* main text color */
@@ -211,6 +215,15 @@ sup {
   font-style: italic;
   font-family: 'Caudex', serif;
 }
+
+#colorMode {
+  display: flex;
+  justify-content: start;
+  margin-top: 0;
+  margin-bottom: 10vh;
+}
+
+
 
 #patreonLink {
   margin: 1rem 0;
@@ -434,7 +447,7 @@ sup {
   min-width: 400px;
 }
 
-#initiativeDialogInner>input {
+#initiativeDialogInner > input {
   width: 100%;
   padding: .5rem;
   font-size: 16px;
@@ -443,16 +456,20 @@ sup {
   margin-bottom: .5rem;
 }
 
-#initiativeDialogInner>p {
+#initiativeDialogInner > p {
   color: #dc3545;
   font-size: 14px;
   margin: .5rem 0;
 }
 
-#initiativeDialogInner>div {
+#initiativeDialogInner > div {
   display: flex;
   gap: .5rem;
   margin-top: 1rem;
+}
+
+#initiativeDialogInner > h3 { 
+  margin-top: 0;
 }
 
 #submitInit {
