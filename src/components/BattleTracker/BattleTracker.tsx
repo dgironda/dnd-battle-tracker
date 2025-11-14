@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import HeroManager from "../HeroManager/HeroManager";
 import { Hero, Monster, Combatant } from "../../types/index";
 import { startBattle } from "../../utils/battleUtils";
@@ -42,7 +42,11 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
   const { status } = useGlobalContext();
   const [hpModalCombatant, setHpModalCombatant] = useState<Combatant | null>(null);
-
+  const totalTurns = useMemo(
+    () => currentTurnIndex + ((roundNumber - 1) * combatants.length),
+    [currentTurnIndex, roundNumber, combatants.length]
+  );
+  const processedTurnRef = useRef(-1);
   const sortedCombatants = [...combatants].sort((a, b) => b.initiative - a.initiative);
   // const [roundNumber, setRoundNumber] = useState(() => {
   //   return getRoundNumber();
@@ -242,20 +246,22 @@ const handleNextTurn = () => {
   // Auto-open HP modal for death saves
   useEffect(() => {
   if (sortedCombatants.length === 0 || hpModalCombatant !== null) return;
+  if (processedTurnRef.current === totalTurns) return;
   
   const currentCombatant = sortedCombatants[currentTurnIndex];
   if (currentCombatant.conditions.includes('Death Saves')) {
     setHpModalCombatant(currentCombatant);
-    console.log(currentCombatant.name," needs to make a death saving throw.")
+    processedTurnRef.current = totalTurns;
+    console.log(currentCombatant.name," needs to make a death saving throw. ", "Total Turns is ",totalTurns)
     updateCombatant(currentCombatant.id, 'action', true);
     updateCombatant(currentCombatant.id, 'bonus', true);
     updateCombatant(currentCombatant.id, 'move', true);
   }
-}, [currentTurnIndex]);
+}, [sortedCombatants, currentTurnIndex, hpModalCombatant, totalTurns, updateCombatant]);
 
   // Advance turn when action, bonus, and move are checked
   useEffect(() => {
-    if (sortedCombatants.length === 0) return;
+    if (sortedCombatants.length === 0 || hpModalCombatant !== null) return;
     const currentCombatant = sortedCombatants[currentTurnIndex];
    
     console.log('Auto-advance check:', currentCombatant.name, {
@@ -630,9 +636,9 @@ useEffect(() => {
       setHpModalCombatant({ ...hpModalCombatant, deathsaves: saves });
     }}
     onClose={() => {
-      const currentCombatant = sortedCombatants[currentTurnIndex];
-      if (currentCombatant.id === hpModalCombatant.id && currentCombatant.conditions.includes('Death Saves')
-      ) {handleNextTurn()}
+      if (processedTurnRef.current === totalTurns) {
+        handleNextTurn();
+      }
       setHpModalCombatant(null)}}
     handleNextTurn={handleNextTurn}
     updateCombatant={updateCombatant}
