@@ -240,18 +240,18 @@ const handleNextTurn = () => {
 };
   
   // Auto-open HP modal for death saves
-//   useEffect(() => {
-//   if (sortedCombatants.length === 0 || hpModalCombatant !== null) return;
+  useEffect(() => {
+  if (sortedCombatants.length === 0 || hpModalCombatant !== null) return;
   
-//   const currentCombatant = sortedCombatants[currentTurnIndex];
-//   if (currentCombatant.conditions.includes('Death Saves')) {
-//     setHpModalCombatant(currentCombatant);
-//     console.log(currentCombatant.name," needs to make a death saving throw.")
-//     updateCombatant(currentCombatant.id, 'action', true);
-//     updateCombatant(currentCombatant.id, 'bonus', true);
-//     updateCombatant(currentCombatant.id, 'move', true);
-//   }
-// }, [currentTurnIndex]);
+  const currentCombatant = sortedCombatants[currentTurnIndex];
+  if (currentCombatant.conditions.includes('Death Saves')) {
+    setHpModalCombatant(currentCombatant);
+    console.log(currentCombatant.name," needs to make a death saving throw.")
+    updateCombatant(currentCombatant.id, 'action', true);
+    updateCombatant(currentCombatant.id, 'bonus', true);
+    updateCombatant(currentCombatant.id, 'move', true);
+  }
+}, [currentTurnIndex]);
 
   // Advance turn when action, bonus, and move are checked
   useEffect(() => {
@@ -619,16 +619,16 @@ useEffect(() => {
       setCombatants(updatedCombatants);
       setHpModalCombatant(null); // Close modal here after update
     }}
-    // onUpdateDeathSaves={(saves) => {
-    //   console.log('BattleTracker onUpdateDeathSaves called with:', saves);
-    //   console.log('Updating combatant:', hpModalCombatant.name);
-    //   const updated = combatants.map(c =>
-    //     c.id === hpModalCombatant.id ? { ...c, deathsaves: saves } : c
-    //   ).sort((a, b) => b.initiative - a.initiative);
-    //   console.log('Updated combatants:', updated);
-    //   setCombatants(updated);
-    //   setHpModalCombatant({ ...hpModalCombatant, deathsaves: saves });
-    // }}
+    onUpdateDeathSaves={(saves) => {
+      console.log('BattleTracker onUpdateDeathSaves called with:', saves);
+      console.log('Updating combatant:', hpModalCombatant.name);
+      const updated = combatants.map(c =>
+        c.id === hpModalCombatant.id ? { ...c, deathsaves: saves } : c
+      ).sort((a, b) => b.initiative - a.initiative);
+      console.log('Updated combatants:', updated);
+      setCombatants(updated);
+      setHpModalCombatant({ ...hpModalCombatant, deathsaves: saves });
+    }}
     onClose={() => 
       setHpModalCombatant(null)}
     handleNextTurn={handleNextTurn}

@@ -19,13 +19,13 @@ interface HpChangeModalProps {
   onRemoveCondition: (condition: string) => void;
   onAddCondition: (condition: string) => void;
   onUpdateBoth: (newHp: number, newtHp: number, newConditions: string[]) => void;
-  // onUpdateDeathSaves: (saves: boolean[]) => void;
+  onUpdateDeathSaves: (saves: boolean[]) => void;
   onClose: () => void;
   handleNextTurn: () => void;
   updateCombatant: (combatantId: string, field: keyof Combatant, value: any) => void;
 }
 
-export function HpChangeModal({ combatant, combatantId, currentCombatantID, combatantName, currentHp, maxHp, tHp, type, deathsaves, conditions, onSubmit, onRemoveCondition, onAddCondition, onUpdateBoth, onClose, handleNextTurn, updateCombatant }: HpChangeModalProps) {
+export function HpChangeModal({ combatant, combatantId, currentCombatantID, combatantName, currentHp, maxHp, tHp, type, deathsaves, conditions, onSubmit, onRemoveCondition, onAddCondition, onUpdateBoth, onUpdateDeathSaves, onClose, handleNextTurn, updateCombatant }: HpChangeModalProps) {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   const [showConcentrationCheck, setShowConcentrationCheck] = useState(false);
@@ -36,49 +36,49 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
   const isDying = conditions.includes('Death Saves')
   const [editingField, setEditingField] = useState<string | null>(null);
   
-  // const addDeathSaveSuccess = () => {
-  //   if (!onUpdateDeathSaves) {
-  //           console.log('onUpdateDeathSaves is not defined!');
-  //           return;
-  //   }
-  //   const newSaves = [...deathsaves, true];
-  //   if (combatantId === currentCombatantID) {handleNextTurn()}
-  //   onUpdateDeathSaves(newSaves);
+  const addDeathSaveSuccess = () => {
+    if (!onUpdateDeathSaves) {
+            console.log('onUpdateDeathSaves is not defined!');
+            return;
+    }
+    const newSaves = [...deathsaves, true];
+    if (combatantId === currentCombatantID) {handleNextTurn()}
+    onUpdateDeathSaves(newSaves);
     
-  //   // If 3 successes, stabilize
-  //   if (newSaves.filter(s => s === true).length >= 3) {
-  //     onRemoveCondition('Death Saves');
-  //     let dsCondition = conditions.indexOf('Death Saves');
-  //     conditions.splice(dsCondition, 1);
-  //     alert(`${combatantName} is stabilized!`);
-  //     const resetSaves: boolean[] = [];
-  //     onUpdateDeathSaves(resetSaves);
-  //     onClose();
-  //   }
-  // };
+    // If 3 successes, stabilize
+    if (newSaves.filter(s => s === true).length >= 3) {
+      onRemoveCondition('Death Saves');
+      let dsCondition = conditions.indexOf('Death Saves');
+      conditions.splice(dsCondition, 1);
+      alert(`${combatantName} is stabilized!`);
+      const resetSaves: boolean[] = [];
+      onUpdateDeathSaves(resetSaves);
+      onClose();
+    }
+  };
 
-  // const addDeathSaveFailure = () => {
-  //   if (!onUpdateDeathSaves) {
-  //     console.log('onUpdateDeathSaves is not defined!');
-  //     return;
-  //   }
-  //   const newSaves = [...deathsaves, false];
-  //   if (combatantId === currentCombatantID) {handleNextTurn()}
-  //   onUpdateDeathSaves(newSaves);
+  const addDeathSaveFailure = () => {
+    if (!onUpdateDeathSaves) {
+      console.log('onUpdateDeathSaves is not defined!');
+      return;
+    }
+    const newSaves = [...deathsaves, false];
+    if (combatantId === currentCombatantID) {handleNextTurn()}
+    onUpdateDeathSaves(newSaves);
     
-  //   // If 3 failures, dead
-  //   if (newSaves.filter(s => s === false).length >= 3) {
-  //     onRemoveCondition('Death Saves');
-  //     onAddCondition('Dead');
-  //     let dsCondition = conditions.indexOf('Death Saves');
-  //     conditions.splice(dsCondition, 1);
-  //     conditions.push("Dead");
-  //     alert(`${combatantName} has died!`);
-  //     const resetSaves: boolean[] = [];
-  //     onUpdateDeathSaves(resetSaves);
-  //     onClose();
-  //   }
-  // };
+    // If 3 failures, dead
+    if (newSaves.filter(s => s === false).length >= 3) {
+      onRemoveCondition('Death Saves');
+      onAddCondition('Dead');
+      let dsCondition = conditions.indexOf('Death Saves');
+      conditions.splice(dsCondition, 1);
+      conditions.push("Dead");
+      alert(`${combatantName} has died!`);
+      const resetSaves: boolean[] = [];
+      onUpdateDeathSaves(resetSaves);
+      onClose();
+    }
+  };
   
 
   const handleDamage = () => {
@@ -87,21 +87,21 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
       setError('Please enter a valid number');
       return;
     }
-    // if (currentHp === 0 && isDying) {
-    //     if (!onUpdateDeathSaves) return;
+    if (currentHp === 0 && isDying) {
+        if (!onUpdateDeathSaves) return;
         
-    //     const newSaves = [...deathsaves, false, false]; // Add 2 failures
-    //     onUpdateDeathSaves(newSaves);
+        const newSaves = [...deathsaves, false, false]; // Add 2 failures
+        onUpdateDeathSaves(newSaves);
         
-    //     const newFailures = newSaves.filter(s => s === false).length;
-    //     if (newFailures >= 3) {
-    //       onRemoveCondition('Death Saves');
-    //       onAddCondition('Dead');
-    //       alert(`${combatantName} has died.`);
-    //     } 
-    //     onClose();
-    //     return;
-    //   }
+        const newFailures = newSaves.filter(s => s === false).length;
+        if (newFailures >= 3) {
+          onRemoveCondition('Death Saves');
+          onAddCondition('Dead');
+          alert(`${combatantName} has died.`);
+        } 
+        onClose();
+        return;
+      }
 
     
     if (isConcentrating && damageAmount > 0) {
@@ -128,9 +128,9 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
     if (newHp <= 0) {
       if (type === 'hero' && !conditions.includes('Death Saves')) {
         updatedConditions.push('Death Saves');
-        // if (onUpdateDeathSaves) {
-        //     onUpdateDeathSaves([]);
-        //   }
+        if (onUpdateDeathSaves) {
+            onUpdateDeathSaves([]);
+          }
       } else if (type === 'monster' && !conditions.includes('Dead')) {
         updatedConditions.push('Dead');
       }
@@ -192,13 +192,13 @@ const handleConcentrationFail = () => {
       setError('Healing must be positive');
       return;
     }
-    // if (isDying) {
-    //   alert(`${combatantName} is now stable and no longer needs to make death saving throws`);
-    //   const newConditions = conditions.filter(c => c !== 'Death Saves');
-    //   const resetSaves: boolean[] = [];
-    //   onUpdateDeathSaves(resetSaves);
-    //   onUpdateBoth(newHp, tHp, newConditions);
-    //  } else 
+    if (isDying) {
+      alert(`${combatantName} is now stable and no longer needs to make death saving throws`);
+     const newConditions = conditions.filter(c => c !== 'Death Saves');
+      const resetSaves: boolean[] = [];
+      onUpdateDeathSaves(resetSaves);
+      onUpdateBoth(newHp, tHp, newConditions);
+     } else  
       {onSubmit(newHp, tHp);}
     
     
@@ -215,7 +215,7 @@ const handleConcentrationFail = () => {
   const removeLastDeathSave = (index:number) => {
     if (index === deathsaves.length - 1) {
     const newSaves = deathsaves.slice(0, -1);
-    // onUpdateDeathSaves(newSaves);
+    onUpdateDeathSaves(newSaves);
   }
   };
 
@@ -275,7 +275,7 @@ const handleConcentrationFail = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation(); 
-                  // addDeathSaveSuccess();
+                  addDeathSaveSuccess();
                 }}
                 className='hpChangeModalHealButton'
               >
@@ -284,7 +284,7 @@ const handleConcentrationFail = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation(); 
-                  // addDeathSaveFailure();
+                  addDeathSaveFailure();
                 }}
                 className='hpChangeModalDmgButton'
               >
