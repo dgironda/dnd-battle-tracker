@@ -249,7 +249,8 @@ const handleNextTurn = () => {
   if (processedTurnRef.current === totalTurns) return;
   
   const currentCombatant = sortedCombatants[currentTurnIndex];
-  if (currentCombatant.conditions.includes('Death Saves')) {
+  const dying = currentCombatant.conditions.includes('Death Saves')
+  if (dying) {
     setHpModalCombatant(currentCombatant);
     processedTurnRef.current = totalTurns;
     console.log(currentCombatant.name," needs to make a death saving throw. ", "Total Turns is ",totalTurns)
@@ -272,7 +273,7 @@ const handleNextTurn = () => {
   });
 
     // Skip if dead OR if all three are checked
-  if (!currentCombatant.conditions.includes('Dead') &&
+  if (currentCombatant.conditions.includes('Dead') ||
   (currentCombatant.action && currentCombatant.bonus && currentCombatant.move)) {
     handleNextTurn();
 }
@@ -284,14 +285,15 @@ const handleNextTurn = () => {
   if (sortedCombatants.length === 0) return;
 
   // Find first combatant that has at least one action unchecked and is not dead
-  const nextTurnIndex = sortedCombatants.findIndex(combatant =>
-    !combatant.conditions.includes('Dead') && // Add this check
+  const uncheckedCombatantIndex = sortedCombatants.findIndex(combatant =>
+    // removed skipping dead combatants since their a/b/m are disabled and can't be unchecked
     (!combatant.action || !combatant.bonus || !combatant.move)
   );
 
   // If we found one and it's different from current turn, switch to it
-  if (nextTurnIndex !== -1 && nextTurnIndex !== currentTurnIndex) {
-    setCurrentTurnIndex(nextTurnIndex);
+  if (uncheckedCombatantIndex != -1 && uncheckedCombatantIndex !== currentTurnIndex) {
+    console.log("✔️Switching turn because of uncheck")
+    setCurrentTurnIndex(uncheckedCombatantIndex);
   }
 }, [combatants]); 
 
@@ -637,6 +639,9 @@ useEffect(() => {
     }}
     onClose={() => {
       if (processedTurnRef.current === totalTurns) {
+        sortedCombatants[currentTurnIndex].action = true;
+        sortedCombatants[currentTurnIndex].bonus = true;
+        sortedCombatants[currentTurnIndex].move = true;
         handleNextTurn();
       }
       setHpModalCombatant(null)}}
