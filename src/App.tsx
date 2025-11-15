@@ -49,7 +49,10 @@ function App() {
   const [isSupporter, setIsSupporter] = useState(false);
 
   useEffect(() => {
-    if (!ENABLE_PATREON) return;
+    if (!ENABLE_PATREON){
+      setIsSupporter(true);
+      return;
+    } 
     
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
