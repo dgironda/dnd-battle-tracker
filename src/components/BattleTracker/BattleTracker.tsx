@@ -452,7 +452,7 @@ useEffect(() => {
 
       {/* Battle Table */}
       <table id="battleTracker">
-        <thead>
+        <thead id="battleTrackerHeader">
           <tr>
             <th title="Hero/Monster Name">Name</th>
             <th title="Initiative, either input or rolled">Initiative</th>
@@ -472,9 +472,11 @@ useEffect(() => {
                 backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa',
                 borderLeft: index === currentTurnIndex ? '5px solid #777777' : 'none'
               }}
+              className="combatantInfo"
             >
               {/* Do we need to update the styles above and below this? */}
-			  <td style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}>
+			  <td style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}
+        className="combatantName">
 				  {combatant.type === "monster" && combatant.link ? (
 					<a 
 					  href={combatant.link} 
@@ -495,7 +497,7 @@ useEffect(() => {
 				  )}
 			  </td>
 
-              <td>
+              <td className="combatantInit">
                 <span title="Initiative">
                   <EditableCell
                     entity={combatant}
@@ -522,7 +524,7 @@ useEffect(() => {
               </></td>
 			  
 			  {/* Added disabling of checkboxes on "Dead", might want to do this on "Death Saves" after prompt to roll and count of Saves/Fails? */}
-			  <td>
+			  <td className="combatantAction">
 			    <input
           key={combatant.id}
 				  type="checkbox"
@@ -532,7 +534,7 @@ useEffect(() => {
 				  onChange={(e) => updateCombatant(combatant.id, 'action', e.target.checked)}
 			    />
 			  </td>
-			  <td>
+			  <td className="combatantBonus">
 			    <input
           key={combatant.id}
 				  type="checkbox"
@@ -542,7 +544,7 @@ useEffect(() => {
 				  onChange={(e) => updateCombatant(combatant.id, 'bonus', e.target.checked)}
 			    />
 			  </td>
-			  <td>
+			  <td className="combatantMove">
 			    <input
           key={combatant.id}
 				  type="checkbox"
@@ -552,7 +554,7 @@ useEffect(() => {
 				  onChange={(e) => updateCombatant(combatant.id, 'move', e.target.checked)}
 			    />
 			  </td>
-			  <td>
+			  <td className="combatantReaction">
 			    <input
           key={combatant.id}
 				  type="checkbox"
@@ -563,7 +565,7 @@ useEffect(() => {
 			    />
 			  </td>
 
-              <td>
+              <td className="combatantConditions">
                 <ConditionsEditor combatant={combatant} />
               </td>
             </tr>

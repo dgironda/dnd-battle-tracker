@@ -615,3 +615,42 @@ sup {
   filter: hue-rotate(235deg);
 }
 
+@media (orientation: portrait) {
+  #battleTrackerHeader {
+    display: none;
+  }
+  sup {
+    display: none;
+  }
+  .combatantInfo {
+    display: grid;
+    grid-template-columns: 1fr 1fr .5fr .5fr .5fr .5fr;
+    grid-template-areas: 
+    "cName cName cCond cCond cCond cCond"
+    "cHP cInit cAct cBon cMove cReact";
+  }
+  .combatantName {
+    grid-area: cName;
+  }
+  .combatantHP {
+    grid-area: cHP;
+  }
+  .combatantInit {
+    grid-area: cInit;
+  }
+  .combatantConditions {
+    grid-area: cCond;
+  }
+  .combatantAction {
+    grid-area: cAct;
+  }
+  .combatantBonus {
+    grid-area: cBon;
+  }
+  .combatantMove {
+    grid-area: cMove;
+  }
+  .combatantReaction {
+    grid-area: cReact;
+  }
+}
