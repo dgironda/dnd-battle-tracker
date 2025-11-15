@@ -1,3 +1,5 @@
+import { DEVMODE } from "../../utils/devmode";
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import HeroManager from "../HeroManager/HeroManager";
 import { Hero, Monster, Combatant } from "../../types/index";
@@ -237,7 +239,7 @@ const handleNextTurn = () => {
     updatedCombatants[nextIndex].action = false;
     updatedCombatants[nextIndex].bonus = false;
     updatedCombatants[nextIndex].move = false;
-    console.log("After Handle Next Turn:", updatedCombatants, "Current Turn", sortedCombatants[nextIndex].name);
+    DEVMODE && console.log("After Handle Next Turn:", updatedCombatants, "Current Turn", sortedCombatants[nextIndex].name);
   }
   }
    
@@ -253,7 +255,7 @@ const handleNextTurn = () => {
   if (dying) {
     setHpModalCombatant(currentCombatant);
     processedTurnRef.current = totalTurns;
-    console.log(currentCombatant.name," needs to make a death saving throw. ", "Total Turns is ",totalTurns)
+    DEVMODE && console.log(currentCombatant.name," needs to make a death saving throw. ", "Total Turns is ",totalTurns)
     updateCombatant(currentCombatant.id, 'action', true);
     updateCombatant(currentCombatant.id, 'bonus', true);
     updateCombatant(currentCombatant.id, 'move', true);
@@ -265,7 +267,7 @@ const handleNextTurn = () => {
     if (sortedCombatants.length === 0 || hpModalCombatant !== null) return;
     const currentCombatant = sortedCombatants[currentTurnIndex];
    
-    console.log('Auto-advance check:', currentCombatant.name, {
+    DEVMODE && console.log('Auto-advance check:', currentCombatant.name, {
     action: currentCombatant.action,
     bonus: currentCombatant.bonus,
     move: currentCombatant.move,
@@ -292,7 +294,7 @@ const handleNextTurn = () => {
 
   // If we found one and it's different from current turn, switch to it
   if (uncheckedCombatantIndex != -1 && uncheckedCombatantIndex !== currentTurnIndex) {
-    console.log("✔️Switching turn because of uncheck")
+    DEVMODE && console.log("✔️Switching turn because of uncheck")
     setCurrentTurnIndex(uncheckedCombatantIndex);
   }
 }, [combatants]); 
@@ -576,12 +578,12 @@ useEffect(() => {
       )}
       {currentCombatant && initiativeResolver && (
         <>
-        {console.log('InitiativeDialog rendering for:', currentCombatant.name)}
+        {DEVMODE && console.log('InitiativeDialog rendering for:', currentCombatant.name)}
         <InitiativeDialog 
           heroName={currentCombatant.name}
           initiativeModifier={currentCombatant.init}
           onSubmit={(init) => {
-            console.log('Initiative submitted:', init);
+            DEVMODE && console.log('Initiative submitted:', init);
             initiativeResolver(init);
             setCurrentCombatant(null);
             setInitiativeResolver(null);
@@ -628,12 +630,12 @@ useEffect(() => {
       setHpModalCombatant(null); // Close modal here after update
     }}
     onUpdateDeathSaves={(saves) => {
-      console.log('BattleTracker onUpdateDeathSaves called with:', saves);
-      console.log('Updating combatant:', hpModalCombatant.name);
+      DEVMODE && console.log('BattleTracker onUpdateDeathSaves called with:', saves);
+      DEVMODE && console.log('Updating combatant:', hpModalCombatant.name);
       const updated = combatants.map(c =>
         c.id === hpModalCombatant.id ? { ...c, deathsaves: saves } : c
       ).sort((a, b) => b.initiative - a.initiative);
-      console.log('Updated combatants:', updated);
+      DEVMODE && console.log('Updated combatants:', updated);
       setCombatants(updated);
       setHpModalCombatant({ ...hpModalCombatant, deathsaves: saves });
     }}

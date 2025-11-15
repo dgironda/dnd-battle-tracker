@@ -1,3 +1,5 @@
+import { DEVMODE } from "../utils/devmode";
+
 const predefinedConditions = [
     'Blinded', 'Charmed', 'Deafened', 'Frightened', 'Grappled', 'Grappling', 'Incapacitated', 'Paralyzed', 
     'Poisoned', 'Prone', 'Restrained', 'Stunned', 'Unconscious', 

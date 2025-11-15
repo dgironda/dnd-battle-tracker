@@ -1,3 +1,5 @@
+import { DEVMODE } from "./devmode";
+
 import { useState } from 'react';
 import { Combatant } from '../types/index';
 import { EditableCell } from '../components/Utils';
@@ -38,7 +40,7 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
   
   const addDeathSaveSuccess = () => {
     if (!onUpdateDeathSaves) {
-            console.log('onUpdateDeathSaves is not defined!');
+            DEVMODE && console.log('onUpdateDeathSaves is not defined!');
             return;
     }
     const newSaves = [...deathsaves, true];
@@ -59,7 +61,7 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
 
   const addDeathSaveFailure = () => {
     if (!onUpdateDeathSaves) {
-      console.log('onUpdateDeathSaves is not defined!');
+      DEVMODE && console.log('onUpdateDeathSaves is not defined!');
       return;
     }
     const newSaves = [...deathsaves, false];
@@ -136,7 +138,7 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
       }
     }
     let newtHp = Math.max(0, tHp - damageAmount)
-    console.log("New Temp HP", newtHp)
+    DEVMODE && console.log("New Temp HP", newtHp)
     // If conditions changed, use onUpdateBoth
     if (updatedConditions.length !== conditions.length && onUpdateBoth) {
       onUpdateBoth(newHp, newtHp, updatedConditions);

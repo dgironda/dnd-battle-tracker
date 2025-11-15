@@ -1,3 +1,5 @@
+import { DEVMODE } from "../../utils/devmode";
+
 // contexts/CombatContext.tsx
 import { createContext, useContext, useState, useEffect } from 'react';
 import { InitiativeDialog } from './InitiativeDialog';

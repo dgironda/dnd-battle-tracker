@@ -1,3 +1,5 @@
+import { DEVMODE } from "../utils/devmode";
+
 import { useState, useEffect } from "react";
 import { Monster } from "../types/index";
 import { getMonsters, storeMonsters } from "../utils/LocalStorage";

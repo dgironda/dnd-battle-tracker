@@ -1,3 +1,5 @@
+import { DEVMODE } from "../utils/devmode";
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 
@@ -28,7 +30,7 @@ export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const newStatus = (prevStatus === 'twentyFourteen' ? 'twentyTwentyFour' : 'twentyFourteen');
       // Store the new status in local storage
       localStorage.setItem(VERSION_STATUS, JSON.stringify(newStatus));
-      console.log("D&D 5e Version", newStatus)
+      DEVMODE && console.log("D&D 5e Version", newStatus)
       return newStatus;
     });
     

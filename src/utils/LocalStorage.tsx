@@ -1,3 +1,5 @@
+import { DEVMODE } from "./devmode";
+
 import { Hero, Monster, Combatant } from '../types/index';
 import { useGlobalContext } from '../hooks/versionContext';
 
@@ -13,7 +15,7 @@ const COMBATANTS_KEY = "storedCombatants";
 function storeHeroes(heroes: Hero[]): void {
   try {
     localStorage.setItem(HEROES_KEY, JSON.stringify(heroes ?? []));
-    // console.log("Stored heroes:", localStorage.getItem(HEROES_KEY));
+    // DEVMODE && console.log("Stored heroes:", localStorage.getItem(HEROES_KEY));
   } catch (error) {
     console.error("Error storing heroes:", error);
   }
@@ -61,7 +63,7 @@ function hasStoredHeroes(): boolean {
 function storeMonsters(monsters: Monster[]): void {
   try {
     localStorage.setItem(MONSTERS_KEY, JSON.stringify(monsters ?? []));
-    // console.log("Stored monsters:", localStorage.getItem(MONSTERS_KEY));
+    // DEVMODE && console.log("Stored monsters:", localStorage.getItem(MONSTERS_KEY));
   } catch (error) {
     console.error("Error storing monsters:", error);
   }
@@ -109,7 +111,7 @@ function hasStoredMonsters(): boolean {
 function storeCombatants(combatants: Combatant[], round: number): void {
   try {
     localStorage.setItem(COMBATANTS_KEY, JSON.stringify(combatants ?? []));
-    // console.log("Stored combatants:", localStorage.getItem(COMBATANTS_KEY));
+    // DEVMODE && console.log("Stored combatants:", localStorage.getItem(COMBATANTS_KEY));
     localStorage.setItem('roundNumber', round.toString())
   } catch (error) {
     console.error("Error storing combatants:", error);

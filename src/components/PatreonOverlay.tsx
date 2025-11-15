@@ -1,3 +1,5 @@
+import { DEVMODE } from "../utils/devmode";
+
 // src/components/PatreonOverlay.tsx
 import { useEffect, useState } from "react";
 

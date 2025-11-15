@@ -6,10 +6,9 @@ import ToggleComponent from "./components/ToggleContext";
 import { useState, useEffect } from "react";
 import { CombatProvider } from "./components/BattleTracker/CombatContext";
 import PatreonOverlay from "./components/PatreonOverlay";
+import { DEVMODE } from "./utils/devmode";
 
-const DEV_MODE = true;   // ← set to false in production
-
-const ENABLE_PATREON = !DEV_MODE;
+const ENABLE_PATREON = !DEVMODE;
 
 function App() {
   const [showHeroManager, setShowHeroManager] = useState(false);

@@ -1,0 +1,1 @@
+export const DEVMODE = import.meta.env.VITE_DEV_MODE === "true";

@@ -1,3 +1,5 @@
+import { DEVMODE } from "../../utils/devmode";
+
 import { Combatant } from "../../types/index";
 
 interface Props {

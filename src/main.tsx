@@ -1,3 +1,5 @@
+import { DEVMODE } from "./utils/devmode";
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
