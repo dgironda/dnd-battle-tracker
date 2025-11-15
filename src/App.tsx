@@ -119,7 +119,7 @@ function App() {
       
       <ToggleComponent />
     </div>
-    {!ENABLE_PATREON && (<div id="colorMode"><input type="checkbox" id="light-dark"></input><span>Light/Dark mode</span></div>)}
+    {!overlayVisible && (<div id="colorMode"><input type="checkbox" id="light-dark"></input><span>Light/Dark mode</span></div>)}
     <div id="display">
       <h1>D&D Battle Tracker</h1>
 		  
