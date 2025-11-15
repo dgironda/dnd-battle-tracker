@@ -7,6 +7,9 @@ import { useState, useEffect } from "react";
 import { CombatProvider } from "./components/BattleTracker/CombatContext";
 import PatreonOverlay from "./components/PatreonOverlay";
 
+const DEV_MODE = true;   // ← set to false in production
+
+const ENABLE_PATREON = !DEV_MODE;
 
 function App() {
   const [showHeroManager, setShowHeroManager] = useState(false);
@@ -46,6 +49,8 @@ function App() {
   const [isSupporter, setIsSupporter] = useState(false);
 
   useEffect(() => {
+    if (!ENABLE_PATREON) return;
+    
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
 
@@ -65,6 +70,11 @@ function App() {
   const [overlayVisible, setOverlayVisible] = useState(true);
 
   useEffect(() => {
+    if (!ENABLE_PATREON) {
+      setOverlayVisible(false);
+      return;
+    }
+    
     const hasCode = localStorage.getItem("patreon_code");
     const urlCode = new URLSearchParams(window.location.search).get("code");
 
@@ -107,7 +117,7 @@ function App() {
       
       <ToggleComponent />
     </div>
-    <div id="colorMode"><input type="checkbox" id="light-dark"></input><span>Light/Dark mode</span></div>
+    {!ENABLE_PATREON && (<div id="colorMode"><input type="checkbox" id="light-dark"></input><span>Light/Dark mode</span></div>)}
     <div id="display">
       <h1>D&D Battle Tracker</h1>
 		  
