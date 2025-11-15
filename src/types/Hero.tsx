@@ -5,6 +5,7 @@ interface Hero {
   name: string;
   player: string;
   hp: number;
+  tHp: number;
   ac: number;
   str: number;
   dex: number;
