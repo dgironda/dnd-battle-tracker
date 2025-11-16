@@ -653,4 +653,29 @@ sup {
   .combatantReaction {
     grid-area: cReact;
   }
+  #addHeroInner {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  #heroManagerHeader {
+    display: none;
+  }
+  .heroManagerHero {
+    display: flex;
+    /* flex-wrap: wrap; */
+  }
+  #addMonsterOuter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  #monster-name {
+    max-width: 90%;
+  }
+  #monsterManagerHeader {
+    display: none;
+  }
+  .monsterManagerMonster {
+    display: flex;
+  }
 }

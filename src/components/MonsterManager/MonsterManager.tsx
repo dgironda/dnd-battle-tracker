@@ -174,7 +174,6 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
         <div className="nameInputWrapper" style={{ position: "relative" }}>
           <input
             type="text"
-            size={50}
             placeholder="Monster Name"
             id="monster-name"
             value={newMonster.name}
@@ -241,7 +240,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
 
       <table>
         <thead>
-          <tr key="monsterheader">
+          <tr key="monsterheader" id="monsterManagerHeader">
             <th title="Monster's name, unique names are recommended">Name</th>
             <th title="Maximum HP amount, current can be adjusted in battle">HP</th>
             <th title="Armor Class">AC</th>
@@ -256,7 +255,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
         <tbody className="monsterTableBody">
           {monsters.map((m) => (
             <>
-              <tr key={m.id}>
+              <tr key={m.id} className="monsterManagerMonster">
                 <td>
                   <span title="Name">
                     <EditableCell

@@ -36,7 +36,7 @@ const HeroManager: React.FC<HeroManagerProps> = ({onClose}) => {
       
       <table>
         <thead>
-          <tr key="heroHeader">
+          <tr key="heroHeader" id="heroManagerHeader">
             <th title="Hero's name">Name</th>
             <th title="Player controlling this hero">Player</th>
             <th title="Maximum HP amount, current can be adjusted in battle">HP</th>
@@ -48,7 +48,7 @@ const HeroManager: React.FC<HeroManagerProps> = ({onClose}) => {
         <tbody className="heroTableBody">
           {heroes.map((hero, index) => (
             <>
-              <tr key={hero.id}>
+              <tr key={hero.id} className="heroManagerHero">
                 <td>
                   <EditableCell 
                     entity={hero} 
