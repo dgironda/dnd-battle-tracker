@@ -414,14 +414,8 @@ useEffect(() => {
     <div id="battleTrackerOuter">
       {/* #7: Resume Combat UI */}
       {hasSavedCombat && combatants.length === 0 && (
-        <div style={{ 
-          backgroundColor: '#fff3cd', 
-          padding: '1rem', 
-          marginBottom: '1rem',
-          borderRadius: '4px',
-          border: '1px solid #ffc107'
-        }}>
-          <p style={{ margin: '0 0 0.5rem 0' }}>
+        <div id="battleInProgress">
+          <p>
             ⚠️ Battle in progress detected!
           </p>
           <button 
@@ -430,7 +424,6 @@ useEffect(() => {
               if (saved) setCombatants(saved);
               setHasSavedCombat(false);
             }}
-            style={{ marginRight: '0.5rem' }}
           >
             Resume Combat
           </button>
@@ -479,13 +472,12 @@ useEffect(() => {
         className="combatantName">
 				  {combatant.type === "monster" && combatant.link ? (
 					<a 
-					  href={combatant.link} 
+					  className="combatantMonsterLink"
+            href={combatant.link} 
 					  target="_blank" 
 					  rel="noopener noreferrer" 
 					  title={combatant.stats}
-					  style={{ color: '#007bff', textDecoration: 'none' }}
-					  onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-					  onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+					  
 					>
 					  {combatant.name}
 					</a>
@@ -493,7 +485,7 @@ useEffect(() => {
 					<span title={combatant.stats}>{combatant.name}</span>
 				  )}
 				  {index === currentTurnIndex && (
-					<span style={{ color: '#28a745', marginLeft: '8px' }}>← Current Turn</span>
+					<span className="currentTurnIndicator">← Current Turn</span>
 				  )}
 			  </td>
 

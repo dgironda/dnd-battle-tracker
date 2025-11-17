@@ -171,7 +171,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
 
       <div id="addMonsterOuter">
         {/* 🔹 Name input with autocomplete */}
-        <div className="nameInputWrapper" style={{ position: "relative" }}>
+        <div className="nameInputWrapper">
           <input
             type="text"
             placeholder="Monster Name"
@@ -189,16 +189,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
                 <li
                   key={idx}
                   onClick={() => handleSelectSuggestion(s)}
-                  style={{
-                    padding: "4px 8px",
-                    cursor: "pointer",
-                  }}
-                  onMouseEnter={(e) =>
-                    ((e.target as HTMLElement).style.background = "#888")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.target as HTMLElement).style.background = "transparent")
-                  }
+                  className="filteredSuggestions"
                 >
                   {s}
                 </li>

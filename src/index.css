@@ -342,6 +342,10 @@ sup {
   margin-bottom: .4rem;
 }
 
+.nameInputWrapper {
+  position: relative;
+}
+
 .suggestion-list {
   position: absolute;
   top: 100%;
@@ -357,6 +361,16 @@ sup {
   overflow: auto;
   z-index: 100;
   font-family: 'Caudex', serif;
+}
+
+.filteredSuggestions {
+  padding: 4px 8px;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.filteredSuggestions:hover {
+  background-color: #8b8b8b;
 }
 
 .heroTableBody, .monsterTableBody {
@@ -498,6 +512,36 @@ sup {
   padding: 2rem;
 }
 
+#battleInProgress {
+  background-color: #fff3cd;
+  padding: 1rem;
+  margin-bottom: 1rerm;
+  border-radius: 4px;
+  border: 1px solid #ffc107;
+}
+
+#battleInProgress>p {
+  margin: 0 0 0.5rem 0;
+}
+
+#battleInProgress > button {
+  margin-right: .5rem;
+}
+
+.combatantMonsterLink {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.combatantMonsterLink:hover {
+  text-decoration: underline;
+}
+
+.currentTurnIndicator {
+  color: #28a745;
+  margin-left: 8px;
+}
+
 .combatantHP {
   cursor: pointer;
 }
@@ -593,6 +637,83 @@ sup {
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
+}
+
+#conCheckOuter {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--transparent);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+#conCheckInner {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 400px;
+  text-align: center;
+}
+
+#conCheckInner>h3 {
+  margin-top: 0;
+  color: #856404;
+  font-size: 20px;
+}
+
+#conCheckMessage {
+  font-size: 18px;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #fff3cd;
+  border-radius: 4px;
+  border: 1px solid #ffc107;
+}
+
+#conCheckDC {
+  font-size: 24px;
+  font-weight: bold;
+  color: #dc3545;
+}
+
+#passConCheck {
+  margin-bottom: 1.5rem;
+  color: #666;
+}
+
+#conCheckButtons {
+  display: flex;
+  gap: 1rem;
+}
+
+#conPassButton {
+  flex: 1;
+  padding: .75rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#conFailButton {
+  flex: 1;
+  padding: .75rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 #noCombatants, #noMonsters, #noHeroes {

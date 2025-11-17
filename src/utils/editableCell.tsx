@@ -34,7 +34,7 @@ export const EditableCell = <T extends Record<string, any>>({
           }
         }}
         autoFocus
-        style={{ width: '60px', padding: '2px', border: '1px solid #007bff' }}
+        className="editableCellNum"
       />
     );
   }
@@ -52,7 +52,7 @@ export const EditableCell = <T extends Record<string, any>>({
           }
         }}
         autoFocus
-        style={{ width: '100px', padding: '2px', border: '1px solid #007bff' }}
+        className="editableCellTxt"
       />
     );
   }
@@ -60,11 +60,7 @@ export const EditableCell = <T extends Record<string, any>>({
   return (
     <span
       onClick={() => setEditingField(fieldKey)}
-      style={{
-        cursor: 'pointer',
-        padding: '2px 4px',
-        borderRadius: '2px',
-      }}
+      className="setEditingField"
       title="Click to edit"
     >
       {value}
