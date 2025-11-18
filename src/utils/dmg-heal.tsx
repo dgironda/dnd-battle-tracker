@@ -237,21 +237,12 @@ const handleConcentrationFail = () => {
 
         {/* Death Saves section */}
         {isDying && (
-          <div className='deathSavesBox'>
-            <h2 style={{ textAlign: 'center' }}>Death Saving Throws</h2>
+          <div id='deathSavesBox'>
+            <h2>Death Saving Throws</h2>
             
-            <div style={{ 
-              marginBottom: '1rem',
-              padding: '0.5rem',
-              backgroundColor: 'white',
-              borderRadius: '4px',
-              minHeight: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
+            <div id="deathSavesBoxInner">
               {deathsaves.length === 0 ? (
-                <span style={{ margin: 'auto', color: '#999', fontSize: '14px' }}>No saves yet</span>
+                <span id="deathSavesNull">No saves yet</span>
               ) : (
                 deathsaves.map((save, index) => (
                   <span
@@ -327,7 +318,7 @@ const handleConcentrationFail = () => {
         />
         
         {error && (
-          <p style={{ color: '#dc3545', fontSize: '14px', margin: '0.5rem 0' }}>
+          <p className="errorMsg">
             {error}
           </p>
         )}

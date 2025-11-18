@@ -470,7 +470,7 @@ sup {
   margin-bottom: .5rem;
 }
 
-#initiativeDialogInner > p {
+.errorMsg {
   color: #dc3545;
   font-size: 14px;
   margin: .5rem 0;
@@ -567,12 +567,34 @@ sup {
   min-width: 400px;
 }
 
-.deathSavesBox {
+#deathSavesBox {
   background-color: #fff3cd;
   padding: .5rem;
   border-radius: 4px;
   margin-bottom: 1rem;
   border: 1px solid #ffc107;
+}
+
+#deathSavesBox>h2 {
+  text-align: center;
+  font-weight: bold;
+}
+
+#deathSavesBoxInner {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: white;
+  border-radius: 4px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#deathSavesNull {
+  margin: auto;
+  color: #999;
+  font-size: 14px;
 }
 
 .deathSavesButtons {

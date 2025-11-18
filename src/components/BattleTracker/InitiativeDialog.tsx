@@ -63,7 +63,7 @@ export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: Ini
         />
 
         {error && (
-          <p>
+          <p className="errorMsg">
             {error}
           </p>
         )}
