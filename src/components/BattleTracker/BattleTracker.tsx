@@ -15,6 +15,7 @@ import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getR
 import { useGlobalContext } from "../../hooks/versionContext";
 import { createDeleteMonster } from "../Utils";
 import RoundNumberSpan from "./RoundNumber";
+import { StatBlockHover } from "./StatBlockHover";
 
 
 interface BattleTrackerProps {
@@ -469,26 +470,36 @@ useEffect(() => {
               className="combatantInfo"
             >
               {/* Do we need to update the styles above and below this? */}
-			  <td style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}
-        className="combatantName">
-				  {combatant.type === "monster" && combatant.link ? (
-					<a 
-					  className="combatantMonsterLink"
-            href={combatant.link} 
-					  target="_blank" 
-					  rel="noopener noreferrer" 
-					  title={combatant.stats}
-					  
-					>
-					  {combatant.name}
-					</a>
-				  ) : (
-					<span title={combatant.stats}>{combatant.name}</span>
-				  )}
-				  {index === currentTurnIndex && (
-					<span className="currentTurnIndicator">← Current Turn</span>
-				  )}
-			  </td>
+			  <td 
+          style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}
+          className="combatantName"
+        >
+          {combatant.type === "hero" ? (
+            <StatBlockHover 
+              hero={heroes.find(h => h.id === combatant.id)!}
+              currentHp={combatant.currHp}
+              tempHp={combatant.tHp || 0}
+            >
+              <span>{combatant.name}</span>
+            </StatBlockHover>
+          ) : combatant.type === "monster" && combatant.link ? (
+            <a 
+              className="combatantMonsterLink"
+              href={combatant.link} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title={combatant.stats}
+            >
+              {combatant.name}
+            </a>
+          ) : (
+            <span title={combatant.stats}>{combatant.name}</span>
+          )}
+          
+          {index === currentTurnIndex && (
+            <span className="currentTurnIndicator">← Current Turn</span>
+          )}
+        </td>
 
               <td className="combatantInit">
                 <span title="Initiative">
