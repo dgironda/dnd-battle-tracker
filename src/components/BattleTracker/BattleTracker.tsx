@@ -369,8 +369,9 @@ useEffect(() => {
               }
             }}
             className="conditionSelect"
+            name="conditionSelect"
           >
-            <option value="">Add condition...</option>
+            <option className="addConditionBox" value="">Add condition...</option>
             {predefinedConditions
               .filter(condition => !combatant.conditions.includes(condition))
               .map(condition => (
@@ -404,7 +405,7 @@ useEffect(() => {
                 {conditionName}
               </span>
             ))
-          : <span className="noCondition">None</span>
+          : <span className="noCondition">Click to add conditions</span>
         }
       </span>
     );
