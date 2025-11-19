@@ -156,7 +156,7 @@ export function StatBlockHover({ hero, currentHp, tempHp = 0, children }: StatBl
                 color: '#8b4513',
                 textTransform: 'uppercase'
               }}>
-                Init
+                Initiative
               </div>
               <div style={{
                 fontSize: '20px',
