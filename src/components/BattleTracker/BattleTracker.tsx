@@ -15,7 +15,8 @@ import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getR
 import { useGlobalContext } from "../../hooks/versionContext";
 import { createDeleteMonster } from "../Utils";
 import RoundNumberSpan from "./RoundNumber";
-import { StatBlockHover } from "./StatBlockHover";
+import { HeroStatBlockHover } from "./HeroStatBlockHover";
+import { MonsterStatBlockHover } from "./MonsterStatBlockHover";
 
 
 interface BattleTrackerProps {
@@ -475,23 +476,29 @@ useEffect(() => {
           className="combatantName"
         >
           {combatant.type === "hero" ? (
-            <StatBlockHover 
+            <HeroStatBlockHover 
               hero={heroes.find(h => h.id === combatant.id)!}
-              currentHp={combatant.currHp}
-              tempHp={combatant.tHp || 0}
             >
               <span>{combatant.name}</span>
-            </StatBlockHover>
+            </HeroStatBlockHover>
           ) : combatant.type === "monster" && combatant.link ? (
-            <a 
-              className="combatantMonsterLink"
-              href={combatant.link} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              title={combatant.stats}
-            >
-              {combatant.name}
-            </a>
+            <MonsterStatBlockHover
+      monster={monsters.find(m => m.id === combatant.id)!}
+      currentHp={combatant.currHp}
+    >
+      {combatant.link ? (
+        <a 
+          className="combatantMonsterLink"
+          href={combatant.link} 
+          target="_blank" 
+          rel="noopener noreferrer"
+        >
+          {combatant.name}
+        </a>
+      ) : (
+        <span>{combatant.name}</span>
+      )}
+    </MonsterStatBlockHover>
           ) : (
             <span title={combatant.stats}>{combatant.name}</span>
           )}

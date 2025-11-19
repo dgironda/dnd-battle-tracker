@@ -1,45 +1,44 @@
 import { useState } from 'react';
-import { Hero } from '../../types/index';
+import { Hero, Monster } from '../../types/index';
 
 interface StatBlockHoverProps {
   hero: Hero;
-  currentHp?: number;
-  tempHp?: number;
   children: React.ReactNode;
+  
 }
 
-export function StatBlockHover({ hero, currentHp, tempHp = 0, children }: StatBlockHoverProps) {
+export function HeroStatBlockHover({ hero, children }: StatBlockHoverProps) {
   const [isHovering, setIsHovering] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   const handleMouseEnter = (e: React.MouseEvent) => {
     setIsHovering(true);
-    updatePosition(e);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    updatePosition(e);
-  };
-
-  const updatePosition = (e: React.MouseEvent) => {
     setPosition({
-      x: e.clientX + 20,
+      x: e.clientX,
       y: e.clientY - 100
     });
   };
+
+  // const handleMouseMove = (e: React.MouseEvent) => {
+  //   updatePosition(e);
+  // };
+
+  // const updatePosition = (e: React.MouseEvent) => {
+  //   setPosition({
+  //     x: e.clientX + 20,
+  //     y: e.clientY - 100
+  //   });
+  // };
 
   const getModifier = (stat: number): string => {
     const mod = Math.floor((stat - 10) / 2);
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
 
-  const displayHp = currentHp !== undefined ? currentHp : hero.hp;
-
   return (
     <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsHovering(false)}
-      onMouseMove={handleMouseMove}
       style={{ display: 'inline-block' }}
     >
       {children}
@@ -59,7 +58,7 @@ export function StatBlockHover({ hero, currentHp, tempHp = 0, children }: StatBl
             zIndex: 10000,
             fontFamily: '"Bookman Old Style", serif',
             color: '#2c1810',
-            pointerEvents: 'none'
+            pointerEvents: 'auto'
           }}
         >
           {/* Header */}
@@ -115,40 +114,8 @@ export function StatBlockHover({ hero, currentHp, tempHp = 0, children }: StatBl
                 {hero.ac}
               </div>
             </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{
-                fontSize: '11px',
-                fontWeight: 'bold',
-                color: '#8b4513',
-                textTransform: 'uppercase'
-              }}>
-                HP
-              </div>
-              <div style={{
-                fontSize: '20px',
-                fontWeight: 'bold',
-                color: '#8b0000'
-              }}>
-                {displayHp}
-              </div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{
-                fontSize: '11px',
-                fontWeight: 'bold',
-                color: '#8b4513',
-                textTransform: 'uppercase'
-              }}>
-                Temp HP
-              </div>
-              <div style={{
-                fontSize: '20px',
-                fontWeight: 'bold',
-                color: '#4169e1'
-              }}>
-                {tempHp}
-              </div>
-            </div>
+            
+            
             <div style={{ textAlign: 'center' }}>
               <div style={{
                 fontSize: '11px',
@@ -278,7 +245,7 @@ export default function ExampleUsage() {
       <h2>Hover over the combatant name to see their stat block:</h2>
       
       <div style={{ marginTop: '2rem' }}>
-        <StatBlockHover hero={exampleHero} currentHp={32} tempHp={8}>
+        <HeroStatBlockHover hero={exampleHero}>
           <span style={{
             padding: '0.5rem 1rem',
             backgroundColor: '#e8dcc8',
@@ -290,11 +257,11 @@ export default function ExampleUsage() {
           }}>
             {exampleHero.name} ⓘ
           </span>
-        </StatBlockHover>
+        </HeroStatBlockHover>
       </div>
       
       <p style={{ marginTop: '2rem', color: '#666', fontSize: '14px' }}>
-        Wrap any element with &lt;StatBlockHover&gt; to show character stats on hover
+        Wrap any element with &lt;HeroStatBlockHover&gt; to show character stats on hover
       </p>
     </div>
   );
