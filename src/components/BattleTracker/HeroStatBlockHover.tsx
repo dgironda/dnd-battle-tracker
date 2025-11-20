@@ -26,11 +26,11 @@ export function HeroStatBlockHover({ hero, children }: StatBlockHoverProps) {
       <div
         style={{
           position: 'fixed',
-          top: '50%',
-          right: isHovering ? '0px' : '-380px', // slide
+          top: '25%',
+          left: isHovering ? '0px' : '-380px', // slide
           transform: 'translateY(-50%)',
           opacity: isHovering ? 1 : 0,
-          transition: 'right 0.35s ease-out, opacity 0.3s ease-out',
+          transition: 'left 0.35s ease-out, opacity 0.3s ease-out',
 
           backgroundColor: '#f4e8d8',
           border: '3px solid #8b4513',

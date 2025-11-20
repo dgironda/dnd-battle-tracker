@@ -3,11 +3,23 @@ import { Monster } from '../../types/index';
 
 interface MonsterStatBlockHoverProps {
   monster: Monster;
-  currentHp?: number;
+  id: number;
+  name: string;
+  link: string;
+  maxHp: number;
+  ac: number;
+  str: number;
+  dex: number;
+  con: number;
+  int: number;
+  wis: number;
+  cha: number;
+  pp: number;
+  init: number;
   children: React.ReactNode;
 }
 
-export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterStatBlockHoverProps) {
+export function MonsterStatBlockHover({ monster, maxHp, children }: MonsterStatBlockHoverProps) {
   const [isHovering, setIsHovering] = useState(false);
 
   // SAFE ACCESS HELPERS
@@ -29,7 +41,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterS
   const baseHp = safe(monster?.hp, 1);
   const initiative = safe(monster?.init, 0);
 
-  const displayHp = currentHp !== undefined ? currentHp : baseHp;
+  // const displayHp = currentHp !== undefined ? currentHp : baseHp;
 
   const stats = {
     STR: safeStat(monster?.str),
@@ -54,12 +66,11 @@ export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterS
       <div
         style={{
           position: 'fixed',
-          top: '50%',
-          right: isHovering ? '0px' : '-400px',
+          top: '25%',
+          left: isHovering ? '0px' : '-400px',
           transform: 'translateY(-50%)',
           opacity: isHovering ? 1 : 0,
-          transition: 'right 0.35s ease-out, opacity 0.3s ease-out',
-
+          transition: 'left 0.35s ease-out, opacity 0.3s ease-out',
           backgroundColor: '#fdf8f3',
           border: '2px solid #58180d',
           borderRadius: '4px',
@@ -94,7 +105,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterS
             {name}
           </h3>
 
-          {link && (
+          {/* {link && (
             <div
               style={{
                 fontSize: '11px',
@@ -113,7 +124,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterS
                 View Full Stat Block →
               </a>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* AC / HP / Initiative */}
@@ -135,11 +146,11 @@ export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterS
             <span
               style={{
                 fontSize: '13px',
-                color: displayHp < baseHp / 2 ? '#b71c1c' : '#822000',
-                fontWeight: displayHp < baseHp / 2 ? 'bold' : 'normal',
+                color: '#822000',
+                fontWeight: 'bold',
               }}
             >
-              {displayHp}
+              {maxHp}
             </span>
           </div>
           <div>

@@ -508,14 +508,7 @@ useEffect(() => {
           id: combatant.id,
           name: combatant.name,
           link: (combatant as any).link ?? "",
-          type: "monster",
-          currHp: combatant.currHp,
           maxHp: combatant.maxHp,
-          tHp: 0,
-          action: false,
-          bonus: false,
-          move: false,
-          reaction: false,
           ac: combatant.ac,
           str: combatant.str,
           dex: combatant.dex,
@@ -525,9 +518,6 @@ useEffect(() => {
           cha: combatant.cha,
           pp: combatant.pp,
           init: combatant.init,
-          initiative: combatant.init,
-          present: true,
-          conditions: combatant.conditions ?? [],
         }
       }
       currentHp={combatant.currHp}
