@@ -475,6 +475,9 @@ useEffect(() => {
           style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}
           className="combatantName"
         >
+          {index === currentTurnIndex && (
+            <span className="currentTurnIndicator">➡</span>
+          )}
           {combatant.type === "hero" ? (
             <HeroStatBlockHover 
               hero={heroes.find(h => h.id === combatant.id)!}
@@ -503,9 +506,7 @@ useEffect(() => {
             <span title={combatant.stats}>{combatant.name}</span>
           )}
           
-          {index === currentTurnIndex && (
-            <span className="currentTurnIndicator">← Current Turn</span>
-          )}
+          
         </td>
 
               <td className="combatantInit">
