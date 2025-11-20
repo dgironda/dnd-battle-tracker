@@ -13,7 +13,6 @@ interface Combatant {
   move: boolean;
   reaction: boolean;
   conditions: string[];
-  stats: string;
   init: number;
   initiative: number;
   deathsaves: boolean[];

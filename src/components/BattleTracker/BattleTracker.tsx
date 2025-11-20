@@ -291,13 +291,16 @@ const handleNextTurn = () => {
   });
 
     // Skip if dead OR if all three are checked
-  if (currentCombatant.conditions.includes('Dead') ||
-  (currentCombatant.action && currentCombatant.bonus && currentCombatant.move)) {
+  if ((currentCombatant.action && currentCombatant.bonus && currentCombatant.move)) {
     handleNextTurn();
 }
-
 }, [combatants]);
-  
+
+  useEffect(() => {
+    let combatant = sortedCombatants[currentTurnIndex]
+        if (combatant.conditions.includes("Dead")) {combatant.action = true; combatant.bonus = true; combatant.move = true}
+  }, [sortedCombatants])
+
   // Unchecking will set that player as Current Turn
   useEffect(() => {
   if (sortedCombatants.length === 0) return;
