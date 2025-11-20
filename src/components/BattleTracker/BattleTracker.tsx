@@ -471,29 +471,51 @@ useEffect(() => {
               className="combatantInfo"
             >
               {/* Do we need to update the styles above and below this? */}
-			  <td 
-          style={{ fontWeight: index === currentTurnIndex ? 'bold' : 'normal' }}
-          className="combatantName"
-        >
-          {index === currentTurnIndex && (
-            <span className="currentTurnIndicator">➡</span>
-          )}
-          {combatant.type === "hero" ? (
-            <HeroStatBlockHover 
-              hero={heroes.find(h => h.id === combatant.id)!}
-            >
-              <span>{combatant.name}</span>
-            </HeroStatBlockHover>
-          ) : combatant.type === "monster" && combatant.link ? (
-            <MonsterStatBlockHover
-      monster={monsters.find(m => m.id === combatant.id)!}
+			  <td
+  style={{ fontWeight: index === currentTurnIndex ? "bold" : "normal" }}
+  className="combatantName"
+>
+  {index === currentTurnIndex && (
+    <span className="currentTurnIndicator">➡</span>
+  )}
+
+  {/* HERO */}
+  {combatant.type === "hero" ? (
+    <HeroStatBlockHover
+      hero={heroes.find((h) => h.id === combatant.id)!}
+    >
+      <span>{combatant.name}</span>
+    </HeroStatBlockHover>
+  ) : combatant.type === "monster" ? (
+    /* MONSTER */
+    <MonsterStatBlockHover
+      monster={
+        monsters.find((m) => m.id === combatant.id) ?? {
+          id: combatant.id,
+          name: combatant.name,
+          link: (combatant as any).link ?? "",
+          hp: combatant.maxHp ?? (combatant as any).hp ?? 1,
+          ac: undefined,
+          str: undefined,
+          dex: undefined,
+          con: undefined,
+          int: undefined,
+          wis: undefined,
+          cha: undefined,
+          pp: undefined,
+          init: combatant.init ?? 0,
+          hidden: false,
+          present: true,
+          conditions: combatant.conditions ?? [],
+        }
+      }
       currentHp={combatant.currHp}
     >
       {combatant.link ? (
-        <a 
+        <a
           className="combatantMonsterLink"
-          href={combatant.link} 
-          target="_blank" 
+          href={combatant.link}
+          target="_blank"
           rel="noopener noreferrer"
         >
           {combatant.name}
@@ -502,12 +524,12 @@ useEffect(() => {
         <span>{combatant.name}</span>
       )}
     </MonsterStatBlockHover>
-          ) : (
-            <span title={combatant.stats}>{combatant.name}</span>
-          )}
-          
-          
-        </td>
+  ) : (
+    /* FALLBACK */
+    <span title={combatant.stats}>{combatant.name}</span>
+  )}
+</td>
+
 
               <td className="combatantInit">
                 <span title="Initiative">

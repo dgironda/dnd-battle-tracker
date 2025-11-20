@@ -43,3 +43,18 @@
 .read-the-docs {
 	color: #888;
 }
+
+  .statblock-slide {
+    position: fixed !important;
+    top: 50% !important;
+    right: -400px; /* start offscreen */
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: right 0.35s ease-out, opacity 0.3s ease-out;
+    z-index: 10000;
+  }
+
+  .statblock-slide.visible {
+    right: 20px; /* slides to this point */
+    opacity: 1;
+  }
