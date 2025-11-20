@@ -25,7 +25,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterS
   // SAFE FIELDS
   const name = safe(monster?.name, "Unknown Creature");
   const link = safe(monster?.link, null);
-  const ac = safe(monster?.ac, "—");
+  const ac = safe(monster?.ac, 10);
   const baseHp = safe(monster?.hp, 1);
   const initiative = safe(monster?.init, 0);
 

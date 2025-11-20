@@ -151,7 +151,14 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
         conditions: [],
         init: hero.init,
         deathsaves: [],
-        stats: `Player: ${hero.player}\n\nArmor Class: ${hero.ac}\nStrength: ${hero.str}\nDexterity: ${hero.dex}\nConstitution: ${hero.con}\nIntelligence: ${hero.int}\nWisdom: ${hero.wis}\nCharisma: ${hero.cha}\nPassive Perception: ${hero.pp}`
+        ac: 0,
+        str: 0,
+        dex: 0,
+        con: 0,
+        int: 0,
+        wis: 0,
+        cha: 0,
+        pp: 0,
       });
   }
 
@@ -165,7 +172,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
     newCombatants.push({
       id: monster.id,
       name: monster.name,
-	  link: monster.link,
+	    link: monster.link,
       type: 'monster',
       currHp: monster.hp,
       maxHp: monster.hp,
@@ -178,7 +185,14 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
       conditions: monster.conditions,
       init: monster.init,
       deathsaves: [],
-      stats: `Armor Class: ${monster.ac}\nStrength: ${monster.str}\nDexterity: ${monster.dex}\nConstitution: ${monster.con}\nIntelligence: ${monster.int}\nWisdom: ${monster.wis}\nCharisma: ${monster.cha}\nPassive Perception: ${monster.pp}\n\n${monster.link}`
+      ac: monster.ac,
+      str: monster.str,
+      dex: monster.dex,
+      con: monster.con,
+      int: monster.int,
+      wis: monster.wis,
+      cha: monster.cha,
+      pp: monster.pp,
     });
     // deleteMonster(monster.id)
   }
@@ -490,21 +504,28 @@ useEffect(() => {
     /* MONSTER */
     <MonsterStatBlockHover
       monster={
-        monsters.find((m) => m.id === combatant.id) ?? {
+        combatants.find((m) => m.id === combatant.id) ?? {
           id: combatant.id,
           name: combatant.name,
           link: (combatant as any).link ?? "",
-          hp: combatant.maxHp ?? (combatant as any).hp ?? 1,
-          ac: undefined,
-          str: undefined,
-          dex: undefined,
-          con: undefined,
-          int: undefined,
-          wis: undefined,
-          cha: undefined,
-          pp: undefined,
-          init: combatant.init ?? 0,
-          hidden: false,
+          type: "monster",
+          currHp: combatant.currHp,
+          maxHp: combatant.maxHp,
+          tHp: 0,
+          action: false,
+          bonus: false,
+          move: false,
+          reaction: false,
+          ac: combatant.ac,
+          str: combatant.str,
+          dex: combatant.dex,
+          con: combatant.con,
+          int: combatant.init,
+          wis: combatant.wis,
+          cha: combatant.cha,
+          pp: combatant.pp,
+          init: combatant.init,
+          initiative: combatant.init,
           present: true,
           conditions: combatant.conditions ?? [],
         }
@@ -526,7 +547,7 @@ useEffect(() => {
     </MonsterStatBlockHover>
   ) : (
     /* FALLBACK */
-    <span title={combatant.stats}>{combatant.name}</span>
+    <span>{combatant.name}</span>
   )}
 </td>
 

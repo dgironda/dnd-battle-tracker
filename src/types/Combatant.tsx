@@ -17,6 +17,14 @@ interface Combatant {
   init: number;
   initiative: number;
   deathsaves: boolean[];
+  ac: number;
+  str: number;
+  dex: number;
+  con: number;
+  int: number;
+  wis: number;
+  cha: number;
+  pp: number;
 }
 
 export {Combatant}
