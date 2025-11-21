@@ -1,17 +1,19 @@
 import { DEVMODE } from "../../utils/devmode";
-
 import { useState } from "react";
-import { Hero, Combatant } from '../../types/index';
+import { Hero } from '../../types/index';
 
 interface AddHeroProps {
   onAddHero: (hero: Omit<Hero, "id">) => void;
 }
 
 export default function AddHero({ onAddHero }: AddHeroProps) {
-  const [form, setForm] = useState<Omit<Hero, "id">>({
+  const initialForm: Omit<Hero, 'id'> = {
     name: "",
     player: "",
     hp: 0,
+    currHp: 0,
+    maxHp: 0,
+    link: "",
     tHp: 0,
     ac: 0,
     str: 10,
@@ -23,7 +25,9 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
     pp: 10,
     init: 0,
     present: true,
-  });
+  };
+
+  const [form, setForm] = useState<Omit<Hero, "id">>(initialForm);
 
   const handleAddHero = () => {
     if (!form.name.trim()) {
@@ -31,37 +35,14 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
       return;
     }
 
-    // if (!form.player.trim()) {
-    //   alert('Please enter a player name');
-    //   return;
-    // }
-
     onAddHero(form);
-    
-    // Reset form
-    setForm({
-      name: "",
-      player: "",
-      hp: 0,
-      tHp: 0,
-      ac: 0,
-      str: 10,
-      dex: 10,
-      con: 10,
-      int: 10,
-      wis: 10,
-      cha: 10,
-      pp: 10,
-      init: 0,
-      present: true,
-    });
-    
+    setForm(initialForm);
   };
 
   const keyDownAddHero = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      event.preventDefault(); 
-      handleAddHero(); 
+      event.preventDefault();
+      handleAddHero();
     }
   };
 
@@ -96,19 +77,9 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
           onChange={(e) => setForm({ ...form, ac: Number(e.target.value) || 0 })}
         />
       </div>
-      
+
       <div className="addPresent-div">
-        {/* <label>
-          <input
-            type="checkbox"
-            checked={form.present}
-            onChange={(e) => setForm({ ...form, present: e.target.checked })}
-          />
-          Present?
-        </label> */}
-        <button onClick={handleAddHero}>
-          Add Hero
-        </button>
+        <button onClick={handleAddHero}>Add Hero</button>
       </div>
     </div>
   );

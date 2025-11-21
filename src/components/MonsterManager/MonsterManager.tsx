@@ -1,15 +1,12 @@
+import React, { useState } from "react";
 import { DEVMODE } from "../../utils/devmode";
-
-import { useState, useContext } from "react";
 import { useMonsters } from "../../hooks/useMonsters";
 import { Monster } from "../../types/Monster";
-import { createUpdateMonster, createDeleteMonster } from "../Utils";
-import { EditableCell } from "../Utils";
+import { createUpdateMonster, createDeleteMonster, EditableCell } from "../Utils";
 import { useGlobalContext } from "../../hooks/versionContext";
 import { useCombat } from "../BattleTracker/CombatContext";
-import { InitiativeDialog } from "../BattleTracker/InitiativeDialog";
 import monstersDataFourteen from "../../assets/2014monsters.json";
-import monstersDataTwentyFour from "../../assets/2024monsters.json"
+import monstersDataTwentyFour from "../../assets/2024monsters.json";
 
 interface MonsterManagerProps {
   onClose: () => void;
@@ -17,11 +14,17 @@ interface MonsterManagerProps {
 
 const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
   const { monsters, setMonsters } = useMonsters();
-  const [newMonster, setNewMonster] = useState<Monster>({
+  const { status } = useGlobalContext();
+  const monstersData = status === "twentyFourteen" ? monstersDataFourteen : monstersDataTwentyFour;
+  const { addMonsterToCombat } = useCombat();
+
+  const initialMonster: Monster = {
     id: crypto.randomUUID(),
     name: "",
     link: "https://5e.tools",
     hp: 0,
+    currHp: 0,
+    maxHp: 0,
     ac: 0,
     str: 10,
     dex: 10,
@@ -34,25 +37,19 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
     hidden: false,
     present: false,
     conditions: [],
-  });
+  };
 
-  const { status } = useGlobalContext();
-  // const monstersData = monstersDataFourteen
-  const monstersData = status === 'twentyFourteen' ? monstersDataFourteen : monstersDataTwentyFour; // Turn this on when monstersDataTwentyFour is added above
-  const [showMonsterManager, setShowMonsterManager] = useState(true);
-  const { addMonsterToCombat } = useCombat();
-
-  // 🔹 Autocomplete states
+  const [newMonster, setNewMonster] = useState<Monster>(initialMonster);
+  const [duplicateCount, setDuplicateCount] = useState(1);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [editingField, setEditingField] = useState<string | null>(null);
 
-  const [duplicateCount, setDuplicateCount] = useState(1);
   const handleDuplicateCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const value = Math.max(1, parseInt(e.target.value)) || 1; // Prevent negative or zero
-  setDuplicateCount(value);
-};
+    const value = Math.max(1, parseInt(e.target.value)) || 1;
+    setDuplicateCount(value);
+  };
 
-  // 🔹 Handle typing in the name input
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setNewMonster({ ...newMonster, name: value });
@@ -71,72 +68,36 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
     setShowSuggestions(matches.length > 0);
   };
 
-  // 🔹 When user clicks a suggestion
   const handleSelectSuggestion = (name: string) => {
     const selected = monstersData.find((m) => m.name === name);
-    if (selected) {
-      setNewMonster({
-        ...newMonster,
-        ...selected,
-        id: crypto.randomUUID(),
-      });
-    }
+    if (selected) setNewMonster({ ...newMonster, ...selected, id: crypto.randomUUID() });
     setShowSuggestions(false);
   };
 
-  // 🔹 Add monster or monsters to table
-  const addMonsters = (count:number) => {
-  if (!newMonster.name.trim() || count <= 0) return;
+  const addMonsters = (count: number) => {
+    if (!newMonster.name.trim() || count <= 0) return;
 
-    let newMonsters = [];
-    const existingNames = new Set(monsters.map(monster => monster.name));
+    let newMonsters: Monster[] = [];
+    const existingNames = new Set(monsters.map((m) => m.name));
 
-
-  for (let i = 0; i < count; i++) {
-    let uniqueName = newMonster.name;
-    let suffix = 1;
-
-  while (existingNames.has(uniqueName)) {
-      uniqueName = `${newMonster.name} ${suffix}`; // Append number for uniqueness
-      suffix++;
+    for (let i = 0; i < count; i++) {
+      let uniqueName = newMonster.name;
+      let suffix = 1;
+      while (existingNames.has(uniqueName)) {
+        uniqueName = `${newMonster.name} ${suffix}`;
+        suffix++;
+      }
+      newMonsters.push({ ...newMonster, id: crypto.randomUUID(), name: uniqueName });
+      existingNames.add(uniqueName);
     }
 
-  newMonsters.push({
-      ...newMonster,
-      id: crypto.randomUUID(),
-      name: uniqueName,
-    });
-    existingNames.add(uniqueName);
-  }
+    setMonsters((prev) => [...prev, ...newMonsters]);
+    setNewMonster(initialMonster);
+    setFilteredSuggestions([]);
+    setShowSuggestions(false);
+    setDuplicateCount(1);
+  };
 
-  setMonsters((prevMonsters) => [...prevMonsters, ...newMonsters]);
-
-  // Reset newMonster info
-  setNewMonster({
-    id: crypto.randomUUID(),
-    name: "",
-    link: "https://5e.tools",
-    hp: 0,
-    ac: 0,
-    str: 10,
-    dex: 10,
-    con: 10,
-    int: 10,
-    wis: 10,
-    cha: 10,
-    pp: 10,
-    init: 0,
-    hidden: false,
-    present: false,
-    conditions: [],
-  });
-  
-  setFilteredSuggestions([]);
-  setShowSuggestions(false);
-  setDuplicateCount(1);
-};
-
-  // 🔹 Toggle hidden/invisible
   const toggleHidden = (id: string) => {
     setMonsters(
       monsters.map((m) =>
@@ -153,44 +114,34 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
     );
   };
 
-  const [editingField, setEditingField] = useState<string | null>(null);
   const updateMonster = createUpdateMonster(setMonsters);
   const deleteMonster = createDeleteMonster(monsters, setMonsters);
+
   const keyDownAddMonster = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      event.preventDefault(); 
-      addMonsters(1); 
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addMonsters(1);
     }
   };
 
   return (
     <div id="monsterAddManage">
-      <h2>
-        Monster Manager
-      </h2>
+      <h2>Monster Manager</h2>
 
       <div id="addMonsterOuter">
-        {/* 🔹 Name input with autocomplete */}
         <div className="nameInputWrapper">
           <input
             type="text"
             placeholder="Monster Name"
-            id="monster-name"
             value={newMonster.name}
             onKeyDown={keyDownAddMonster}
             onChange={handleNameChange}
             autoComplete="off"
           />
           {showSuggestions && (
-            <ul
-              className="suggestion-list"
-            >
-              {filteredSuggestions.map((s, idx) => (
-                <li
-                  key={idx}
-                  onClick={() => handleSelectSuggestion(s)}
-                  className="filteredSuggestions"
-                >
+            <ul className="suggestion-list">
+              {filteredSuggestions.map((s) => (
+                <li key={s} onClick={() => handleSelectSuggestion(s)} className="filteredSuggestions">
                   {s}
                 </li>
               ))}
@@ -198,182 +149,75 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
           )}
         </div>
 
-        {/* <input
-          type="number"
-          placeholder="HP"
-          value={newMonster.hp}
-          onChange={(e) =>
-            setNewMonster({ ...newMonster, hp: Number(e.target.value) })
-          }
-        />
-        <input
-          type="number"
-          placeholder="AC"
-          value={newMonster.ac}
-          onChange={(e) =>
-            setNewMonster({ ...newMonster, ac: Number(e.target.value) })
-          }
-        /> */}
-        <div><button onClick={() => addMonsters(1)}>Add Monster</button></div>
         <div>
-          <input
-            type="number"
-            min="1"
-            max="50"
-            placeholder="1"
-            value={duplicateCount}
-            id="duplicate-count"
-            onChange={handleDuplicateCountChange}
-          />
+          <button onClick={() => addMonsters(1)}>Add Monster</button>
+        </div>
+
+        <div>
+          <input type="number" min="1" max="50" value={duplicateCount} onChange={handleDuplicateCountChange} />
           <button onClick={() => addMonsters(duplicateCount)}>Add Monsters</button>
         </div>
       </div>
 
       <table>
         <thead>
-          <tr key="monsterheader" id="monsterManagerHeader">
-            <th title="Monster's name, unique names are recommended">Name</th>
-            <th title="Maximum HP amount, current can be adjusted in battle">HP</th>
-            <th title="Armor Class">AC</th>
-            <th title="If checked, monster starts the battle as invisible.">
-              Hidden?
-            </th>
-            <th title="Are they present for this Battle">Present</th>
+          <tr id="monsterManagerHeader">
+            <th>Name</th>
+            <th>HP</th>
+            <th>AC</th>
+            <th>Hidden?</th>
+            <th>Present</th>
             <th></th>
           </tr>
         </thead>
-
         <tbody className="monsterTableBody">
           {monsters.map((m) => (
-            <>
-              <tr key={m.id} className="monsterManagerMonster">
+            <React.Fragment key={m.id}>
+              <tr className="monsterManagerMonster">
                 <td>
-                  <span title="Name">
-                    <EditableCell
-                      entity={m}
-                      field="name"
-                      type="text"
-                      editingField={editingField}
-                      setEditingField={setEditingField}
-                      updateEntity={updateMonster}
-                    />
-                  </span>
+                  <EditableCell entity={m} field="name" type="text" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} />
                 </td>
                 <td>
-                  <span title="HP">
-                    <EditableCell
-                      entity={m}
-                      field="hp"
-                      type="number"
-                      editingField={editingField}
-                      setEditingField={setEditingField}
-                      updateEntity={updateMonster}
-                    />
-                  </span>
+                  <EditableCell entity={m} field="hp" type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} />
                 </td>
                 <td>
-                  <span title="AC">
-                    <EditableCell
-                      entity={m}
-                      field="ac"
-                      type="number"
-                      editingField={editingField}
-                      setEditingField={setEditingField}
-                      updateEntity={updateMonster}
-                    />
-                  </span>
+                  <EditableCell entity={m} field="ac" type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} />
                 </td>
                 <td>
-                  <input
-                    type="checkbox"
-                    checked={m.hidden}
-                    onChange={() => toggleHidden(m.id)}
-                  />
+                  <input type="checkbox" checked={m.hidden} onChange={() => toggleHidden(m.id)} />
+                </td>
+                <td onClick={() => updateMonster(m.id, "present", !m.present)} className="pointer">
+                  {m.present ? "✅" : "❌"}
                 </td>
                 <td>
-                  <span
-                    onClick={() =>
-                      updateMonster(m.id, "present", !m.present)
-                    }
-                    className="pointer"
-                    title="Click to toggle"
-                  >
-                    {m.present ? "✅" : "❌"}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    title="Add this monster to the battle in progress."
-                    className="buttonAddMonsterToCombat"
-					onClick={async () => {
-						  await addMonsterToCombat(m); // Wait for initiative dialog to finish
-						  deleteMonster(m.id, true);   // Then remove from monster manager, the true parameter skips the prompt
-						}}
-
-                  >
-                    Add to Existing Battle
-                  </button>
-                  <button
-                    title="Delete this monster, will ask for comfirmation"
-                    className="buttonDelete"
-                    onClick={() => deleteMonster(m.id)}
-                  >
-                    Delete
-                  </button>
+                  <button onClick={async () => { await addMonsterToCombat(m); deleteMonster(m.id, true); }}>Add to Existing Battle</button>
+                  <button onClick={() => deleteMonster(m.id)}>Delete</button>
                 </td>
               </tr>
-
-              {/* Stats Row */}
-              <tr key={`${m.id}-stats`} className="statsRow">
+              <tr className="statsRow">
                 <td colSpan={6}>
                   <div className="heroStats">
-                    {[
-                      "str",
-                      "dex",
-                      "con",
-                      "int",
-                      "wis",
-                      "cha",
-                      "pp",
-                      "init",
-                    ].map((stat) => (
-                      <span key={stat} title={stat.toUpperCase()}>
-                        {stat.toUpperCase()}:{" "}
-                        <EditableCell
-                          entity={m}
-                          field={stat as keyof Monster}
-                          type="number"
-                          editingField={editingField}
-                          setEditingField={setEditingField}
-                          updateEntity={updateMonster}
-                        />
+                    {["str", "dex", "con", "int", "wis", "cha", "pp", "init"].map((stat) => (
+                      <span key={stat}>
+                        {stat.toUpperCase()}: <EditableCell entity={m} field={stat as keyof Monster} type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} />
                       </span>
                     ))}
                   </div>
                 </td>
               </tr>
-              
-            </>
+            </React.Fragment>
           ))}
-
           {monsters.length === 0 && (
-            <tr key={"noMonsters"}>
-              <td colSpan={6} id="noMonsters">
-                No monsters yet, try adding one.
-              </td>
+            <tr>
+              <td colSpan={6}>No monsters yet, try adding one.</td>
             </tr>
           )}
         </tbody>
       </table>
-      <p className="saveClose">
-                    <button title="Save and Close" onClick={onClose}>Save and Close</button>
-              </p>
+
+      <button onClick={onClose}>Save and Close</button>
     </div>
-    
   );
-  setTimeout(() => {
-            document.getElementById('myInput')?.focus();
-        }, 500);
 };
 
 export default MonsterManager;
