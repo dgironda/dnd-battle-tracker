@@ -3,6 +3,7 @@ import { Monster } from '../../types/index';
 
 interface MonsterStatBlockHoverProps {
   monster: Monster;
+  currentHp?: number;
   id: number;
   name: string;
   link: string;

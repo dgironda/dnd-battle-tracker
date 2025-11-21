@@ -16,6 +16,9 @@ interface Hero {
   pp: number;
   init: number;
   present: boolean;
+  maxHp: number;
+  currHp: number;
+  link: string;
 }
 
 export {Hero}
