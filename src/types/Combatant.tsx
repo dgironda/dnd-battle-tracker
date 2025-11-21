@@ -1,21 +1,26 @@
 import { DEVMODE } from "../utils/devmode";
 
-interface Combatant {
+export interface Combatant {
   id: string;
   name: string;
-  link?: string;
-  type: 'hero' | 'monster';
+  type: "hero" | "monster";
+
   currHp: number;
   maxHp: number;
   tHp: number;
+
+  initiative: number;
+  init: number;
+
   action: boolean;
   bonus: boolean;
   move: boolean;
   reaction: boolean;
+
   conditions: string[];
-  init: number;
-  initiative: number;
-  deathsaves: boolean[];
+  deathsaves: string[];
+
+  link?: string;
   ac: number;
   str: number;
   dex: number;
@@ -24,6 +29,12 @@ interface Combatant {
   wis: number;
   cha: number;
   pp: number;
+
+  stats?: string;
+
+  hidden?: boolean;
+  present?: boolean;
+  hp?: number;
 }
 
 export {Combatant}
