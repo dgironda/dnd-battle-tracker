@@ -4,19 +4,6 @@ import { Monster } from '../../types/index';
 interface MonsterStatBlockHoverProps {
   monster: Monster;
   currentHp?: number;
-  id: number;
-  name: string;
-  link: string;
-  maxHp: number;
-  ac: number;
-  str: number;
-  dex: number;
-  con: number;
-  int: number;
-  wis: number;
-  cha: number;
-  pp: number;
-  init: number;
   children: React.ReactNode;
 }
 
