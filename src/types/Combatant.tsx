@@ -35,4 +35,3 @@ export interface Combatant {
   hp?: number;
 }
 
-export type { Combatant };
