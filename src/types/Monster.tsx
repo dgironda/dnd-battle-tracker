@@ -5,6 +5,8 @@ export interface Monster {
   name: string;
   link: string;
   hp: number;
+  maxHp: number;
+  currHp: number;
   ac: number;
   str: number;
   dex: number;

@@ -18,9 +18,9 @@ export interface Combatant {
   reaction: boolean;
 
   conditions: string[];
-  deathsaves: string[];
+  deathsaves: boolean[];
 
-  link?: string;
+  link: string;
   ac: number;
   str: number;
   dex: number;
@@ -36,5 +36,3 @@ export interface Combatant {
   present?: boolean;
   hp?: number;
 }
-
-export {Combatant}

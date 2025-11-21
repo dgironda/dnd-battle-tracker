@@ -159,6 +159,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
         wis: 0,
         cha: 0,
         pp: 0,
+		link: ""
       });
   }
 
