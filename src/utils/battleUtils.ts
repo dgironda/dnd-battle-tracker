@@ -12,24 +12,45 @@ export async function startBattle(
   for (const hero of heroes.filter(h => h.present)) {
     const initiative = await renderDialog(hero.name);
     
-    combatants.push({
-      id: hero.id,
-      name: hero.name,
-      type: 'hero',
-      currHp: hero.hp,
-      maxHp: hero.hp,
-      tHp: hero.tHp,
-      initiative: initiative,
-	  init: initiative,
-      deathsaves: [],
-      action: false,
-      bonus: false,
-      move: false,
-      reaction: false,
-      conditions: [],
-      stats: `Strength: ${hero.str}\nDexterity: ${hero.dex}\nConstitution: ${hero.con}\nIntelligence: ${hero.int}\nWisdom: ${hero.wis}\nCharisma: ${hero.cha}\nPassive Perception: ${hero.pp}`,
-	  link: ""
-    });
+  combatants.push({
+	id: hero.id,
+	name: hero.name,
+	type: 'hero',
+
+	currHp: hero.hp,
+	maxHp: hero.hp,
+	tHp: hero.tHp,
+
+	initiative: initiative,
+	init: initiative,
+
+	ac: hero.ac,
+	str: hero.str,
+	dex: hero.dex,
+	con: hero.con,
+	int: hero.int,
+	wis: hero.wis,
+	cha: hero.cha,
+	pp: hero.pp,
+
+	deathsaves: [],
+	action: false,
+	bonus: false,
+	move: false,
+	reaction: false,
+	conditions: [],
+
+	stats: `Strength: ${hero.str}
+		Dexterity: ${hero.dex}
+		Constitution: ${hero.con}
+		Intelligence: ${hero.int}
+		Wisdom: ${hero.wis}
+		Charisma: ${hero.cha}
+		Passive Perception: ${hero.pp}`,
+
+	link: ""
+	});
+
   }
 
 

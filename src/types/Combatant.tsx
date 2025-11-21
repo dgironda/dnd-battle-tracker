@@ -3,7 +3,9 @@ import { DEVMODE } from "../utils/devmode";
 export interface Combatant {
   id: string;
   name: string;
-  type: "hero" | "monster";
+  link: string;
+
+  type: 'hero' | 'monster';
 
   currHp: number;
   maxHp: number;
@@ -20,7 +22,6 @@ export interface Combatant {
   conditions: string[];
   deathsaves: boolean[];
 
-  link: string;
   ac: number;
   str: number;
   dex: number;
@@ -31,8 +32,7 @@ export interface Combatant {
   pp: number;
 
   stats?: string;
-
-  hidden?: boolean;
-  present?: boolean;
   hp?: number;
 }
+
+export type { Combatant };

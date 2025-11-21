@@ -4,9 +4,11 @@ export interface Monster {
   id: string;
   name: string;
   link: string;
+
   hp: number;
   maxHp: number;
   currHp: number;
+
   ac: number;
   str: number;
   dex: number;
@@ -16,7 +18,8 @@ export interface Monster {
   cha: number;
   pp: number;
   init: number;
-  hidden: boolean;
-  present: boolean;
+
+  hidden?: boolean;
+  present?: boolean;
   conditions: string[];
 }

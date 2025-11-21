@@ -136,31 +136,32 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
         setInitiativeResolver(() => resolve);
       });
       
-      newCombatants.push({
-        id: hero.id,
-        name: hero.name,
-        type: 'hero',
-        currHp: hero.hp,
-        maxHp: hero.hp,
-        tHp: 0,
-        initiative,
-        action: false,
-        bonus: false,
-        move: false,
-        reaction: false,
-        conditions: [],
-        init: hero.init,
-        deathsaves: [],
-        ac: 0,
-        str: 0,
-        dex: 0,
-        con: 0,
-        int: 0,
-        wis: 0,
-        cha: 0,
-        pp: 0,
-		link: ""
-      });
+	newCombatants.push({
+	  id: hero.id,
+	  name: hero.name,
+	  type: 'hero',
+	  currHp: hero.hp ?? hero.maxHp ?? 0,
+	  maxHp: hero.maxHp ?? hero.hp ?? 0,
+	  tHp: 0,
+	  initiative: 0,
+	  init: hero.init ?? 0,
+	  action: false,
+	  bonus: false,
+	  move: false,
+	  reaction: false,
+	  conditions: [],
+	  deathsaves: [],
+	  ac: hero.ac ?? 10,
+	  str: hero.str ?? 10,
+	  dex: hero.dex ?? 10,
+	  con: hero.con ?? 10,
+	  int: hero.int ?? 10,
+	  wis: hero.wis ?? 10,
+	  cha: hero.cha ?? 10,
+	  pp: hero.pp ?? 0,
+	  link: hero.link ?? ""
+	});
+
   }
 
     // Process monsters
@@ -508,22 +509,55 @@ useEffect(() => {
     /* MONSTER */
     <MonsterStatBlockHover
       monster={
-        combatants.find((m) => m.id === combatant.id) ?? {
-          id: combatant.id,
-          name: combatant.name,
-          link: (combatant as any).link ?? "",
-          maxHp: combatant.maxHp,
-          ac: combatant.ac,
-          str: combatant.str,
-          dex: combatant.dex,
-          con: combatant.con,
-          int: combatant.init,
-          wis: combatant.wis,
-          cha: combatant.cha,
-          pp: combatant.pp,
-          init: combatant.init,
-        }
-      }
+		  (() => {
+			const found = combatants.find((m) => m.id === combatant.id) as Combatant | undefined;
+			if (found) {
+			  return {
+				id: found.id,
+				name: found.name,
+				link: found.link ?? "",
+				hp: found.currHp,        // legacy field
+				maxHp: found.maxHp,
+				currHp: found.currHp,
+				ac: found.ac,
+				str: found.str,
+				dex: found.dex,
+				con: found.con,
+				int: found.int,
+				wis: found.wis,
+				cha: found.cha,
+				pp: found.pp,
+				init: found.init,
+				hidden: false,
+				present: true,
+				conditions: found.conditions ?? [],
+			  } as Monster;
+			}
+
+			// fallback built from combatant
+			return {
+			  id: combatant.id,
+			  name: combatant.name,
+			  link: (combatant as any).link ?? "",
+			  hp: combatant.currHp ?? combatant.maxHp ?? 0,
+			  maxHp: combatant.maxHp ?? (combatant.currHp ?? 0),
+			  currHp: combatant.currHp ?? (combatant.maxHp ?? 0),
+			  ac: (combatant as any).ac ?? 10,
+			  str: (combatant as any).str ?? 10,
+			  dex: (combatant as any).dex ?? 10,
+			  con: (combatant as any).con ?? 10,
+			  int: (combatant as any).int ?? (combatant as any).init ?? 10,
+			  wis: (combatant as any).wis ?? 10,
+			  cha: (combatant as any).cha ?? 10,
+			  pp: (combatant as any).pp ?? 0,
+			  init: (combatant as any).init ?? 0,
+			  hidden: false,
+			  present: true,
+			  conditions: (combatant as any).conditions ?? [],
+			} as Monster;
+		  })()
+	  }
+
       currentHp={combatant.currHp}
     >
       {combatant.link ? (
