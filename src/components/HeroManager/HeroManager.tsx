@@ -11,7 +11,28 @@ interface HeroManagerProps {
 }
 
 const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
-  const [heroes, setHeroes] = useState<Hero[]>(() => getHeroes());
+  const [heroes, setHeroes] = useState<Hero[]>(() => {
+    const saved = getHeroes();
+    // Ensure all numeric fields are numbers
+    return saved.map(h => ({
+      ...h,
+      hp: h.hp ?? 10,
+      ac: h.ac ?? 10,
+      currHp: h.currHp ?? h.hp ?? 10,
+      maxHp: h.maxHp ?? h.hp ?? 10,
+      tHp: h.tHp ?? 0,
+      str: h.str ?? 10,
+      dex: h.dex ?? 10,
+      con: h.con ?? 10,
+      int: h.int ?? 10,
+      wis: h.wis ?? 10,
+      cha: h.cha ?? 10,
+      pp: h.pp ?? 0,
+      init: h.init ?? 0,
+      conditions: h.conditions ?? [],
+      present: h.present ?? true,
+    }));
+  });
 
   useEffect(() => {
     storeHeroes(heroes);
@@ -43,22 +64,55 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
             <React.Fragment key={hero.id}>
               <tr className="heroManagerHero">
                 <td>
-                  <EditableCell entity={hero} field="name" type="text" editingField={editingField} setEditingField={setEditingField} updateEntity={updateHero} />
+                  <EditableCell
+                    entity={hero}
+                    field="name"
+                    type="text"
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    updateEntity={updateHero}
+                  />
                 </td>
                 <td>
-                  <EditableCell entity={hero} field="player" type="text" editingField={editingField} setEditingField={setEditingField} updateEntity={updateHero} />
+                  <EditableCell
+                    entity={hero}
+                    field="player"
+                    type="text"
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    updateEntity={updateHero}
+                  />
                 </td>
                 <td>
-                  <EditableCell entity={hero} field="hp" type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateHero} />
+                  <EditableCell
+                    entity={hero}
+                    field="hp"
+                    type="number"
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    updateEntity={updateHero}
+                  />
                 </td>
                 <td>
-                  <EditableCell entity={hero} field="ac" type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateHero} />
+                  <EditableCell
+                    entity={hero}
+                    field="ac"
+                    type="number"
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    updateEntity={updateHero}
+                  />
                 </td>
-                <td onClick={() => updateHero(hero.id, "present", !hero.present)} className="pointer">
+                <td
+                  onClick={() => updateHero(hero.id, "present", !hero.present)}
+                  className="pointer"
+                >
                   {hero.present ? "✅" : "❌"}
                 </td>
                 <td>
-                  <button className="buttonDelete" onClick={() => deleteHero(hero.id)}>Delete</button>
+                  <button className="buttonDelete" onClick={() => deleteHero(hero.id)}>
+                    Delete
+                  </button>
                 </td>
               </tr>
 
@@ -67,14 +121,26 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
                   <div className="heroStats">
                     {["str", "dex", "con", "int", "wis", "cha", "pp", "init"].map((stat) => (
                       <span key={stat} title={stat.toUpperCase()}>
-                        {stat.toUpperCase()}: <EditableCell entity={hero} field={stat as keyof Hero} type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateHero} />
+                        {stat.toUpperCase()}:{" "}
+                        <EditableCell
+                          entity={hero}
+                          field={stat as keyof Hero}
+                          type="number"
+                          editingField={editingField}
+                          setEditingField={setEditingField}
+                          updateEntity={updateHero}
+                        />
                       </span>
                     ))}
                   </div>
                 </td>
               </tr>
 
-              {index < heroes.length - 1 && <tr key={`${hero.id}-spacer`}><td colSpan={6} className="heroesSpacer"></td></tr>}
+              {index < heroes.length - 1 && (
+                <tr key={`${hero.id}-spacer`}>
+                  <td colSpan={6} className="heroesSpacer"></td>
+                </tr>
+              )}
             </React.Fragment>
           ))}
           {heroes.length === 0 && (
