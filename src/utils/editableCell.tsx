@@ -26,8 +26,12 @@ export const EditableCell = <T extends Record<string, any>>({
   let value = entity[field];
 
 if (type === 'number') {
-  const newValue = Number(value);
-  value = !isNaN(newValue) ? newValue : 0;
+	const newValue = Number(e.target.value);
+	if (!isNaN(newValue)) {
+	  setInputValue(newValue as any);  // local state
+	  updateEntity(entity.id, field, newValue); // pass number directly
+	}
+
 }
 
 
