@@ -65,13 +65,15 @@ const numericFields: (keyof Combatant)[] = [
   'hp','currHp','maxHp','ac','str','dex','con','int','wis','cha','pp','init','tHp'
 ];
 
-const updateCombatant = (combatantId: string, field: keyof Combatant, value: string | number | boolean) => {
+const updateCombatant = (combatantId: string, field: keyof Combatant, value: string | number | boolean | string[]) => {
+
   const updatedCombatants = combatants
     .map(c =>
       c.id === combatantId
         ? {
             ...c,
-            [field]: numericFields.includes(field) ? Number(value) : value
+            [field]: field === 'conditions' && Array.isArray(value) ? value : numericFields.includes(field) ? Number(value) : value
+
           }
         : c
     )
