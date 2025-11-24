@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Hero } from '../../types/index';
 import { getHeroes, storeHeroes } from "../../utils/LocalStorage";
 import { createAddHero, createUpdateHero, createDeleteHero, EditableCell } from "../Utils";
@@ -38,6 +38,10 @@ export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) 
   };
   const pp = safe(hero?.pp, 10);
   const id = safe(hero?.id, hero?.name);
+
+    useEffect(() => {
+    storeHeroes(heroes)
+  }, [heroes]) 
 
   return (
     <div
