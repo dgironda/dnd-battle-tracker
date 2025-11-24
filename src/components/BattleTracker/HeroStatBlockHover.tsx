@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Hero } from '../../types/index';
+import { getHeroes, storeHeroes } from "../../utils/LocalStorage";
+import { createAddHero, createUpdateHero, createDeleteHero, EditableCell } from "../Utils";
 
 interface HeroStatBlockHoverProps {
   hero?: Hero; // <-- optional to avoid undefined crash
@@ -8,6 +10,10 @@ interface HeroStatBlockHoverProps {
 
 export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) {
   const [isHovering, setIsHovering] = useState(false);
+  const [isStuck, setIsStuck] = useState(false);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [heroes, setHeroes] = useState<Hero[]>(() => getHeroes() || []);
+  const updateHero = createUpdateHero(setHeroes);
 
   const safe = <T,>(value: T | undefined | null, fallback: T): T =>
     value !== undefined && value !== null ? value : fallback;
@@ -31,11 +37,13 @@ export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) 
     CHA: safe(hero?.cha, 10),
   };
   const pp = safe(hero?.pp, 10);
+  const id = safe(hero?.id, hero?.name);
 
   return (
     <div
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
+      onMouseEnter={() => !isStuck && setIsHovering(true)}
+      onMouseLeave={() => !isStuck && setIsHovering(false)}
+      onClick={() => setIsStuck(!isStuck)}
       style={{ display: 'inline-block' }}
     >
       {children}
@@ -45,9 +53,9 @@ export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) 
         style={{
           position: 'fixed',
           top: '25%',
-          left: isHovering ? '0px' : '-380px',
+          left: (isHovering || isStuck) ? '0px' : '-380px',
           transform: 'translateY(-50%)',
-          opacity: isHovering ? 1 : 0,
+          opacity: (isHovering || isStuck) ? 1 : 0,
           transition: 'left 0.35s ease-out, opacity 0.3s ease-out',
           backgroundColor: '#f4e8d8',
           border: '3px solid #8b4513',
@@ -58,7 +66,7 @@ export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) 
           zIndex: 10000,
           fontFamily: '"Bookman Old Style", serif',
           color: '#2c1810',
-          pointerEvents: 'none',
+          pointerEvents: isStuck ? 'auto' : 'none',
         }}
       >
         {/* Header */}
@@ -102,6 +110,19 @@ export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) 
               {pp}
             </span>
           </div>
+        </div>
+        <div className={`${id}-notes`}>
+          Notes: {heroes.filter(h => h.id === id).map(h => (
+            <EditableCell
+          entity={h}
+          field='notes'
+          type='textarea'
+          editingField={editingField}
+          setEditingField={setEditingField}
+          updateEntity={updateHero}
+          />
+          ))}
+          
         </div>
       </div>
     </div>

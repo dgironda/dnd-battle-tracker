@@ -1,14 +1,20 @@
 import { useState } from 'react';
-import { Monster } from '../../types/index';
+import { Monster, Combatant } from '../../types/index';
+import { createUpdateMonster, createDeleteMonster, EditableCell } from "../Utils";
+import { getCombatants, getMonsters, storeMonsters } from '../../utils/LocalStorage';
 
 interface MonsterStatBlockHoverProps {
   monster: Monster;
   currentHp?: number;
   children: React.ReactNode;
+  updateCombatant: (combatantID:string, field:keyof Combatant, value:any) => void;
 }
 
-export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterStatBlockHoverProps) {
+export function MonsterStatBlockHover({ monster, currentHp, children, updateCombatant }: MonsterStatBlockHoverProps) {
   const [isHovering, setIsHovering] = useState(false);
+  const [isStuck, setIsStuck] = useState(false);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [combatants, setCombatants] = useState<Combatant[]>(() => getCombatants() || []);
 
   const safe = <T,>(value: T | undefined | null, fallback: T): T =>
     value !== undefined && value !== null ? value : fallback;
@@ -26,6 +32,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterS
   const ac = safe(monster.ac, 10);
   const baseHp = safe(currentHp ?? monster.currHp ?? monster.maxHp ?? 1, 1);
   const initiative = safe(monster.init, 0);
+  const id = safe(monster.id, monster.name);
 
   const stats = {
     STR: safeStat(monster.str),
@@ -40,8 +47,9 @@ export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterS
 
   return (
     <div
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
+      onMouseEnter={() => !isStuck && setIsHovering(true)}
+      onMouseLeave={() => !isStuck && setIsHovering(false)}
+      onClick={() => setIsStuck(!isStuck)}
       style={{ display: 'inline-block' }}
     >
       {children}
@@ -50,9 +58,9 @@ export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterS
         style={{
           position: 'fixed',
           top: '25%',
-          left: isHovering ? '0px' : '-400px',
+          left: (isHovering || isStuck) ? '0px' : '-380px',
           transform: 'translateY(-50%)',
-          opacity: isHovering ? 1 : 0,
+          opacity: (isHovering || isStuck) ? 1 : 0,
           transition: 'left 0.35s ease-out, opacity 0.3s ease-out',
           backgroundColor: '#fdf8f3',
           border: '2px solid #58180d',
@@ -63,7 +71,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterS
           zIndex: 10000,
           fontFamily: 'Georgia, serif',
           color: '#58180d',
-          pointerEvents: 'none',
+          pointerEvents: isStuck ? 'auto' : 'none',
         }}
       >
         <div style={{ borderBottom: '2px solid #58180d', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
@@ -108,6 +116,19 @@ export function MonsterStatBlockHover({ monster, currentHp, children }: MonsterS
         <div style={{ fontSize: '12px', marginBottom: '0.25rem' }}>
           <span style={{ fontWeight: 'bold' }}>Senses </span>
           <span>passive Perception {pp}</span>
+        </div>
+        <div className={`${id}-notes`}>
+          Notes: {combatants.filter(c => c.id === id).map(c => (
+            <EditableCell
+          entity={c}
+          field='notes'
+          type='textarea'
+          editingField={editingField}
+          setEditingField={setEditingField}
+          updateEntity={updateCombatant}
+          />
+          ))}
+          
         </div>
       </div>
     </div>

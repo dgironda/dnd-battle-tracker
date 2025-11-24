@@ -61,12 +61,27 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
     setHasSavedCombat(saved && saved.length > 0);
   }, [combatants]);
 
-  const updateCombatant = (combatantId: string, field: keyof Combatant, value: any) => {
-  const updatedCombatants = combatants.map(combatant =>
-    combatant.id === combatantId ? { ...combatant, [field]: value } : combatant
-  ).sort((a, b) => b.initiative - a.initiative);  
+const numericFields: (keyof Combatant)[] = [
+  'hp','currHp','maxHp','ac','str','dex','con','int','wis','cha','pp','init','tHp'
+];
+
+const updateCombatant = (combatantId: string, field: keyof Combatant, value: string | number | boolean | string[]) => {
+
+  const updatedCombatants = combatants
+    .map(c =>
+      c.id === combatantId
+        ? {
+            ...c,
+            [field]: field === 'conditions' && Array.isArray(value) ? value : numericFields.includes(field) ? Number(value) : value
+
+          }
+        : c
+    )
+    .sort((a, b) => b.initiative - a.initiative);
+
   setCombatants(updatedCombatants);
 };
+
 
   const addCondition = (combatantId: string, condition: string) => {
     const combatant = combatants.find(c => c.id === combatantId);
@@ -298,10 +313,18 @@ const handleNextTurn = () => {
 }
 }, [combatants]);
 
-  useEffect(() => {
-    let combatant = sortedCombatants[currentTurnIndex]
-        if (combatant.conditions.includes("Dead")) {combatant.action = true; combatant.bonus = true; combatant.move = true}
-  }, [sortedCombatants])
+useEffect(() => {
+  const combatant = sortedCombatants[currentTurnIndex];
+  if (!combatant) return; // Guard against undefined
+  if (!combatant.conditions) combatant.conditions = []; // Ensure conditions exist
+
+  if (combatant.conditions.includes("Dead")) {
+    combatant.action = true;
+    combatant.bonus = true;
+    combatant.move = true;
+  }
+}, [sortedCombatants, currentTurnIndex]);
+
 
   // Unchecking will set that player as Current Turn
   useEffect(() => {
@@ -559,8 +582,10 @@ useEffect(() => {
 	  }
 
       currentHp={combatant.currHp}
+      updateCombatant={updateCombatant}
     >
-      {combatant.link ? (
+      {combatant.name}
+      {/* {combatant.link ? (
         <a
           className="combatantMonsterLink"
           href={combatant.link}
@@ -569,9 +594,10 @@ useEffect(() => {
         >
           {combatant.name}
         </a>
-      ) : (
+      ) : 
+      (
         <span>{combatant.name}</span>
-      )}
+      )} */}
     </MonsterStatBlockHover>
   ) : (
     /* FALLBACK */

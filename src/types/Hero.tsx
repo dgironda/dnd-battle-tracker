@@ -15,10 +15,12 @@ interface Hero {
   cha: number;
   pp: number;
   init: number;
+  conditions: string[];
   present: boolean;
   maxHp: number;
   currHp: number;
   link: string;
+  notes?: string;
 }
 
 export {Hero}

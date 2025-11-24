@@ -16,16 +16,25 @@ export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
 };
 
 export const createUpdateHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
-  return (heroId: string, field: keyof Hero, value: string | number | boolean) => {
+  return (heroId: string, field: keyof Hero, value: string | number | boolean | string[]) => {
     setHeroes(prevHeroes =>
       prevHeroes.map(hero =>
         hero.id === heroId
-          ? { ...hero, [field]: value }
+          ? {
+              ...hero,
+              [field]:
+                field === "conditions" && Array.isArray(value)
+                  ? value
+                  : typeof value === "number" && !isNaN(value)
+                  ? Number(value)
+                  : value,
+            }
           : hero
       )
     );
   };
 };
+
 
 export const createDeleteHero = (
   heroes: Hero[], 
@@ -99,7 +108,7 @@ export const EditableCell = <T extends Record<string, any>>({
 }: {
   entity: T;
   field: keyof T;
-  type?: 'text' | 'number';
+  type?: 'text' | 'number' | 'textarea';
   editingField: string | null;
   setEditingField: Dispatch<SetStateAction<string | null>>;
   updateEntity: (entityId: string, field: keyof T, value: string | number ) => void;
@@ -153,6 +162,31 @@ export const EditableCell = <T extends Record<string, any>>({
         }}
         autoFocus
         className="editableCellTxt"
+      />
+    );
+  }
+
+  if (isEditing && type === 'textarea') {
+    return (
+      <textarea
+        value={inputValue as string}
+        onChange={(e) => {
+          setInputValue(e.target.value as any);
+          updateEntity(entity.id, field, e.target.value);
+        }}
+        onBlur={() => setEditingField(null)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && e.shiftKey) {
+            // Allow Shift+Enter for new lines
+            return;
+          }
+          if (e.key === 'Escape') {
+            setEditingField(null);
+          }
+        }}
+        autoFocus
+        className="editableCellTextarea"
+        rows={4}
       />
     );
   }
