@@ -16,16 +16,25 @@ export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
 };
 
 export const createUpdateHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
-  return (heroId: string, field: keyof Hero, value: string | number | boolean) => {
+  return (heroId: string, field: keyof Hero, value: string | number | boolean | string[]) => {
     setHeroes(prevHeroes =>
       prevHeroes.map(hero =>
         hero.id === heroId
-          ? { ...hero, [field]: value }
+          ? {
+              ...hero,
+              [field]:
+                field === "conditions" && Array.isArray(value)
+                  ? value
+                  : typeof value === "number" && !isNaN(value)
+                  ? Number(value)
+                  : value,
+            }
           : hero
       )
     );
   };
 };
+
 
 export const createDeleteHero = (
   heroes: Hero[], 
