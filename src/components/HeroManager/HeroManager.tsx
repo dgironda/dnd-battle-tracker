@@ -31,6 +31,8 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
       init: h.init ?? 0,
       conditions: h.conditions ?? [],
       present: h.present ?? true,
+      link: h.link ?? "",
+      notes: h.notes ?? "",
     }));
   });
 

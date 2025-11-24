@@ -582,8 +582,10 @@ useEffect(() => {
 	  }
 
       currentHp={combatant.currHp}
+      updateCombatant={updateCombatant}
     >
-      {combatant.link ? (
+      {combatant.name}
+      {/* {combatant.link ? (
         <a
           className="combatantMonsterLink"
           href={combatant.link}
@@ -592,9 +594,10 @@ useEffect(() => {
         >
           {combatant.name}
         </a>
-      ) : (
+      ) : 
+      (
         <span>{combatant.name}</span>
-      )}
+      )} */}
     </MonsterStatBlockHover>
   ) : (
     /* FALLBACK */

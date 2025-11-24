@@ -86,6 +86,10 @@ button:hover {
   filter: brightness(130%);
 }
 
+.combatantName {
+  cursor: pointer;
+}
+
 .combatantConditions {
   display: flex;
   flex-direction: column;

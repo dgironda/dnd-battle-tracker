@@ -33,5 +33,6 @@ export interface Combatant {
 
   stats?: string;
   hp?: number;
+  notes?: string;
 }
 

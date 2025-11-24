@@ -20,6 +20,7 @@ interface Hero {
   maxHp: number;
   currHp: number;
   link: string;
+  notes?: string;
 }
 
 export {Hero}
