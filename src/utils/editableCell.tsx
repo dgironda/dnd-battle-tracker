@@ -1,5 +1,4 @@
-import { DEVMODE } from "./devmode";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState, useEffect } from "react";
 
 const numericFields = [
   'hp','currHp','maxHp','ac',
@@ -23,54 +22,54 @@ export const EditableCell = <T extends Record<string, any>>({
 }) => {
   const fieldKey = `${entity.id}-${String(field)}`;
   const isEditing = editingField === fieldKey;
-  let value = entity[field];
 
-if (type === 'number') {
-	const newValue = Number(e.target.value);
-	if (!isNaN(newValue)) {
-	  setInputValue(newValue as any);  // local state
-	  updateEntity(entity.id, field, newValue); // pass number directly
-	}
+  // Local state for input
+  const [inputValue, setInputValue] = useState<string | number>(entity[field]);
 
-}
+  // Keep inputValue in sync with entity changes
+  useEffect(() => {
+    setInputValue(entity[field]);
+  }, [entity, field]);
 
-
-  const handleChange = (val: string | number) => {
-    let newVal: T[keyof T];
+  const handleChange = (val: string) => {
     if (type === 'number') {
-      newVal = Number(val) as T[keyof T];
+      const num = Number(val);
+      if (!isNaN(num)) {
+        setInputValue(num);
+        updateEntity(entity.id, field, num);
+      }
     } else {
-      newVal = val as T[keyof T];
+      setInputValue(val);
+      updateEntity(entity.id, field, val);
     }
-    updateEntity(entity.id, field, newVal);
   };
 
-  if (isEditing && type === 'number') {
-    return (
-      <input
-        type="number"
-        value={value as number}
-        onChange={(e) => handleChange(e.target.value)}
-        onBlur={() => setEditingField(null)}
-        onKeyDown={(e) => { if (e.key === 'Enter') setEditingField(null); }}
-        autoFocus
-        className="editableCellNum"
-      />
-    );
-  }
-
-  if (isEditing && type === 'text') {
-    return (
-      <input
-        type="text"
-        value={value as string}
-        onChange={(e) => handleChange(e.target.value)}
-        onBlur={() => setEditingField(null)}
-        onKeyDown={(e) => { if (e.key === 'Enter') setEditingField(null); }}
-        autoFocus
-        className="editableCellTxt"
-      />
-    );
+  if (isEditing) {
+    if (type === 'number') {
+      return (
+        <input
+          type="number"
+          value={inputValue as number}
+          onChange={(e) => handleChange(e.target.value)}
+          onBlur={() => setEditingField(null)}
+          onKeyDown={(e) => { if (e.key === 'Enter') setEditingField(null); }}
+          autoFocus
+          className="editableCellNum"
+        />
+      );
+    } else {
+      return (
+        <input
+          type="text"
+          value={inputValue as string}
+          onChange={(e) => handleChange(e.target.value)}
+          onBlur={() => setEditingField(null)}
+          onKeyDown={(e) => { if (e.key === 'Enter') setEditingField(null); }}
+          autoFocus
+          className="editableCellTxt"
+        />
+      );
+    }
   }
 
   return (
@@ -79,7 +78,7 @@ if (type === 'number') {
       className="setEditingField"
       title="Click to edit"
     >
-      {value}
+      {inputValue}
       <span role="button" aria-label="Edit" className="edit">📝</span>
     </span>
   );
