@@ -25,9 +25,11 @@ export const EditableCell = <T extends Record<string, any>>({
   const isEditing = editingField === fieldKey;
   let value = entity[field];
 
-  if (type === 'number') {
-    value = typeof value === 'number' ? value : Number(value) || 0;
-  }
+if (type === 'number') {
+  const newValue = Number(value);
+  value = !isNaN(newValue) ? newValue : 0;
+}
+
 
   const handleChange = (val: string | number) => {
     let newVal: T[keyof T];
