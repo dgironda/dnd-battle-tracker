@@ -784,6 +784,25 @@ sup {
   filter: hue-rotate(235deg);
 }
 
+.statHover {
+  display: inline-block;
+}
+
+.closeStats {
+  background-color: var(--color-shadow);
+  border: 4px thick var(--color-btn2) !important;
+  color: var(--color-redwarn);
+  width: 3vh;
+  height: 3vh;
+  display: inline-block;
+  margin-left: 95%;
+  margin-top: 0;
+  cursor: pointer;
+  text-align: center;
+  aspect-ratio: 1/1;
+  padding: initial;
+}
+
 @media (orientation: portrait) {
   #battleTrackerHeader {
     display: none;

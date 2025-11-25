@@ -26,6 +26,10 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
 
+  function closeStatsButton() {
+    setIsStuck(false)
+  }
+
   // Safe fields
   const name = safe(monster.name, 'Unknown Creature');
   const link = safe(monster.link, '');
@@ -50,16 +54,16 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
       onMouseEnter={() => !isStuck && setIsHovering(true)}
       onMouseLeave={() => !isStuck && setIsHovering(false)}
       onClick={() => setIsStuck(!isStuck)}
-      style={{ display: 'inline-block' }}
     >
       {children}
 
       <div
+        className='statHover'
         style={{
           position: 'fixed',
-          top: '25%',
+          top: '5vh',
           left: (isHovering || isStuck) ? '0px' : '-380px',
-          transform: 'translateY(-50%)',
+          transform: 'translateY(0)',
           opacity: (isHovering || isStuck) ? 1 : 0,
           transition: 'left 0.35s ease-out, opacity 0.3s ease-out',
           backgroundColor: '#fdf8f3',
@@ -74,19 +78,24 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
           pointerEvents: isStuck ? 'auto' : 'none',
         }}
       >
-        <div style={{ borderBottom: '2px solid #58180d', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+        <button className='closeStats'
+          onClick={closeStatsButton}>X
+        </button>
+        <div style={{ display: 'flex', justifyContent: 'center', borderBottom: '2px solid #58180d', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
           <h3 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#58180d', fontVariant: 'small-caps', letterSpacing: '1px', lineHeight: '1.2' }}>
             {name}
           </h3>
+          
+          
+        </div>
           {link && (
             <div style={{ fontSize: '11px', color: '#822000', marginTop: '2px', fontStyle: 'italic' }}>
               <a href={link} target="_blank" rel="noopener noreferrer" style={{ color: '#822000', textDecoration: 'underline' }} onClick={(e) => e.stopPropagation()}>
                 View Full Stat Block →
               </a>
+
             </div>
           )}
-        </div>
-
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', padding: '0.4rem 0', borderBottom: '1px solid #c9ad6a' }}>
           <div>
             <span style={{ fontWeight: 'bold', fontSize: '13px' }}>Armor Class </span>

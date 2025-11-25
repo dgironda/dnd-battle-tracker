@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Hero } from '../../types/index';
 import { getHeroes, storeHeroes } from "../../utils/LocalStorage";
 import { createAddHero, createUpdateHero, createDeleteHero, EditableCell } from "../Utils";
@@ -23,6 +23,28 @@ export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) 
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
 
+  function closeStatsButton() {
+    setIsStuck(false)
+  }
+
+  const handleKeyPressx = useCallback((event:KeyboardEvent) => {
+    if (event.key === 'x' || event.key === 'X')
+    {let statsHover = document.querySelectorAll('.statHover') as NodeListOf<HTMLElement>;
+      statsHover.forEach(hover => {
+        setIsStuck(false)
+        hover.style.opacity = '0'
+        hover.style.left = '-300'
+      })
+    };
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyPressx);
+    return () => {
+      document.removeEventListener('keydown', handleKeyPressx);
+    };
+  }, [handleKeyPressx]);
+
   // SAFE FIELDS
   const name = safe(hero?.name, "Unknown Hero");
   const player = safe(hero?.player, "Unknown Player");
@@ -45,20 +67,21 @@ export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) 
 
   return (
     <div
+      
       onMouseEnter={() => !isStuck && setIsHovering(true)}
       onMouseLeave={() => !isStuck && setIsHovering(false)}
       onClick={() => setIsStuck(!isStuck)}
-      style={{ display: 'inline-block' }}
     >
       {children}
 
       {/* Slide-in stat block */}
       <div
+        className='statHover'
         style={{
           position: 'fixed',
-          top: '25%',
+          top: '5vh',
           left: (isHovering || isStuck) ? '0px' : '-380px',
-          transform: 'translateY(-50%)',
+          transform: 'translateY(0)',
           opacity: (isHovering || isStuck) ? 1 : 0,
           transition: 'left 0.35s ease-out, opacity 0.3s ease-out',
           backgroundColor: '#f4e8d8',
@@ -74,6 +97,9 @@ export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) 
         }}
       >
         {/* Header */}
+        <button className='closeStats'
+          onClick={closeStatsButton}>X
+        </button>
         <div style={{ borderBottom: '2px solid #8b4513', paddingBottom: '0.5rem', marginBottom: '0.75rem' }}>
           <h3 style={{ margin: 0, fontSize: '22px', fontWeight: 'bold', color: '#8b0000', textTransform: 'uppercase', letterSpacing: '1px' }}>
             {name}
