@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Monster, Combatant } from '../../types/index';
 import { createUpdateMonster, createDeleteMonster, EditableCell } from "../Utils";
 import { getCombatants, getMonsters, storeMonsters } from '../../utils/LocalStorage';
@@ -30,6 +30,17 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
     setIsStuck(false)
   }
 
+  const handleKeyPressx = useCallback((event:KeyboardEvent) => {
+    if (event.key === 'x' || event.key === 'X')
+    {let statsHover = document.querySelectorAll('.statHover') as NodeListOf<HTMLElement>;
+      statsHover.forEach(hover => {
+        setIsStuck(false)
+        hover.style.opacity = '0'
+        hover.style.left = '-300'
+      })
+    };
+  }, []);
+
   // Safe fields
   const name = safe(monster.name, 'Unknown Creature');
   const link = safe(monster.link, '');
@@ -51,9 +62,9 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
 
   return (
     <div
-      onMouseEnter={() => !isStuck && setIsHovering(true)}
-      onMouseLeave={() => !isStuck && setIsHovering(false)}
-      onClick={() => setIsStuck(!isStuck)}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      onClick={() => setIsStuck(!isStuck)} style={{left: '0px', opacity: 1}}
     >
       {children}
 

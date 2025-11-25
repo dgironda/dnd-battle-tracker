@@ -3,6 +3,7 @@ import { DEVMODE } from "../utils/devmode";
 import { Dispatch, SetStateAction } from "react";
 import { Hero, Monster, Combatant } from "../types/index";
 import { useEffect, useState } from "react";
+import { getHeroes, storeHeroes } from "../utils/LocalStorage";
 
 
 export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
@@ -15,10 +16,30 @@ export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
   };
 };
 
+// export const createUpdateHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
+//   return (heroId: string, field: keyof Hero, value: string | number | boolean | string[]) => {
+//     setHeroes(prevHeroes =>
+//       prevHeroes.map(hero =>
+//         hero.id === heroId
+//           ? {
+//               ...hero,
+//               [field]:
+//                 field === "conditions" && Array.isArray(value)
+//                   ? value
+//                   : typeof value === "number" && !isNaN(value)
+//                   ? Number(value)
+//                   : value,
+//             }
+//           : hero
+//       )
+//     );
+//   };
+// };
+
 export const createUpdateHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
   return (heroId: string, field: keyof Hero, value: string | number | boolean | string[]) => {
-    setHeroes(prevHeroes =>
-      prevHeroes.map(hero =>
+    setHeroes(prevHeroes => {
+      const newHeroes = prevHeroes.map(hero =>
         hero.id === heroId
           ? {
               ...hero,
@@ -30,10 +51,16 @@ export const createUpdateHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) =>
                   : value,
             }
           : hero
-      )
-    );
+      );
+
+      // Store the new heroes if necessary, 
+      // since you can't return the 'newHeroes' directly here
+      storeHeroes(newHeroes);
+      return newHeroes; // Return the updated heroes for the state
+    });
   };
 };
+
 
 
 export const createDeleteHero = (

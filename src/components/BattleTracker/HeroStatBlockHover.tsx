@@ -68,9 +68,9 @@ export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) 
   return (
     <div
       
-      onMouseEnter={() => !isStuck && setIsHovering(true)}
-      onMouseLeave={() => !isStuck && setIsHovering(false)}
-      onClick={() => setIsStuck(!isStuck)}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      onClick={() => setIsStuck(!isStuck)}  style={{left: '0px', opacity: 1}}
     >
       {children}
 

@@ -1,6 +1,7 @@
 import { DEVMODE } from "../../utils/devmode";
 import { useState } from "react";
 import { Hero } from '../../types/index';
+import { storeHeroes } from "../../utils/LocalStorage";
 
 interface AddHeroProps {
   onAddHero: (hero: Omit<Hero, "id">) => void;

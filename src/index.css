@@ -88,13 +88,17 @@ button:hover {
 
 .combatantName {
   cursor: pointer;
+  display: flex;
+  flex-wrap: nowrap;
+  box-sizing: border-box;
+  padding: .45rem .3rem;
 }
 
-.combatantConditions {
+/* .combatantConditions {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-}
+} */
 
 .editConditions {
   cursor: pointer;
@@ -562,7 +566,7 @@ sup {
   font-weight: 900;
   font-size: 2rem;
   position: relative;
-  left: -10px;
+  left: -20px;
 }
 
 .combatantHP {
