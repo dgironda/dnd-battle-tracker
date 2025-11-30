@@ -46,6 +46,7 @@ th, td {
   padding: 0.3rem;
   text-align: center;
   font-family: 'Caudex', serif;
+  border-collapse: collapse;
 }
 
 th {
@@ -535,6 +536,12 @@ sup {
 #battleTrackerOuter {
   padding: 2rem;
 }
+
+#battleTracker {
+  width: 95vw;
+  border: 4px double var(--color-brdr1);
+}
+
 
 #battleInProgress {
   background-color: var(--color-roweven);

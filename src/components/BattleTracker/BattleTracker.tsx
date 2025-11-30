@@ -56,6 +56,9 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   //   return getRoundNumber();
   // });
   
+  const freshHeroes = getHeroes();
+  const freshMonsters = getMonsters();
+
   useEffect(() => {
     const saved = getCombatants();
     setHasSavedCombat(saved && saved.length > 0);
@@ -137,8 +140,7 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
     setShowHeroManager(false); // Close Hero Manager
     setShowMonsterManager(false); // Close Monster Manager
 
-    const freshHeroes = getHeroes();
-    const freshMonsters = getMonsters();
+
 
     const presentHeroes = freshHeroes.filter(h => h.present);
     const presentMonsters = freshMonsters.filter(m => m.present);
@@ -524,7 +526,7 @@ useEffect(() => {
   {/* HERO */}
   {combatant.type === "hero" ? (
     <HeroStatBlockHover
-      hero={heroes.find((h) => h.id === combatant.id)!}
+      hero={freshHeroes.find((h) => h.id === combatant.id)!}
     >
       <span>{combatant.name}</span>
     </HeroStatBlockHover>
