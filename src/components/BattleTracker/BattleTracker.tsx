@@ -520,7 +520,7 @@ useEffect(() => {
   className="combatantName"
 >
   {index === currentTurnIndex && (
-    <span className="currentTurnIndicator">➡</span>
+    <span className="currentTurnIndicator">▶</span>
   )}
 
   {/* HERO */}
