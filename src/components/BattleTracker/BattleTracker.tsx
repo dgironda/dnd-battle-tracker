@@ -228,6 +228,10 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
 
 const handleNextTurn = () => {
   if (sortedCombatants.length === 0) return;
+  const currentCombatant = sortedCombatants[currentTurnIndex];
+  if ((currentCombatant.action && currentCombatant.bonus && currentCombatant.move)) {
+    return;
+}
 
   let nextIndex = (currentTurnIndex + 1) % sortedCombatants.length;
   let attempts = 0;
