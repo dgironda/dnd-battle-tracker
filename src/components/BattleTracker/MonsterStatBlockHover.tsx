@@ -140,6 +140,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
         <div className={`${id}-notes`}>
           Notes: {combatants.filter(c => c.id === id).map(c => (
             <EditableCell
+          key={`${id}-notes`}
           entity={c}
           field='notes'
           type='textarea'

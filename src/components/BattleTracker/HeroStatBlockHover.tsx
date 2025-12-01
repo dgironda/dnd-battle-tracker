@@ -144,6 +144,7 @@ export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) 
         <div className={`${id}-notes`}>
           Notes: {heroes.filter(h => h.id === id).map(h => (
             <EditableCell
+          key={`${id}-notes`}
           entity={h}
           field='notes'
           type='textarea'

@@ -121,7 +121,7 @@ function App() {
     </div>
     {!overlayVisible && (<div id="colorMode"><input type="checkbox" id="light-dark"></input><span>Light/Dark mode</span></div>)}
     <div id="display">
-      <h1>D&D Battle Tracker</h1>
+      <h1 id="logo">D&D Battle Tracker</h1>
 		  
 	  {/* Patreon link */}
       <div id="patreonLink">
