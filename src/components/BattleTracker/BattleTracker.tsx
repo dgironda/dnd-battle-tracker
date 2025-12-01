@@ -56,8 +56,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   //   return getRoundNumber();
   // });
   
-  const freshHeroes = getHeroes();
-  const freshMonsters = getMonsters();
+
 
   useEffect(() => {
     const saved = getCombatants();
@@ -140,7 +139,8 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
     setShowHeroManager(false); // Close Hero Manager
     setShowMonsterManager(false); // Close Monster Manager
 
-
+    const freshHeroes = getHeroes();
+    const freshMonsters = getMonsters();
 
     const presentHeroes = freshHeroes.filter(h => h.present);
     const presentMonsters = freshMonsters.filter(m => m.present);
@@ -160,7 +160,7 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
 	  currHp: hero.hp ?? hero.maxHp ?? 0,
 	  maxHp: hero.maxHp ?? hero.hp ?? 0,
 	  tHp: 0,
-	  initiative: 0,
+	  initiative,
 	  init: hero.init ?? 0,
 	  action: false,
 	  bonus: false,
@@ -456,6 +456,7 @@ useEffect(() => {
       </span>
     );
   };
+  let freshHeroes = getHeroes();
 
   return (
     <div id="battleTrackerOuter">
@@ -485,9 +486,6 @@ useEffect(() => {
         </button>
         <RoundNumberSpan
         roundNumber={roundNumber} />
-        {/* <button id="buttonNextTurn" onClick={handleNextTurn} disabled={combatants.length === 0}>
-          Next Turn
-        </button> */}
       </div>
 
       {/* Battle Table */}

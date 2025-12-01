@@ -37,6 +37,7 @@ export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: Ini
   const handleRandom = () => {
     const roll = Math.floor(Math.random() * 20) + 1;
     const total = roll + initiativeModifier;
+    console.log(heroName, " Roll: ", roll, "Total: ", total)
     submitInitiative(total);
   };
 
