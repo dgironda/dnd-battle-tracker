@@ -1,12 +1,16 @@
+import { useState, useEffect } from "react";
 import BattleTracker from "./components/BattleTracker/BattleTracker";
 import HeroManager from "./components/HeroManager/HeroManager";
 import MonsterManager from "./components/MonsterManager/MonsterManager";
 import About from "./About";
 import ToggleComponent from "./components/ToggleContext";
-import { useState, useEffect } from "react";
 import { CombatProvider } from "./components/BattleTracker/CombatContext";
+// import { useStartBattle } from "./components/BattleTracker/BattleTracker";
+import { useBattleManager } from "./hooks/useStartBattle";
 import PatreonOverlay from "./components/PatreonOverlay";
 import { DEVMODE } from "./utils/devmode";
+
+
 
 const ENABLE_PATREON = !DEVMODE;
 
@@ -16,7 +20,19 @@ function App() {
   const [openPanel, setOpenPanel] = useState<'hero' | 'monster' | 'about' | null>(null);
   
   const handleClosePanel = () => setOpenPanel(null);
-  
+  // const {setRoundNumber, getHeroes, getMonsters, setCurrentCombatant, setInitiativeResolver, storeMonsters, setCombatants, setCurrentTurnIndex} = useStartBattle();
+  // const { handleStartBattle } = useBattleManager({
+  //     setRoundNumber,
+  //     setShowHeroManager,
+  //     setShowMonsterManager,
+  //     getHeroes,
+  //     getMonsters,
+  //     setCurrentCombatant,
+  //     setInitiativeResolver,
+  //     storeMonsters,
+  //     setCombatants,
+  //     setCurrentTurnIndex
+  //   });
 
     // Manager Keyboard shortcuts
     useEffect(() => {
@@ -101,27 +117,28 @@ function App() {
     {overlayVisible && <PatreonOverlay onClose={() => setOverlayVisible(false)} />}
       
     <div id="header">
-      
+      <h1 id="logo">D&D Battle Tracker</h1>
       <About 
         isVisible={openPanel === 'about'} 
         onToggle={() => setOpenPanel(openPanel === 'about' ? null : 'about')} 
       />
       
-      <button title="Add, Update, and Delete Heroes" onClick={() => setOpenPanel(openPanel === 'hero' ? null : 'hero')}>
+      <button id="heroManagerButton" title="Add, Update, and Delete Heroes" onClick={() => setOpenPanel(openPanel === 'hero' ? null : 'hero')}>
         {openPanel === 'hero' ? (<span>Close Hero Manager<sup>(e)</sup></span>) : (<span>Hero Manager<sup>(e)</sup></span>)}
       </button>
       {openPanel === 'hero' && (<HeroManager onClose={handleClosePanel}/>)}
       
-      <button title="Add, Update, and Delete Monsters" onClick={() => setOpenPanel(openPanel === 'monster' ? null : 'monster')}>
+      <button id="monsterManagerButton" title="Add, Update, and Delete Monsters" onClick={() => setOpenPanel(openPanel === 'monster' ? null : 'monster')}>
         {openPanel === 'monster' ? (<span>Close Monster Manager<sup>(w)</sup></span>) : (<span>Monster Manager<sup>(w)</sup></span>)}
       </button>
       {openPanel === 'monster' && (<MonsterManager onClose={handleClosePanel}/>)}
       
       <ToggleComponent />
-    </div>
-    {!overlayVisible && (<div id="colorMode"><input type="checkbox" id="light-dark"></input><span>Light/Dark mode</span></div>)}
-    <div id="display">
-      <h1 id="logo">D&D Battle Tracker</h1>
+      {/* <button id="buttonStartBattlelandscape" onClick={handleStartBattle}>Start Battle</button> */}
+      {!overlayVisible && (<div id="colorMode"><input type="checkbox" id="light-dark"></input><span>Light/Dark mode</span></div>)}
+    
+    
+      
 		  
 	  {/* Patreon link */}
       <div id="patreonLink">
@@ -137,14 +154,15 @@ function App() {
             </p>
         )}
       </div>
-
-      <BattleTracker
+    </div>
+      <div id="body"><BattleTracker
         setShowHeroManager={setShowHeroManager} 
         setShowMonsterManager={setShowMonsterManager}  
       />
       
-    </div>
-    </CombatProvider>
+    <div id="footer">©2025 <a href="www.simulacrumtechnologies.com" target="_blank">Simulacrum Technologies</a>. All rights reserved. Website design and content are protected by copyright law.</div>
+    </div></CombatProvider>
+    
   );
 }
 

@@ -70,10 +70,14 @@ th {
 }
 
 #logo {
-  font-family: "New Rocker", system-ui !important;
+  font-family: "New Rocker", system-ui;
   font-weight: 400;
   font-style: normal;
-  font-size: 4rem !important;
+  font-size: clamp(1.75rem, calc(1.5rem + 2vw), 4rem);
+  text-align: center;
+  color: var(--color-hl2);
+  text-shadow: 2px 2px 4px var(--color-shadow);
+  margin: .5rem .1rem;
 }
 
 button {
@@ -192,23 +196,6 @@ sup {
   font-family: 'Caudex', serif !important;
 }
 
-#display h1 {
-  text-align: center;
-  /* font-family: 'Caudex', serif; */
-  font-size: 2.5rem;
-  color: var(--color-hl2);
-  text-shadow: 2px 2px 4px var(--color-shadow);
-}
-
-/* #display button {
-  margin-left: 2vw;
-  margin-right: auto;
-} */
-
-#display>div {
-  margin: auto 1%;
-}
-
 #aboutButton {
   margin: 1vh 1vw;
 }
@@ -317,14 +304,14 @@ sup {
 }
 
 #heroAddManage, #monsterAddManage {
-  margin-top: 2rem;
+  margin-top: 1rem;
   position: absolute;
   z-index: 9;
-  top: 10vh;
-  left: 2vw;
+  top: 0vh;
+  left: 15vw;
   background-color: var(--color-hl1);
-  width: 90vw;
-  padding: 2vw;
+  width: 80vw;
+  padding: 1vw;
   font-family: 'Caudex', serif;
   border: .5rem solid var(--color-hl2);
 }
@@ -531,12 +518,16 @@ sup {
   font-size: 1.1rem;
 }
 
+#buttonStartBattle {
+  font-size: 1.3rem;
+}
+
 #battleTrackerOuter {
   padding: 2rem;
 }
 
 #battleTracker {
-  width: 95vw;
+  width: 95%;
   border: 4px double var(--color-brdr1);
 }
 
@@ -811,10 +802,73 @@ sup {
   aspect-ratio: 1/1;
   padding: initial;
 }
+
+#footer {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+#footer>a, #footer>a:visited {
+  text-decoration: none;
+  color: inherit;
+}
 @media (orientation: landscape) {
+  #page {
+    display: grid;
+    grid-template-areas: "header body";
+    grid-template-columns: .2fr 1fr;
+    max-width: 100vw;
+    height: 100vh;
+  }
   #header {
-  display: flex;
-  justify-content: space-between;
+  grid-area: header;
+  display: grid;
+  grid-template-areas: "logo" "hmbutt" "mmbutt" "lightdark" "version" "about" "patreon";
+  grid-template-rows: 1.5fr .7fr .7fr .3fr .5fr .5fr .6fr;
+  align-items: start;
+  justify-items: center;
+  border-right: 2px solid var(--color-brdr1);
+  }
+  #logo {
+    grid-area: logo;
+  }
+  #heroManagerButton {
+    grid-area: hmbutt;
+    max-height: fit-content;
+  }
+  #monsterManagerButton {
+    grid-area: mmbutt;
+    max-height: fit-content;
+    margin-bottom: 2rem;
+  }
+  #buttonStartBattle {
+    grid-area: sbbutt;
+  }
+  #patreonLink {
+    grid-area: patreon;
+  }
+  #buttonVersion {
+    grid-area: version;
+  }
+  #aboutButton {
+    grid-area: about;
+  }
+  #colorMode {
+    grid-area: lightdark;
+  }
+  #body {
+    grid-area: body;
+    display: grid;
+    grid-template-areas: "battletracker" "footer";
+    grid-template-rows: 1fr .2fr;
+    margin-top: max(5vh, 10vh, 15vh, 20vh);
+    margin-bottom: auto;
+    gap: 2rem;
+  }
+  #battleTracker {
+    grid-area: battletracker;
+  }
+  #footer {
+    grid-area: footer;
   }
 }
 @media (orientation: portrait) {
@@ -837,10 +891,15 @@ sup {
     display: grid;
     grid-template-rows: 1fr 1fr minmax(auto, auto) .65fr .4fr .3fr;
     grid-template-areas: "head" "manage" "battletracker" "startbattle" "version" "credits";
+  }
+  #footer {
+    grid-area: footer;
   } */
   /* wip layout end */
-  .combatantInfo {
+  #battleTracker {
     grid-area: battletracker;
+  }
+  .combatantInfo {
     display: grid;
     grid-template-columns: 1fr 1fr .5fr .5fr .5fr .5fr;
     grid-template-areas: 

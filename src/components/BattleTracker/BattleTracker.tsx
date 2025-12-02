@@ -1,6 +1,6 @@
 import { DEVMODE } from "../../utils/devmode";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, createContext, useContext } from "react";
 import HeroManager from "../HeroManager/HeroManager";
 import { Hero, Monster, Combatant } from "../../types/index";
 import { startBattle } from "../../utils/battleUtils";
@@ -17,12 +17,27 @@ import { createDeleteMonster } from "../Utils";
 import RoundNumberSpan from "./RoundNumber";
 import { HeroStatBlockHover } from "./HeroStatBlockHover";
 import { MonsterStatBlockHover } from "./MonsterStatBlockHover";
+import { useBattleManager } from "../../hooks/useStartBattle";
 
 
 interface BattleTrackerProps {
   setShowHeroManager: (show: boolean) => void;
   setShowMonsterManager: (show: boolean) => void;
 }
+
+interface StartBattleContextType {
+  setRoundNumber: (round: number) => void;
+  setShowHeroManager: (show: boolean) => void;
+  setShowMonsterManager: (show: boolean) => void;
+  getHeroes: () => Hero[];
+  getMonsters: () => Monster[];
+  setCurrentCombatant: (combatant: any) => void;
+  setInitiativeResolver: (resolver: any) => void;
+  storeMonsters: (monsters: Monster[]) => void;
+  setCombatants: (combatants: Combatant[]) => void;
+  setCurrentTurnIndex: (index: number) => void;
+}
+const StartBattleContext = createContext<StartBattleContextType | null>(null);
 
 const BattleTracker: React.FC<BattleTrackerProps> = ({ 
   setShowHeroManager, 
@@ -56,7 +71,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   //   return getRoundNumber();
   // });
   
-
+  
 
   useEffect(() => {
     const saved = getCombatants();
@@ -130,101 +145,113 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
   
   return `#${rHex}${gHex}${bHex}`;
 };
-  
-  const handleStartBattle = async () => {
-    setRoundNumber(1)
-	// Confirm with the user before starting a new battle
-	const confirmed = window.confirm("Are you sure you want to start a new battle?");
-	if (!confirmed) return; // Exit early if user says no
-    setShowHeroManager(false); // Close Hero Manager
-    setShowMonsterManager(false); // Close Monster Manager
+    const { handleStartBattle } = useBattleManager({
+    setRoundNumber,
+    setShowHeroManager,
+    setShowMonsterManager,
+    getHeroes,
+    getMonsters,
+    setCurrentCombatant,
+    setInitiativeResolver,
+    storeMonsters,
+    setCombatants,
+    setCurrentTurnIndex
+  });
 
-    const freshHeroes = getHeroes();
-    const freshMonsters = getMonsters();
+//   const handleStartBattle = async () => {
+//     setRoundNumber(1)
+// 	// Confirm with the user before starting a new battle
+// 	const confirmed = window.confirm("Are you sure you want to start a new battle?");
+// 	if (!confirmed) return; // Exit early if user says no
+//     setShowHeroManager(false); // Close Hero Manager
+//     setShowMonsterManager(false); // Close Monster Manager
 
-    const presentHeroes = freshHeroes.filter(h => h.present);
-    const presentMonsters = freshMonsters.filter(m => m.present);
-    const newCombatants: Combatant[] = [];
+//     const freshHeroes = getHeroes();
+//     const freshMonsters = getMonsters();
+
+//     const presentHeroes = freshHeroes.filter(h => h.present);
+//     const presentMonsters = freshMonsters.filter(m => m.present);
+//     const newCombatants: Combatant[] = [];
     
-    for (const hero of presentHeroes) {
-      // Show dialog and wait for initiative
-      const initiative = await new Promise<number>((resolve) => {
-        setCurrentCombatant(hero);
-        setInitiativeResolver(() => resolve);
-      });
+//     for (const hero of presentHeroes) {
+//       // Show dialog and wait for initiative
+//       const initiative = await new Promise<number>((resolve) => {
+//         setCurrentCombatant(hero);
+//         setInitiativeResolver(() => resolve);
+//       });
       
-	newCombatants.push({
-	  id: hero.id,
-	  name: hero.name,
-	  type: 'hero',
-	  currHp: hero.hp ?? hero.maxHp ?? 0,
-	  maxHp: hero.maxHp ?? hero.hp ?? 0,
-	  tHp: 0,
-	  initiative,
-	  init: hero.init ?? 0,
-	  action: false,
-	  bonus: false,
-	  move: false,
-	  reaction: false,
-	  conditions: [],
-	  deathsaves: [],
-	  ac: hero.ac ?? 10,
-	  str: hero.str ?? 10,
-	  dex: hero.dex ?? 10,
-	  con: hero.con ?? 10,
-	  int: hero.int ?? 10,
-	  wis: hero.wis ?? 10,
-	  cha: hero.cha ?? 10,
-	  pp: hero.pp ?? 0,
-	  link: hero.link ?? ""
-	});
+// 	newCombatants.push({
+// 	  id: hero.id,
+// 	  name: hero.name,
+// 	  type: 'hero',
+// 	  currHp: hero.hp ?? hero.maxHp ?? 0,
+// 	  maxHp: hero.maxHp ?? hero.hp ?? 0,
+// 	  tHp: 0,
+// 	  initiative,
+// 	  init: hero.init ?? 0,
+// 	  action: false,
+// 	  bonus: false,
+// 	  move: false,
+// 	  reaction: false,
+// 	  conditions: [],
+// 	  deathsaves: [],
+// 	  ac: hero.ac ?? 10,
+// 	  str: hero.str ?? 10,
+// 	  dex: hero.dex ?? 10,
+// 	  con: hero.con ?? 10,
+// 	  int: hero.int ?? 10,
+// 	  wis: hero.wis ?? 10,
+// 	  cha: hero.cha ?? 10,
+// 	  pp: hero.pp ?? 0,
+// 	  link: hero.link ?? ""
+// 	});
 
-  }
+//   }
 
-    // Process monsters
-  for (const monster of presentMonsters) {
-    const initiative = await new Promise<number>((resolve) => {
-      setCurrentCombatant(monster);
-      setInitiativeResolver(() => resolve);
-    });
+//     // Process monsters
+//   for (const monster of presentMonsters) {
+//     const initiative = await new Promise<number>((resolve) => {
+//       setCurrentCombatant(monster);
+//       setInitiativeResolver(() => resolve);
+//     });
 
-    newCombatants.push({
-      id: monster.id,
-      name: monster.name,
-	    link: monster.link,
-      type: 'monster',
-      currHp: monster.hp,
-      maxHp: monster.hp,
-      tHp: 0,
-      initiative,
-      action: false,
-      bonus: false,
-      move: false,
-      reaction: false,
-      conditions: monster.conditions,
-      init: monster.init,
-      deathsaves: [],
-      ac: monster.ac,
-      str: monster.str,
-      dex: monster.dex,
-      con: monster.con,
-      int: monster.int,
-      wis: monster.wis,
-      cha: monster.cha,
-      pp: monster.pp,
-    });
-    // deleteMonster(monster.id)
-  }
+//     newCombatants.push({
+//       id: monster.id,
+//       name: monster.name,
+// 	    link: monster.link,
+//       type: 'monster',
+//       currHp: monster.hp,
+//       maxHp: monster.hp,
+//       tHp: 0,
+//       initiative,
+//       action: false,
+//       bonus: false,
+//       move: false,
+//       reaction: false,
+//       conditions: monster.conditions,
+//       init: monster.init,
+//       deathsaves: [],
+//       ac: monster.ac,
+//       str: monster.str,
+//       dex: monster.dex,
+//       con: monster.con,
+//       int: monster.int,
+//       wis: monster.wis,
+//       cha: monster.cha,
+//       pp: monster.pp,
+//     });
+//     // deleteMonster(monster.id)
+//   }
 
-  const idsToDelete = presentMonsters.map(m => m.id);
-  const updatedMonsters = freshMonsters.filter(m => !idsToDelete.includes(m.id));
-  storeMonsters(updatedMonsters);
+//   const idsToDelete = presentMonsters.map(m => m.id);
+//   const updatedMonsters = freshMonsters.filter(m => !idsToDelete.includes(m.id));
+//   storeMonsters(updatedMonsters);
   
   
-  setCurrentCombatant(null);
-  setCombatants(newCombatants);
-  setCurrentTurnIndex(0);
-};
+//   setCurrentCombatant(null);
+//   setCombatants(newCombatants);
+//   setCurrentTurnIndex(0);
+// };
 
 const handleNextTurn = () => {
   if (sortedCombatants.length === 0) return;
@@ -771,5 +798,11 @@ useEffect(() => {
   );
   
 };
+
+export function useStartBattle() {
+  const context = useContext(StartBattleContext);
+  if (!context) throw new Error('useStartBattle must be used inside CombatProvider');
+  return context;
+}
 
 export default BattleTracker;

@@ -22,7 +22,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <About /><ToggleComponent />
     </div> */}
     <PostHogProvider client={posthog}>
-      <App />
+      <div id="page">
+        <App />
+      </div>
     </PostHogProvider>
 
   </React.StrictMode>

@@ -10,7 +10,7 @@ interface AboutProps {
 export default function About({ isVisible, onToggle }: AboutProps) {
   return (
     <>
-      <button title="Instructions and credits" onClick={onToggle}>
+      <button id="aboutButton" title="Instructions and credits" onClick={onToggle}>
         {isVisible ? "Close About" : "About / Instructions"}
       </button>
       
