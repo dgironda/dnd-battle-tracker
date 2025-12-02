@@ -881,8 +881,12 @@ sup {
     gap: 2rem;
   }
   #round {
-    margin-left: -25vw;
+    margin-left: -40vw;
+    font-weight: 800;
   }
+  /* #buttonResetCombat {
+    margin-left: -15vw;
+  } */
   #battleTracker {
     grid-area: battletracker;
   }

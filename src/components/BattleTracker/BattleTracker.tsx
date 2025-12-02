@@ -255,12 +255,14 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
 
 const handleNextTurn = () => {
   if (sortedCombatants.length === 0) return;
-  const currentCombatant = sortedCombatants[currentTurnIndex];
-  if ((currentCombatant.action && currentCombatant.bonus && currentCombatant.move)) {
-    return;
-}
+  
 
   let nextIndex = (currentTurnIndex + 1) % sortedCombatants.length;
+  console.log("Next Turn Index", nextIndex)
+  const nextCombatant = sortedCombatants[nextIndex];
+  if ((nextCombatant.action && nextCombatant.bonus && nextCombatant.move && nextIndex != 0)) {
+    return;
+}
   let attempts = 0;
   const maxAttempts = sortedCombatants.length;
 
@@ -677,7 +679,7 @@ useEffect(() => {
 				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'action', e.target.checked)}
 			    />
-          <span className="checkOverlay">A</span>
+          <label htmlFor={`${combatant.id}-action`} className="checkOverlay">A</label>
 			  </td>
 			  <td className="combatantBonus">
 			    <input
@@ -688,7 +690,7 @@ useEffect(() => {
 				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'bonus', e.target.checked)}
 			    />
-          <span className="checkOverlay">B</span>
+          <label htmlFor={`${combatant.id}-bonus`} className="checkOverlay">B</label>
 			  </td>
 			  <td className="combatantMove">
 			    <input
@@ -699,7 +701,7 @@ useEffect(() => {
 				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'move', e.target.checked)}
 			    />
-          <span className="checkOverlay">M</span>
+          <label htmlFor={`${combatant.id}-move`} className="checkOverlay">M</label>
 			  </td>
 			  <td className="combatantReaction">
 			    <input
@@ -710,7 +712,7 @@ useEffect(() => {
 				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'reaction', e.target.checked)}
 			    />
-          <span className="checkOverlay">R</span>
+          <label htmlFor={`${combatant.id}-reaction`} className="checkOverlay">R</label>
 			  </td>
 
               <td className="combatantConditions">
