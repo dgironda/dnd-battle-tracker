@@ -488,6 +488,9 @@ useEffect(() => {
     );
   };
   let freshHeroes = getHeroes();
+  const resetCombat = () => {
+    setCombatants([])
+  }
 
   return (
     <div id="battleTrackerOuter">
@@ -511,12 +514,13 @@ useEffect(() => {
           </button>
         </div>
       )}
-      <div>
+      <div id="battleTrackerControls">
         <button title="Start a new Battle" id="buttonStartBattle" onClick={handleStartBattle}>
           Start Battle
         </button>
         <RoundNumberSpan
         roundNumber={roundNumber} />
+        <button id="buttonResetCombat" onClick={resetCombat}>⟳</button>
       </div>
 
       {/* Battle Table */}
@@ -673,6 +677,7 @@ useEffect(() => {
 				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'action', e.target.checked)}
 			    />
+          <span className="checkOverlay">A</span>
 			  </td>
 			  <td className="combatantBonus">
 			    <input
@@ -683,6 +688,7 @@ useEffect(() => {
 				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'bonus', e.target.checked)}
 			    />
+          <span className="checkOverlay">B</span>
 			  </td>
 			  <td className="combatantMove">
 			    <input
@@ -693,6 +699,7 @@ useEffect(() => {
 				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'move', e.target.checked)}
 			    />
+          <span className="checkOverlay">M</span>
 			  </td>
 			  <td className="combatantReaction">
 			    <input
@@ -703,6 +710,7 @@ useEffect(() => {
 				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
 				  onChange={(e) => updateCombatant(combatant.id, 'reaction', e.target.checked)}
 			    />
+          <span className="checkOverlay">R</span>
 			  </td>
 
               <td className="combatantConditions">

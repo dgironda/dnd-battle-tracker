@@ -520,8 +520,21 @@ sup {
   font-size: 1.1rem;
 }
 
+#battleTrackerControls {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
 #buttonStartBattle {
   font-size: 1.3rem;
+  padding: .2rem;
+}
+
+#buttonResetCombat {
+  aspect-ratio: 1/1;
+  align-self: flex-end;
 }
 
 #battleTrackerOuter {
@@ -867,6 +880,9 @@ sup {
     margin-bottom: auto;
     gap: 2rem;
   }
+  #round {
+    margin-left: -25vw;
+  }
   #battleTracker {
     grid-area: battletracker;
   }
@@ -878,6 +894,9 @@ sup {
   left: 15vw;
   width: 80vw;
   padding: 1vw;
+}
+.checkOverlay {
+  display: none;
 }
 }
 @media (orientation: portrait) {
@@ -989,15 +1008,33 @@ sup {
   }
   .combatantAction {
     grid-area: cAct;
+    position: relative;
+    z-index: 2;
   }
   .combatantBonus {
     grid-area: cBon;
+    position: relative;
+    z-index: 2;
   }
   .combatantMove {
     grid-area: cMove;
+    position: relative;
+    z-index: 2;
   }
   .combatantReaction {
     grid-area: cReact;
+    position: relative;
+    z-index: 2;
+  }
+  .checkOverlay {
+    position: absolute;
+    left: 1.05rem;
+    top: 7px;
+    opacity: .6;
+    font-family: monospace;
+    color: var(--color-shadow);
+    text-align: center;
+    z-index: 1;
   }
   #addHeroInner {
     display: flex;
