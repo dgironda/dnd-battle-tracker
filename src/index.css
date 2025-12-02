@@ -307,11 +307,7 @@ sup {
   margin-top: 1rem;
   position: absolute;
   z-index: 9;
-  top: 0vh;
-  left: 15vw;
   background-color: var(--color-hl1);
-  width: 80vw;
-  padding: 1vw;
   font-family: 'Caudex', serif;
   border: .5rem solid var(--color-hl2);
 }
@@ -830,6 +826,7 @@ sup {
   }
   #logo {
     grid-area: logo;
+    margin-top: 2rem;
   }
   #heroManagerButton {
     grid-area: hmbutt;
@@ -870,6 +867,12 @@ sup {
   #footer {
     grid-area: footer;
   }
+  #heroAddManage, #monsterAddManage {
+  top: 0vh;
+  left: 15vw;
+  width: 80vw;
+  padding: 1vw;
+}
 }
 @media (orientation: portrait) {
   #battleTrackerHeader {
@@ -878,24 +881,72 @@ sup {
   sup {
     display: none;
   }
-  #header {
-  display: flex;
-  justify-content: space-between;
-  }
+
   /* wip layout */
-  /* #header {
-    border-right: none;
-    border-bottom: 2px thin var(--color-brdr1);
-  }
+
   #page {
     display: grid;
-    grid-template-rows: 1fr 1fr minmax(auto, auto) .65fr .4fr .3fr;
-    grid-template-areas: "head" "manage" "battletracker" "startbattle" "version" "credits";
+    grid-template-areas: "header" "lightdark" "managers" "round" "battletracker" "sbbutt" "version" "footer";
+    max-width: 100vw;
+    
+    justify-items: center;
+  }
+  #header {
+    grid-area: header;
+    display: grid;
+    grid-template-areas: "logo about patreon" "version lightdark lightdark" "hmbutt mmbutt .";
+    border-bottom: 2px thin var(--color-brdr1);
+    align-items: center;
   }
   #footer {
     grid-area: footer;
-  } */
-  /* wip layout end */
+  }
+  #logo {
+    grid-area: logo;
+    margin: .3rem 2rem .3rem .3rem;
+  }
+  #heroManagerButton {
+    grid-area: hmbutt;
+    max-width: fit-content;
+    margin-left: 1rem;
+    white-space: nowrap;
+  }
+  #monsterManagerButton {
+    grid-area: mmbutt;
+    max-width: fit-content;
+    margin-right: 1rem;
+    white-space: nowrap;
+  }
+  #buttonStartBattle {
+    grid-area: sbbutt;
+  }
+  #patreonLink {
+    grid-area: patreon;
+    margin: 0 !important;
+  }
+  #buttonVersion {
+    grid-area: version;
+    max-width: fit-content;
+    height: fit-content;
+  }
+  #aboutButton {
+    grid-area: about;
+    max-height: fit-content;
+    width: fit-content;
+  }
+  #colorMode {
+    grid-area: lightdark;
+    justify-self: center;
+    padding: 1rem 0 1rem 0;
+    margin-bottom: 5vh !important;
+  }
+  #footer {
+    grid-area: footer;
+    margin: 0 2rem 1rem 2rem;
+  }
+  #round {
+    grid-area: round;
+  }
   #battleTracker {
     grid-area: battletracker;
   }
@@ -962,5 +1013,11 @@ sup {
   #patreonOverlayDiv>p {
     max-width: 75%;
   }
+  #heroAddManage, #monsterAddManage {
+  top: 0vh;
+  left: 0vw;
+  width: auto;
+  padding: 1vw;
+}
 }
 

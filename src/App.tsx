@@ -5,7 +5,6 @@ import MonsterManager from "./components/MonsterManager/MonsterManager";
 import About from "./About";
 import ToggleComponent from "./components/ToggleContext";
 import { CombatProvider } from "./components/BattleTracker/CombatContext";
-// import { useStartBattle } from "./components/BattleTracker/BattleTracker";
 import { useBattleManager } from "./hooks/useStartBattle";
 import PatreonOverlay from "./components/PatreonOverlay";
 import { DEVMODE } from "./utils/devmode";
@@ -20,19 +19,16 @@ function App() {
   const [openPanel, setOpenPanel] = useState<'hero' | 'monster' | 'about' | null>(null);
   
   const handleClosePanel = () => setOpenPanel(null);
-  // const {setRoundNumber, getHeroes, getMonsters, setCurrentCombatant, setInitiativeResolver, storeMonsters, setCombatants, setCurrentTurnIndex} = useStartBattle();
-  // const { handleStartBattle } = useBattleManager({
-  //     setRoundNumber,
-  //     setShowHeroManager,
-  //     setShowMonsterManager,
-  //     getHeroes,
-  //     getMonsters,
-  //     setCurrentCombatant,
-  //     setInitiativeResolver,
-  //     storeMonsters,
-  //     setCombatants,
-  //     setCurrentTurnIndex
-  //   });
+  const [isPortrait, setIsPortrait] = useState(
+    window.matchMedia("(orientation: portrait)").matches
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(orientation: portrait)");
+    const handler = (e: MediaQueryListEvent) => setIsPortrait(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
 
     // Manager Keyboard shortcuts
     useEffect(() => {
@@ -123,18 +119,17 @@ function App() {
         onToggle={() => setOpenPanel(openPanel === 'about' ? null : 'about')} 
       />
       
-      <button id="heroManagerButton" title="Add, Update, and Delete Heroes" onClick={() => setOpenPanel(openPanel === 'hero' ? null : 'hero')}>
-        {openPanel === 'hero' ? (<span>Close Hero Manager<sup>(e)</sup></span>) : (<span>Hero Manager<sup>(e)</sup></span>)}
-      </button>
-      {openPanel === 'hero' && (<HeroManager onClose={handleClosePanel}/>)}
-      
-      <button id="monsterManagerButton" title="Add, Update, and Delete Monsters" onClick={() => setOpenPanel(openPanel === 'monster' ? null : 'monster')}>
-        {openPanel === 'monster' ? (<span>Close Monster Manager<sup>(w)</sup></span>) : (<span>Monster Manager<sup>(w)</sup></span>)}
-      </button>
+        <button id="heroManagerButton" title="Add, Update, and Delete Heroes" onClick={() => setOpenPanel(openPanel === 'hero' ? null : 'hero')}>
+          {openPanel === 'hero' ? (<span>Close Hero Manager<sup>(e)</sup></span>) : (<span>Hero Manager<sup>(e)</sup></span>)}
+        </button>
+        {openPanel === 'hero' && (<HeroManager onClose={handleClosePanel}/>)}
+        
+        <button id="monsterManagerButton" title="Add, Update, and Delete Monsters" onClick={() => setOpenPanel(openPanel === 'monster' ? null : 'monster')}>
+          {openPanel === 'monster' ? (<span>Close Monster Manager<sup>(w)</sup></span>) : (<span>Monster Manager<sup>(w)</sup></span>)}
+        </button>
       {openPanel === 'monster' && (<MonsterManager onClose={handleClosePanel}/>)}
       
       <ToggleComponent />
-      {/* <button id="buttonStartBattlelandscape" onClick={handleStartBattle}>Start Battle</button> */}
       {!overlayVisible && (<div id="colorMode"><input type="checkbox" id="light-dark"></input><span>Light/Dark mode</span></div>)}
     
     
@@ -155,13 +150,29 @@ function App() {
         )}
       </div>
     </div>
-      <div id="body"><BattleTracker
-        setShowHeroManager={setShowHeroManager} 
-        setShowMonsterManager={setShowMonsterManager}  
-      />
+      {isPortrait ? (
+  <>
+    <BattleTracker
+      setShowHeroManager={setShowHeroManager} 
+      setShowMonsterManager={setShowMonsterManager}  
+    />
+    <div id="footer">
+      ©2025 <a href="https://www.simulacrumtechnologies.com" target="_blank">Simulacrum Technologies</a>. All rights reserved. Website design and content are protected by copyright law.
+    </div>
+  </>
+) : (
+  <div id="body">
+    <BattleTracker
+      setShowHeroManager={setShowHeroManager} 
+      setShowMonsterManager={setShowMonsterManager}  
+    />
+    <div id="footer">
+      ©2025 <a href="https://www.simulacrumtechnologies.com" target="_blank">Simulacrum Technologies</a>. All rights reserved. Website design and content are protected by copyright law.
+    </div>
+  </div>
+)}
       
-    <div id="footer">©2025 <a href="www.simulacrumtechnologies.com" target="_blank">Simulacrum Technologies</a>. All rights reserved. Website design and content are protected by copyright law.</div>
-    </div></CombatProvider>
+    </CombatProvider>
     
   );
 }
