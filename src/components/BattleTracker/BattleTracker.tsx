@@ -1,5 +1,5 @@
 import { DEVMODE } from "../../utils/devmode";
-
+import ReactDom from "react-dom";
 import React, { useState, useEffect, useRef, useMemo, createContext, useContext } from "react";
 import HeroManager from "../HeroManager/HeroManager";
 import { Hero, Monster, Combatant } from "../../types/index";
@@ -145,7 +145,8 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
   
   return `#${rHex}${gHex}${bHex}`;
 };
-    const { handleStartBattle } = useBattleManager({
+
+  const { handleStartBattle } = useBattleManager({
     setRoundNumber,
     setShowHeroManager,
     setShowMonsterManager,
@@ -401,37 +402,41 @@ useEffect(() => {
   }
 
   return (
-    <div id="battleTrackerOuter">
+    <>
+      <button title="Start a new Battle" id="buttonStartBattle" onClick={handleStartBattle}>
+          Start Battle
+      </button>
+      {combatants.length > 0 && <div id="round">
+          <RoundNumberSpan
+          roundNumber={roundNumber} />
+          <button id="buttonResetCombat" onClick={resetCombat}>⟳</button>
+      </div>
+}
       {/* #7: Resume Combat UI */}
-      {hasSavedCombat && combatants.length === 0 && (
+      {hasSavedCombat && combatants.length === 0 ? (
         <div id="battleInProgress">
           <p>
             ⚠️ Battle in progress detected!
           </p>
           <button 
+            id="resumeCombat"
             onClick={() => {
               const saved = getCombatants();
               if (saved) setCombatants(saved);
               setHasSavedCombat(false);
             }}
           >
-            Resume Combat
+            Resume Combat?
           </button>
-          <button onClick={handleStartBattle}>
+          {/* <button onClick={handleStartBattle}>
             Start New Combat
-          </button>
+          </button> */}
         </div>
-      )}
-      <div id="battleTrackerControls">
-        <button title="Start a new Battle" id="buttonStartBattle" onClick={handleStartBattle}>
-          Start Battle
-        </button>
-        <RoundNumberSpan
-        roundNumber={roundNumber} />
-        <button id="buttonResetCombat" onClick={resetCombat}>⟳</button>
-      </div>
-
-      {/* Battle Table */}
+      ) : sortedCombatants.length === 0 ? (
+        <p id="noCombatants">
+          No combatants in battle. Start a battle to see combatants here.
+        </p> ) : (
+      
       <table id="battleTracker">
         <thead id="battleTrackerHeader">
           <tr>
@@ -528,19 +533,6 @@ useEffect(() => {
       updateCombatant={updateCombatant}
     >
       {combatant.name}
-      {/* {combatant.link ? (
-        <a
-          className="combatantMonsterLink"
-          href={combatant.link}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {combatant.name}
-        </a>
-      ) : 
-      (
-        <span>{combatant.name}</span>
-      )} */}
     </MonsterStatBlockHover>
   ) : (
     /* FALLBACK */
@@ -569,11 +561,11 @@ useEffect(() => {
               }}
               onClick={() => setHpModalCombatant(combatant)}
               title="Click to change HP">
-                <>{combatant.tHp > 0 && (
+                {combatant.tHp > 0 && (
                   <p className="thp">🛡️( {combatant.tHp} )</p>
                   )}
                 {combatant.currHp} / {combatant.maxHp}   
-              </></td>
+              </td>
 			  
 			  {/* Added disabling of checkboxes on "Dead", might want to do this on "Death Saves" after prompt to roll and count of Saves/Fails? */}
 			  <td className="combatantAction">
@@ -628,12 +620,9 @@ useEffect(() => {
           ))}
         </tbody>
       </table>
+          )}
           
-      {sortedCombatants.length === 0 && (
-        <p id="noCombatants">
-          No combatants in battle. Start a battle to see combatants here.
-        </p>
-      )}
+          
       {currentCombatant && initiativeResolver && (
         <>
         {DEVMODE && console.log('InitiativeDialog rendering for:', currentCombatant.name)}
@@ -709,7 +698,7 @@ useEffect(() => {
     updateCombatant={updateCombatant}
   />
 )}
-    </div>
+    </>
 
   );
   

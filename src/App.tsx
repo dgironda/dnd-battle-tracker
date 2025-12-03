@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useEffect } from "react";
 import BattleTracker from "./components/BattleTracker/BattleTracker";
 import HeroManager from "./components/HeroManager/HeroManager";
@@ -150,18 +151,8 @@ function App() {
         )}
       </div>
     </div>
-      {isPortrait ? (
-  <>
-    <BattleTracker
-      setShowHeroManager={setShowHeroManager} 
-      setShowMonsterManager={setShowMonsterManager}  
-    />
-    <div id="footer">
-      ©2025 <a href="https://www.simulacrumtechnologies.com" target="_blank">Simulacrum Technologies</a>. All rights reserved. Website design and content are protected by copyright law.
-    </div>
-  </>
-) : (
-  <div id="body">
+      
+  
     <BattleTracker
       setShowHeroManager={setShowHeroManager} 
       setShowMonsterManager={setShowMonsterManager}  
@@ -170,9 +161,7 @@ function App() {
       ©2025 <a href="https://www.simulacrumtechnologies.com" target="_blank">Simulacrum Technologies</a>. All rights reserved. Website design and content are protected by copyright law.
       <p>Join our <a href="https://discord.gg/m4AnYSDueM" target="_blank">Discord server</a> for updates and to provide feedback.</p>
     </div>
-  </div>
-)}
-      
+  
     </CombatProvider>
     
   );
