@@ -67,6 +67,12 @@ th {
   color: var(--color-hl2);
 }
 
+a {
+  color: var(--color-hl1);
+}
+a:visited {
+  color: var(--color-hl2);
+}
 .bold {
   font-weight: 800;
 }
@@ -218,6 +224,10 @@ sup {
   width: 90vw;
   /* font-family: 'Caudex', serif; */
   border: .5rem solid var(--color-hl2);
+}
+
+#aboutCloseButton {
+  margin-left: 95%;
 }
 
 #instructions {

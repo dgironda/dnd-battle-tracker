@@ -16,23 +16,24 @@ export default function About({ isVisible, onToggle }: AboutProps) {
       
       {isVisible && (
         <div id="about">
+          <button id="aboutCloseButton" onClick={onToggle}>Close</button>
             <div id="instructions">
                 <ul>
-                    <li>Change your D&D 5e version with the button in the upper right as needed, this currently affects conditions.</li>
-                    <li>Add your party's heroes to the Hero Manager.</li>
-                    <li>Edit heroes' stats as needed, as much or as little as is useful for you, uncheck present for anyone not present for the battle.</li>
-                    <li>Add monsters in the Monster Manager and mark the ones for the upcoming battle as present.</li>
-                    <li>Any monster(s) you add will have a number added to their name if that name already exists in your manager. This can be edited as you wish.</li>
-                    <li>You can add rename any monster you add and it will keep the stat block you added it with.</li>
-                    <li>You can have as many monsters ready to be added to the battle or for upcoming battles as you like.</li>
-                    <li>Only monsters and heroes checked present are added on Battle Start. You can always add more monsters to the battle after it starts.</li>
-                    <li>Monsters added to a battle are deleted from the Monster Manager.</li>
-                    <li>Press Start Battle to begin and input or roll initiative for each combatant.</li>
-                    <li>Check action, bonus action, and movement as used/passed and reactions when they are used. These will be unchecked/reset at the appropriate time.</li>
-                    <li>The turn automatically advances when the current combatant's action, bonus, and movement are checked.</li>
-                    <li>Add conditions as needed, you can hover over them to get a reminder of the effects.</li>
-                    <li>You can hover over any hero or monster in the current battle to see their stats in a popout slider.</li>
-                    
+                    <li>Toggle your D&D edition (5e 2014/2024) using the rules version button.</li> 
+                    <li>This affects concentration checks, condition definitions and which monsters auto populate in the monster manager dropdown.</li>
+                    <li>Add party members and recurring characters via the Hero Manager.</li>
+                    <li>Configure hero stats as needed. Uncheck "present" for absent party members.</li>
+                    <li>Add monsters via the Monster Manager either selecting from the list or typing a name and adding stats after.</li>
+                    <li>Duplicate monster names are automatically appended with numbers.</li>
+                    <li>Renamed monsters retain their stat blocks if added from the dropdown.</li>
+                    <li>Store multiple monsters for current or future encounters—only "present" creatures join battles.</li>
+                    <li>Monsters are removed from the Manager when added to combat.</li>
+                    <li>Click "Start Battle" and either enter initiative or click for a random roll for each combatant.</li>
+                    <li>Track actions, bonus actions, movement, and reactions. These auto-reset at round or turn start as appropriate.</li>
+                    <li>Turns advance automatically when action, bonus action, and movement are marked complete.</li>
+                    <li>Apply conditions as needed and hover for quick reference tooltips.</li>
+                    <li>Hover over any combatant to view their stat block.</li>
+                    <li>Click a combatant's name to pin their details, accessing notes and source links.</li>
                 </ul>
                 <div>
                     <h3>Keyboard Shortcuts</h3>
@@ -41,6 +42,7 @@ export default function About({ isVisible, onToggle }: AboutProps) {
                     <p><span className="bold">d</span> check/uncheck current player's Movement</p>
                     <p><span className="bold">e</span> open/close Hero Manager</p>
                     <p><span className="bold">w</span> open/close Monster Manager</p>
+                    <p><span className="bold">x</span> close Combatant stat box</p>
                 </div>
             </div>
             <div id="credits">
@@ -48,7 +50,7 @@ export default function About({ isVisible, onToggle }: AboutProps) {
                 <p>Additional coding by: <a href="https://madmilliner.github.io/jasonPeterson/" target="_blank">Jason Peterson</a></p>
                 <p>QA Testers: Danny Cullen, Jayme Andrews, Zach Dender</p>
                 <p>Special Thanks: Wolf Harrington</p>
-                <p>Join our <a href="https://discord.gg/m4AnYSDueM" target="_blank">Discord server</a></p>
+                
             </div>
         </div>
         )}
