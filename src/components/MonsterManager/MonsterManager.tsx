@@ -61,7 +61,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
     }
 
     const matches = monstersData
-      .filter((m) => m.name.toLowerCase().includes(value.toLowerCase()))
+      .filter((m) => m.name.toLowerCase().startsWith(value.toLowerCase()))
       .map((m) => m.name);
 
     setFilteredSuggestions(matches);
