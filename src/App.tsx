@@ -131,7 +131,7 @@ function App() {
       {openPanel === 'monster' && (<MonsterManager onClose={handleClosePanel}/>)}
       
       <ToggleComponent />
-      {!overlayVisible && (<div id="colorMode"><input type="checkbox" id="light-dark"></input><span>Light/Dark mode</span></div>)}
+      {!overlayVisible && (<div id="colorMode"><input type="checkbox" id="light-dark"></input><label htmlFor="light-dark">Light/Dark mode</label></div>)}
     
     
       
