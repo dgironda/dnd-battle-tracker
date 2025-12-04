@@ -256,9 +256,8 @@ sup {
   justify-content: start;
   margin-top: 0;
   margin-bottom: 10vh;
+  cursor: pointer;
 }
-
-
 
 #patreonLink {
   margin: 1rem 0;
@@ -373,6 +372,10 @@ sup {
   margin-bottom: .4rem;
 }
 
+#monsterNameInput {
+  width: 13rem;
+}
+
 .nameInputWrapper {
   position: relative;
 }
@@ -388,7 +391,7 @@ sup {
   padding: 0;
   margin: 2px 0 0 0;
   border-radius: 4px;
-  max-height: 10vh;
+  max-height: 35vh;
   overflow: auto;
   z-index: 100;
   font-family: 'Caudex', serif;
@@ -415,7 +418,6 @@ sup {
 .heroTableBody .statsRow td, .monsterTableBody .statsRow td{
   background-color:lightgrey;
 }
-
 
 .heroStats {
   display: flex;
@@ -470,8 +472,12 @@ sup {
 }
 
 #round {
-  margin-left: 5vw;
-  font-size: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  /* filter: drop-shadow(5px 5px 10px var(--color-shadow)); */
 }
 
 #initiativeDialogOuter {
@@ -540,16 +546,11 @@ sup {
   font-size: 1.1rem;
 }
 
-#battleTrackerControls {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-}
-
 #buttonStartBattle {
   font-size: 1.3rem;
   padding: .2rem;
+  width: fit-content;
+  height: fit-content;
 }
 
 #buttonResetCombat {
@@ -557,22 +558,17 @@ sup {
   align-self: flex-end;
 }
 
-#battleTrackerOuter {
-  padding: 2rem;
-}
-
 #battleTracker {
-  width: 95%;
+  width: 96%;
   border: 4px double var(--color-brdr1);
 }
-
 
 #battleInProgress {
   background-color: var(--color-roweven);
   padding: 1rem;
   margin-bottom: 1rerm;
   border-radius: 4px;
-  border: 1px solid var(--color-brdr1);
+  /* border: 1px solid var(--color-brdr1); */
 }
 
 #battleInProgress>p {
@@ -1044,7 +1040,7 @@ sup {
   width: 3vh;
   height: 3vh;
   display: inline-block;
-  margin-left: 95%;
+  margin-left: 92%;
   margin-top: 0;
   cursor: pointer;
   text-align: center;
@@ -1063,16 +1059,17 @@ sup {
 @media (orientation: landscape) {
   #page {
     display: grid;
-    grid-template-areas: "header body";
-    grid-template-columns: .2fr 1fr;
+    grid-template-areas: "header sbbutt round" "header battletracker battletracker" "header footer footer";
+    grid-template-columns: .2fr .3fr .8fr;
+    grid-template-rows: .2fr 1fr .2fr;
     max-width: 100vw;
     height: 100vh;
   }
   #header {
   grid-area: header;
   display: grid;
-  grid-template-areas: "logo" "hmbutt" "mmbutt" "lightdark" "version" "about" "patreon";
-  grid-template-rows: 1.5fr .7fr .7fr .3fr .5fr .5fr .6fr;
+  grid-template-areas: "logo" "hmbutt" "mmbutt" "sbbutt" "lightdark" "version" "about" "patreon";
+  grid-template-rows: 1.5fr .7fr .7fr 1fr .3fr .5fr .5fr .6fr;
   align-items: start;
   justify-items: center;
   border-right: 2px solid var(--color-brdr1);
@@ -1092,6 +1089,9 @@ sup {
   }
   #buttonStartBattle {
     grid-area: sbbutt;
+    margin-top: auto;
+    margin-left: 5vw;
+    align-self: center;
   }
   #patreonLink {
     grid-area: patreon;
@@ -1105,24 +1105,20 @@ sup {
   #colorMode {
     grid-area: lightdark;
   }
-  #body {
-    grid-area: body;
-    display: grid;
-    grid-template-areas: "battletracker" "footer";
-    grid-template-rows: 1fr .2fr;
-    margin-top: max(5vh, 10vh, 15vh, 20vh);
-    margin-bottom: auto;
-    gap: 2rem;
-  }
+  
   #round {
-    margin-left: -40vw;
-    font-weight: 800;
+    margin-top: 10%;
   }
-  /* #buttonResetCombat {
-    margin-left: -15vw;
-  } */
+  #buttonResetCombat {
+    justify-self: end;
+  }
   #battleTracker {
     grid-area: battletracker;
+    margin: 2vh 1vw auto auto ;
+  }
+  #noCombatants, #battleInProgress {
+    margin-top: 10vh;
+    text-align: left;
   }
   #footer {
     grid-area: footer;
@@ -1185,6 +1181,7 @@ sup {
   }
   #buttonStartBattle {
     grid-area: sbbutt;
+    margin: 1rem;
   }
   #patreonLink {
     grid-area: patreon;
@@ -1221,6 +1218,7 @@ sup {
   }
   #round {
     grid-area: round;
+    width: 90%;
   }
   #battleTracker {
     grid-area: battletracker;
@@ -1266,7 +1264,7 @@ sup {
   }
   .checkOverlay {
     position: absolute;
-    left: 1.05rem;
+    left: 1.3rem;
     top: 7px;
     opacity: .6;
     font-family: monospace;
@@ -1311,6 +1309,9 @@ sup {
   left: 0vw;
   width: auto;
   padding: 1vw;
+}
+#resumeCombat {
+  margin: 1rem;
 }
 }
 

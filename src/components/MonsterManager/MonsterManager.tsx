@@ -61,7 +61,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
     }
 
     const matches = monstersData
-      .filter((m) => m.name.toLowerCase().startsWith(value.toLowerCase()))
+      .filter((m) => m.name.toLowerCase().indexOf(value.toLowerCase()) !== -1)
       .map((m) => m.name);
 
     setFilteredSuggestions(matches);
@@ -131,8 +131,9 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
       <div id="addMonsterOuter">
         <div className="nameInputWrapper">
           <input
+            id="monsterNameInput"
             type="text"
-            placeholder="Monster Name"
+            placeholder="Search or custom Monster Name"
             value={newMonster.name}
             onKeyDown={keyDownAddMonster}
             onChange={handleNameChange}

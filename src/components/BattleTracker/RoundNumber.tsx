@@ -13,7 +13,7 @@ const RoundNumberSpan: React.FC<RoundNumberSpanProps> = ({roundNumber}) => {
     }, [roundNumber]);
     
     return (
-        isVisible ? <span id="round">Combat Round {roundNumber}</span> : null
+        isVisible ? <span>Combat Round {roundNumber}</span> : null
     );
   }
 

@@ -29,7 +29,7 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
   } = props;
 
   const handleStartBattle = useCallback(async () => {
-    setRoundNumber(1);
+    
     
     const confirmed = window.confirm("Are you sure you want to start a new battle?");
     if (!confirmed) return;
@@ -40,6 +40,7 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
     const freshHeroes = getHeroes();
     const freshMonsters = getMonsters();
     const presentHeroes = freshHeroes.filter(h => h.present);
+    if (presentHeroes.length === 0) {alert("Make sure that at least one hero is present and try again"); return};
     const presentMonsters = freshMonsters.filter(m => m.present);
     const newCombatants: Combatant[] = [];
     
@@ -114,6 +115,7 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
     const idsToDelete = presentMonsters.map(m => m.id);
     const updatedMonsters = freshMonsters.filter(m => !idsToDelete.includes(m.id));
     storeMonsters(updatedMonsters);
+    setRoundNumber(1);
     setCurrentCombatant(null);
     setCombatants(newCombatants);
     setCurrentTurnIndex(0);
