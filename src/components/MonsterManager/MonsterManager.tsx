@@ -131,8 +131,9 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
       <div id="addMonsterOuter">
         <div className="nameInputWrapper">
           <input
+            id="monsterNameInput"
             type="text"
-            placeholder="Monster Name"
+            placeholder="Search or custom Monster Name"
             value={newMonster.name}
             onKeyDown={keyDownAddMonster}
             onChange={handleNameChange}

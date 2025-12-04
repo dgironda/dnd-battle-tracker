@@ -249,8 +249,6 @@ sup {
   cursor: pointer;
 }
 
-
-
 #patreonLink {
   margin: 1rem 0;
   text-align: center;
@@ -364,6 +362,10 @@ sup {
   margin-bottom: .4rem;
 }
 
+#monsterNameInput {
+  width: 13rem;
+}
+
 .nameInputWrapper {
   position: relative;
 }
@@ -379,7 +381,7 @@ sup {
   padding: 0;
   margin: 2px 0 0 0;
   border-radius: 4px;
-  max-height: 10vh;
+  max-height: 35vh;
   overflow: auto;
   z-index: 100;
   font-family: 'Caudex', serif;
@@ -406,7 +408,6 @@ sup {
 .heroTableBody .statsRow td, .monsterTableBody .statsRow td{
   background-color:lightgrey;
 }
-
 
 .heroStats {
   display: flex;
@@ -551,7 +552,6 @@ sup {
   width: 96%;
   border: 4px double var(--color-brdr1);
 }
-
 
 #battleInProgress {
   background-color: var(--color-roweven);
@@ -807,6 +807,220 @@ sup {
 
 .statHover {
   display: inline-block;
+  color-scheme: dark;
+}
+
+.statHover:has(#light-dark:checked) {
+  color-scheme: light; 
+}
+
+.heroStatHover {
+  background-color: #f4e8d8;
+  border: 3px solid #8b4513;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 320px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+  z-index: 10000;
+  font-family: "Bookman Old Style", serif;
+  color: #2c1810;
+  pointer-events: auto;
+}
+
+.heroStatHeader {
+  border-bottom: 2px solid #8b4513;
+  padding-bottom: .5rem;
+  margin-bottom: .75rem;
+}
+
+.heroStatHeaderName {
+  margin: 0;
+  font-size: 22px;
+  font-weight: bold;
+  color: #8b0000;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.heroStatHeaderPlayer {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--color-shadow);
+  margin-top: 2px;
+  filter: brightness(50%);
+}
+
+.heroStatACInit {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: .7rem;
+  padding: .5rem;
+  background-color: #e8dcc8;
+  border-radius: 4px;
+  border: 1px solid #8b4513;
+}
+
+.heroStatACInit>div {
+  text-align: center;
+}
+
+.heroStatACInit>div div:nth-of-type(odd) {
+  font-size: 11px;
+  font-weight: bold;
+  color: #8b4513;
+  text-transform: uppercase;
+}
+
+.heroStatACInit>div div:nth-of-type(even) {
+  font-size: 18px;
+  font-weight: bold;
+  color: #8b0000;
+}
+
+.heroStatAbility {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .5rem;
+  margin-bottom: .75rem;
+}
+
+.heroStatAbility>div {
+  background-color: #e8dcc8;
+  border: 2px solid #8b4513;
+  border-radius: 4px;
+  padding: .4rem;
+  text-align: center;
+}
+
+.heroStatAbility>div div:nth-of-type(3n + 1) {
+  font-size: 10px;
+  font-weight: bold;
+  color: #8b4513;
+  margin-bottom: 2px;
+}
+
+.heroStatAbility>div div:nth-of-type(3n + 2) {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c1810;
+  line-height: 1;
+}
+
+.heroStatAbility>div div:nth-of-type(3n) {
+  font-size: 12px;
+  color: var(--color-shadow);
+  margin-top: 2px;
+  filter: brightness(75%);
+}
+
+.heroStatPP {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 2px solid #8b4513;
+  padding-top: .5rem;
+  font-size: 13px;
+}
+
+.heroStatPP span:nth-child(odd) {
+  font-weight: bold;
+  color: #8b4513;
+}
+
+.heroStatPP span:nth-child(even) {
+  font-size: 16px;
+  font-weight: bold;
+  color: #2c1810;
+  background-color: #e8dcc8;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #8b4513;
+}
+
+.monsterStatHover {
+  background-color: #fdf8f3;
+  border: 2px solid #58180d;
+  border-radius: 4px;
+  padding: 1rem;
+  width: 350px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+  z-index: 10000;
+  font-family: Georgia, serif;
+  color: #58180d;
+  pointer-events: auto;
+}
+
+.monsterStatName {
+  display: flex;
+  justify-content: center;
+  border-bottom: 2px solid #58180d;
+  padding-bottom: .25rem;
+  margin-bottom: .5rem;
+}
+
+.monsterStatName>h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #58180d;
+  font-variant: small-caps;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+
+.monsterStatLink {
+  font-size: 11px;
+  color: #822000;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+.monsterStatLink>a, .monsterStatLink>a:visited {
+  color: inherit;
+}
+
+.monsterStatACHPInit {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: .5rem;
+  padding: .4rem 0;
+  border-bottom: 1px solid #c9ad6a;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.monsterStatACHPInit span:nth-of-type(even) {
+  font-weight: normal;
+  font-size: 13px;
+  color: #822000;
+
+}
+
+.monsterStatAbility {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: .25rem;
+  margin-bottom: .5rem;
+  text-align: center;
+  font-size: 11px;
+}
+
+.monsterStatAbility>div div:nth-of-type(odd) {
+  font-weight: bold;
+  color: #58180d;
+  font-size: 10px;
+}
+
+.monsterStatAbility>div div:nth-of-type(even) {
+  font-size: 13px;
+  font-weight: bold;
+  color: #822000;
+}
+
+.monsterStatPP {
+  font-size: 12px;
+  font-weight: normal;
+  margin-bottom: .25rem;
 }
 
 .closeStats {

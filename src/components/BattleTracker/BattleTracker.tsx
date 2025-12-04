@@ -409,7 +409,7 @@ useEffect(() => {
       {combatants.length > 0 && <div id="round">
           <RoundNumberSpan
           roundNumber={roundNumber} />
-          <button id="buttonResetCombat" onClick={resetCombat}>⟳</button>
+          {/* <button id="buttonResetCombat" onClick={resetCombat}>⟳</button> */}
       </div>
 }
       {/* #7: Resume Combat UI */}
