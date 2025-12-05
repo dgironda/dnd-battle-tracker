@@ -1,4 +1,5 @@
 import { DEVMODE } from "./utils/devmode";
+import { exportAllToJson } from "./utils/LocalStorage";
 
 import React from "react";
 
@@ -8,6 +9,7 @@ interface AboutProps {
 }
 
 export default function About({ isVisible, onToggle }: AboutProps) {
+
   return (
     <>
       <button id="aboutButton" title="Instructions and credits" onClick={onToggle}>
@@ -51,6 +53,9 @@ export default function About({ isVisible, onToggle }: AboutProps) {
                 <p>QA Testers: Danny Cullen, Jayme Andrews, Zach Dender</p>
                 <p>Special Thanks: Wolf Harrington</p>
                 
+            </div>
+            <div id="options">
+              <button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button>
             </div>
         </div>
         )}

@@ -8,6 +8,7 @@ import { useGlobalContext } from '../hooks/versionContext';
 const HEROES_KEY = "storedHeroes";
 const MONSTERS_KEY = "storedMonsters";
 const COMBATANTS_KEY = "storedCombatants";
+const ROUND_KEY = "roundnumber"
 
 /**
  * Store heroes array to localStorage
@@ -159,6 +160,61 @@ function hasStoredCombatants(): boolean {
     return false;
   }
 }
+interface DownloadFileParams {
+  data: string
+  fileName: string
+  fileType: string
+}
+const downloadFile = ({ data, fileName, fileType }: DownloadFileParams) => {
+  const blob = new Blob([data], { type: fileType })
+  const a = document.createElement('a')
+  a.download = fileName
+  a.href = window.URL.createObjectURL(blob)
+  const clickEvt = new MouseEvent('click', {
+    view: window,
+    bubbles: true,
+    cancelable: true,
+  })
+  a.dispatchEvent(clickEvt)
+  a.remove()
+}
+const exportAllToJson = (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault()
+  
+  let heroes = getHeroes()
+  let combatants = getCombatants()
+  let round = getRoundNumber()
+  
+  // Optional: Save to localStorage (if you need this)
+  try {
+    localStorage.setItem(HEROES_KEY, JSON.stringify(heroes ?? []))
+    localStorage.setItem(COMBATANTS_KEY, JSON.stringify(combatants ?? []))
+    localStorage.setItem(ROUND_KEY, round.toString())
+  } catch (error) {
+    console.error("Error saving to localStorage:", error)
+  }
+  
+  // Download heroes
+  downloadFile({
+    data: JSON.stringify(heroes ?? []),
+    fileName: 'heroes.json',
+    fileType: 'application/json',
+  })
+  
+  // Download combatants
+  downloadFile({
+    data: JSON.stringify(combatants ?? []),
+    fileName: 'combatants.json',
+    fileType: 'application/json',
+  })
+  
+  // Download round
+  downloadFile({
+    data: JSON.stringify({ round: round }),
+    fileName: 'round.json',
+    fileType: 'application/json',
+  })
+}
 
 
 
@@ -176,4 +232,5 @@ export {
   getRoundNumber,
   clearCombatants,
   hasStoredCombatants,
+  exportAllToJson,
 };
