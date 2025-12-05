@@ -821,7 +821,8 @@ sup {
 
 .statHover {
   display: inline-block;
-  /* color-scheme: dark; */
+  color-scheme: dark;
+
 }
 
 .heroStatHover {
