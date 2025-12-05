@@ -102,7 +102,7 @@ a:visited {
   margin: .5rem .1rem;
 }
 
-button {
+button, #inputImportData {
   border-radius: 0;
   margin: .3rem;
   text-align: center;

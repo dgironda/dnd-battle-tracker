@@ -56,12 +56,8 @@ export default function About({ isVisible, onToggle }: AboutProps) {
             </div>
             <div id="options">
               <p><button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button></p>
-              <p><label htmlFor="inputImportData"></label><input
-                id="inputImportData"
-                type="file"
-                accept=".json"
-                onChange={importFromJson}/>
-              </p>
+              <h2><label htmlFor="inputImportData">Upload your data</label></h2>
+              <p><input id="inputImportData" type="file" accept=".json" onChange={importFromJson}/></p>
             </div>
         </div>
         )}

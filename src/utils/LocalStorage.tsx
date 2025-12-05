@@ -201,36 +201,109 @@ const exportAllToJson = (e: React.MouseEvent<HTMLButtonElement>) => {
 const importFromJson = (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0]
   if (!file) return
+  const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB limit
+  const ALLOWED_FILE_TYPE = 'application/json'
+  const sanitizeObject = (obj: any): any => {
+  return JSON.parse(JSON.stringify(obj))
+}
+  
+  // Check file type
+  if (file.type !== ALLOWED_FILE_TYPE && !file.name.endsWith('.json')) {
+    alert('Please upload a valid JSON file')
+    e.target.value = '' // Reset input
+    return
+  }
+  
+  // Check file size
+  if (file.size > MAX_FILE_SIZE) {
+    alert(`File is too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB`)
+    e.target.value = '' // Reset input
+    return
+  }
   
   const reader = new FileReader()
   
   reader.onload = (event) => {
     try {
-      const importedData = JSON.parse(event.target?.result as string)
+      const jsonString = event.target?.result as string
       
-      // Validate the data has the expected structure
-      if (importedData.heroes !== undefined && 
-          importedData.combatants !== undefined && 
-          importedData.round !== undefined) {
-        
-        // Save to localStorage
-        localStorage.setItem(HEROES_KEY, JSON.stringify(importedData.heroes))
-        localStorage.setItem(COMBATANTS_KEY, JSON.stringify(importedData.combatants))
-        localStorage.setItem(ROUND_KEY, importedData.round.toString())
-        
-        // Optionally refresh the UI or reload the page
-        alert('Data imported successfully!')
-        window.location.reload() // Or update state if using React state
-      } else {
-        alert('Invalid file format')
+      // Check if string is too long (additional safety)
+      if (jsonString.length > MAX_FILE_SIZE) {
+        alert('File content is too large')
+        return
       }
+      
+      const importedData = JSON.parse(jsonString)
+      
+      // Validate the data structure
+      if (!isValidGameData(importedData)) {
+        alert('Invalid file format. Expected heroes, combatants, and round data.')
+        return
+      }
+      
+      const sanitizedHeroes = importedData.heroes.map(sanitizeObject)
+      const sanitizedCombatants = importedData.combatants.map(sanitizeObject)
+
+      // Additional validation on the data content
+      if (!Array.isArray(sanitizedHeroes) || 
+          !Array.isArray(sanitizedCombatants)) {
+        alert('Invalid data structure in file')
+        return
+      }
+      
+      // Validate round is a number
+      if (typeof importedData.round !== 'number' || 
+          importedData.round < 0 || 
+          !Number.isFinite(importedData.round)) {
+        alert('Invalid round number in file')
+        return
+      }
+      
+      // Optional: Validate array lengths aren't excessive
+      if (importedData.heroes.length > 1000 || 
+          importedData.combatants.length > 1000) {
+        alert('File contains too many entries')
+        return
+      }
+      
+      // Save to localStorage
+      localStorage.setItem(HEROES_KEY, JSON.stringify(sanitizedHeroes))
+      localStorage.setItem(COMBATANTS_KEY, JSON.stringify(sanitizedCombatants))
+      localStorage.setItem(ROUND_KEY, importedData.round.toString())
+      
+      alert('Data imported successfully!')
+      window.location.reload()
+      
     } catch (error) {
       console.error('Error importing data:', error)
-      alert('Error reading file')
+      if (error instanceof SyntaxError) {
+        alert('Invalid JSON format')
+      } else {
+        alert('Error reading file')
+      }
+    } finally {
+      // Reset the input so the same file can be uploaded again if needed
+      e.target.value = ''
     }
   }
   
+  reader.onerror = () => {
+    alert('Error reading file')
+    e.target.value = ''
+  }
+  
   reader.readAsText(file)
+}
+
+// Validation helper function
+const isValidGameData = (data: any): boolean => {
+  return (
+    data !== null &&
+    typeof data === 'object' &&
+    'heroes' in data &&
+    'combatants' in data &&
+    'round' in data
+  )
 }
 
 
