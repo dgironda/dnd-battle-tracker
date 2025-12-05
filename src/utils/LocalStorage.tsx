@@ -186,13 +186,19 @@ const exportAllToJson = (e: React.MouseEvent<HTMLButtonElement>) => {
   let round = getRoundNumber()
   
   const allData = {
+    _watermark: {
+      application: "Battle Tracker",
+      website: "https://battletracker.simulacrumtechnologies.com/",
+      exportDate: new Date().toISOString(),
+      disclaimer: "This data belongs to the user who exported it. Battle Tracker and Simulacrum Technologies make no claim to ownership of user-generated content."
+    },
     heroes: heroes ?? [],
     combatants: combatants ?? [],
-    round: round
+    round: round,
   }
   
   downloadFile({
-    data: JSON.stringify(allData, null, 2), // null, 2 adds pretty formatting
+    data: JSON.stringify(allData, null, 2),
     fileName: 'BattleTracker-data.json',
     fileType: 'application/json',
   })
