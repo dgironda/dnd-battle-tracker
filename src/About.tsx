@@ -1,5 +1,5 @@
 import { DEVMODE } from "./utils/devmode";
-import { exportAllToJson } from "./utils/LocalStorage";
+import { exportAllToJson, importFromJson } from "./utils/LocalStorage";
 
 import React from "react";
 
@@ -55,7 +55,13 @@ export default function About({ isVisible, onToggle }: AboutProps) {
                 
             </div>
             <div id="options">
-              <button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button>
+              <p><button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button></p>
+              <p><label htmlFor="inputImportData"></label><input
+                id="inputImportData"
+                type="file"
+                accept=".json"
+                onChange={importFromJson}/>
+              </p>
             </div>
         </div>
         )}

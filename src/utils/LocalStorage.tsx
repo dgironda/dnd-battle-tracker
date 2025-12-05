@@ -185,37 +185,53 @@ const exportAllToJson = (e: React.MouseEvent<HTMLButtonElement>) => {
   let combatants = getCombatants()
   let round = getRoundNumber()
   
-  // Optional: Save to localStorage (if you need this)
-  try {
-    localStorage.setItem(HEROES_KEY, JSON.stringify(heroes ?? []))
-    localStorage.setItem(COMBATANTS_KEY, JSON.stringify(combatants ?? []))
-    localStorage.setItem(ROUND_KEY, round.toString())
-  } catch (error) {
-    console.error("Error saving to localStorage:", error)
+  const allData = {
+    heroes: heroes ?? [],
+    combatants: combatants ?? [],
+    round: round
   }
   
-  // Download heroes
   downloadFile({
-    data: JSON.stringify(heroes ?? []),
-    fileName: 'heroes.json',
+    data: JSON.stringify(allData, null, 2), // null, 2 adds pretty formatting
+    fileName: 'BattleTracker-data.json',
     fileType: 'application/json',
   })
-  
-  // Download combatants
-  downloadFile({
-    data: JSON.stringify(combatants ?? []),
-    fileName: 'combatants.json',
-    fileType: 'application/json',
-  })
-  
-  // Download round
-  downloadFile({
-    data: JSON.stringify({ round: round }),
-    fileName: 'round.json',
-    fileType: 'application/json',
-  })
-}
 
+}
+const importFromJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0]
+  if (!file) return
+  
+  const reader = new FileReader()
+  
+  reader.onload = (event) => {
+    try {
+      const importedData = JSON.parse(event.target?.result as string)
+      
+      // Validate the data has the expected structure
+      if (importedData.heroes !== undefined && 
+          importedData.combatants !== undefined && 
+          importedData.round !== undefined) {
+        
+        // Save to localStorage
+        localStorage.setItem(HEROES_KEY, JSON.stringify(importedData.heroes))
+        localStorage.setItem(COMBATANTS_KEY, JSON.stringify(importedData.combatants))
+        localStorage.setItem(ROUND_KEY, importedData.round.toString())
+        
+        // Optionally refresh the UI or reload the page
+        alert('Data imported successfully!')
+        window.location.reload() // Or update state if using React state
+      } else {
+        alert('Invalid file format')
+      }
+    } catch (error) {
+      console.error('Error importing data:', error)
+      alert('Error reading file')
+    }
+  }
+  
+  reader.readAsText(file)
+}
 
 
 export {
@@ -233,4 +249,5 @@ export {
   clearCombatants,
   hasStoredCombatants,
   exportAllToJson,
+  importFromJson,
 };
