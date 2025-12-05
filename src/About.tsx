@@ -52,12 +52,6 @@ export default function About({ isVisible, onToggle }: AboutProps) {
                 <p>Additional coding by: <a href="https://madmilliner.github.io/jasonPeterson/" target="_blank">Jason Peterson</a></p>
                 <p>QA Testers: Danny Cullen, Jayme Andrews, Zach Dender</p>
                 <p>Special Thanks: Wolf Harrington</p>
-                
-            </div>
-            <div id="options">
-              <p><button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button></p>
-              <h2><label htmlFor="inputImportData">Upload your data</label></h2>
-              <p><input id="inputImportData" type="file" accept=".json" onChange={importFromJson}/></p>
             </div>
         </div>
         )}

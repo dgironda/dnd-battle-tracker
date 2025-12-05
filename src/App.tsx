@@ -9,6 +9,7 @@ import { CombatProvider } from "./components/BattleTracker/CombatContext";
 import { useBattleManager } from "./hooks/useStartBattle";
 import PatreonOverlay from "./components/PatreonOverlay";
 import { DEVMODE } from "./utils/devmode";
+import { exportAllToJson, importFromJson } from "./utils/LocalStorage";
 
 
 
@@ -158,6 +159,13 @@ function App() {
       setShowMonsterManager={setShowMonsterManager}  
     />
     <div id="footer">
+      {isSupporter && (
+        <div id="options">
+        <p><button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button></p>
+        <h2><label htmlFor="inputImportData">Upload your data</label></h2>
+        <p><input id="inputImportData" type="file" accept=".json" onChange={importFromJson}/></p>
+      </div>
+    )}
       ©2025 <a href="https://www.simulacrumtechnologies.com" target="_blank">Simulacrum Technologies</a>. All rights reserved. Website design and content are protected by copyright law.
       <p>Join our <a href="https://discord.gg/m4AnYSDueM" target="_blank">Discord server</a> for updates and to provide feedback.</p>
     </div>
