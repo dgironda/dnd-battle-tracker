@@ -162,8 +162,8 @@ function App() {
       {isSupporter && (
         <div id="options">
         <p><button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button></p>
-        <h2><label htmlFor="inputImportData">Upload your data</label></h2>
-        <p><input id="inputImportData" type="file" accept=".json" onChange={importFromJson}/></p>
+        <p id="uploadData"><h2><label htmlFor="inputImportData">Upload your data</label></h2>
+        <input id="inputImportData" type="file" accept=".json" onChange={importFromJson}/></p>
       </div>
     )}
       ©2025 <a href="https://www.simulacrumtechnologies.com" target="_blank">Simulacrum Technologies</a>. All rights reserved. Website design and content are protected by copyright law.

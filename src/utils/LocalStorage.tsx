@@ -179,6 +179,7 @@ const downloadFile = ({ data, fileName, fileType }: DownloadFileParams) => {
   a.remove()
 }
 const exportAllToJson = (e: React.MouseEvent<HTMLButtonElement>) => {
+  let exportDate = new Date().toISOString()
   e.preventDefault()
   
   let heroes = getHeroes()
@@ -189,7 +190,7 @@ const exportAllToJson = (e: React.MouseEvent<HTMLButtonElement>) => {
     _watermark: {
       application: "Battle Tracker",
       website: "https://battletracker.simulacrumtechnologies.com/",
-      exportDate: new Date().toISOString(),
+      exportDate: exportDate,
       disclaimer: "This data belongs to the user who exported it. Battle Tracker and Simulacrum Technologies make no claim to ownership of user-generated content."
     },
     heroes: heroes ?? [],
@@ -199,7 +200,7 @@ const exportAllToJson = (e: React.MouseEvent<HTMLButtonElement>) => {
   
   downloadFile({
     data: JSON.stringify(allData, null, 2),
-    fileName: 'BattleTracker-data.json',
+    fileName: `BattleTracker-data-${exportDate}.json`,
     fileType: 'application/json',
   })
 

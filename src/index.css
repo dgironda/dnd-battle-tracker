@@ -1057,6 +1057,14 @@ sup {
   text-decoration: none;
   color: inherit;
 }
+#uploadData {
+  display: flex;
+  justify-self: center;
+}
+#uploadData input, #buttonDownloadData {
+  height: fit-content;
+  padding: .2rem;
+}
 @media (orientation: landscape) {
   #page {
     display: grid;
