@@ -18,6 +18,7 @@ import RoundNumberSpan from "./RoundNumber";
 import { HeroStatBlockHover } from "./HeroStatBlockHover";
 import { MonsterStatBlockHover } from "./MonsterStatBlockHover";
 import { useBattleManager } from "../../hooks/useStartBattle";
+import { ConditionReminder } from "./ConditionReminder";
 
 
 interface BattleTrackerProps {
@@ -61,12 +62,14 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
   const { status } = useGlobalContext();
   const [hpModalCombatant, setHpModalCombatant] = useState<Combatant | null>(null);
+  const [conditionModalCombatant, setConditionModalCombatant] = useState<Combatant | null>(null);
   const totalTurns = useMemo(
     () => currentTurnIndex + ((roundNumber - 1) * combatants.length),
     [currentTurnIndex, roundNumber, combatants.length]
   );
   const processedTurnRef = useRef(-1);
   const sortedCombatants = [...combatants].sort((a, b) => b.initiative - a.initiative);
+  const [showConditionModal, setShowConditionModal] = useState(false);
   // const [roundNumber, setRoundNumber] = useState(() => {
   //   return getRoundNumber();
   // });
@@ -170,6 +173,7 @@ const handleNextTurn = () => {
   if ((nextCombatant.action && nextCombatant.bonus && nextCombatant.move && nextIndex != 0)) {
     return;
 }
+
   let attempts = 0;
   const maxAttempts = sortedCombatants.length;
 
@@ -185,7 +189,10 @@ const handleNextTurn = () => {
     console.warn("All combatants are dead. No turns left.");
     return;
   }
-
+  if (nextCombatant.conditions.length > 0 && !nextCombatant.conditions.includes("Dead")) {
+    setConditionModalCombatant(nextCombatant);
+    setShowConditionModal(true);
+  }
   // Reset ALL combatants at the start of a new round
   if (nextIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
     const nextCombatantId = sortedCombatants[nextIndex].id;
@@ -622,7 +629,13 @@ useEffect(() => {
       </table>
           )}
           
-          
+      {conditionModalCombatant && (
+        <ConditionReminder 
+          combatant={conditionModalCombatant}
+          isOpen={showConditionModal}
+          onClose={() => setShowConditionModal(false)}
+        />
+      )}    
       {currentCombatant && initiativeResolver && (
         <>
         {DEVMODE && console.log('InitiativeDialog rendering for:', currentCombatant.name)}

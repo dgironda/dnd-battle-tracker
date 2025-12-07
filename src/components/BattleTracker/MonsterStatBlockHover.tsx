@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import { Monster, Combatant } from '../../types/index';
 import { createUpdateMonster, createDeleteMonster, EditableCell } from "../Utils";
 import { getCombatants, getMonsters, storeMonsters } from '../../utils/LocalStorage';
+import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
+import { useGlobalContext } from '../../hooks/versionContext';
 
 interface MonsterStatBlockHoverProps {
   monster: Monster;
@@ -25,6 +27,8 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
     const mod = Math.floor((stat - 10) / 2);
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
+  const { status } = useGlobalContext();
+  const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
   function closeStatsButton() {
     setIsStuck(false)
@@ -138,6 +142,16 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
           />
           ))}
           
+        </div>
+        <div id='monsterStatConditions'>
+          <div>
+          {monster.conditions.map((conditionName) => (
+            <p
+            key={conditionName}>
+              <span className="bold">{conditionName}</span>: {conditionDescriptions[conditionName]}
+            </p>
+          ))}
+        </div>
         </div>
       </div>
     </div>

@@ -600,6 +600,40 @@ sup {
   cursor: pointer;
 }
 
+#conditionReminderOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 50vw;
+  bottom: 50vh;
+  /* background: var(--transparent); */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  pointer-events: none;
+  opacity: 90%;
+  overflow: auto;
+}
+
+#conditionReminderContent {
+  background: var(--color-bg2);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* width: 30vw; */
+  border: 1px solid var(--color-hero-brdr1);
+  margin: 2% 0 0 2%;
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#conditionReminderOverlay.open #conditionReminderContent {
+  transform: scale(1);
+  opacity: 1;
+}
+
 .hpChangeModalOuter {
   position: fixed;
   top: 0;
