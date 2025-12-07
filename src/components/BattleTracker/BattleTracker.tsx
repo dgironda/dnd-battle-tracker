@@ -480,6 +480,7 @@ useEffect(() => {
   {combatant.type === "hero" ? (
     <HeroStatBlockHover
       hero={freshHeroes.find((h) => h.id === combatant.id)!}
+      combatant={combatants.find((c) => c.id === combatant.id)!}
     >
       <span>{combatant.name}</span>
     </HeroStatBlockHover>

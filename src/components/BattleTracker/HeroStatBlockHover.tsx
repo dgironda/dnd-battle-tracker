@@ -1,14 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Hero } from '../../types/index';
+import { Hero, Combatant } from '../../types/index';
 import { getHeroes, storeHeroes } from "../../utils/LocalStorage";
 import { createAddHero, createUpdateHero, createDeleteHero, EditableCell } from "../Utils";
+import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
+import { useGlobalContext } from '../../hooks/versionContext';
+
 
 interface HeroStatBlockHoverProps {
   hero?: Hero; // <-- optional to avoid undefined crash
   children: React.ReactNode;
+  combatant?: Combatant;
 }
 
-export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) {
+export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockHoverProps) {
   const [isHovering, setIsHovering] = useState(false);
   const [isStuck, setIsStuck] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -22,6 +26,8 @@ export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) 
     const mod = Math.floor((stat - 10) / 2);
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
+  const { status } = useGlobalContext();
+  const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
   function closeStatsButton() {
     setIsStuck(false)
@@ -141,7 +147,17 @@ export function HeroStatBlockHover({ hero, children }: HeroStatBlockHoverProps) 
           ))}
           
         </div>
+        <div id='monsterStatConditions'>
+          <div>
+          {combatant?.conditions.map((conditionName) => (
+            <p
+            key={conditionName}>
+              <span className="bold">{conditionName}</span>: {conditionDescriptions[conditionName]}
+            </p>
+          ))}
+        </div>
       </div>
     </div>
+  </div>
   );
 }
