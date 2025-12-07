@@ -187,10 +187,11 @@ const exportAllToJson = (e: React.MouseEvent<HTMLButtonElement>) => {
   let round = getRoundNumber()
   
   const allData = {
-    _watermark: {
+    _header: {
       application: "Battle Tracker",
       website: "https://battletracker.simulacrumtechnologies.com/",
       exportDate: exportDate,
+      exportFrom: navigator.userAgent,
       disclaimer: "This data belongs to the user who exported it. Battle Tracker and Simulacrum Technologies make no claim to ownership of user-generated content."
     },
     heroes: heroes ?? [],

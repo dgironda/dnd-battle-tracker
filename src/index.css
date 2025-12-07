@@ -613,12 +613,12 @@ sup {
   z-index: 1001;
   pointer-events: none;
   opacity: 90%;
-  overflow: auto;
+  overflow: none;
 }
 
 #conditionReminderContent {
   background: var(--color-bg2);
-  padding: 2rem;
+  padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   /* width: 30vw; */
@@ -982,6 +982,11 @@ sup {
   border: 1px solid var(--color-hero-brdr1);
 }
 
+.heroStatConditionsName, .monsterStatConditionsName {
+  font-weight: 700;
+  color: var(--color-hero-fg1);
+}
+
 .monsterStatHover {
   background-color: var(--color-monster-bg1);
   border: 2px solid var(--color-monster-brdr1);
@@ -1066,6 +1071,10 @@ sup {
   font-size: 12px;
   font-weight: normal;
   margin-bottom: .25rem;
+}
+
+.monsterStatConditions {
+  font-weight: 100;
 }
 
 .closeStats {

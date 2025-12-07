@@ -148,7 +148,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
           {monster.conditions.map((conditionName) => (
             <p
             key={conditionName}>
-              <span className="bold">{conditionName}</span>: {conditionDescriptions[conditionName]}
+              <span className="monsterStatConditionsName">{conditionName}</span>: {conditionDescriptions[conditionName]}
             </p>
           ))}
         </div>

@@ -189,10 +189,7 @@ const handleNextTurn = () => {
     console.warn("All combatants are dead. No turns left.");
     return;
   }
-  if (nextCombatant.conditions.length > 0 && !nextCombatant.conditions.includes("Dead")) {
-    setConditionModalCombatant(nextCombatant);
-    setShowConditionModal(true);
-  }
+
   // Reset ALL combatants at the start of a new round
   if (nextIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
     const nextCombatantId = sortedCombatants[nextIndex].id;
@@ -217,6 +214,11 @@ const handleNextTurn = () => {
     );
     setCombatants(updatedCombatants);
     setCurrentTurnIndex(nextIndex);
+    let currentCombatant = sortedCombatants[currentTurnIndex];
+     if (currentCombatant.conditions.length > 0 && !currentCombatant.conditions.includes("Dead")) {
+      setConditionModalCombatant(nextCombatant);
+      setShowConditionModal(true);
+  }
     if (nextIndex < updatedCombatants.length) {
     updatedCombatants[nextIndex].action = false;
     updatedCombatants[nextIndex].bonus = false;
