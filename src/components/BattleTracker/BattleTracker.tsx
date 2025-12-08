@@ -215,10 +215,10 @@ const handleNextTurn = () => {
     setCombatants(updatedCombatants);
     setCurrentTurnIndex(nextIndex);
     let currentCombatant = sortedCombatants[currentTurnIndex];
-     if (currentCombatant.conditions.length > 0 && !currentCombatant.conditions.includes("Dead")) {
-      setConditionModalCombatant(nextCombatant);
-      setShowConditionModal(true);
-  }
+    // if (currentCombatant.conditions.length > 0 && !currentCombatant.conditions.includes("Dead")) {
+    //   setConditionModalCombatant(nextCombatant);
+    //   setShowConditionModal(true);
+    // }
     if (nextIndex < updatedCombatants.length) {
     updatedCombatants[nextIndex].action = false;
     updatedCombatants[nextIndex].bonus = false;
@@ -229,6 +229,16 @@ const handleNextTurn = () => {
    
 };
   
+// Condition modal popup
+  useEffect(() => {
+  const nextCombatant = sortedCombatants[currentTurnIndex];
+  if (nextCombatant) {
+    // Perform any operations with nextCombatant here
+    setConditionModalCombatant(nextCombatant);
+    setShowConditionModal(true);
+  }
+}, [currentTurnIndex]);
+
   // Auto-open HP modal for death saves
   useEffect(() => {
   if (sortedCombatants.length === 0 || hpModalCombatant !== null) return;
