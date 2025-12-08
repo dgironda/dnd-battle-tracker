@@ -612,17 +612,17 @@ sup {
   justify-content: center;
   z-index: 1001;
   pointer-events: none;
-  opacity: 90%;
+  opacity: 92.5%;
   overflow: none;
 }
 
 #conditionReminderContent {
   background: var(--color-bg2);
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 4px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   /* width: 30vw; */
-  border: 1px solid var(--color-hero-brdr1);
+  border: 2px groove var(--color-hero-brdr1);
   margin: 2% 0 0 2%;
   transform: scale(0);
   opacity: 0;
