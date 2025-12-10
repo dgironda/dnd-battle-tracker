@@ -13,6 +13,8 @@ interface OptionsProps {
 
 export default function Options({ isVisible, onToggle, isSupporter }: OptionsProps) {
   // const [overlayVisible, setOverlayVisible] = useState(true);
+  const { settings, updateSetting } = useGlobalContext();
+  const conditionReminderOn = settings.conditionReminderOn === true ? false : true;
   return (
     <>
       <button id="optionsButton" title="Options and settings" onClick={onToggle}>
@@ -25,7 +27,7 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
             <div>
                 <ul>
                     <li><ToggleComponent /></li>
-                    {/* <li><button id="buttonConditionReminder">Condition Reminders: {conditionReminderOn === true ? 'On' : 'Off'}</button></li> */}
+                    <li><button onClick={() => updateSetting('conditionReminderOn', !settings.conditionReminderOn)} id="buttonConditionReminder">Condition Reminders: {conditionReminderOn === true ? 'On' : 'Off'}</button></li>
                     <li id="colorMode">{isSupporter && (<><input type="checkbox" id="light-dark"></input><label htmlFor="light-dark">Light/Dark mode</label></>)}</li>
                     {isSupporter && (
                           <>

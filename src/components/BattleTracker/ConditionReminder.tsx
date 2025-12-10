@@ -20,7 +20,7 @@ export const ConditionReminder: React.FC<ConditionReminderProps> = ({
   const [isHovering, setIsHovering] = useState(false);
   const [isStuck, setIsStuck] = useState(false);
   const combatants = getCombatants();
-  const { status } = useGlobalContext();
+  const { settings } = useGlobalContext();
 
   useEffect(() => {
         const overlay = document.getElementById("conditionReminderOverlay");
@@ -64,21 +64,22 @@ export const ConditionReminder: React.FC<ConditionReminderProps> = ({
 
   if (!isOpen) return null;
 
-  const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
+  const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
   
 
   return (
     <div id='conditionReminderOverlay'>
       <div id="conditionReminderContent">
         <h2>{combatant.name}</h2><span>has the following conditions:</span>
-        <p>
+        <div>
           {combatant.conditions.map((conditionName) => (
             <p
             key={conditionName}>
               <span className='bold'>{conditionName}</span>: {conditionDescriptions[conditionName]}
             </p>
           ))}
-        </p>
+        </div>
+        <sup>(this can be turned off in options)</sup>
       </div>
     </div>
   );

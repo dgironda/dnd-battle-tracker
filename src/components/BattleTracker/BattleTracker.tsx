@@ -60,7 +60,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   const { monsters, setMonsters } = useMonsters();
   const deleteMonster = createDeleteMonster(monsters, setMonsters);
   const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
-  const { status } = useGlobalContext();
+  const { settings } = useGlobalContext();
   const [hpModalCombatant, setHpModalCombatant] = useState<Combatant | null>(null);
   const [conditionModalCombatant, setConditionModalCombatant] = useState<Combatant | null>(null);
   const totalTurns = useMemo(
@@ -119,7 +119,8 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
     }
   };
   
-  const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
+  const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
+  const conditionReminderOn = settings.conditionReminderOn === true ? false : true;
 
   const getHpColor = (currHp: number, maxHp: number): string => {
   if (maxHp === 0) return '#f8f2eb';
@@ -643,7 +644,7 @@ useEffect(() => {
           )}
           
       {conditionModalCombatant && 
-      // conditionReminderOn && 
+      conditionReminderOn && 
       (
         <ConditionReminder 
           combatant={conditionModalCombatant}

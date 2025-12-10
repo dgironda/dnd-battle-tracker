@@ -1,6 +1,9 @@
 import { DEVMODE } from "./utils/devmode";
 import { exportAllToJson, importFromJson } from "./utils/LocalStorage";
 
+import Options from "./Options";
+
+
 import React from "react";
 
 interface AboutProps {
@@ -21,13 +24,13 @@ export default function About({ isVisible, onToggle }: AboutProps) {
           <button id="aboutCloseButton" onClick={onToggle}>Close</button>
             <div id="instructions">
                 <ul>
-                    <li>Toggle your D&D edition (5e 2014/2024) using the rules version button.</li> 
-                    <li>This affects concentration checks, condition definitions and which monsters auto populate in the monster manager dropdown.</li>
+                    <li>Toggle your D&D edition (5e 2014/2024) using the rules version button in Options.</li> 
+                    <li className="indent">This affects concentration checks, condition definitions and which monsters auto populate in the monster manager dropdown.</li>
                     <li>Add party members and recurring characters via the Hero Manager.</li>
                     <li>Configure hero stats as needed. Uncheck "present" for absent party members.</li>
                     <li>Add monsters via the Monster Manager either selecting from the list or typing a name and adding stats after.</li>
-                    <li>Duplicate monster names are automatically appended with numbers.</li>
-                    <li>Renamed monsters retain their stat blocks if added from the dropdown.</li>
+                    <li className="indent">Duplicate monster names are automatically appended with numbers.</li>
+                    <li className="indent">Renamed monsters retain their stat blocks if added from the dropdown.</li>
                     <li>Store multiple monsters for current or future encounters—only "present" creatures join battles.</li>
                     <li>Monsters are removed from the Manager when added to combat.</li>
                     <li>Click "Start Battle" and either enter initiative or click for a random roll for each combatant.</li>

@@ -1,51 +1,61 @@
 import { DEVMODE } from "../utils/devmode";
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+interface Settings {
+  version: 'twentyFourteen' | 'twentyTwentyFour';
+  // Add other settings here
+  // theme?: 'light' | 'dark';
+  conditionReminderOn?: boolean;
+}
 
 interface GlobalContextType {
-  status: string;
-  toggleStatus: () => void;
+  settings: Settings;
+  updateSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
+  toggleVersion: () => void;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
 export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  
-  const VERSION_STATUS = "storedVersion";
+  const SETTINGS_KEY = "appSettings";
 
-  const getVersion = () => {
+  const getSettings = (): Settings => {
     try {
-      const stored = localStorage.getItem(VERSION_STATUS);
-      return stored ? JSON.parse(stored) : "twentyFourteen";
+      const stored = localStorage.getItem(SETTINGS_KEY);
+      return stored ? JSON.parse(stored) : {
+        version: "twentyFourteen",
+        // theme: "light",
+        conditionReminderOn: true
+      };
     } catch (error) {
-      console.error("Error loading version status:", error);
-      return "twentyFourteen"; // Default value
+      console.error("Error loading settings:", error);
+      return {
+        version: "twentyFourteen",
+        // theme: "light",
+        conditionReminderOn: true
+      };
     }
   };
-  const [status, setStatus] = useState<string>(getVersion);
 
-  const toggleStatus = () => {
-    setStatus((prevStatus) => {
-      const newStatus = (prevStatus === 'twentyFourteen' ? 'twentyTwentyFour' : 'twentyFourteen');
-      // Store the new status in local storage
-      localStorage.setItem(VERSION_STATUS, JSON.stringify(newStatus));
-      DEVMODE && console.log("D&D 5e Version", newStatus)
-      return newStatus;
+  const [settings, setSettings] = useState<Settings>(getSettings);
+
+  const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
+    setSettings((prevSettings:Settings) => {
+      const newSettings = { ...prevSettings, [key]: value };
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(newSettings));
+      DEVMODE && console.log(`Setting ${String(key)} updated:`, value);
+      return newSettings;
     });
-    
-  const versionButton = document.getElementById("buttonVersion")
-    if (versionButton?.classList.contains("fourteen")) {
-            versionButton?.classList.remove("fourteen");
-            versionButton?.classList.add("twentyFour");
-        } else {
-            versionButton?.classList.remove("twentyFour");
-            versionButton?.classList.add("fourteen");
-        }
   };
 
+  const toggleVersion = () => {
+  const newVersion = settings.version === 'twentyFourteen' ? 'twentyTwentyFour' : 'twentyFourteen';
+  updateSetting('version', newVersion);
+  DEVMODE && console.log("D&D 5e Version", newVersion);
+};
+
   return (
-    <GlobalContext.Provider value={{ status, toggleStatus }}>
+    <GlobalContext.Provider value={{ settings, updateSetting, toggleVersion }}>
       {children}
     </GlobalContext.Provider>
   );
