@@ -252,7 +252,8 @@ sup {
 }
 
 #aboutCloseButton, #optionsCloseButton {
-  margin-left: 95%;
+  /* margin-left: 95%; */
+  float: right;
 }
 
 #instructions {
@@ -1105,13 +1106,13 @@ sup {
   color: var(--color-redwarn);
   width: 3vh;
   height: 3vh;
-  display: inline-block;
   margin-left: 92%;
   margin-top: 0;
   cursor: pointer;
   text-align: center;
   aspect-ratio: 1/1;
   padding: initial;
+  float: right;
 }
 
 #footer {
@@ -1124,9 +1125,10 @@ sup {
 }
 #uploadData {
   display: flex;
+  flex-wrap: wrap;
 }
 #uploadData input, #buttonDownloadData {
-  height: fit-content;
+  width: fit-content;
   padding: .2rem;
 }
 @media (orientation: landscape) {
