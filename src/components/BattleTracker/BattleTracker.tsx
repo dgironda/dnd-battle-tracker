@@ -233,7 +233,7 @@ const handleNextTurn = () => {
 // Condition modal popup
   useEffect(() => {
   const nextCombatant = sortedCombatants[currentTurnIndex];
-  if (nextCombatant) {
+  if (nextCombatant.conditions.length > 0) {
     // Perform any operations with nextCombatant here
     setConditionModalCombatant(nextCombatant);
     setShowConditionModal(true);
@@ -643,9 +643,7 @@ useEffect(() => {
       </table>
           )}
           
-      {conditionModalCombatant && 
-      conditionReminderOn && 
-      (
+      {conditionModalCombatant && conditionReminderOn && (
         <ConditionReminder 
           combatant={conditionModalCombatant}
           isOpen={showConditionModal}
