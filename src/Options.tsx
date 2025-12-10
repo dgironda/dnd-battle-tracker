@@ -27,7 +27,7 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
             <div>
                 <ul>
                     <li><ToggleComponent /></li>
-                    <li><button onClick={() => updateSetting('conditionReminderOn', !settings.conditionReminderOn)} id="buttonConditionReminder">Condition Reminders: {conditionReminderOn === true ? 'On' : 'Off'}</button></li>
+                    <li><button onClick={() => updateSetting('conditionReminderOn', !settings.conditionReminderOn)} id="buttonConditionReminder">Condition Reminder Pop-up: {conditionReminderOn === true ? 'On' : 'Off'}</button></li>
                     <li id="colorMode">{isSupporter && (<><input type="checkbox" id="light-dark"></input><label htmlFor="light-dark">Light/Dark mode</label></>)}</li>
                     {isSupporter && (
                           <>
