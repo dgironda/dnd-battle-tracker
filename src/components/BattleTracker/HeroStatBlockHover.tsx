@@ -3,7 +3,7 @@ import { Hero, Combatant } from '../../types/index';
 import { getHeroes, storeHeroes } from "../../utils/LocalStorage";
 import { createAddHero, createUpdateHero, createDeleteHero, EditableCell } from "../Utils";
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
-import { useGlobalContext } from '../../hooks/versionContext';
+import { useGlobalContext } from '../../hooks/optionsContext';
 
 
 interface HeroStatBlockHoverProps {
@@ -18,6 +18,10 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
   const [editingField, setEditingField] = useState<string | null>(null);
   const [heroes, setHeroes] = useState<Hero[]>(() => getHeroes() || []);
   const updateHero = createUpdateHero(setHeroes);
+  const [showConditions, setShowConditions] = useState(false);
+  const toggleConditions = () => {
+    setShowConditions(prevState => !prevState);
+  };
 
   const safe = <T,>(value: T | undefined | null, fallback: T): T =>
     value !== undefined && value !== null ? value : fallback;
@@ -26,8 +30,8 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
     const mod = Math.floor((stat - 10) / 2);
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
-  const { status } = useGlobalContext();
-  const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
+  const { settings } = useGlobalContext();
+  const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
   function closeStatsButton() {
     setIsStuck(false)
@@ -133,7 +137,19 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
           <span>Passive Perception</span>
           <span>{pp}</span>
         </div>
-        <div className={`${id}-notes`}>
+        <div className='heroStatConditions' onClick={toggleConditions} >
+          <div>
+          Current conditions:{combatant?.conditions.map((conditionName) => (
+            <div
+            key={conditionName}>
+              <span className="heroStatConditionsName">{conditionName}</span>{showConditions && (<span className={`${conditionName}-description`}>: {conditionDescriptions[conditionName]}</span>)}
+            </div>
+          ))}
+        </div>
+        
+        
+      </div>
+      <div className={`${id}-notes`}>
           Notes: {heroes.filter(h => h.id === id).map(h => (
             <EditableCell
           key={`${id}-notes`}
@@ -147,16 +163,6 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
           ))}
           
         </div>
-        <div id='heroStatConditions'>
-          <div>
-          {combatant?.conditions.map((conditionName) => (
-            <p
-            key={conditionName}>
-              <span className="heroStatConditionsName">{conditionName}</span>: {conditionDescriptions[conditionName]}
-            </p>
-          ))}
-        </div>
-      </div>
     </div>
   </div>
   );

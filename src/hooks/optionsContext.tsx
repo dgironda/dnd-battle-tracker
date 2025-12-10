@@ -1,58 +1,68 @@
 import { DEVMODE } from "../utils/devmode";
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-
-interface OptionsContextType {
-  conditionReminderOn: boolean;
-  toggleStatus: () => void;
+interface Settings {
+  version: 'twentyFourteen' | 'twentyTwentyFour';
+  // Add other settings here
+  // theme?: 'light' | 'dark';
+  conditionReminderOn?: boolean;
 }
 
-const optionsContext = createContext<OptionsContextType | undefined>(undefined);
+interface GlobalContextType {
+  settings: Settings;
+  updateSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
+  toggleVersion: () => void;
+}
 
-export const optionsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  
-  const CONDITIONREMINDERON = "conditionReminderOn";
+const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
-  const getOptions = () => {
+export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const SETTINGS_KEY = "appSettings";
+
+  const getSettings = (): Settings => {
     try {
-      const stored = localStorage.getItem(CONDITIONREMINDERON);
-      return stored ? JSON.parse(stored) : true;
+      const stored = localStorage.getItem(SETTINGS_KEY);
+      return stored ? JSON.parse(stored) : {
+        version: "twentyFourteen",
+        // theme: "light",
+        conditionReminderOn: true
+      };
     } catch (error) {
-      console.error("Error loading options:", error);
-      return true; // Default value
+      console.error("Error loading settings:", error);
+      return {
+        version: "twentyFourteen",
+        // theme: "light",
+        conditionReminderOn: true
+      };
     }
   };
-  const [conditionReminderOn, setConditionReminderOn] = useState<true>(getOptions);
 
-  const toggleStatus = () => {
-    setConditionReminderOn((prevStatus) => {
-      const newStatus = (prevStatus === true ? false : true);
-      // Store the new status in local storage
-      localStorage.setItem(CONDITIONREMINDERON, JSON.stringify(newStatus));
-      DEVMODE && console.log("Condition Reminder On?", newStatus)
-      return newStatus;
+  const [settings, setSettings] = useState<Settings>(getSettings);
+
+  const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
+    setSettings((prevSettings:Settings) => {
+      const newSettings = { ...prevSettings, [key]: value };
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(newSettings));
+      DEVMODE && console.log(`Setting ${String(key)} updated:`, value);
+      return newSettings;
     });
-    
-  const conditionReminderButton = document.getElementById("buttonConditionReminder")
-    if (conditionReminderButton?.classList.contains("On")) {
-            conditionReminderButton?.classList.remove("On");
-            conditionReminderButton?.classList.add("Off");
-        } else {
-            conditionReminderButton?.classList.remove("Off");
-            conditionReminderButton?.classList.add("On");
-        }
   };
 
+  const toggleVersion = () => {
+  const newVersion = settings.version === 'twentyFourteen' ? 'twentyTwentyFour' : 'twentyFourteen';
+  updateSetting('version', newVersion);
+  DEVMODE && console.log("D&D 5e Version", newVersion);
+};
+
   return (
-    <GlobalContext.Provider value={{ status, toggleStatus }}>
+    <GlobalContext.Provider value={{ settings, updateSetting, toggleVersion }}>
       {children}
     </GlobalContext.Provider>
   );
 };
 
-export const useGlobalOptionsContext = () => {
-  const context = useContext(optionsContext);
+export const useGlobalContext = () => {
+  const context = useContext(GlobalContext);
   if (!context) {
     throw new Error('useGlobalContext must be used within a GlobalProvider');
   }

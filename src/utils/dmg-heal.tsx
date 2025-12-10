@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Combatant } from '../types/index';
 import { EditableCell } from '../components/Utils';
 import { ConcentrationCheckModal } from './concentrationCheck';
-import { useGlobalContext } from '../hooks/versionContext';
+import { useGlobalContext } from '../hooks/optionsContext';
 
 interface HpChangeModalProps {
   combatant: Combatant;
@@ -32,7 +32,7 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
   const [error, setError] = useState('');
   const [showConcentrationCheck, setShowConcentrationCheck] = useState(false);
   const [concentrationDC, setConcentrationDC] = useState(10);
-  const { status } = useGlobalContext();
+  const { settings } = useGlobalContext();
   // const [condition, setConditions] = useState<string[]>(conditions)
   const isConcentrating = conditions.includes('Concentrating');
   const isDying = conditions.includes('Death Saves')
@@ -108,8 +108,8 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
     
     if (isConcentrating && damageAmount > 0) {
       const damageToConcentration = Math.floor(damageAmount / 2);
-      // const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
-      const dc = status === 'twentyFourteen' ? Math.max(10, damageToConcentration) : Math.min(Math.max(10, damageToConcentration), 30);
+      // const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
+      const dc = settings.version === 'twentyFourteen' ? Math.max(10, damageToConcentration) : Math.min(Math.max(10, damageToConcentration), 30);
       
       setConcentrationDC(dc);
       setShowConcentrationCheck(true);

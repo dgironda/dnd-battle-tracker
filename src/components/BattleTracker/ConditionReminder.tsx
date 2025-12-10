@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Combatant } from '../../types/index';
 import { getCombatants, storeCombatants } from "../../utils/LocalStorage";
 import { predefinedConditions, conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
-import { useGlobalContext } from '../../hooks/versionContext';
+import { useGlobalContext } from '../../hooks/optionsContext';
 
 interface ConditionReminderProps {
   combatant: Combatant; // <-- optional to avoid undefined crash (copied from hero stat hover)

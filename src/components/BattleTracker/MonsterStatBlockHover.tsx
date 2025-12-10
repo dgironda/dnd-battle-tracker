@@ -3,7 +3,7 @@ import { Monster, Combatant } from '../../types/index';
 import { createUpdateMonster, createDeleteMonster, EditableCell } from "../Utils";
 import { getCombatants, getMonsters, storeMonsters } from '../../utils/LocalStorage';
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
-import { useGlobalContext } from '../../hooks/versionContext';
+import { useGlobalContext } from '../../hooks/optionsContext';
 
 interface MonsterStatBlockHoverProps {
   monster: Monster;
@@ -17,6 +17,10 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
   const [isStuck, setIsStuck] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [combatants, setCombatants] = useState<Combatant[]>(() => getCombatants() || []);
+  const [showConditions, setShowConditions] = useState(false);
+  const toggleConditions = () => {
+    setShowConditions(prevState => !prevState);
+  };
 
   const safe = <T,>(value: T | undefined | null, fallback: T): T =>
     value !== undefined && value !== null ? value : fallback;
@@ -27,8 +31,8 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
     const mod = Math.floor((stat - 10) / 2);
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
-  const { status } = useGlobalContext();
-  const conditionDescriptions = status === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
+  const { settings } = useGlobalContext();
+  const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
   function closeStatsButton() {
     setIsStuck(false)
@@ -129,6 +133,18 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
           {/* <span style={{ fontWeight: 'bold' }}>Senses </span> */}
           <span>Passive Perception {pp}</span>
         </div>
+        <div className='monsterStatConditions' onClick={toggleConditions} >
+          <div>
+          Current conditions:{monster.conditions.map((conditionName) => (
+            <div
+            key={conditionName}>
+              <span className="monsterStatConditionsName">{conditionName}</span>{showConditions && (<span className={`${conditionName}-description`}>: {conditionDescriptions[conditionName]}</span>)}
+            </div>
+          ))}
+        </div>
+        
+        
+        </div>
         <div className={`${id}-notes`}>
           Notes: {combatants.filter(c => c.id === id).map(c => (
             <EditableCell
@@ -142,16 +158,6 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
           />
           ))}
           
-        </div>
-        <div id='monsterStatConditions'>
-          <div>
-          {monster.conditions.map((conditionName) => (
-            <p
-            key={conditionName}>
-              <span className="monsterStatConditionsName">{conditionName}</span>: {conditionDescriptions[conditionName]}
-            </p>
-          ))}
-        </div>
         </div>
       </div>
     </div>

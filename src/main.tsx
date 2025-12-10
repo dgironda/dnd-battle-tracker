@@ -4,7 +4,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
-import { GlobalProvider } from "./hooks/versionContext";
+import { GlobalProvider } from "./hooks/optionsContext";
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import posthog from 'posthog-js';

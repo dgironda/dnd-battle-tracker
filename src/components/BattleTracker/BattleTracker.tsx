@@ -12,7 +12,7 @@ import { useMonsters } from "../../hooks/useMonsters";
 import { useCombat } from "./CombatContext";
 import { InitiativeDialog } from "./InitiativeDialog";
 import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getRoundNumber, storeCombatants } from "../../utils/LocalStorage";
-import { useGlobalContext } from "../../hooks/versionContext";
+import { useGlobalContext } from "../../hooks/optionsContext";
 import { createDeleteMonster } from "../Utils";
 import RoundNumberSpan from "./RoundNumber";
 import { HeroStatBlockHover } from "./HeroStatBlockHover";

@@ -1,7 +1,7 @@
 import { DEVMODE } from "./devmode";
 
 import { Hero, Monster, Combatant } from '../types/index';
-import { useGlobalContext } from '../hooks/versionContext';
+import { useGlobalContext } from '../hooks/optionsContext';
 
 
 

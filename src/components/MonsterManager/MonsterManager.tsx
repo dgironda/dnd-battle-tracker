@@ -3,7 +3,7 @@ import { DEVMODE } from "../../utils/devmode";
 import { useMonsters } from "../../hooks/useMonsters";
 import { Monster } from "../../types/Monster";
 import { createUpdateMonster, createDeleteMonster, EditableCell } from "../Utils";
-import { useGlobalContext } from "../../hooks/versionContext";
+import { useGlobalContext } from "../../hooks/optionsContext";
 import { useCombat } from "../BattleTracker/CombatContext";
 import monstersDataFourteen from "../../assets/2014monsters.json";
 import monstersDataTwentyFour from "../../assets/2024monsters.json";
@@ -14,8 +14,8 @@ interface MonsterManagerProps {
 
 const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
   const { monsters, setMonsters } = useMonsters();
-  const { status } = useGlobalContext();
-  const monstersData = status === "twentyFourteen" ? monstersDataFourteen : monstersDataTwentyFour;
+  const { settings } = useGlobalContext();
+  const monstersData = settings.version === "twentyFourteen" ? monstersDataFourteen : monstersDataTwentyFour;
   const { addMonsterToCombat } = useCombat();
 
   const initialMonster: Monster = {

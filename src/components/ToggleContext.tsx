@@ -1,7 +1,7 @@
 import { DEVMODE } from "../utils/devmode";
 
 import React from 'react';
-import { useGlobalContext } from '../hooks/versionContext';
+import { useGlobalContext } from '../hooks/optionsContext';
 
 const ToggleComponent: React.FC = () => {
   const { settings, toggleVersion } = useGlobalContext();
