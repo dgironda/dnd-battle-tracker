@@ -45,7 +45,7 @@
 #light-dark {
   box-shadow: 1px 2px 7px var(--color-fg);
   cursor: pointer;
-  opacity: .5;
+  /* opacity: .5; */
 }
 
 body {
@@ -115,6 +115,10 @@ button, #inputImportData {
   border: .15rem double var(--color-btn1);
   font-family: "Germania One", system-ui !important;
   font-size: 1.15rem;
+}
+
+.Off {
+  filter: brightness(65%);
 }
 
 button:hover {
@@ -222,7 +226,7 @@ sup {
   margin: 1vh 1vw;
 }
 
-#about {
+#about, #options {
   z-index: 9;
   position: absolute;
   top: 10vh;
@@ -236,7 +240,15 @@ sup {
   border: .5rem solid var(--color-hl2);
 }
 
-#aboutCloseButton {
+#about li, #options li {
+  list-style: none;
+}
+
+#options li {
+  margin: .5rem 0 0 0;
+}
+
+#aboutCloseButton, #optionsCloseButton {
   margin-left: 95%;
 }
 
@@ -255,7 +267,7 @@ sup {
   display: flex;
   justify-content: start;
   margin-top: 0;
-  margin-bottom: 10vh;
+  /* margin-bottom: 10vh; */
   cursor: pointer;
 }
 
@@ -839,6 +851,8 @@ sup {
 
 #buttonVersion {
   font-weight: 700;
+  max-width: fit-content;
+  height: fit-content;
 }
 
 .twentyFour {
@@ -1102,7 +1116,6 @@ sup {
 }
 #uploadData {
   display: flex;
-  justify-self: center;
 }
 #uploadData input, #buttonDownloadData {
   height: fit-content;
@@ -1120,7 +1133,7 @@ sup {
   #header {
   grid-area: header;
   display: grid;
-  grid-template-areas: "logo" "hmbutt" "mmbutt" "sbbutt" "lightdark" "version" "about" "patreon";
+  grid-template-areas: "logo" "hmbutt" "mmbutt" "sbbutt" "lightdark" "about" "options" "patreon";
   grid-template-rows: 1.5fr .7fr .7fr 1fr .3fr .5fr .5fr .6fr;
   align-items: start;
   justify-items: center;
@@ -1148,8 +1161,8 @@ sup {
   #patreonLink {
     grid-area: patreon;
   }
-  #buttonVersion {
-    grid-area: version;
+  #optionsButton {
+    grid-area: options;
   }
   #aboutButton {
     grid-area: about;
@@ -1197,7 +1210,7 @@ sup {
 
   #page {
     display: grid;
-    grid-template-areas: "header" "lightdark" "managers" "round" "battletracker" "sbbutt" "version" "footer";
+    grid-template-areas: "header" "lightdark" "managers" "round" "battletracker" "sbbutt" "options" "footer";
     max-width: 100vw;
     
     justify-items: center;
@@ -1205,7 +1218,7 @@ sup {
   #header {
     grid-area: header;
     display: grid;
-    grid-template-areas: "logo about patreon" "version lightdark lightdark" "hmbutt mmbutt .";
+    grid-template-areas: "logo about patreon" "options lightdark lightdark" "hmbutt mmbutt .";
     /* grid-template-columns: 1fr .5fr .5fr; */
     border-bottom: 2px thin var(--color-brdr1);
     align-items: center;
@@ -1242,8 +1255,8 @@ sup {
   #patreonLink>button {
     font-size: 1rem;
   }
-  #buttonVersion {
-    grid-area: version;
+  #optionsButton {
+    grid-area: options;
     max-width: fit-content;
     height: fit-content;
     margin-left: 1.5rem;
@@ -1262,7 +1275,6 @@ sup {
     grid-area: lightdark;
     justify-self: center;
     padding: 1rem 0 1rem 0;
-    margin-bottom: 5vh !important;
   }
   #footer {
     grid-area: footer;

@@ -4,12 +4,13 @@ import BattleTracker from "./components/BattleTracker/BattleTracker";
 import HeroManager from "./components/HeroManager/HeroManager";
 import MonsterManager from "./components/MonsterManager/MonsterManager";
 import About from "./About";
+import Options from "./Options";
 import ToggleComponent from "./components/ToggleContext";
 import { CombatProvider } from "./components/BattleTracker/CombatContext";
 import { useBattleManager } from "./hooks/useStartBattle";
 import PatreonOverlay from "./components/PatreonOverlay";
 import { DEVMODE } from "./utils/devmode";
-import { exportAllToJson, importFromJson } from "./utils/LocalStorage";
+
 
 
 
@@ -18,7 +19,7 @@ const ENABLE_PATREON = !DEVMODE;
 function App() {
   const [showHeroManager, setShowHeroManager] = useState(false);
   const [showMonsterManager, setShowMonsterManager] = useState(false);
-  const [openPanel, setOpenPanel] = useState<'hero' | 'monster' | 'about' | null>(null);
+  const [openPanel, setOpenPanel] = useState<'hero' | 'monster' | 'about' | 'options' | null>(null);
   
   const handleClosePanel = () => setOpenPanel(null);
   const [isPortrait, setIsPortrait] = useState(
@@ -131,8 +132,12 @@ function App() {
         </button>
       {openPanel === 'monster' && (<MonsterManager onClose={handleClosePanel}/>)}
       
-      <ToggleComponent />
-      {!overlayVisible && (<div id="colorMode"><input type="checkbox" id="light-dark"></input><label htmlFor="light-dark">Light/Dark mode</label></div>)}
+      <Options 
+        isVisible={openPanel === 'options'} 
+        onToggle={() => setOpenPanel(openPanel === 'options' ? null : 'options')} 
+        isSupporter={isSupporter}
+      />
+      
     
     
       
@@ -159,13 +164,7 @@ function App() {
       setShowMonsterManager={setShowMonsterManager}  
     />
     <div id="footer">
-      {isSupporter && (
-        <div id="options">
-        <p><button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button></p>
-        <p id="uploadData"><h2><label htmlFor="inputImportData">Upload your data</label></h2>
-        <input id="inputImportData" type="file" accept=".json" onChange={importFromJson}/></p>
-      </div>
-    )}
+      
       ©2025 <a href="https://www.simulacrumtechnologies.com" target="_blank">Simulacrum Technologies</a>. All rights reserved. Website design and content are protected by copyright law.
       <p>Join our <a href="https://discord.gg/m4AnYSDueM" target="_blank">Discord server</a> for updates and to provide feedback.</p>
     </div>

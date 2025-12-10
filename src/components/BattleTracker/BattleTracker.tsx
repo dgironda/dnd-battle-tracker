@@ -642,7 +642,9 @@ useEffect(() => {
       </table>
           )}
           
-      {conditionModalCombatant && (
+      {conditionModalCombatant && 
+      // conditionReminderOn && 
+      (
         <ConditionReminder 
           combatant={conditionModalCombatant}
           isOpen={showConditionModal}
