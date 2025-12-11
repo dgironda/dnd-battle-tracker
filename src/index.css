@@ -1170,6 +1170,7 @@ sup {
   }
   #patreonLink {
     grid-area: patreon;
+    margin: 0 .25rem .25rem 0;
   }
   #optionsButton {
     grid-area: options;
