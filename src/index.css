@@ -8,9 +8,6 @@
 :root {
   color-scheme: light;
 
-  &:has(#light-dark:checked) {
-    color-scheme: dark;
-  }
   --color-bg1: light-dark(#f8f3e7, #1d1f21);      /* slightly parchment-like vs dark background */
   --color-bg2: light-dark(#e6dfd3, #232528);      /* subtle secondary background vs slightly lighter dark */
   --color-fg: light-dark(#131b1f, #6e5f5f);       /* main text color */
@@ -1029,6 +1026,7 @@ sup {
   border-bottom: 2px solid var(--color-monster-brdr1);
   padding-bottom: .25rem;
   margin-bottom: .5rem;
+  justify-self: center;
 }
 
 .monsterStatName>h3 {

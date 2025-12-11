@@ -10,6 +10,7 @@ import { CombatProvider } from "./components/BattleTracker/CombatContext";
 import { useBattleManager } from "./hooks/useStartBattle";
 import PatreonOverlay from "./components/PatreonOverlay";
 import { DEVMODE } from "./utils/devmode";
+import { useGlobalContext } from "./hooks/optionsContext";
 
 
 
@@ -20,7 +21,7 @@ function App() {
   const [showHeroManager, setShowHeroManager] = useState(false);
   const [showMonsterManager, setShowMonsterManager] = useState(false);
   const [openPanel, setOpenPanel] = useState<'hero' | 'monster' | 'about' | 'options' | null>(null);
-  
+  const { settings } = useGlobalContext();
   const handleClosePanel = () => setOpenPanel(null);
   const [isPortrait, setIsPortrait] = useState(
     window.matchMedia("(orientation: portrait)").matches

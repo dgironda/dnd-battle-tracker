@@ -14,7 +14,11 @@ interface OptionsProps {
 export default function Options({ isVisible, onToggle, isSupporter }: OptionsProps) {
   // const [overlayVisible, setOverlayVisible] = useState(true);
   const { settings, updateSetting } = useGlobalContext();
+
+  const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateSetting('theme', e.target.checked ? 'dark' : 'light');}
   const conditionReminderOn = settings.conditionReminderOn === true ? false : true;
+  
   return (
     <>
       <button id="optionsButton" title="Options and settings" onClick={onToggle}>
@@ -28,7 +32,9 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
                 <ul>
                     <li><ToggleComponent /></li>
                     <li><button onClick={() => updateSetting('conditionReminderOn', !settings.conditionReminderOn)} id="buttonConditionReminder">Condition Reminder Pop-up: {conditionReminderOn === true ? 'On' : 'Off'}</button></li>
-                    <li id="colorMode">{isSupporter && (<><input type="checkbox" id="light-dark"></input><label htmlFor="light-dark">Light/Dark mode</label></>)}</li>
+                    <li id="colorMode">{isSupporter && (<>
+                    <input type="checkbox" id="light-dark" checked={settings.theme === 'dark'} onChange={handleThemeChange}></input>
+                    <label htmlFor="light-dark">Light/Dark mode</label></>)}</li>
                     {isSupporter && (
                           <>
                             <li><button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button></li>

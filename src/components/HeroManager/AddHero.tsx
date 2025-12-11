@@ -84,21 +84,26 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
         <input
           type="number"
           placeholder="HP"
-          value={form.hp}
+          value={form.hp === 10 ? '' : form.hp}
           onKeyDown={keyDownAddHero}
-          onChange={(e) => setForm({ 
-            ...form, 
-            hp: Number(e.target.value) || 0, 
-            currHp: Number(e.target.value) || 0,
-            maxHp: Number(e.target.value) || 0 
-          })}
+          onChange={(e) => {
+            const newValue = Number(e.target.value);
+            setForm({
+              ...form,
+              hp: isNaN(newValue) ? 0 : newValue,
+              currHp: isNaN(newValue) ? 0 : newValue,
+              maxHp: isNaN(newValue) ? 0 : newValue,
+            });
+          }}
         />
         <input
           type="number"
           placeholder="AC"
-          value={form.ac}
+          value={form.ac === 10 ? '' : form.ac}
           onKeyDown={keyDownAddHero}
-          onChange={(e) => setForm({ ...form, ac: Number(e.target.value) || 0 })}
+          onChange={(e) => {
+            const newValue =Number(e.target.value);
+            setForm({ ...form, ac: isNaN(newValue) ? 0 : newValue })}}
         />
       </div>
 

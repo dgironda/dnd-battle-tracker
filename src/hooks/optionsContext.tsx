@@ -1,10 +1,10 @@
 import { DEVMODE } from "../utils/devmode";
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 interface Settings {
   version: 'twentyFourteen' | 'twentyTwentyFour';
   // Add other settings here
-  // theme?: 'light' | 'dark';
+  theme?: 'light' | 'dark';
   conditionReminderOn?: boolean;
 }
 
@@ -17,6 +17,7 @@ interface GlobalContextType {
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
 export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  
   const SETTINGS_KEY = "appSettings";
 
   const getSettings = (): Settings => {
@@ -24,20 +25,25 @@ export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const stored = localStorage.getItem(SETTINGS_KEY);
       return stored ? JSON.parse(stored) : {
         version: "twentyFourteen",
-        // theme: "light",
+        theme: "light",
         conditionReminderOn: true
       };
     } catch (error) {
       console.error("Error loading settings:", error);
       return {
         version: "twentyFourteen",
-        // theme: "light",
+        theme: "light",
         conditionReminderOn: true
       };
     }
+    
   };
 
   const [settings, setSettings] = useState<Settings>(getSettings);
+
+  useEffect(() => {
+    document.documentElement.style.colorScheme = settings.theme || 'light';
+    }, [settings.theme]);
 
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     setSettings((prevSettings:Settings) => {
@@ -52,6 +58,8 @@ export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const newVersion = settings.version === 'twentyFourteen' ? 'twentyTwentyFour' : 'twentyFourteen';
   updateSetting('version', newVersion);
   DEVMODE && console.log("D&D 5e Version", newVersion);
+  
+  
 };
 
   return (
