@@ -229,15 +229,17 @@ const handleNextTurn = () => {
   }
    
 };
-  
+
 // Condition modal popup
   useEffect(() => {
-  const nextCombatant = sortedCombatants[currentTurnIndex];
-  if (nextCombatant.conditions.length > 0) {
+  if (combatants.length > 0) {
+    const nextCombatant = sortedCombatants[currentTurnIndex];
+    const hasConditions = nextCombatant.conditions.length > 0
+  if (hasConditions) {
     // Perform any operations with nextCombatant here
     setConditionModalCombatant(nextCombatant);
     setShowConditionModal(true);
-  }
+  }}
 }, [currentTurnIndex]);
 
   // Auto-open HP modal for death saves
