@@ -8,7 +8,7 @@ import React from "react";
 interface OptionsProps {
   isVisible: boolean;
   onToggle: () => void;
-  isSupporter: boolean
+  isSupporter: boolean;
 }
 
 export default function Options({ isVisible, onToggle, isSupporter }: OptionsProps) {
@@ -17,7 +17,8 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
 
   const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateSetting('theme', e.target.checked ? 'dark' : 'light');}
-  const conditionReminderOn = settings.conditionReminderOn === true ? false : true;
+  // const conditionReminderOn = !settings.conditionReminderOn;
+  // const currentTurnTime = !settings.currentTurnTime;
   
   return (
     <>
@@ -31,10 +32,12 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
             <div>
                 <ul>
                     <li><ToggleComponent /></li>
-                    <li><button onClick={() => updateSetting('conditionReminderOn', !settings.conditionReminderOn)} id="buttonConditionReminder">Condition Reminder Pop-up: {conditionReminderOn === true ? 'On' : 'Off'}</button></li>
+                    <li><button onClick={() => updateSetting('conditionReminderOn', !settings.conditionReminderOn)} id="buttonConditionReminder">Condition Reminder Pop-up: {settings.conditionReminderOn ? 'On' : 'Off'}</button></li>
+                    <li><button onClick={() => updateSetting('currentTurnTime', !settings.currentTurnTime)} id="buttonCurrentTurnTime">Current Turn Time Display: {settings.currentTurnTime ? 'On' : 'Off'}</button></li>
                     <li id="colorMode">{isSupporter && (<>
                     <input type="checkbox" id="light-dark" checked={settings.theme === 'dark'} onChange={handleThemeChange}></input>
                     <label htmlFor="light-dark">Light/Dark mode</label></>)}</li>
+                    <li></li>
                     {isSupporter && (
                           <>
                             <li><button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button></li>

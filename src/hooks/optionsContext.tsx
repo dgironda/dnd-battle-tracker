@@ -6,6 +6,7 @@ interface Settings {
   // Add other settings here
   theme?: 'light' | 'dark';
   conditionReminderOn?: boolean;
+  currentTurnTime?: boolean;
 }
 
 interface GlobalContextType {
@@ -26,14 +27,16 @@ export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       return stored ? JSON.parse(stored) : {
         version: "twentyFourteen",
         theme: "light",
-        conditionReminderOn: true
+        conditionReminderOn: true,
+        currentTurnTime: true
       };
     } catch (error) {
       console.error("Error loading settings:", error);
       return {
         version: "twentyFourteen",
         theme: "light",
-        conditionReminderOn: true
+        conditionReminderOn: true,
+        currentTurnTime: true
       };
     }
     

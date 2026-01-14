@@ -73,6 +73,8 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   // const [roundNumber, setRoundNumber] = useState(() => {
   //   return getRoundNumber();
   // });
+  const [lastRun, setLastRun] = useState<number | null>(null);
+  const [elapsed, setElapsed] = useState<string>('Never run');
   
   
 
@@ -121,6 +123,7 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
   
   const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
   const conditionReminderOn = settings.conditionReminderOn === true ? false : true;
+  const currentTurnTime = settings.currentTurnTime === true ? false : true;
 
   const getHpColor = (currHp: number, maxHp: number): string => {
   if (maxHp === 0) return '#f8f2eb';
@@ -165,6 +168,7 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
 
 
 const handleNextTurn = () => {
+  setLastRun(Date.now());
   if (sortedCombatants.length === 0) return;
   
 
@@ -339,6 +343,24 @@ useEffect(() => {
       }
   };
 
+  useEffect(() => {
+    if (!lastRun) return;
+
+    const interval = setInterval(() => {
+      const seconds = Math.floor((Date.now() - lastRun) / 1000);
+      
+      if (seconds < 60) {
+        setElapsed(`${seconds}s ago`);
+      } else if (seconds < 3600) {
+        setElapsed(`${Math.floor(seconds / 60)}m ago`);
+      } else {
+        setElapsed(`${Math.floor(seconds / 3600)}h ago`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastRun]);
+
   // Add event listener
   window.addEventListener('keydown', handleKeyPress);
 
@@ -395,6 +417,7 @@ useEffect(() => {
           </button>
         </div>
       );
+      
     }
 
     return (
@@ -425,13 +448,17 @@ useEffect(() => {
 
   return (
     <>
-      <button title="Start a new Battle" id="buttonStartBattle" onClick={handleStartBattle}>
+      <button title="Start a new Battle" id="buttonStartBattle" onClick={() => {
+        setLastRun(Date.now());
+        handleStartBattle();
+      }}>
           Start Battle
       </button>
       {combatants.length > 0 && <div id="round">
           <RoundNumberSpan
           roundNumber={roundNumber} />
           {/* <button id="buttonResetCombat" onClick={resetCombat}>⟳</button> */}
+          {currentTurnTime && (<div id="turnTimeDisplay">Current turn time: {elapsed}</div>)}
       </div>
 }
       {/* #7: Resume Combat UI */}
