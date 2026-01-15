@@ -123,7 +123,7 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
   
   const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
   const conditionReminderOn = settings.conditionReminderOn === true ? false : true;
-  const currentTurnTime = settings.currentTurnTime === true ? false : true;
+  const currentTurnTime = settings.currentTurnTime ?? true; // Default to true if undefined
 
   const getHpColor = (currHp: number, maxHp: number): string => {
   if (maxHp === 0) return '#f8f2eb';
@@ -319,6 +319,25 @@ useEffect(() => {
   }
 }, [combatants, currentTurnIndex]);
 
+  // Time elapsed tracker
+  useEffect(() => {
+    if (!lastRun) return;
+
+    const interval = setInterval(() => {
+      const seconds = Math.floor((Date.now() - lastRun) / 1000);
+      
+      if (seconds < 60) {
+        setElapsed(`${seconds}s ago`);
+      } else if (seconds < 3600) {
+        setElapsed(`${Math.floor(seconds / 60)}m ago`);
+      } else {
+        setElapsed(`${Math.floor(seconds / 3600)}h ago`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastRun]);
+
   // Action, Bonus, Movement Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -343,23 +362,6 @@ useEffect(() => {
       }
   };
 
-  useEffect(() => {
-    if (!lastRun) return;
-
-    const interval = setInterval(() => {
-      const seconds = Math.floor((Date.now() - lastRun) / 1000);
-      
-      if (seconds < 60) {
-        setElapsed(`${seconds}s ago`);
-      } else if (seconds < 3600) {
-        setElapsed(`${Math.floor(seconds / 60)}m ago`);
-      } else {
-        setElapsed(`${Math.floor(seconds / 3600)}h ago`);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [lastRun]);
 
   // Add event listener
   window.addEventListener('keydown', handleKeyPress);
