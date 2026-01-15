@@ -2,7 +2,7 @@ import { DEVMODE } from "./utils/devmode";
 import { GlobalProvider, useGlobalContext } from "./hooks/optionsContext";
 import ToggleComponent from "./components/ToggleContext";
 import { exportAllToJson, importFromJson } from "./utils/LocalStorage";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 
 interface OptionsProps {
@@ -20,6 +20,12 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
   // const conditionReminderOn = !settings.conditionReminderOn;
   // const currentTurnTime = !settings.currentTurnTime;
   
+  useEffect(() => {
+    if (!isSupporter)
+      settings.currentTurnTime = false
+      settings.theme = "light"
+  }, [isSupporter]);
+  
   return (
     <>
       <button id="optionsButton" title="Options and settings" onClick={onToggle}>
@@ -33,7 +39,10 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
                 <ul>
                     <li><ToggleComponent /></li>
                     <li><button onClick={() => updateSetting('conditionReminderOn', !settings.conditionReminderOn)} id="buttonConditionReminder">Condition Reminder Pop-up: {settings.conditionReminderOn ? 'On' : 'Off'}</button></li>
-                    <li><button onClick={() => updateSetting('currentTurnTime', !settings.currentTurnTime)} id="buttonCurrentTurnTime">Current Turn Time Display: {settings.currentTurnTime ? 'On' : 'Off'}</button></li>
+                    {isSupporter && (<>
+                      <li><button onClick={() => updateSetting('currentTurnTime', !settings.currentTurnTime)} id="buttonCurrentTurnTime">Current Turn Time Display: {settings.currentTurnTime ? 'On' : 'Off'}</button></li>
+                    </>
+                        )}
                     <li id="colorMode">{isSupporter && (<>
                     <input type="checkbox" id="light-dark" checked={settings.theme === 'dark'} onChange={handleThemeChange}></input>
                     <label htmlFor="light-dark">Light/Dark mode</label></>)}</li>

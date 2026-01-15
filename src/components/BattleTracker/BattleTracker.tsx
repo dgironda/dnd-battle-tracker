@@ -324,15 +324,22 @@ useEffect(() => {
     if (!lastRun) return;
 
     const interval = setInterval(() => {
-      const seconds = Math.floor((Date.now() - lastRun) / 1000);
+      const totalSeconds = Math.floor((Date.now() - lastRun) / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
       
-      if (seconds < 60) {
-        setElapsed(`${seconds}s ago`);
-      } else if (seconds < 3600) {
-        setElapsed(`${Math.floor(seconds / 60)}m ago`);
-      } else {
-        setElapsed(`${Math.floor(seconds / 3600)}h ago`);
+      let timeString = `${seconds}s`;
+      
+      if (minutes > 0) {
+        timeString = `${minutes}m ${timeString}`;
       }
+      
+      if (hours > 0) {
+        timeString = `${hours}h ${timeString}`;
+      }
+      
+      setElapsed(timeString);
     }, 1000);
 
     return () => clearInterval(interval);

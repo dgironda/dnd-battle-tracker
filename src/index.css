@@ -486,7 +486,8 @@ sup {
 
 #round {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 4rem;
   align-items: center;
   font-size: 1.5rem;
   font-weight: 800;
