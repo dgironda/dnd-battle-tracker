@@ -74,7 +74,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   //   return getRoundNumber();
   // });
   const [lastRun, setLastRun] = useState<number | null>(null);
-  const [elapsed, setElapsed] = useState<string>('Never run');
+  const [elapsed, setElapsed] = useState<string>('Advance the turn to start the timer');
   
   
 

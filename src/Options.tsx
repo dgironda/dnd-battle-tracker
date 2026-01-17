@@ -20,12 +20,6 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
   // const conditionReminderOn = !settings.conditionReminderOn;
   // const currentTurnTime = !settings.currentTurnTime;
   
-  useEffect(() => {
-    if (!isSupporter)
-      settings.currentTurnTime = false
-      settings.theme = "light"
-  }, [isSupporter]);
-  
   return (
     <>
       <button id="optionsButton" title="Options and settings" onClick={onToggle}>
