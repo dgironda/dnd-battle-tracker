@@ -19,11 +19,12 @@ import { HeroStatBlockHover } from "./HeroStatBlockHover";
 import { MonsterStatBlockHover } from "./MonsterStatBlockHover";
 import { useBattleManager } from "../../hooks/useStartBattle";
 import { ConditionReminder } from "./ConditionReminder";
-
+import BattleManager from '../BattleManager/BattleManager';
 
 interface BattleTrackerProps {
   setShowHeroManager: (show: boolean) => void;
   setShowMonsterManager: (show: boolean) => void;
+  setShowBattleManager: (show: boolean) => void;
 }
 
 interface StartBattleContextType {

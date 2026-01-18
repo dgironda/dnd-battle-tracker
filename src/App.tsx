@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import BattleTracker from "./components/BattleTracker/BattleTracker";
 import HeroManager from "./components/HeroManager/HeroManager";
 import MonsterManager from "./components/MonsterManager/MonsterManager";
+import BattleManager from "./components/BattleManager/BattleManager";
 import About from "./About";
 import Options from "./Options";
 import ToggleComponent from "./components/ToggleContext";
@@ -11,6 +12,7 @@ import { useBattleManager } from "./hooks/useStartBattle";
 import PatreonOverlay from "./components/PatreonOverlay";
 import { DEVMODE } from "./utils/devmode";
 import { useGlobalContext } from "./hooks/optionsContext";
+import "./components/BattleManager/BattleManager.css";
 
 
 
@@ -20,7 +22,7 @@ const ENABLE_PATREON = !DEVMODE;
 function App() {
   const [showHeroManager, setShowHeroManager] = useState(false);
   const [showMonsterManager, setShowMonsterManager] = useState(false);
-  const [openPanel, setOpenPanel] = useState<'hero' | 'monster' | 'about' | 'options' | null>(null);
+  const [openPanel, setOpenPanel] = useState<'hero' | 'monster' | 'battle' | 'about' | 'options' | null>(null);
   const { settings } = useGlobalContext();
   const handleClosePanel = () => setOpenPanel(null);
   const [isPortrait, setIsPortrait] = useState(
@@ -48,6 +50,9 @@ function App() {
         case 'e':
           setOpenPanel(openPanel === 'hero' ? null : 'hero');
           break;
+        case 'b':
+          setOpenPanel(openPanel === 'battle' ? null : 'battle');
+          break;
       }
     };
   
@@ -73,7 +78,7 @@ function App() {
     const code = params.get("code");
 
     if (code) {
-      // Store the code so we know they’ve logged in
+      // Store the code so we know they've logged in
       localStorage.setItem("patreon_code", code);
       setIsSupporter(true);
 
@@ -132,6 +137,11 @@ function App() {
           {openPanel === 'monster' ? (<span>Close Monster Manager<sup>(w)</sup></span>) : (<span>Monster Manager<sup>(w)</sup></span>)}
         </button>
       {openPanel === 'monster' && (<MonsterManager onClose={handleClosePanel}/>)}
+      
+      <button id="battleManagerButton" title="Save and Load Battles" onClick={() => setOpenPanel(openPanel === 'battle' ? null : 'battle')}>
+        {openPanel === 'battle' ? (<span>Close Battle Manager<sup>(b)</sup></span>) : (<span>Battle Manager<sup>(b)</sup></span>)}
+      </button>
+      {openPanel === 'battle' && (<BattleManager onClose={handleClosePanel}/>)}
       
       <Options 
         isVisible={openPanel === 'options'} 
