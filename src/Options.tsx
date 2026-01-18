@@ -41,13 +41,13 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
                     <input type="checkbox" id="light-dark" checked={settings.theme === 'dark'} onChange={handleThemeChange}></input>
                     <label htmlFor="light-dark">Light/Dark mode</label></>)}</li>
                     <li></li>
-                    {isSupporter && (
+                    {/* {isSupporter && (
                           <>
                             <li><button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button></li>
                             <li id="uploadData"><h2><label htmlFor="inputImportData">Upload your data</label></h2>
                             <input id="inputImportData" type="file" accept=".json" onChange={importFromJson}/></li>
                           </>
-                        )}
+                        )} */}
                 </ul>
                 {/* <div>
                     <h3>Keyboard Shortcuts</h3>

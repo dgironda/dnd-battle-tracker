@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Combatant } from '../../types/index';
 import { useCombat } from '../BattleTracker/CombatContext';
+import { exportAllToJson, importFromJson } from '../../utils/LocalStorage';
 
 interface SavedBattle {
   id: string;
@@ -165,6 +166,14 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
         )}
       </div>
 
+      {/* Export/Import */}
+      <div id="exportImportBattles">
+        
+          <p><button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button></p>
+          <p id="uploadData"><h3><label htmlFor="inputImportData">Upload your data</label></h3>
+          <input id="inputImportData" type="file" accept=".json" onChange={importFromJson}/></p>
+        
+      </div>
       {/* Saved Battles List */}
       <div id="savedBattlesOuter">
         <h3>Saved Battles ({savedBattles.length})</h3>

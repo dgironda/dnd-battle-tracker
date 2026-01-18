@@ -252,6 +252,10 @@ const importFromJson = (e: React.ChangeEvent<HTMLInputElement>) => {
       const sanitizedHeroes = importedData.heroes.map(sanitizeObject)
       const sanitizedCombatants = importedData.combatants.map(sanitizeObject)
 
+      // Get existing heroes and merge with imported ones
+      const existingHeroes = getHeroes() ?? []
+      const mergedHeroes = [...existingHeroes, ...sanitizedHeroes]
+
       // Additional validation on the data content
       if (!Array.isArray(sanitizedHeroes) || 
           !Array.isArray(sanitizedCombatants)) {
@@ -268,14 +272,14 @@ const importFromJson = (e: React.ChangeEvent<HTMLInputElement>) => {
       }
       
       // Optional: Validate array lengths aren't excessive
-      if (importedData.heroes.length > 1000 || 
-          importedData.combatants.length > 1000) {
+      if (mergedHeroes.length > 1000 || 
+          sanitizedCombatants.length > 1000) {
         alert('File contains too many entries')
         return
       }
       
       // Save to localStorage
-      localStorage.setItem(HEROES_KEY, JSON.stringify(sanitizedHeroes))
+      localStorage.setItem(HEROES_KEY, JSON.stringify(mergedHeroes))
       localStorage.setItem(COMBATANTS_KEY, JSON.stringify(sanitizedCombatants))
       localStorage.setItem(ROUND_KEY, importedData.round.toString())
       
