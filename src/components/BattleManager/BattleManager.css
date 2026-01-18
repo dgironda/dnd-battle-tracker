@@ -1,33 +1,69 @@
-/* Battle Manager Styles */
+/* Battle Manager Popup Styles - Matches HeroManager/MonsterManager */
 
-.battle-manager-content {
-  padding: 1rem;
-  max-height: 70vh;
+#battleAddManage {
+  margin-top: 1rem;
+  position: absolute;
+  z-index: 9;
+  background-color: var(--color-hl1);
+  font-family: 'Caudex', serif;
+  border: .5rem solid var(--color-hl2);
+  top: 0vh;
+  left: 15vw;
+  width: 80vw;
+  padding: 1vw;
+  max-height: 85vh;
   overflow-y: auto;
 }
 
-.save-battle-section,
-.saved-battles-section {
+#saveBattleOuter,
+#savedBattlesOuter {
   margin-bottom: 1.5rem;
+  padding: 1rem; 
+  border: 1px solid var(--color-brdr1); 
+  border-radius: 4px; 
+  background-color: var(--color-bg2);
 }
 
-.save-battle-section h3,
-.saved-battles-section h3 {
+#saveBattleOuter h3,
+#savedBattlesOuter h3 {
+  margin-top: 0;
   margin-bottom: 1rem;
-  color: #8b4513;
+  color: var(--color-hl2);
+  font-size: 1.3em;
 }
 
 .battle-info {
   margin-bottom: 1rem;
-  padding: 0.5rem;
+  padding: 0.75rem;
   background: rgba(139, 69, 19, 0.1);
   border-radius: 4px;
-  font-size: 0.9em;
+  font-size: 1em;
+  border-left: 4px solid var(--color-hl2);
 }
 
 .no-battle-warning {
   color: #888;
   font-style: italic;
+  padding: 1rem;
+  text-align: center;
+}
+
+.btn-save-battle {
+  background: var(--color-hl2);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  transition: background 0.2s ease;
+  font-family: 'Caudex', serif;
+}
+
+.btn-save-battle:hover {
+  background: var(--color-hl3);
+  transform: translateY(-1px);
 }
 
 .save-dialog {
@@ -36,34 +72,46 @@
 
 .save-dialog input {
   width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  border: 2px solid #8b4513;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  border: 2px solid var(--color-hl2);
   border-radius: 4px;
   font-size: 1em;
+  font-family: 'Caudex', serif;
+  background: var(--color-bg1);
+}
+
+.save-dialog input:focus {
+  outline: none;
+  border-color: var(--color-hl3);
+  box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
 }
 
 .save-dialog-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .save-dialog-buttons button {
   flex: 1;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
+  font-size: 1em;
+  font-family: 'Caudex', serif;
+  transition: all 0.2s ease;
 }
 
 .save-dialog-buttons button:first-child {
-  background: #8b4513;
+  background: var(--color-hl2);
   color: white;
 }
 
 .save-dialog-buttons button:first-child:hover {
-  background: #a0522d;
+  background: var(--color-hl3);
+  transform: translateY(-1px);
 }
 
 .save-dialog-buttons button:last-child {
@@ -89,35 +137,37 @@
 }
 
 .battle-card {
-  border: 2px solid #ddd;
+  border: 2px solid var(--color-brdr1);
   border-radius: 8px;
   padding: 1rem;
-  background: white;
+  background: var(--color-bg1);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .battle-card:hover {
-  border-color: #8b4513;
+  border-color: var(--color-hl2);
   box-shadow: 0 2px 8px rgba(139, 69, 19, 0.2);
+  transform: translateY(-2px);
 }
 
 .battle-card.selected {
-  border-color: #8b4513;
-  background: rgba(139, 69, 19, 0.05);
+  border-color: var(--color-hl2);
+  background: var(--color-hl1);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
 }
 
 .battle-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .battle-card-header h4 {
   margin: 0;
-  color: #8b4513;
-  font-size: 1.1em;
+  color: var(--color-hl2);
+  font-size: 1.2em;
 }
 
 .battle-card-actions {
@@ -127,21 +177,24 @@
 
 .btn-load,
 .btn-delete {
-  padding: 0.25rem 0.75rem;
+  padding: 0.4rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9em;
+  font-weight: bold;
+  font-family: 'Caudex', serif;
   transition: all 0.2s ease;
 }
 
 .btn-load {
-  background: #8b4513;
+  background: var(--color-hl2);
   color: white;
 }
 
 .btn-load:hover {
-  background: #a0522d;
+  background: var(--color-hl3);
+  transform: translateY(-1px);
 }
 
 .btn-delete {
@@ -151,10 +204,11 @@
 
 .btn-delete:hover {
   background: #c82333;
+  transform: translateY(-1px);
 }
 
 .battle-card-info {
-  font-size: 0.9em;
+  font-size: 0.95em;
   color: #666;
 }
 
@@ -165,17 +219,18 @@
 .battle-stats {
   margin: 0.25rem 0;
   font-weight: bold;
+  color: var(--color-text);
 }
 
 .battle-card-details {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #ddd;
+  border-top: 2px solid var(--color-brdr1);
 }
 
 .battle-card-details h5 {
-  margin: 0 0 0.5rem 0;
-  color: #8b4513;
+  margin: 0 0 0.75rem 0;
+  color: var(--color-hl2);
 }
 
 .battle-card-details ul {
@@ -185,28 +240,35 @@
 }
 
 .battle-card-details li {
-  padding: 0.25rem 0;
-  font-size: 0.9em;
+  padding: 0.4rem 0;
+  font-size: 0.95em;
+  border-bottom: 1px solid rgba(139, 69, 19, 0.1);
 }
 
-.btn-primary {
-  background: #8b4513;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  transition: background 0.2s ease;
+.battle-card-details li:last-child {
+  border-bottom: none;
 }
 
-.btn-primary:hover {
-  background: #a0522d;
-}
-
-hr {
-  border: none;
-  border-top: 2px solid #ddd;
-  margin: 1.5rem 0;
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  #battleAddManage {
+    top: 0vh;
+    left: 5vw;
+    width: 90vw;
+  }
+  
+  .battle-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .battle-card-actions {
+    width: 100%;
+  }
+  
+  .btn-load,
+  .btn-delete {
+    flex: 1;
+  }
 }
