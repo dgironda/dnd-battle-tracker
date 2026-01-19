@@ -57,7 +57,7 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
             <th>Player</th>
             <th>HP</th>
             <th>AC</th>
-            <th>Present</th>
+            <th>Ready For Next Battle</th>
             <th></th>
           </tr>
         </thead>

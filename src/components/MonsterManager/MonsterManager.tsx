@@ -167,7 +167,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
             <th>HP</th>
             <th>AC</th>
             <th>Hidden?</th>
-            <th>Present</th>
+            <th>Ready For Next Battle</th>
             <th></th>
           </tr>
         </thead>
