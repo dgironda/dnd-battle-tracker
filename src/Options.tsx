@@ -1,7 +1,7 @@
 import { DEVMODE } from "./utils/devmode";
 import { GlobalProvider, useGlobalContext } from "./hooks/optionsContext";
 import ToggleComponent from "./components/ToggleContext";
-import { exportAllToJson, importFromJson } from "./utils/LocalStorage";
+// import { exportAllToJson, importFromJson } from "./utils/LocalStorage";
 import { useState, useEffect } from "react";
 import React from "react";
 
