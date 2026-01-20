@@ -102,7 +102,7 @@ a:visited {
   margin: .5rem .1rem;
 }
 
-button, #inputImportData {
+button {
   border-radius: 0;
   margin: .3rem;
   text-align: center;
@@ -1128,9 +1128,9 @@ sup {
   display: flex;
   flex-wrap: wrap;
 }
-#uploadData input, #buttonDownloadData {
+#inputImportData, #buttonDownloadData {
   width: fit-content;
-  padding: .2rem;
+  padding: .3rem;
 }
 @media (orientation: landscape) {
   #page {
