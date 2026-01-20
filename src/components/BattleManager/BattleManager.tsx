@@ -3,6 +3,7 @@ import { Combatant } from '../../types/index';
 import { useCombat } from '../BattleTracker/CombatContext';
 // import { exportAllToJson, importFromJson } from '../../utils/LocalStorage';
 import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getRoundNumber, storeCombatants } from "../../utils/LocalStorage";
+import { Popup } from '../../utils/Popup';
 
 interface SavedBattle {
   id: string;
@@ -171,8 +172,24 @@ const downloadFile = ({ data, fileName, fileType }: DownloadFileParams) => {
   })
 
 }
-const importFromJson = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0]
+  const [showImportConfirmPopup, setShowImportConfirmPopup] = useState(false);
+  const handleImport = () => {
+    setShowImportConfirmPopup(true);
+  };
+const handleImportContinue = () => {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = '.json'
+  input.onchange = (e: Event) => {
+    const file = (e.target as HTMLInputElement).files?.[0]
+    if (file) {
+      importFromJson(file)
+    }
+  }
+  input.click()
+}
+const importFromJson = (file: File) => {
+
   if (!file) return
   const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB limit
   const ALLOWED_FILE_TYPE = 'application/json'
@@ -187,14 +204,12 @@ const importFromJson = (e: React.ChangeEvent<HTMLInputElement>) => {
   // Check file type
   if (file.type !== ALLOWED_FILE_TYPE && !file.name.endsWith('.json')) {
     alert('Please upload a valid JSON file')
-    e.target.value = '' // Reset input
     return
   }
   
   // Check file size
   if (file.size > MAX_FILE_SIZE) {
     alert(`File is too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB`)
-    e.target.value = '' // Reset input
     return
   }
   
@@ -222,7 +237,7 @@ const importFromJson = (e: React.ChangeEvent<HTMLInputElement>) => {
       const sanitizedCombatants = importedData.combatants.map(sanitizeObject)
       const sanitizedBattles = importedData.battles.map(sanitizeObject)
 
-      // Get existing heroes and merge with imported ones
+      // Get existing heroes + battles and merge with imported ones
       const existingHeroes = getHeroes() ?? []
       const mergedHeroes = [...existingHeroes, ...sanitizedHeroes]
       const existingBattles = savedBattles ?? []
@@ -269,15 +284,11 @@ const importFromJson = (e: React.ChangeEvent<HTMLInputElement>) => {
       } else {
         alert('Error reading file')
       }
-    } finally {
-      // Reset the input so the same file can be uploaded again if needed
-      e.target.value = ''
-    }
+    } 
   }
   
   reader.onerror = () => {
     alert('Error reading file')
-    e.target.value = ''
   }
   
   reader.readAsText(file)
@@ -343,8 +354,11 @@ const isValidGameData = (data: any): boolean => {
       <div id="exportImportBattles">
         
           <p><button id="buttonDownloadData" onClick={exportAllToJson}>Download Heroes and active Combat</button></p>
-          <p id="uploadData"><h3><label htmlFor="inputImportData">Upload your data</label></h3>
-          <input id="inputImportData" type="file" accept=".json" onChange={importFromJson}/></p>
+          <p id="uploadData">
+            {/* <h3><label htmlFor="inputImportData">Upload your data</label></h3>
+            <input id="inputImportData" type="file" accept=".json" onChange={handleImport}/> */}
+            <button id="inputImportData" onClick={handleImport}>Upload your data</button>
+          </p>
         
       </div>
       {/* Saved Battles List */}
@@ -423,8 +437,18 @@ const isValidGameData = (data: any): boolean => {
           </div>
         )}
       </div>
+      <Popup
+        message="Have you saved your current battle first? If so continue."
+        isOpen={showImportConfirmPopup}
+        onCancel={() => setShowImportConfirmPopup(false)}
+        onContinue={handleImportContinue}
+        title="Import new data"
+      />
+
     </div>
+    
   );
+  
 };
 
 export default BattleManager;

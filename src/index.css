@@ -648,7 +648,7 @@ sup {
   opacity: 1;
 }
 
-.hpChangeModalOuter {
+.hpChangeModalOuter, .popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -661,7 +661,9 @@ sup {
   align-items: center;    
 }
 
-.hpChangeModalInner {
+
+
+.hpChangeModalInner, .popup-container {
   background-color: var(--color-rowodd);
   padding: 2rem;
   border-radius: 8px;
@@ -706,7 +708,7 @@ sup {
   gap: 2rem;
 }
 
-.hpChangeModalCurrent {
+.hpChangeModalCurrent, .popup-message {
   font-size: 1.2rem; 
   margin-bottom: 1rem;
   color: var(--color-shadow);
@@ -740,7 +742,7 @@ sup {
   font-weight: 600;
 }
 
-.hpChangeModalHealButton {
+.hpChangeModalHealButton, .btn-continue {
   flex: 1;
   padding: 0.75rem;
   background-color: var(--color-greengo);
@@ -752,7 +754,7 @@ sup {
   font-weight: 600;
 }
 
-.hpChangeModalCancelButton {
+.hpChangeModalCancelButton, .btn-cancel {
   width: 75%;
   margin: 0.5rem 10%;
   padding: 0.5rem;
