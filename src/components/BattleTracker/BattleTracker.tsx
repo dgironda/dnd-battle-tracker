@@ -124,7 +124,7 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
   
   const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
   const conditionReminderOn = settings.conditionReminderOn === true ? false : true;
-  const currentTurnTime = settings.currentTurnTime ?? true; // Default to true if undefined
+  const currentTurnTime = settings.currentTurnTime ?? true; 
 
   const getHpColor = (currHp: number, maxHp: number): string => {
   if (maxHp === 0) return '#f8f2eb';
@@ -478,9 +478,10 @@ useEffect(() => {
       </button>
       {combatants.length > 0 && <div id="round">
           <RoundNumberSpan
-          roundNumber={roundNumber} />
+          roundNumber={roundNumber}
+          elapsed={elapsed} />
           {/* <button id="buttonResetCombat" onClick={resetCombat}>⟳</button> */}
-          {currentTurnTime && (<div id="turnTimeDisplay">Current turn time: {elapsed}</div>)}
+          {/* {currentTurnTime && (<div id="turnTimeDisplay">Current turn time: {elapsed}</div>)} */}
       </div>
 }
       {/* #7: Resume Combat UI */}
