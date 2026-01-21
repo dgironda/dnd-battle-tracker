@@ -115,6 +115,7 @@ button {
   border: .15rem double var(--color-btn1);
   font-family: "Germania One", system-ui !important;
   font-size: 1.15rem;
+  transition: background 0.2s ease;
 }
 
 .Off {
@@ -1392,7 +1393,7 @@ sup {
 }
 
 
-/* Battle Manager Button Styles */
+/* Battle Manager Button Styles
 #battleManagerButton {
   background: #6c757d;
   color: white;
@@ -1412,4 +1413,4 @@ sup {
 #battleManagerButton sup {
   font-size: 0.7em;
   margin-left: 0.2rem;
-}
+} */
