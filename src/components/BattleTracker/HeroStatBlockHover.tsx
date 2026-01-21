@@ -35,6 +35,7 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
 
   function closeStatsButton() {
     setIsStuck(false)
+    setIsHovering(false)
   }
 
   const handleKeyPressx = useCallback((event:KeyboardEvent) => {

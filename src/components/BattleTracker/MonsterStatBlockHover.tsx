@@ -36,6 +36,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
 
   function closeStatsButton() {
     setIsStuck(false)
+    setIsHovering(false)
   }
 
   const handleKeyPressx = useCallback((event:KeyboardEvent) => {
