@@ -19,6 +19,7 @@ import { HeroStatBlockHover } from "./HeroStatBlockHover";
 import { MonsterStatBlockHover } from "./MonsterStatBlockHover";
 import { useBattleManager } from "../../hooks/useStartBattle";
 import { ConditionReminder } from "./ConditionReminder";
+import { Popup } from "../../utils/Popup";
 
 
 interface BattleTrackerProps {
@@ -152,6 +153,17 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
   
   return `#${rHex}${gHex}${bHex}`;
 };
+
+  const [isSBPopupOpen, setIsSBPopupOpen] = React.useState(false);
+  
+    const handleSBContinue = () => {
+      setIsSBPopupOpen(false);
+      handleStartBattle()
+    };
+  
+    const handleSBCancel = () => {
+      setIsSBPopupOpen(false);
+    };
 
   const { handleStartBattle } = useBattleManager({
     setRoundNumber,
@@ -459,7 +471,8 @@ useEffect(() => {
     <>
       <button title="Start a new Battle" id="buttonStartBattle" onClick={() => {
         setLastRun(Date.now());
-        handleStartBattle();
+        // handleStartBattle();
+        setIsSBPopupOpen(true)
       }}>
           Start Battle
       </button>
@@ -763,6 +776,13 @@ useEffect(() => {
     updateCombatant={updateCombatant}
   />
 )}
+<Popup
+        message="Are you sure you want to start a new battle? Your previous one will be lost."
+        isOpen={isSBPopupOpen}
+        onCancel={handleSBCancel}
+        onContinue={handleSBContinue}
+        title="Confirm Battle Start"
+      />
     </>
 
   );

@@ -31,8 +31,8 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
   const handleStartBattle = useCallback(async () => {
     
     
-    const confirmed = window.confirm("Are you sure you want to start a new battle?");
-    if (!confirmed) return;
+    // const confirmed = window.confirm("Are you sure you want to start a new battle?");
+    // if (!confirmed) return;
     
     setShowHeroManager(false);
     setShowMonsterManager(false);
