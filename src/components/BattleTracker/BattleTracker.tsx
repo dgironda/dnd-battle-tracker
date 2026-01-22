@@ -182,69 +182,64 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
 const handleNextTurn = () => {
   setLastRun(Date.now());
   if (sortedCombatants.length === 0) return;
-  
 
-  let nextIndex = (currentTurnIndex + 1) % sortedCombatants.length;
-  console.log("Next Turn Index", nextIndex)
-  const nextCombatant = sortedCombatants[nextIndex];
-  if ((nextCombatant.action && nextCombatant.bonus && nextCombatant.move && nextIndex != 0)) {
-    return;
-}
-
+  let nextIndex = currentTurnIndex;
   let attempts = 0;
   const maxAttempts = sortedCombatants.length;
 
-  while (
-    attempts < maxAttempts &&
-    sortedCombatants[nextIndex].conditions.includes('Dead')
-  ) {
+  do {
     nextIndex = (nextIndex + 1) % sortedCombatants.length;
     attempts++;
-  }
-
-  if (attempts === maxAttempts) {
-    console.warn("All combatants are dead. No turns left.");
-    return;
-  }
-
-  // Reset ALL combatants at the start of a new round
-  if (nextIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
-    const nextCombatantId = sortedCombatants[nextIndex].id;
-    const resetCombatants = combatants
-  .map(c => {
-    if (!c.conditions.includes('Dead')) {
-      return { ...c, action: false, bonus: false, move: false };
+    
+    // Break if we find a living combatant
+    if (!sortedCombatants[nextIndex].conditions.includes('Dead')) {
+      break;
     }
-    return c;
-  })
-  .sort((a, b) => b.initiative - a.initiative)
-  .map(c => c.id === nextCombatantId ? { ...c, reaction: false } : c);
 
+    // When we cycle back to the current index after max attempts
+    if (attempts >= maxAttempts) {
+      console.warn("All combatants are dead. No turns left.");
+      return;
+    }
+
+  } while (attempts < maxAttempts);
+
+  // Reset ALL combatants for a fresh round if nextIndex rolled back to 0
+  if (nextIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
+    const resetCombatants = combatants
+      .map(c => {
+        if (!c.conditions.includes('Dead')) {
+          return { ...c, action: false, bonus: false, move: false };
+        }
+        return c;
+      })
+      .sort((a, b) => b.initiative - a.initiative);
+  
     setCombatants(resetCombatants);
     setRoundNumber(roundNumber + 1);
     setCurrentTurnIndex(nextIndex);
   } else {
     // Just reset reaction for the next combatant
     const nextCombatantId = sortedCombatants[nextIndex].id;
-    const updatedCombatants = combatants.map(c =>
-      c.id === nextCombatantId ? { ...c, reaction: false } : c
-    );
-    setCombatants(updatedCombatants);
-    setCurrentTurnIndex(nextIndex);
-    let currentCombatant = sortedCombatants[currentTurnIndex];
-    // if (currentCombatant.conditions.length > 0 && !currentCombatant.conditions.includes("Dead")) {
-    //   setConditionModalCombatant(nextCombatant);
-    //   setShowConditionModal(true);
-    // }
-    if (nextIndex < updatedCombatants.length) {
-    updatedCombatants[nextIndex].action = false;
-    updatedCombatants[nextIndex].bonus = false;
-    updatedCombatants[nextIndex].move = false;
-    DEVMODE && console.log("After Handle Next Turn:", updatedCombatants, "Current Turn", sortedCombatants[nextIndex].name);
+    const updatedCombatants = combatants.map(c => {
+    if (c.id === nextCombatantId) {
+      return { 
+        ...c, 
+        action: false,
+        bonus: false,
+        move: false,
+        reaction: false  
+      };
+    }
+    // Return all other combatants unchanged
+    return c;
+  });
+
+  setCombatants(updatedCombatants);
+  setCurrentTurnIndex(nextIndex);
   }
-  }
-   
 };
+
 
 // Condition modal popup
   useEffect(() => {

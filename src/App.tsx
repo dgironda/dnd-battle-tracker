@@ -91,6 +91,8 @@ function App() {
   
   //Overlay
   const [overlayVisible, setOverlayVisible] = useState(true);
+  const [battleOverlayVisible, setBattleOverlayVisible] = useState(false);
+  
 
   useEffect(() => {
     if (!ENABLE_PATREON) {
@@ -106,6 +108,11 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    if (openPanel === 'battle' && !isSupporter && ENABLE_PATREON) {
+      setBattleOverlayVisible(true);
+    }
+  }, [openPanel, isSupporter]);
 
 
   const handlePatreonLogin = () => {
@@ -118,8 +125,16 @@ function App() {
 
   return (
     <CombatProvider>
+    {overlayVisible && (<PatreonOverlay onClose={() => {
+      setOverlayVisible(false);
+    }} />)}
 
-    {overlayVisible && <PatreonOverlay onClose={() => setOverlayVisible(false)} />}
+    {battleOverlayVisible && (
+        <PatreonOverlay onClose={() => {
+          setBattleOverlayVisible(false);
+          setOpenPanel(null);
+        }} />
+      )}
       
     <div id="header">
       <h1 id="logo">D&D Battle Tracker</h1>
@@ -162,9 +177,9 @@ function App() {
               Support us on Patreon!
             </button>
         ) : (
-            <p>
-              ✅ Thank you for your support!
-            </p>
+            <div>
+              <p>✅ Thank you for your support!</p> <p>Don't forget to join our <a href="https://discord.gg/m4AnYSDueM" target="_blank">Discord Community</a>.</p>
+            </div>
         )}
       </div>
     </div>
