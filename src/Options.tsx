@@ -32,7 +32,7 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
             <div>
                 <ul>
                     <li><ToggleComponent /></li>
-                    <li><button onClick={() => updateSetting('conditionReminderOn', !settings.conditionReminderOn)} id="buttonConditionReminder">Condition Reminder Pop-up: {settings.conditionReminderOn ? 'On' : 'Off'}</button></li>
+                    <li><button onClick={() => updateSetting('conditionReminderOn', !settings.conditionReminderOn)} id="buttonConditionReminder">Condition Reminder Pop-up: {settings.conditionReminderOn ? 'Off' : 'On'}</button></li>
                     {isSupporter && (<>
                       <li><button onClick={() => updateSetting('currentTurnTime', !settings.currentTurnTime)} id="buttonCurrentTurnTime">Current Turn Time Display: {settings.currentTurnTime ? 'On' : 'Off'}</button></li>
                     </>
