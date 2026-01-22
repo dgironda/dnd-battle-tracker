@@ -75,7 +75,7 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   //   return getRoundNumber();
   // });
   const [lastRun, setLastRun] = useState<number | null>(null);
-  const [elapsed, setElapsed] = useState<string>('Advance the turn to start the timer');
+  const timerRef = useRef<HTMLSpanElement>(null);
   
   
 
@@ -331,9 +331,14 @@ useEffect(() => {
   }
 }, [combatants, currentTurnIndex]);
 
-  // Time elapsed tracker
+  // Current Turn Time useRef tracker
   useEffect(() => {
-    if (!lastRun) return;
+    if (!lastRun) {
+    if (timerRef.current) {
+      timerRef.current.innerText = 'Advance the turn to start the timer';
+    }
+    return;
+  }
 
     const interval = setInterval(() => {
       const totalSeconds = Math.floor((Date.now() - lastRun) / 1000);
@@ -351,7 +356,9 @@ useEffect(() => {
         timeString = `${hours}h ${timeString}`;
       }
       
-      setElapsed(timeString);
+      if (timerRef.current) {
+        timerRef.current.innerText = timeString;
+      }
     }, 1000);
 
     return () => clearInterval(interval);
@@ -479,9 +486,7 @@ useEffect(() => {
       {combatants.length > 0 && <div id="round">
           <RoundNumberSpan
           roundNumber={roundNumber}
-          elapsed={elapsed} />
-          {/* <button id="buttonResetCombat" onClick={resetCombat}>⟳</button> */}
-          {/* {currentTurnTime && (<div id="turnTimeDisplay">Current turn time: {elapsed}</div>)} */}
+          timerRef={timerRef} />
       </div>
 }
       {/* #7: Resume Combat UI */}

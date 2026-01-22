@@ -5,10 +5,10 @@ import { useState, useEffect } from "react";
 
 interface RoundNumberSpanProps {
     roundNumber: number;
-    elapsed: string;
+    timerRef: React.RefObject<HTMLSpanElement | null>;
 }
 
-const RoundNumberSpan: React.FC<RoundNumberSpanProps> = ({roundNumber, elapsed}) => {
+const RoundNumberSpan: React.FC<RoundNumberSpanProps> = ({roundNumber, timerRef}) => {
     const [isVisible, setIsVisible] = useState(true);
     useEffect(() => {
     setIsVisible(roundNumber !== 0);
@@ -19,7 +19,9 @@ const RoundNumberSpan: React.FC<RoundNumberSpanProps> = ({roundNumber, elapsed})
     return (
         <>
             {(isVisible ? <span>Combat Round {roundNumber}</span> : null)}
-            {currentTurnTime && (<div id="turnTimeDisplay">Current turn time: {elapsed}</div>)}
+            {currentTurnTime && (<div id="turnTimeDisplay">
+                <span>Current Turn Time: </span><span ref={timerRef}>Advance the turn to start the timer</span>
+            </div>)}
         </>
     );
   }
