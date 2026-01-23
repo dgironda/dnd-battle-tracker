@@ -119,6 +119,13 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
     
     let updatedConditions = [...conditions];
     let newHp:number ;
+    let newtHp: number;
+
+    newtHp = Math.max(0, tHp - damageAmount);
+    const damageToRealHp = damageAmount - tHp;
+    newHp = Math.max(0, currentHp - Math.max(0, damageToRealHp));
+    DEVMODE && console.log("New Temp HP", newtHp);
+
     // Apply damage normally if not concentrating
     if (tHp > 0) {
       let updatedDamageAmount = Math.max(0, damageAmount - tHp);
@@ -137,8 +144,7 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
         updatedConditions.push('Dead');
       }
     }
-    let newtHp = Math.max(0, tHp - damageAmount)
-    DEVMODE && console.log("New Temp HP", newtHp)
+    
     // If conditions changed, use onUpdateBoth
     if (updatedConditions.length !== conditions.length && onUpdateBoth) {
       onUpdateBoth(newHp, newtHp, updatedConditions);
