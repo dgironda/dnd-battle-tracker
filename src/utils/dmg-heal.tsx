@@ -105,7 +105,15 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
         return;
       }
 
-    
+    let updatedConditions = [...conditions];
+    let newHp:number ;
+    let newtHp: number;
+
+    newtHp = Math.max(0, tHp - damageAmount);
+    const damageToRealHp = damageAmount - tHp;
+    newHp = Math.max(0, currentHp - Math.max(0, damageToRealHp));
+    DEVMODE && console.log("New Temp HP", newtHp);
+
     if (isConcentrating && damageAmount > 0) {
       const damageToConcentration = Math.floor(damageAmount / 2);
       // const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
@@ -116,15 +124,6 @@ export function HpChangeModal({ combatant, combatantId, currentCombatantID, comb
       
       return;
     }
-    
-    let updatedConditions = [...conditions];
-    let newHp:number ;
-    let newtHp: number;
-
-    newtHp = Math.max(0, tHp - damageAmount);
-    const damageToRealHp = damageAmount - tHp;
-    newHp = Math.max(0, currentHp - Math.max(0, damageToRealHp));
-    DEVMODE && console.log("New Temp HP", newtHp);
 
     // Apply damage normally if not concentrating
     if (tHp > 0) {
