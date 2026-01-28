@@ -12,7 +12,7 @@
 		"cf-typegen": "wrangler types"
 	},
 	"dependencies": {
-		"posthog-js": "^1.280.0",
+		"posthog-js": "^1.335.5",
 		"react": "^19.2.3",
 		"react-dom": "^19.2.3",
 		"react-helmet": "^6.1.0",
