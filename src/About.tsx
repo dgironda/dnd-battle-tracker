@@ -47,7 +47,7 @@ export default function About({ isVisible, onToggle }: AboutProps) {
                     <p><span className="bold">d</span> check/uncheck current player's Movement</p>
                     <p><span className="bold">e</span> open/close Hero Manager</p>
                     <p><span className="bold">w</span> open/close Monster Manager</p>
-                    <p><span className="bold">b</span> open/close Battle Manager</p>
+                    <p><span className="bold">r</span> open/close Battle Manager</p>
                     <p><span className="bold">x</span> close Combatant stat box</p>
                 </div>
             </div>

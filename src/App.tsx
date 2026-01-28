@@ -51,7 +51,7 @@ function App() {
         case 'e':
           setOpenPanel(openPanel === 'hero' ? null : 'hero');
           break;
-        case 'b':
+        case 'r':
           setOpenPanel(openPanel === 'battle' ? null : 'battle');
           break;
       }
@@ -170,7 +170,7 @@ function App() {
       {openPanel === 'monster' && (<MonsterManager onClose={handleClosePanel}/>)}
       
       <button id="battleManagerButton" title="Save and Load Battles" onClick={() => setOpenPanel(openPanel === 'battle' ? null : 'battle')}>
-        {openPanel === 'battle' ? (<span>Close Battle Manager<sup>(b)</sup></span>) : (<span>Battle Manager<sup>(b)</sup></span>)}
+        {openPanel === 'battle' ? (<span>Close Battle Manager<sup>(r)</sup></span>) : (<span>Battle Manager<sup>(r)</sup></span>)}
       </button>
       {openPanel === 'battle' && (<BattleManager onClose={handleClosePanel}/>)}
       
