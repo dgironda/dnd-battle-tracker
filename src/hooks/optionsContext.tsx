@@ -15,14 +15,9 @@ interface GlobalContextType {
   toggleVersion: () => void;
 }
 
-interface GlobalProviderProps {
-  isSupporter: boolean;
-};
-
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
-export const GlobalProvider: React.FC<GlobalProviderProps & { children: ReactNode }> = ({ children, isSupporter }) => {
-  
+export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const SETTINGS_KEY = "appSettings";
 
   const getSettings = (): Settings => {
