@@ -15,13 +15,9 @@ interface GlobalContextType {
   toggleVersion: () => void;
 }
 
-interface GlobalProviderProps {
-  isSupporter: boolean;
-};
-
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
-export const GlobalProvider: React.FC<GlobalProviderProps & { children: ReactNode }> = ({ children, isSupporter }) => {
+export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   
   const SETTINGS_KEY = "appSettings";
 
@@ -62,29 +58,10 @@ export const GlobalProvider: React.FC<GlobalProviderProps & { children: ReactNod
   };
 
   const toggleVersion = () => {
-  const newVersion = settings.version === 'twentyFourteen' ? 'twentyTwentyFour' : 'twentyFourteen';
-  updateSetting('version', newVersion);
-  DEVMODE && console.log("D&D 5e Version", newVersion);
-  
-  useEffect(() => {
-  setSettings(prev => ({
-    ...prev,
-    // If not a supporter, force currentTurnTime to false
-    currentTurnTime: !isSupporter ? false : prev.currentTurnTime,
-    // If not a supporter, force theme to light
-    theme: !isSupporter ? "light" : prev.theme
-  }));
-}, [isSupporter]);
-
-// Separate effect to persist to localStorage
-useEffect(() => {
-  try {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-  } catch (error) {
-    console.error("Error saving settings:", error);
-  }
-}, [settings]);
-};
+    const newVersion = settings.version === 'twentyFourteen' ? 'twentyTwentyFour' : 'twentyFourteen';
+    updateSetting('version', newVersion);
+    DEVMODE && console.log("D&D 5e Version", newVersion);
+  };
 
   return (
     <GlobalContext.Provider value={{ settings, updateSetting, toggleVersion }}>
