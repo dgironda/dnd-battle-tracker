@@ -13,6 +13,7 @@ import PatreonOverlay from "./components/PatreonOverlay";
 import { DEVMODE } from "./utils/devmode";
 import { useGlobalContext } from "./hooks/optionsContext";
 import "./components/BattleManager/BattleManager.css";
+import { Helmet } from "react-helmet-async";
 
 
 
@@ -124,6 +125,21 @@ function App() {
 
 
   return (
+    <>
+    <Helmet>
+      <title>D&D Battle Tracker | Automated Combat and Initiative Management</title>
+      <meta name="description" content="Keep your combat clean and simple with the D&D Battle Tracker. Featuring automatic turn advancement, integrated Hero/Monster managers, and instant condition reminders for faster gameplay" />
+      <meta property="og:title" content="D&D Battle Tracker" />
+      <meta property="og:description" content="Keep your combat clean and simple with the D&D Battle Tracker." />
+      <meta name="keywords" content="D&D, 2014, 2024, 5e, initiative, battle, combat" />
+      <meta property="og:url" content="http://battletracker.simulacrumtechnologies.com/" />
+      <link rel="canonical" href="http://battletracker.simulacrumtechnologies.com/" />
+      <meta property="og:type" content="application" />
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+      <meta name="author" content="Simulacrum Technologies" />
+      <meta name="language" content="English" />  
+      <meta property="og:image" content="src/assets/BattleTracker_v0.8.png" /> 
+    </Helmet>
     <CombatProvider>
     {overlayVisible && (<PatreonOverlay onClose={() => {
       setOverlayVisible(false);
@@ -196,7 +212,7 @@ function App() {
     </div>
   
     </CombatProvider>
-    
+    </>
   );
 }
 

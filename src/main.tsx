@@ -1,5 +1,5 @@
 import { DEVMODE } from "./utils/devmode";
-
+import { HelmetProvider } from "react-helmet-async";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
@@ -16,6 +16,7 @@ posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
+  <HelmetProvider>
   <GlobalProvider>
   <React.StrictMode>
     {/* <div id="header">
@@ -29,4 +30,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 
   </React.StrictMode>
   </GlobalProvider>
+  </HelmetProvider>
 );
