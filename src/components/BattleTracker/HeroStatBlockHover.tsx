@@ -39,7 +39,7 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
   }
 
   const handleKeyPressx = useCallback((event:KeyboardEvent) => {
-    if (event.key === 'x' || event.key === 'X')
+    if (event.key === 'x' && !(event.ctrlKey || event.shiftKey || event.altKey || event.metaKey))
     {let statsHover = document.querySelectorAll('.statHover') as NodeListOf<HTMLElement>;
       statsHover.forEach(hover => {
         setIsStuck(false)

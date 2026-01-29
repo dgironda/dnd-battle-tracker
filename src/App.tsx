@@ -43,6 +43,10 @@ function App() {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
       }
+
+      if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) {
+      return;
+    }
       
       switch(e.key.toLowerCase()) {
         case 'w':

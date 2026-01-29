@@ -367,6 +367,10 @@ useEffect(() => {
       }
 
       if (sortedCombatants.length === 0) return;
+
+      if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) {
+      return;
+    }
       
       const currentCombatant = sortedCombatants[currentTurnIndex];
       
