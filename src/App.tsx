@@ -14,6 +14,7 @@ import { DEVMODE } from "./utils/devmode";
 import { useGlobalContext } from "./hooks/optionsContext";
 import "./components/BattleManager/BattleManager.css";
 import { Helmet } from "react-helmet-async";
+import monsterShareURL from "./utils/monsterShareURL";
 
 
 
@@ -29,6 +30,10 @@ function App() {
   const [isPortrait, setIsPortrait] = useState(
     window.matchMedia("(orientation: portrait)").matches
   );
+
+  useEffect(() => {
+    monsterShareURL.loadMonstersFromURL()
+}, [])
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(orientation: portrait)");

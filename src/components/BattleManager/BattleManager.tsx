@@ -4,6 +4,7 @@ import { useCombat } from '../BattleTracker/CombatContext';
 // import { exportAllToJson, importFromJson } from '../../utils/LocalStorage';
 import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getRoundNumber, storeCombatants } from "../../utils/LocalStorage";
 import { Popup } from '../../utils/Popup';
+import monsterShareURL from '../../utils/monsterShareURL';
 
 interface SavedBattle {
   id: string;
@@ -359,6 +360,7 @@ const isValidGameData = (data: any): boolean => {
             <input id="inputImportData" type="file" accept=".json" onChange={handleImport}/> */}
             <button id="inputImportData" onClick={handleImport}>Upload your data</button>
           </p>
+          <p><button onClick={monsterShareURL.generateMonsterShareURL}>Export Monster Share URL</button>This will generate a link that will allow someone to import the monsters in your monster manager at the time it is generated.</p>
         
       </div>
       {/* Saved Battles List */}
