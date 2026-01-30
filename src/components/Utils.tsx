@@ -3,7 +3,7 @@ import { DEVMODE } from "../utils/devmode";
 import { Dispatch, SetStateAction } from "react";
 import { Hero, Monster, Combatant } from "../types/index";
 import { useEffect, useState } from "react";
-import { getHeroes, storeHeroes } from "../utils/LocalStorage";
+import { getHeroes, storeHeroes, getMonsters, storeMonsters } from "../utils/LocalStorage";
 
 
 export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
@@ -68,11 +68,20 @@ export const createDeleteHero = (
   setHeroes: Dispatch<SetStateAction<Hero[]>>
 ) => {
   return (heroId: string) => {
+    const currentHeroes = getHeroes();
     const heroToDelete = heroes.find(hero => hero.id === heroId);
     const heroName = heroToDelete ? heroToDelete.name : 'this hero';
     
     if (confirm(`Do you really want to delete ${heroName}?`)) {
-      setHeroes(prevHeroes => prevHeroes.filter(hero => hero.id !== heroId));
+      const updatedHeroes = currentHeroes.filter(hero => hero.id !== heroId);
+      // setHeroes(prevHeroes => prevHeroes.filter(hero => hero.id !== heroId));
+
+      try {
+        localStorage.setItem("storedHeroes", JSON.stringify(updatedHeroes));
+      } catch (error) {
+        console.error("Error saving heroes:", error);
+      }
+      setHeroes(updatedHeroes)
     }
   };
 };
@@ -99,16 +108,41 @@ export const createUpdateMonster = (setMonsters: Dispatch<SetStateAction<Monster
   };
 };
 
+// export const createDeleteMonster = (
+//   monsters: Monster[], 
+//   setMonsters: Dispatch<SetStateAction<Monster[]>>
+// ) => {
+//   return (monsterId: string, skipPrompt = false) => {
+//     const monsterToDelete = monsters.find(monster => monster.id === monsterId);
+//     const monsterName = monsterToDelete ? monsterToDelete.name : 'this monster';
+    
+//     if (skipPrompt || confirm(`Do you really want to delete ${monsterName}?`)) {
+//       setMonsters(prevMonsters => prevMonsters.filter(monster => monster.id !== monsterId));
+//     }
+//   };
+// };
+
 export const createDeleteMonster = (
   monsters: Monster[], 
   setMonsters: Dispatch<SetStateAction<Monster[]>>
 ) => {
   return (monsterId: string, skipPrompt = false) => {
-    const monsterToDelete = monsters.find(monster => monster.id === monsterId);
+    const currentMonsters = getMonsters(); // Get fresh data from localStorage
+    const monsterToDelete = currentMonsters.find(monster => monster.id === monsterId);
     const monsterName = monsterToDelete ? monsterToDelete.name : 'this monster';
     
     if (skipPrompt || confirm(`Do you really want to delete ${monsterName}?`)) {
-      setMonsters(prevMonsters => prevMonsters.filter(monster => monster.id !== monsterId));
+      const updatedMonsters = currentMonsters.filter(monster => monster.id !== monsterId);
+      
+      // Update localStorage
+      try {
+        localStorage.setItem("storedMonsters", JSON.stringify(updatedMonsters));
+      } catch (error) {
+        console.error("Error saving monsters:", error);
+      }
+      
+      // Update state
+      setMonsters(updatedMonsters);
     }
   };
 };
