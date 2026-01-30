@@ -11,15 +11,17 @@ const sanitizeObject = (obj: any): any => {
 const generateMonsterShareURL = () => {
   const monsters = getMonsters()
   
-  const baseURL = window.location.origin + window.location.pathname
-  const params = new URLSearchParams()
-  
-  if (monsters && monsters.length > 0) {
-    params.append('monsters', encodeURIComponent(JSON.stringify(monsters)))
-  } else {
+  if (!monsters || monsters.length === 0) {
     alert('No monsters to share!')
     return
   }
+  
+  const baseURL = window.location.origin + window.location.pathname
+  const params = new URLSearchParams()
+  
+  // Compress the data using Base64
+  const compressedData = btoa(JSON.stringify(monsters))
+  params.append('monsters', compressedData)
   
   const shareableURL = `${baseURL}?${params.toString()}`
   
@@ -30,6 +32,7 @@ const generateMonsterShareURL = () => {
   
   return shareableURL
 }
+
 
 // Load monsters from URL parameters on page load
 const loadMonstersFromURL = () => {
@@ -42,16 +45,16 @@ const loadMonstersFromURL = () => {
   }
   
   try {
-    const decodedMonsters = decodeURIComponent(monstersParam)
-    const monsters = JSON.parse(decodedMonsters)
+    // Decompress the Base64 data
+    const decompressed = JSON.parse(atob(monstersParam))
     
-    if (!Array.isArray(monsters)) {
+    if (!Array.isArray(decompressed)) {
       alert('Invalid monster data in URL')
       return
     }
     
     // Sanitize the monsters
-    const sanitizedMonsters = monsters.map(sanitizeObject)
+    const sanitizedMonsters = decompressed.map(sanitizeObject)
     
     // Get existing monsters and merge with imported ones
     const existingMonsters = getMonsters() ?? []
@@ -63,7 +66,7 @@ const loadMonstersFromURL = () => {
       return
     }
     
-    // Save merged monsters (you'll need to know your MONSTERS_KEY)
+    // Save merged monsters
     localStorage.setItem(MONSTERS_KEY, JSON.stringify(mergedMonsters))
     
     // Clean up URL (remove parameters after loading)
