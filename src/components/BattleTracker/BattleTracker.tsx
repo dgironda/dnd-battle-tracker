@@ -551,7 +551,7 @@ useEffect(() => {
       hero={freshHeroes.find((h) => h.id === combatant.id)!}
       combatant={combatants.find((c) => c.id === combatant.id)!}
     >
-      <span>{combatant.name}</span>
+      {combatant.conditions.includes('Dead') ? (<span className="strike">{combatant.name}</span>) : (<span>{combatant.name}</span>)}
     </HeroStatBlockHover>
   ) : combatant.type === "monster" ? (
     /* MONSTER */
@@ -609,7 +609,7 @@ useEffect(() => {
       currentHp={combatant.currHp}
       updateCombatant={updateCombatant}
     >
-      {combatant.name}
+      {combatant.conditions.includes('Dead') ? (<span className="strike">{combatant.name}</span>) : (<span>{combatant.name}</span>)}
     </MonsterStatBlockHover>
   ) : (
     /* FALLBACK */

@@ -86,6 +86,9 @@ a:visited {
 .indent {
   margin-left: 1rem;
 }
+.strike {
+  text-decoration: line-through;
+}
 
 .buttonDelete, .buttonAddMonsterToCombat {
   padding: .1rem !important;
