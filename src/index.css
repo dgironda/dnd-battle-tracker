@@ -482,7 +482,7 @@ sup {
 }
 
 .saveClose {
-  background-color: var(--clear) !important; 
+  background-color: inherit; 
 }
 
 .saveClose button {

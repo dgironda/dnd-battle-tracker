@@ -446,7 +446,9 @@ const isValidGameData = (data: any): boolean => {
         onContinue={handleImportContinue}
         title="Import new data"
       />
-
+      <p className="saveClose">
+        <button onClick={onClose}>Save and Close</button>
+      </p>
     </div>
     
   );
