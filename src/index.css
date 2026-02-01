@@ -232,6 +232,7 @@ sup {
 }
 
 #about, #options {
+  margin-top: 1rem;
   z-index: 9;
   position: absolute;
   /* top: 10vh;
@@ -247,6 +248,15 @@ sup {
 
 #about li, #options li {
   list-style: none;
+}
+
+#about h3 {
+  margin-left: .25;
+  filter: brightness(130%);
+}
+
+#about p {
+  margin-left: .75rem;
 }
 
 #options li {
@@ -346,13 +356,14 @@ sup {
   cursor: pointer;
 }
 
-#heroAddManage, #monsterAddManage {
-  margin-top: 1rem;
+#heroAddManage, #monsterAddManage, #battleAddManage {
   position: absolute;
   z-index: 9;
   background-color: var(--color-hl1);
   font-family: 'Caudex', serif;
   border: .5rem solid var(--color-hl2);
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
 #heroAddManage thead>tr, #monsterAddManage thead>tr, 
@@ -1211,11 +1222,12 @@ sup {
     grid-area: footer;
   }
   #heroAddManage, #monsterAddManage, #battleAddManage, #about, #options {
-  top: 0vh;
-  left: 15vw;
-  width: 80vw;
-  padding: 1vw;
-}
+    margin-top: 1rem;
+    top: 0vh;
+    left: 15vw;
+    width: 80vw;
+    padding: 1vw;
+  }
 .checkOverlay {
   display: none;
 }
@@ -1391,11 +1403,12 @@ sup {
     max-width: 75%;
   }
   #heroAddManage, #monsterAddManage, #battleAddManage, #about, #options {
-  top: 0vh;
-  left: 0vw;
-  width: auto;
-  padding: 1vw;
-}
+    margin-top: 0rem;
+    top: 0vh;
+    left: 0vw;
+    width: auto;
+    padding: 1vw;
+  }
 #resumeCombat {
   margin: 1rem;
 }

@@ -23,9 +23,11 @@ export default function About({ isVisible, onToggle }: AboutProps) {
         <div id="about">
           <button id="aboutCloseButton" onClick={onToggle}>Close</button>
             <div id="instructions">
+              <h3>Instructions</h3>
                 <ul>
                     <li>Toggle your D&D edition (5e 2014/2024) using the rules version button in Options.</li> 
                     <li className="indent">This affects concentration checks, condition definitions and which monsters auto populate in the monster manager dropdown.</li>
+                    <br/>
                     <li>Add party members and recurring characters via the Hero Manager.</li>
                     <li>Configure hero stats as needed. Uncheck "Ready For Next Battle" for absent party members.</li>
                     <li>Add monsters via the Monster Manager either selecting from the list or typing a name and adding stats after.</li>
@@ -33,6 +35,7 @@ export default function About({ isVisible, onToggle }: AboutProps) {
                     <li className="indent">Renamed monsters retain their stat blocks if added from the dropdown.</li>
                     <li>Store multiple monsters for current or future encounters—only "Ready For Next Battle" creatures join battles.</li>
                     <li>Monsters are removed from the Manager when added to battle.</li>
+                    <br/>
                     <li>Click "Start Battle" and either enter initiative or click for a random roll for each combatant.</li>
                     <li>Track actions, bonus actions, movement, and reactions. These auto-reset at round or turn start as appropriate.</li>
                     <li>Turns advance automatically when action, bonus action, and movement are marked complete.</li>

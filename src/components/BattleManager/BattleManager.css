@@ -1,19 +1,5 @@
 /* Battle Manager Popup Styles - Matches HeroManager/MonsterManager */
 
-#battleAddManage {
-  margin-top: 1rem;
-  position: absolute;
-  z-index: 9;
-  background-color: var(--color-hl1);
-  font-family: 'Caudex', serif;
-  border: .5rem solid var(--color-hl2);
-  /* top: 0vh;
-  left: 15vw;
-  width: 80vw;
-  padding: 1vw; */
-  max-height: 85vh;
-  overflow-y: auto;
-}
 
 #saveBattleOuter,
 #exportImportBattles,
