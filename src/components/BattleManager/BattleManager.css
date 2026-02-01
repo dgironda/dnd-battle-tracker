@@ -7,10 +7,10 @@
   background-color: var(--color-hl1);
   font-family: 'Caudex', serif;
   border: .5rem solid var(--color-hl2);
-  top: 0vh;
+  /* top: 0vh;
   left: 15vw;
   width: 80vw;
-  padding: 1vw;
+  padding: 1vw; */
   max-height: 85vh;
   overflow-y: auto;
 }
@@ -252,13 +252,7 @@
 }
 
 /* Mobile responsiveness */
-@media (max-width: 768px) {
-  #battleAddManage {
-    top: 0vh;
-    left: 5vw;
-    width: 90vw;
-  }
-  
+@media (max-width: 768px) {  
   .battle-card-header {
     flex-direction: column;
     align-items: flex-start;
