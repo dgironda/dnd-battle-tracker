@@ -234,8 +234,8 @@ sup {
 #about, #options {
   z-index: 9;
   position: absolute;
-  top: 10vh;
-  left: 1vw;
+  /* top: 10vh;
+  left: 1vw; */
   background-color: var(--color-hl1);
   color: var(--color-fg);
   margin: auto;
@@ -1210,7 +1210,7 @@ sup {
   #footer {
     grid-area: footer;
   }
-  #heroAddManage, #monsterAddManage {
+  #heroAddManage, #monsterAddManage, #battleAddManage, #about, #options {
   top: 0vh;
   left: 15vw;
   width: 80vw;
@@ -1390,7 +1390,7 @@ sup {
   #patreonOverlayDiv>p {
     max-width: 75%;
   }
-  #heroAddManage, #monsterAddManage {
+  #heroAddManage, #monsterAddManage, #battleAddManage, #about, #options {
   top: 0vh;
   left: 0vw;
   width: auto;
