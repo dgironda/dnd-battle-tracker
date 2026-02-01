@@ -42,6 +42,8 @@
 #light-dark {
   box-shadow: 1px 2px 7px var(--color-fg);
   cursor: pointer;
+  margin: .5rem;
+  
   /* opacity: .5; */
 }
 
@@ -282,9 +284,12 @@ sup {
 #colorMode {
   display: flex;
   justify-content: start;
-  margin-top: 0;
+  font-size: 1.2rem;
+  font-family: "Germania One", system-ui;
+  /* margin-top: 0; */
   /* margin-bottom: 10vh; */
-  cursor: pointer;
+  cursor: pointer !important;
+  width: fit-content;
 }
 
 #patreonLink {

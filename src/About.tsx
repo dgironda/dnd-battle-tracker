@@ -42,6 +42,9 @@ export default function About({ isVisible, onToggle }: AboutProps) {
                     <li>Apply conditions as needed and hover for quick reference tooltips.</li>
                     <li>Hover over any combatant to view their stat block.</li>
                     <li>Click a combatant's name to pin their details, accessing notes and source links.</li>
+                    <br/>
+                    <li>Patreon members can use the Battle Manager to save battles as well as export and import all data.</li>
+                    
                 </ul>
                 <div>
                     <h3>Keyboard Shortcuts</h3>
