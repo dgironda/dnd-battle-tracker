@@ -352,7 +352,7 @@ useEffect(() => {
       }
       
       if (timerRef.current) {
-        timerRef.current.innerText = timeString;
+        timerRef.current.innerText = 'Current Turn Time: ' + timeString;
       }
     }, 1000);
 

@@ -20,7 +20,7 @@ const RoundNumberSpan: React.FC<RoundNumberSpanProps> = ({roundNumber, timerRef}
         <>
             {(isVisible ? <span>Combat Round {roundNumber}</span> : null)}
             {currentTurnTime && (<div id="turnTimeDisplay">
-                <span>Current Turn Time: </span><span ref={timerRef}>Advance the turn to start the timer</span>
+                <span ref={timerRef}>Advance the turn to start the timer</span>
             </div>)}
         </>
     );
