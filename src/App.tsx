@@ -147,7 +147,7 @@ function App() {
       <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
       <meta name="author" content="Simulacrum Technologies" />
       <meta name="language" content="English" />  
-      <meta property="og:image" content="src/assets/BattleTracker_v0.8.png" /> 
+      <meta property="og:image" content="./src/assets/BattleTracker_v0.8.png" /> 
     </Helmet>
     <CombatProvider>
     {overlayVisible && (<PatreonOverlay onClose={() => {
