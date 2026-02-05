@@ -2,7 +2,7 @@ import { DEVMODE } from "./devmode";
 
 import { useState } from 'react';
 import { Combatant } from '../types/index';
-import { EditableCell } from '../components/Utils';
+import { EditableCell } from '../utils/Utils';
 import { ConcentrationCheckModal } from './concentrationCheck';
 import { useGlobalContext } from '../hooks/optionsContext';
 

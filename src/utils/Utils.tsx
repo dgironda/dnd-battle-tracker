@@ -176,7 +176,9 @@ export const EditableCell = <T extends Record<string, any>>({
 }) => {
   const fieldKey = `${entity.id}-${String(field)}`;
   const isEditing = editingField === fieldKey;
+
   const [inputValue, setInputValue] = useState(entity[field]);
+  
   useEffect(() => {
         setInputValue(entity[field]);
     }, [entity[field]]);
@@ -190,8 +192,8 @@ export const EditableCell = <T extends Record<string, any>>({
         onChange={(e) => {
                     const newValue = Number(e.target.value);
                     if (!isNaN(newValue)) {
-                        setInputValue(newValue as any);  // Update local state
-                        updateEntity(entity.id, field, newValue);  // Push update
+                        setInputValue(newValue as any);
+                        updateEntity(entity.id, field, newValue);
                     }
                 }}
         onBlur={() => setEditingField(null)}

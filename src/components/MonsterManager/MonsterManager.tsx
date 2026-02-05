@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { DEVMODE } from "../../utils/devmode";
 import { useMonsters } from "../../hooks/useMonsters";
 import { Monster } from "../../types/Monster";
-import { createUpdateMonster, createDeleteMonster, EditableCell } from "../Utils";
+import { createUpdateMonster, createDeleteMonster, EditableCell } from "../../utils/Utils";
 import { useGlobalContext } from "../../hooks/optionsContext";
 import { useCombat } from "../BattleTracker/CombatContext";
 import monstersDataFourteen from "../../assets/2014monsters.json";

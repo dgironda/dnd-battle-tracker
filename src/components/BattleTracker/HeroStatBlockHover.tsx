@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Hero, Combatant } from '../../types/index';
 import { getHeroes, storeHeroes } from "../../utils/LocalStorage";
-import { createAddHero, createUpdateHero, createDeleteHero, EditableCell } from "../Utils";
+import { createAddHero, createUpdateHero, createDeleteHero, EditableCell } from "../../utils/Utils";
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
 import { useGlobalContext } from '../../hooks/optionsContext';
 

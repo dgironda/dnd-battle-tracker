@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Monster, Combatant } from '../../types/index';
-import { createUpdateMonster, createDeleteMonster, EditableCell } from "../Utils";
+import { createUpdateMonster, createDeleteMonster, EditableCell } from "../../utils/Utils";
 import { getCombatants, getMonsters, storeMonsters } from '../../utils/LocalStorage';
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
 import { useGlobalContext } from '../../hooks/optionsContext';

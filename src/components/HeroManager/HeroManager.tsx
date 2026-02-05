@@ -3,8 +3,8 @@ import { DEVMODE } from "../../utils/devmode";
 import { getHeroes, storeHeroes } from "../../utils/LocalStorage";
 import { Hero } from "../../types/Hero";
 import AddHero from "../HeroManager/AddHero";
-import { createAddHero, createUpdateHero, createDeleteHero } from "../Utils";
-import { EditableCell } from "../../utils/editableCell";
+import { createAddHero, createUpdateHero, createDeleteHero } from "../../utils/Utils";
+import { EditableCell } from "../../utils/Utils";
 
 interface HeroManagerProps {
   onClose: () => void;

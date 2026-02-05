@@ -1,4 +1,4 @@
-import { DEVMODE } from "./utils/devmode";
+import { DEVMODE } from "../utils/devmode";
 
 
 import Options from "./Options";
