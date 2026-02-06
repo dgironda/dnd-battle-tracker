@@ -37,6 +37,24 @@
   --color-greengo: #28a745;
   --color-bluebeetle: #007bff;
   --color-patreon: #e85b46;
+ 
+  /* Photo Upload Colors */
+  --color-photo-border: light-dark(#ccc, #555);
+  --color-photo-border-hover: light-dark(#4CAF50, #66bb6a);
+  --color-photo-upload-bg: light-dark(#4CAF50, #388e3c);
+  --color-photo-upload-bg-hover: light-dark(#45a049, #2e7d32);
+  --color-photo-upload-text: light-dark(#ffffff, #ffffff);
+  --color-photo-preview-border: light-dark(#ddd, #666);
+  --color-photo-remove-bg: light-dark(rgba(255, 0, 0, 0.8), rgba(220, 53, 69, 0.9));
+  --color-photo-remove-bg-hover: light-dark(rgba(255, 0, 0, 1), rgba(200, 35, 51, 1));
+  --color-photo-close-bg: light-dark(#ff4444, #dc3545);
+  --color-photo-close-bg-hover: light-dark(#cc0000, #bd2130);
+  --color-photo-close-border: light-dark(#ffffff, #f8f9fa);
+  --color-photo-expanded-bg: light-dark(#ffffff, #2c2c2c);
+  --color-photo-backdrop: light-dark(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9));
+  --color-photo-shadow: light-dark(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6));
+  --color-photo-shadow-expanded: light-dark(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8));
+
 }
 
 #light-dark {
@@ -1163,28 +1181,31 @@ sup {
 .photo-upload-section {
   margin: 10px 0;
   padding: 10px;
-  border: 1px dashed #ccc;
+  border: 1px dashed var(--color-photo-border);
   border-radius: 4px;
+  background-color: var(--color-bg2);
 }
 
 .photo-upload-label {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
+  color: var(--color-fg);
 }
 
 .btn-upload-photo {
   padding: 8px 16px;
-  background: #4CAF50;
-  color: white;
+  background: var(--color-photo-upload-bg);
+  color: var(--color-photo-upload-text);
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
+  transition: background 0.2s ease;
 }
 
 .btn-upload-photo:hover {
-  background: #45a049;
+  background: var(--color-photo-upload-bg-hover);
 }
 
 .photo-preview {
@@ -1197,15 +1218,15 @@ sup {
   max-width: 200px;
   max-height: 150px;
   border-radius: 4px;
-  border: 2px solid #ddd;
+  border: 2px solid var(--color-photo-preview-border);
 }
 
 .btn-remove-photo {
   position: absolute;
   top: 5px;
   right: 5px;
-  background: rgba(255, 0, 0, 0.8);
-  color: white;
+  background: var(--color-photo-remove-bg);
+  color: var(--color-photo-upload-text);
   border: none;
   border-radius: 50%;
   width: 24px;
@@ -1215,10 +1236,11 @@ sup {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.2s ease;
 }
 
 .btn-remove-photo:hover {
-  background: rgba(255, 0, 0, 1);
+  background: var(--color-photo-remove-bg-hover);
 }
 
 /* Battle Card Photo Thumbnail */
@@ -1237,13 +1259,13 @@ sup {
   height: 100%;
   object-fit: cover;
   border-radius: 4px;
-  border: 2px solid #ddd;
+  border: 2px solid var(--color-photo-preview-border);
   transition: transform 0.2s, border-color 0.2s;
 }
 
 .battle-photo-thumbnail:hover > img {
   transform: scale(1.05);
-  border-color: #4CAF50;
+  border-color: var(--color-photo-border-hover);
 }
 
 /* Overlay wrapper for expanded photo */
@@ -1267,7 +1289,7 @@ sup {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--color-photo-backdrop);
   animation: fadeIn 0.2s ease-in;
 }
 
@@ -1275,10 +1297,10 @@ sup {
 .battle-photo-expanded {
   position: relative;
   z-index: 9999;
-  background: white;
+  background: var(--color-photo-expanded-bg);
   padding: 12px;
   border-radius: 8px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px var(--color-photo-shadow-expanded);
   max-width: 90vw;
   max-height: 90vh;
   animation: zoomIn 0.2s ease-out;
@@ -1301,9 +1323,9 @@ sup {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #ff4444;
-  color: white;
-  border: 2px solid white;
+  background: var(--color-photo-close-bg);
+  color: var(--color-photo-upload-text);
+  border: 2px solid var(--color-photo-close-border);
   font-size: 18px;
   font-weight: bold;
   cursor: pointer;
@@ -1312,11 +1334,11 @@ sup {
   justify-content: center;
   transition: all 0.2s;
   z-index: 10000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px var(--color-photo-shadow);
 }
 
 .battle-photo-close:hover {
-  background: #cc0000;
+  background: var(--color-photo-close-bg-hover);
   transform: scale(1.1);
 }
 
