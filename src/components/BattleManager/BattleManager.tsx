@@ -5,6 +5,7 @@ import { useCombat } from '../BattleTracker/CombatContext';
 import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getRoundNumber, storeCombatants } from "../../utils/LocalStorage";
 import { Popup } from '../../utils/Popup';
 import monsterShareURL from '../../utils/monsterShareURL';
+import BattlePhotoThumbnail from './BattlePhotoThumbnail';
 
 interface SavedBattle {
   id: string;
@@ -21,6 +22,8 @@ interface BattleManagerProps {
 }
 
 const SAVED_BATTLES_KEY = 'savedBattles';
+
+
 
 const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
   // Get combat state from context
@@ -455,13 +458,9 @@ const removePhoto = () => {
                 >
                   {/* Photo Thumbnail */}
                   {battle.photo && (
-                    <div className="battle-photo-thumbnail">
-                      <img src={battle.photo} alt={battle.name} />
-                      <div className="battle-photo-expanded">
-                        <img src={battle.photo} alt={battle.name} />
-                      </div>
-                    </div>
-                  )}
+        <BattlePhotoThumbnail photo={battle.photo} name={battle.name} />
+      )}
+
                   <div className="battle-card-header">
                     <h4>{battle.name}</h4>
                     <div className="battle-card-actions">
