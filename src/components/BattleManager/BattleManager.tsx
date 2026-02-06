@@ -13,6 +13,7 @@ interface SavedBattle {
   combatants: Combatant[];
   roundNumber: number;
   currentTurnIndex: number;
+  photo?: string; // Base64 encoded image
 }
 
 interface BattleManagerProps {
@@ -36,6 +37,7 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
   const [battleName, setBattleName] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [selectedBattle, setSelectedBattle] = useState<SavedBattle | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
   // Load saved battles on mount
   useEffect(() => {
@@ -65,18 +67,20 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
     }
 
     const newBattle: SavedBattle = {
-      id: Date.now().toString(),
-      name: battleName.trim(),
-      savedDate: new Date().toISOString(),
-      combatants: combatants,
-      roundNumber: roundNumber,
-      currentTurnIndex: currentTurnIndex
-    };
+    id: Date.now().toString(),
+    name: battleName.trim(),
+    savedDate: new Date().toISOString(),
+    combatants: combatants,
+    roundNumber: roundNumber,
+    currentTurnIndex: currentTurnIndex,
+    photo: selectedPhoto || undefined // Add photo if available
+  };
 
     const updated = [...savedBattles, newBattle];
     localStorage.setItem(SAVED_BATTLES_KEY, JSON.stringify(updated));
     setSavedBattles(updated);
     setBattleName('');
+    setSelectedPhoto(null);
     setShowSaveDialog(false);
     alert(`Battle "${newBattle.name}" saved successfully!`);
   };
@@ -306,6 +310,39 @@ const isValidGameData = (data: any): boolean => {
   )
 }
 
+const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    alert('Please upload an image file');
+    return;
+  }
+
+  // Validate file size (max 2MB to avoid localStorage limits)
+  const MAX_SIZE = 2 * 1024 * 1024;
+  if (file.size > MAX_SIZE) {
+    alert('Image is too large. Please upload an image smaller than 2MB');
+    return;
+  }
+
+  // Convert to base64
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const base64String = event.target?.result as string;
+    setSelectedPhoto(base64String);
+  };
+  reader.onerror = () => {
+    alert('Error reading file');
+  };
+  reader.readAsDataURL(file);
+};
+
+const removePhoto = () => {
+  setSelectedPhoto(null);
+};
+
   return (
     <div id="battleAddManage">
       {/* Save Current Battle Section */}
@@ -336,11 +373,44 @@ const isValidGameData = (data: any): boolean => {
                   onKeyPress={(e) => e.key === 'Enter' && saveBattle()}
                   autoFocus
                 />
+                <div className="photo-upload-section">
+                  <label htmlFor="photo-upload" className="photo-upload-label">
+                    📷 Add Reference Photo (optional)
+                  </label>
+                  <input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    style={{ display: 'none' }}
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => document.getElementById('photo-upload')?.click()}
+                    className="btn-upload-photo"
+                  >
+                    {selectedPhoto ? '✓ Photo Selected' : '+ Choose Photo'}
+                  </button>
+                  
+                  {selectedPhoto && (
+                    <div className="photo-preview">
+                      <img src={selectedPhoto} alt="Preview" />
+                      <button 
+                        type="button"
+                        onClick={removePhoto}
+                        className="btn-remove-photo"
+                      >
+                        ✕ Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <div className="save-dialog-buttons">
                   <button onClick={saveBattle}>Save</button>
                   <button onClick={() => {
                     setShowSaveDialog(false);
                     setBattleName('');
+                    setSelectedPhoto(null);
                   }}>Cancel</button>
                 </div>
               </div>
@@ -383,6 +453,15 @@ const isValidGameData = (data: any): boolean => {
                   className={`battle-card ${isSelected ? 'selected' : ''}`}
                   onClick={() => setSelectedBattle(isSelected ? null : battle)}
                 >
+                  {/* Photo Thumbnail */}
+                  {battle.photo && (
+                    <div className="battle-photo-thumbnail">
+                      <img src={battle.photo} alt={battle.name} />
+                      <div className="battle-photo-expanded">
+                        <img src={battle.photo} alt={battle.name} />
+                      </div>
+                    </div>
+                  )}
                   <div className="battle-card-header">
                     <h4>{battle.name}</h4>
                     <div className="battle-card-actions">
