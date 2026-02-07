@@ -82,7 +82,14 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
   useEffect(() => {
     const saved = getCombatants();
     setHasSavedCombat(saved && saved.length > 0);
-  }, [combatants]);
+  }, []); // Only run on mount
+
+  // Update when combatants change
+  useEffect(() => {
+    if (combatants.length > 0) {
+      setHasSavedCombat(false); // Combat is active, not saved
+    }
+  }, [combatants.length]); // Only when length changes
 
 const numericFields: (keyof Combatant)[] = [
   'hp','currHp','maxHp','ac','str','dex','con','int','wis','cha','pp','init','tHp'
@@ -181,76 +188,78 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
 
 const handleNextTurn = () => {
   setLastRun(Date.now());
-  if (sortedCombatants.length === 0) return;
-
-  let nextIndex = currentTurnIndex;
-  let attempts = 0;
-  const maxAttempts = sortedCombatants.length;
-
-  do {
-    nextIndex = (nextIndex + 1) % sortedCombatants.length;
-    attempts++;
-    
-    // Break if we find a living combatant
-    if (!sortedCombatants[nextIndex].conditions.includes('Dead')) {
-      break;
-    }
-
-    // When we cycle back to the current index after max attempts
-    if (attempts >= maxAttempts) {
-      console.warn("All combatants are dead. No turns left.");
-      return;
-    }
-
-  } while (attempts < maxAttempts);
-
-  // Reset ALL combatants for a fresh round if nextIndex rolled back to 0
-  if (nextIndex === 0 || (nextIndex < currentTurnIndex && attempts > 0)) {
-    const resetCombatants = combatants
-      .map(c => {
-        if (!c.conditions.includes('Dead')) {
-          return { ...c, action: false, bonus: false, move: false };
-        }
-        return c;
-      })
-      .sort((a, b) => b.initiative - a.initiative);
   
-    setCombatants(resetCombatants);
-    setRoundNumber(roundNumber + 1);
-    setCurrentTurnIndex(nextIndex);
-  } else {
-    // Just reset reaction for the next combatant
-    const nextCombatantId = sortedCombatants[nextIndex].id;
-    const updatedCombatants = combatants.map(c => {
-    if (c.id === nextCombatantId) {
-      return { 
-        ...c, 
+  if (sortedCombatants.length === 0) return;
+  // Get all living combatant indices
+  const livingIndices = sortedCombatants
+    .map((c, idx) => ({ combatant: c, index: idx }))
+    .filter(({ combatant }) => !combatant.conditions.includes('Dead'))
+    .map(({ index }) => index);
+  if (livingIndices.length === 0) {
+    console.warn("All combatants are dead. Battle is over.");
+    return;
+  }
+  // Find next living combatant after current turn
+  const currentPosition = livingIndices.indexOf(currentTurnIndex);
+  const nextPosition = (currentPosition + 1) % livingIndices.length;
+  const nextIndex = livingIndices[nextPosition];
+  
+  // We've wrapped around if next index is less than or equal to current
+  const isNewRound = nextIndex <= currentTurnIndex;
+  // Build updated combatants
+  const updatedCombatants = combatants.map(c => {
+    if (c.conditions.includes('Dead')) return c;
+    
+    const isNextCombatant = c.id === sortedCombatants[nextIndex].id;
+    
+    // Reset for new round OR for the next combatant's turn
+    if (isNewRound || isNextCombatant) {
+      return {
+        ...c,
         action: false,
         bonus: false,
         move: false,
-        reaction: false  
+        reaction: false
       };
     }
-    // Return all other combatants unchanged
+    
     return c;
-  });
-
+  }).sort((a, b) => b.initiative - a.initiative);
   setCombatants(updatedCombatants);
   setCurrentTurnIndex(nextIndex);
+  
+  if (isNewRound) {
+    setRoundNumber(roundNumber + 1);
   }
 };
 
 
 // Condition modal popup
+//   useEffect(() => {
+//   if (combatants.length > 0) {
+//     const nextCombatant = sortedCombatants[currentTurnIndex];
+//     const hasConditions = nextCombatant.conditions.length > 0
+//   if (hasConditions) {
+//     // Perform any operations with nextCombatant here
+//     setConditionModalCombatant(nextCombatant);
+//     setShowConditionModal(true);
+//   }}
+// }, [currentTurnIndex, sortedCombatants]);
   useEffect(() => {
-  if (combatants.length > 0) {
-    const nextCombatant = sortedCombatants[currentTurnIndex];
-    const hasConditions = nextCombatant.conditions.length > 0
+  if (sortedCombatants.length === 0) return;
+  
+  const currentCombatant = sortedCombatants[currentTurnIndex];
+  if (!currentCombatant) return;
+  
+  const hasConditions = currentCombatant.conditions.length > 0;
+  
   if (hasConditions) {
-    // Perform any operations with nextCombatant here
-    setConditionModalCombatant(nextCombatant);
+    setConditionModalCombatant(currentCombatant);
     setShowConditionModal(true);
-  }}
+  } else {
+    // Close modal if no conditions
+    setShowConditionModal(false);
+  }
 }, [currentTurnIndex]);
 
   // Auto-open HP modal for death saves

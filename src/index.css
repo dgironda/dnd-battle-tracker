@@ -656,7 +656,7 @@ sup {
 #conditionReminderOverlay {
   position: fixed;
   top: 0;
-  left: 0;
+  left: 10vw;
   right: 50vw;
   bottom: 50vh;
   /* background: var(--transparent); */

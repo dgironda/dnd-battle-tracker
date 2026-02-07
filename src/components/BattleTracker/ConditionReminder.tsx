@@ -79,7 +79,7 @@ export const ConditionReminder: React.FC<ConditionReminderProps> = ({
             </p>
           ))}
         </div>
-        <sup>(this can be turned off in Options)</sup>
+        <sup>(this reminder can be turned off in Options)</sup>
       </div>
     </div>
   );
