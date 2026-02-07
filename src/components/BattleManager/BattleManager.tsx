@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Combatant } from '../../types/index';
+import { Hero, Monster, Combatant } from '../../types/index';
 import { useCombat } from '../BattleTracker/CombatContext';
 // import { exportAllToJson, importFromJson } from '../../utils/LocalStorage';
 import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getRoundNumber, storeCombatants } from "../../utils/LocalStorage";
 import { Popup } from '../../utils/Popup';
 import monsterShareURL from '../../utils/monsterShareURL';
 import BattlePhotoThumbnail from './BattlePhotoThumbnail';
+
 
 interface SavedBattle {
   id: string;
@@ -156,6 +157,7 @@ const downloadFile = ({ data, fileName, fileType }: DownloadFileParams) => {
   
   let heroes = getHeroes()
   let combatants = getCombatants()
+  let monsters = getMonsters()
   let round = getRoundNumber()
   let battles = savedBattles
   
@@ -197,15 +199,13 @@ const handleImportContinue = () => {
   input.click()
 }
 const importFromJson = (file: File) => {
-
   if (!file) return
-  const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB limit
+  const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB limit to stay compatible with localStorage
   const ALLOWED_FILE_TYPE = 'application/json'
   const sanitizeObject = (obj: any): any => {
-  return JSON.parse(JSON.stringify(obj))
-}
+    return JSON.parse(JSON.stringify(obj))
+  }
   const HEROES_KEY = "storedHeroes";
-  const MONSTERS_KEY = "storedMonsters";
   const COMBATANTS_KEY = "storedCombatants";
   const ROUND_KEY = "roundnumber"
   
@@ -244,13 +244,40 @@ const importFromJson = (file: File) => {
       const sanitizedHeroes = importedData.heroes.map(sanitizeObject)
       const sanitizedCombatants = importedData.combatants.map(sanitizeObject)
       const sanitizedBattles = importedData.battles.map(sanitizeObject)
-
-      // Get existing heroes + battles and merge with imported ones
+      
+      // Get existing data
       const existingHeroes = getHeroes() ?? []
-      const mergedHeroes = [...existingHeroes, ...sanitizedHeroes]
+      const existingMonsters = getMonsters() ?? []
       const existingBattles = savedBattles ?? []
-      const mergedBattles = [...existingBattles, ...sanitizedBattles]
-
+      
+      // Create sets of existing IDs for fast lookup
+      const existingHeroIds = new Set(existingHeroes.map(h => h.id))
+      const existingMonsterIds = new Set(existingMonsters.map(m => m.id))
+      const existingBattleIds = new Set(existingBattles.map(b => b.id))
+      
+      // Check and regenerate IDs if they collide
+      const processedHeroes = sanitizedHeroes.map((hero: Hero) => {
+        if (existingHeroIds.has(hero.id)) {
+          const newId = crypto.randomUUID()
+          console.log(`Hero ID collision detected. Changing ${hero.id} to ${newId}`)
+          return { ...hero, id: newId }
+        }
+        return hero
+      })
+      
+      const processedBattles = sanitizedBattles.map((battle: SavedBattle) => {
+        if (existingBattleIds.has(battle.id)) {
+          const newId = crypto.randomUUID()
+          console.log(`Battle ID collision detected. Changing ${battle.id} to ${newId}`)
+          return { ...battle, id: newId }
+        }
+        return battle
+      })
+      
+      // Merge with existing data
+      const mergedHeroes = [...existingHeroes, ...processedHeroes]
+      const mergedBattles = [...existingBattles, ...processedBattles]
+      
       // Additional validation on the data content
       if (!Array.isArray(sanitizedHeroes) || 
           !Array.isArray(sanitizedCombatants) ||
@@ -281,7 +308,6 @@ const importFromJson = (file: File) => {
       localStorage.setItem(ROUND_KEY, importedData.round.toString())
       localStorage.setItem(SAVED_BATTLES_KEY, JSON.stringify(mergedBattles))
       
-      
       alert('Data imported successfully!')
       window.location.reload()
       
@@ -309,7 +335,8 @@ const isValidGameData = (data: any): boolean => {
     typeof data === 'object' &&
     'heroes' in data &&
     'combatants' in data &&
-    'round' in data
+    'round' in data &&
+    'battles' in data
   )
 }
 

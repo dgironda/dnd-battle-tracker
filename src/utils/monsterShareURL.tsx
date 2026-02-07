@@ -1,4 +1,5 @@
 import { getMonsters } from "./LocalStorage";
+import type { Monster } from "../types";
 
 // Parse URL parameters and import data on page load
 const sanitizeObject = (obj: any): any => {
@@ -55,10 +56,19 @@ const loadMonstersFromURL = () => {
     
     // Sanitize the monsters
     const sanitizedMonsters = decompressed.map(sanitizeObject)
-    
+    const existingMonsterIds = new Set(sanitizedMonsters.map(m => m.id))
+    const processedMonsters = sanitizedMonsters.map((monster: Monster) => {
+      if (existingMonsterIds.has(monster.id)) {
+        const newId = crypto.randomUUID()
+        console.log(`Monster ID collision detected. Changing ${monster.id} to ${newId}`)
+        return { ...monster, id: newId }
+      }
+      return monster
+    })
+
     // Get existing monsters and merge with imported ones
     const existingMonsters = getMonsters() ?? []
-    const mergedMonsters = [...existingMonsters, ...sanitizedMonsters]
+    const mergedMonsters = [...existingMonsters, ...processedMonsters]
     
     // Optional: Check for length limits
     if (mergedMonsters.length > 1000) {
