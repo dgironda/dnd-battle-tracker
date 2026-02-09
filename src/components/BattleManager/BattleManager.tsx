@@ -6,6 +6,7 @@ import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getR
 import { Popup } from '../../utils/Popup';
 import monsterShareURL from '../../utils/monsterShareURL';
 import BattlePhotoThumbnail from './BattlePhotoThumbnail';
+import StorageWarning from '../../utils/StorageWarning';
 
 
 interface SavedBattle {
@@ -465,6 +466,10 @@ const removePhoto = () => {
       </div>
       {/* Saved Battles List */}
       <div id="savedBattlesOuter">
+        <StorageWarning 
+  threshold={3 * 1024 * 1024} // 3MB in bytes (default)
+  onWarningChange={(isWarning) => console.log(isWarning)}
+/>
         <h3>Saved Battles ({savedBattles.length})</h3>
         
         {savedBattles.length === 0 ? (
