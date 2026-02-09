@@ -7,6 +7,7 @@ import { Popup } from '../../utils/Popup';
 import monsterShareURL from '../../utils/monsterShareURL';
 import BattlePhotoThumbnail from './BattlePhotoThumbnail';
 import StorageWarning from '../../utils/StorageWarning';
+import { compressImageForUpload } from '../../utils/imageCompression';
 
 
 interface SavedBattle {
@@ -341,7 +342,36 @@ const isValidGameData = (data: any): boolean => {
   )
 }
 
-const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+// const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+//   const file = e.target.files?.[0];
+//   if (!file) return;
+
+//   // Validate file type
+//   if (!file.type.startsWith('image/')) {
+//     alert('Please upload an image file');
+//     return;
+//   }
+
+//   // Validate file size (max 2MB to avoid localStorage limits)
+//   const MAX_SIZE = 2 * 1024 * 1024;
+//   if (file.size > MAX_SIZE) {
+//     alert('Image is too large. Please upload an image smaller than 2MB');
+//     return;
+//   }
+
+//   // Convert to base64
+//   const reader = new FileReader();
+//   reader.onload = (event) => {
+//     const base64String = event.target?.result as string;
+//     setSelectedPhoto(base64String);
+//   };
+//   reader.onerror = () => {
+//     alert('Error reading file');
+//   };
+//   reader.readAsDataURL(file);
+// };
+
+const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
@@ -351,23 +381,31 @@ const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     return;
   }
 
-  // Validate file size (max 2MB to avoid localStorage limits)
-  const MAX_SIZE = 2 * 1024 * 1024;
+  // Validate file size (max 10MB for original upload)
+  const MAX_SIZE = 10 * 1024 * 1024;
   if (file.size > MAX_SIZE) {
-    alert('Image is too large. Please upload an image smaller than 2MB');
+    alert('Image is too large. Please upload an image smaller than 10MB');
     return;
   }
 
-  // Convert to base64
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const base64String = event.target?.result as string;
-    setSelectedPhoto(base64String);
-  };
-  reader.onerror = () => {
-    alert('Error reading file');
-  };
-  reader.readAsDataURL(file);
+  try {
+    // Compress the image - this returns base64 strings
+    const compressed = await compressImageForUpload(file, {
+      thumbnailMaxWidth: 200,
+      thumbnailMaxHeight: 200,
+      fullScreenMaxWidth: 1920,
+      fullScreenMaxHeight: 1080,
+      quality: 0.85,
+    });
+
+    // compressed.fullScreen is already a base64 string (data:image/jpeg;base64,...)
+    // Save it directly to state/localStorage
+    setSelectedPhoto(compressed.fullScreen);
+
+  } catch (error) {
+    console.error('Image compression failed:', error);
+    alert('Error processing image. Please try a different file.');
+  }
 };
 
 const removePhoto = () => {
@@ -468,7 +506,7 @@ const removePhoto = () => {
       <div id="savedBattlesOuter">
         <StorageWarning 
   threshold={3 * 1024 * 1024} // 3MB in bytes (default)
-  onWarningChange={(isWarning) => console.log(isWarning)}
+  // onWarningChange={(isWarning) => console.log(isWarning)}
 />
         <h3>Saved Battles ({savedBattles.length})</h3>
         
