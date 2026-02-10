@@ -4,6 +4,7 @@ import ToggleComponent from "../components/ToggleContext";
 // import { exportAllToJson, importFromJson } from "./utils/LocalStorage";
 import { useState, useEffect } from "react";
 import React from "react";
+import Icon from "./Icon";
 
 interface OptionsProps {
   isVisible: boolean;
@@ -23,7 +24,7 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
   return (
     <>
       <button id="optionsButton" title="Options and settings" onClick={onToggle}>
-        {isVisible ? "Close Options" : "Options"}
+        <Icon className="optionsGear" name="gear" size={24} color="var(--color-bg1)"/>
       </button>
       
       {isVisible && (

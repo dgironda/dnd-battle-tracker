@@ -266,6 +266,11 @@ sup {
   border: .5rem solid var(--color-hl2);
 }
 
+.optionsGear {
+  margin-right: 0 !important;
+  cursor: pointer !important;
+}
+
 #about li, #options li {
   list-style: none;
 }
