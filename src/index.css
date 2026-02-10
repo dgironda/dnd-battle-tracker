@@ -3,7 +3,7 @@
 @import url('https://fonts.googleapis.com/css2?family=New+Rocker&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Germania+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Balthazar&display=swap');
-
+@import './components/svg-components.css';
 
 :root {
   color-scheme: light;

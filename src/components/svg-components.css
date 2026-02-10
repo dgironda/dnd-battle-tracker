@@ -1,0 +1,250 @@
+/* SVG Component Styles */
+
+/* ==================== ICONS ==================== */
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.icon:hover {
+  transform: scale(1.1);
+}
+
+.icon.clickable {
+  cursor: pointer;
+}
+
+.icon.clickable:hover {
+  filter: brightness(1.2);
+}
+
+.icon.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ==================== SVG BORDERS ==================== */
+.svg-border {
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Fallback if SVG doesn't load */
+.svg-border-default {
+  border: 2px solid var(--color-brdr1, #8b4513);
+}
+
+.svg-border-fancy {
+  /* SVG border will override this */
+}
+
+.svg-border-combat {
+  /* SVG border will override this */
+}
+
+.svg-border-magic {
+  /* SVG border will override this */
+}
+
+.svg-border-scroll {
+  /* SVG border will override this */
+}
+
+/* ==================== SVG BUTTONS ==================== */
+.svg-button {
+  padding: 0.75rem 1.5rem;
+  font-family: 'Caudex', serif;
+  font-weight: bold;
+  font-size: 1em;
+  color: var(--color-text, #000);
+  transition: transform 0.1s ease, filter 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.svg-button:hover:not(.disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.svg-button:active:not(.disabled) {
+  transform: translateY(0);
+  filter: brightness(0.9);
+}
+
+.svg-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.svg-button-primary {
+  color: white;
+}
+
+.svg-button-secondary {
+  color: var(--color-text, #000);
+}
+
+.svg-button-action {
+  color: white;
+}
+
+.svg-button-patreon {
+  color: white;
+}
+
+/* ==================== ACTION ECONOMY ==================== */
+.action-economy {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 50px;
+}
+
+.action-item:hover:not(.disabled) {
+  background: rgba(139, 69, 19, 0.1);
+  transform: translateY(-2px);
+}
+
+.action-item.used {
+  opacity: 0.4;
+  filter: grayscale(0.5);
+}
+
+.action-item.available {
+  opacity: 1;
+  filter: grayscale(0);
+}
+
+.action-item.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.action-label {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--color-text, #000);
+}
+
+/* ==================== HP DISPLAY WITH ICONS ==================== */
+.hp-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hp-display .icon-heart {
+  color: #dc3545;
+}
+
+.hp-display .icon-shield {
+  color: #6c757d;
+}
+
+/* ==================== CONDITION ICONS ==================== */
+.condition-icon {
+  width: 24px;
+  height: 24px;
+  margin: 2px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.condition-icon:hover {
+  transform: scale(1.2);
+}
+
+.condition-badge {
+  position: relative;
+  display: inline-block;
+}
+
+.condition-badge .icon {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+/* ==================== DIVIDERS ==================== */
+.svg-divider {
+  width: 100%;
+  height: auto;
+  margin: 1rem 0;
+}
+
+.svg-divider-horizontal {
+  width: 100%;
+  height: 20px;
+}
+
+.svg-divider-vertical {
+  width: 20px;
+  height: 100%;
+}
+
+/* ==================== BACKGROUND PATTERNS ==================== */
+.svg-background {
+  background-image: url('/svg/decorations/background-pattern.svg');
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+.svg-background-parchment {
+  background-image: url('/svg/decorations/parchment-texture.svg');
+  background-repeat: repeat;
+}
+
+.svg-background-doodles {
+  background-image: url('/svg/decorations/dnd-doodles.svg');
+  background-repeat: repeat;
+  background-size: 300px 300px;
+  opacity: 0.05;
+}
+
+/* ==================== KEYBOARD SHORTCUT BADGES ==================== */
+.keyboard-shortcut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0.25rem 0.5rem;
+  background-image: url('/svg/icons/keyboard-key.svg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--color-text, #000);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .action-economy {
+    gap: 0.25rem;
+  }
+  
+  .action-item {
+    min-width: 40px;
+    padding: 0.25rem;
+  }
+  
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+}

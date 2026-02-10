@@ -1,6 +1,6 @@
 import { DEVMODE } from "../../utils/devmode";
-
 import { Combatant } from "../../types/index";
+import Icon from "../Icon";  // ADD THIS IMPORT
 
 interface Props {
   combatants: Combatant[];
@@ -53,6 +53,8 @@ export default function CombatantList({
                 <td title={c.stats}>{c.name}</td>
                 <td>{c.initiative}</td>
                 <td>
+                  
+                  {" "}
                   <input
                     type="number"
                     value={c.currHp}
@@ -62,6 +64,14 @@ export default function CombatantList({
                     style={{ width: "50px" }}
                   />{" "}
                   / {c.maxHp}
+				  {/* HEART ICON ADDED HERE */}
+                  <img 
+    src="/svg/icons/heart.svg" 
+    alt="heart" 
+    width="16" 
+    height="16"
+    style={{ display: 'inline-block', verticalAlign: 'middle' }}
+  />
                 </td>
                 {/* <td>{c.AC}</td> */}
                 <td>{c.conditions.join(", ")}</td>
