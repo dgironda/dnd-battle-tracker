@@ -134,6 +134,7 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
   const conditionReminderOn = settings.conditionReminderOn === true ? false : true;
   const currentTurnTime = settings.currentTurnTime ?? true; 
 
+  
   const getHpColor = (currHp: number, maxHp: number): string => {
   if (maxHp === 0) return '#f8f2eb';
   
@@ -541,7 +542,7 @@ useEffect(() => {
             <tr 
               key={combatant.id}
               style={{ 
-                backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa',
+                // backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa',
                 borderLeft: index === currentTurnIndex ? '5px solid #777777' : 'none'
               }}
               className="combatantInfo"
@@ -651,7 +652,7 @@ useEffect(() => {
                 {combatant.tHp > 0 && (
                   <p className="thp">🛡️( {combatant.tHp} )</p>
                   )}
-                {combatant.currHp} / {combatant.maxHp}  <Icon name="heart" size={16} color="#dc3545" />  
+                {combatant.currHp} / {combatant.maxHp}  <Icon name="heart" size={16} className="hpHeart" color="#dc3545" />  
               </td>
 			  
 			  {/* Added disabling of checkboxes on "Dead", might want to do this on "Death Saves" after prompt to roll and count of Saves/Fails? */}

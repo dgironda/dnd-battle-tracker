@@ -150,6 +150,10 @@ button:hover {
   filter: brightness(130%);
 }
 
+.combatantInfo {
+  background-color: var(--color-roweven);
+}
+
 .combatantName {
   cursor: pointer;
   display: flex;
@@ -267,7 +271,6 @@ sup {
 }
 
 .optionsGear, .initiativeRoll {
-  margin-right: 0 !important;
   cursor: pointer !important;
 }
 
@@ -656,6 +659,10 @@ sup {
 
 .combatantHP {
   cursor: pointer;
+}
+
+.hpHeart {
+  margin-right: .2rem !important;
 }
 
 #conditionReminderOverlay {

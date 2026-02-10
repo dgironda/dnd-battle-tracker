@@ -47,7 +47,7 @@ export default function CombatantList({
               <tr
                 key={c.id}
                 style={{
-                  backgroundColor: index === currentTurn ? "#d1ffd6" : "transparent",
+                  // backgroundColor: index === currentTurn ? "#d1ffd6" : "transparent",
                 }}
               >
                 <td title={c.stats}>{c.name}</td>
