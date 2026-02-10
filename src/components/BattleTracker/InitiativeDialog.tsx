@@ -2,6 +2,7 @@ import { DEVMODE } from "../../utils/devmode";
 
 import { useState } from 'react';
 import { useCombat } from './CombatContext';
+import Icon from "../Icon";
 
 interface InitiativeDialogProps {
   heroName: string;
@@ -74,13 +75,13 @@ export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: Ini
             onClick={handleSubmit}
             id='submitInit'
           >
-            OK
+            Submit
           </button>
           <button
             onClick={handleRandom}
             id='randomInit'
           >
-            Random (1–20)
+            Roll<br/><Icon className="initiativeRoll" name="d20" size={24} color="var(--color-bg1)"/>
           </button>
         </div>
       </div>
