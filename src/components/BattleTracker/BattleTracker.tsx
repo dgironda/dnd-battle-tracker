@@ -20,6 +20,7 @@ import { MonsterStatBlockHover } from "./MonsterStatBlockHover";
 import { useBattleManager } from "../../hooks/useStartBattle";
 import { ConditionReminder } from "./ConditionReminder";
 import { Popup } from "../../utils/Popup";
+import Icon from "../Icon";
 
 
 interface BattleTrackerProps {
@@ -646,11 +647,11 @@ useEffect(() => {
                 color: combatant.currHp < combatant.maxHp * 0.5 ? 'white' : 'black'
               }}
               onClick={() => setHpModalCombatant(combatant)}
-              title="Click to change HP">
+              title="Click to change HP"> 
                 {combatant.tHp > 0 && (
                   <p className="thp">🛡️( {combatant.tHp} )</p>
                   )}
-                {combatant.currHp} / {combatant.maxHp}   
+                {combatant.currHp} / {combatant.maxHp}  <Icon name="heart" size={16} color="#dc3545" />  
               </td>
 			  
 			  {/* Added disabling of checkboxes on "Dead", might want to do this on "Death Saves" after prompt to roll and count of Saves/Fails? */}
