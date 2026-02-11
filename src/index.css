@@ -20,6 +20,8 @@
   --color-brdr1: light-dark(#b5a37b, #b5a37b);     /* consistent table borders */
   --color-rowodd: light-dark(#ffffff, #3c3f43);    /* row odd colors */
   --color-roweven: light-dark(#f8f2eb, #484c51);   /* row even colors */
+  --color-hphealthy: light-dark(#000, #fff);       /* hp above 50% */
+  --color-hpbloodied: light-dark(#fff, #000);      /* hp below 50% */
   --color-shadow: light-dark(#555555, #aca9a9);    /* shadow */
   --color-hero-bg1: light-dark(#181715, #f4e8d8);
   --color-hero-bg2: light-dark(#2e2c28 ,#e8dcc8);

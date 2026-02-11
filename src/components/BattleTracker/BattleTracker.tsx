@@ -658,7 +658,7 @@ useEffect(() => {
               className="combatantHP"
               style={{ 
                 backgroundColor: getHpColor(combatant.currHp, combatant.maxHp),
-                color: combatant.currHp < combatant.maxHp * 0.5 ? 'white' : 'black'
+                color: combatant.currHp < combatant.maxHp * 0.5 ? 'var(--color-hpbloodied)' : 'var(--color-hphealthy)'
               }}
               onClick={() => setHpModalCombatant(combatant)}
               title="Click to change HP"> 
