@@ -10,7 +10,7 @@
 
   --color-bg1: light-dark(#f8f3e7, #1d1f21);      /* slightly parchment-like vs dark background */
   --color-bg2: light-dark(#e6dfd3, #232528);      /* subtle secondary background vs slightly lighter dark */
-  --color-fg: light-dark(#131b1f, #6e5f5f);       /* main text color */
+  --color-fg: light-dark(#131b1f, #a29898);       /* main text color */
   --color-btn1: light-dark(#6a0500, #9b1c20);     /* dark button border vs lighter border */
   --color-btn2: light-dark(#b3190e, #e95348);     /* button background for light vs lighter dark */
   --color-chk1: light-dark(#8b8b8b, #a1a1a1);     /* disabled text / info */
