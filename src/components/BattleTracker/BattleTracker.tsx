@@ -133,17 +133,28 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
   const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
   const conditionReminderOn = settings.conditionReminderOn === true ? false : true;
   const currentTurnTime = settings.currentTurnTime ?? true; 
+  const currentTheme = settings.theme
 
-  
+
+
   const getHpColor = (currHp: number, maxHp: number): string => {
   if (maxHp === 0) return '#f8f2eb';
   
   const percentage = Math.max(0, Math.min(1, currHp / maxHp));
   
+  let startR: number;
+  let startG: number;
+  let startB: number;
+
   // Start color: #f8f2eb (100% HP)
-  const startR = 0xf8;
-  const startG = 0xf2;
-  const startB = 0xeb;
+  if (currentTheme === 'light') {
+    startR = 0xf8;
+    startG = 0xf2;
+    startB = 0xeb;}
+    else {
+      startR = 0x48;
+      startG = 0x4c;
+      startB = 0x51;}
   
   // End color: #880808 (0% HP)
   const endR = 0x88;
@@ -162,6 +173,8 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
   
   return `#${rHex}${gHex}${bHex}`;
 };
+
+
 
   const [isSBPopupOpen, setIsSBPopupOpen] = React.useState(false);
   

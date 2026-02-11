@@ -53,8 +53,6 @@ const Icon: React.FC<IconProps> = ({
       style={{
         display: 'inline-block',
         verticalAlign: 'middle',
-        // marginRight: '0',
-        // cursor: onClick ? 'pointer' : 'default',
       }}
       aria-label={title || name}
     >
