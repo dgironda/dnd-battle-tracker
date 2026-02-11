@@ -10,6 +10,8 @@ const driverObj = driver({
     {
       element: '#heroManagerButton',
       popover: {
+        side: "right",
+        align: 'center',
         title: 'Hero Manager',
         description: 'Start by opening the Hero Manager',
         onNextClick: () => {
@@ -20,12 +22,40 @@ const driverObj = driver({
       },
     },
     {
-      element: '#addHeroInner',
+      element: '#addHeroOuter',
       popover: {
         side: "bottom",
         align: 'center',
         title: 'Add a hero',
-        description: 'Type a name and any other attributes for your hero. All this can be changed or added to later.',
+        description: 'Type a name and any other attributes for your hero. Then press enter or click the Add Hero button to add your hero. All this can be changed or added to in the Hero Manager below.',
+        onNextClick: () => {
+          // .. load element dynamically
+          // .. and then call
+          driverObj.moveNext();
+        }
+      },
+    },
+    {
+      element: '#monsterManagerButton',
+      popover: {
+        side: "right",
+        align: 'center',
+        title: 'Monster Manager',
+        description: 'Now open the Monster Manager',
+        onNextClick: () => {
+          // .. load element dynamically
+          // .. and then call
+          driverObj.moveNext();
+        }
+      },
+    },
+    {
+      element: '#addMonsterOuter',
+      popover: {
+        side: "bottom",
+        align: 'center',
+        title: 'Add a monster',
+        description: 'Type a creature name to look one up or just type a name for your monster. Then press enter or click the Add Monster button or enter a number and press Add Monsters to add more than 1. Like the Hero Manager, all stats can be adjusted below',
         onNextClick: () => {
           // .. load element dynamically
           // .. and then call

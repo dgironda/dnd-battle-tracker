@@ -112,7 +112,7 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
       </div>
 
       <div className="addPresent-div">
-        <button onClick={handleAddHero}>Add Hero</button>
+        <button id="addNewHeroButton" onClick={handleAddHero}>Add Hero</button>
       </div>
     </div>
   );
