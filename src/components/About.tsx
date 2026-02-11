@@ -1,4 +1,5 @@
 import { DEVMODE } from "../utils/devmode";
+import { startTour } from "./Tour";
 
 
 import Options from "./Options";
@@ -23,6 +24,10 @@ export default function About({ isVisible, onToggle }: AboutProps) {
         <div id="about">
           <button id="aboutCloseButton" onClick={onToggle}>Close</button>
             <div id="instructions">
+              <button onClick={() => {
+                startTour();
+                onToggle();
+              }}>Start Quick Tour</button>
               <h3>Instructions</h3>
                 <ul>
                     <li>Toggle your D&D edition (5e 2014/2024) using the rules version button in Options.</li> 

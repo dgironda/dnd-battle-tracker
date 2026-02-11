@@ -81,7 +81,7 @@ export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: Ini
             onClick={handleRandom}
             id='randomInit'
           >
-            Roll<br/><Icon className="initiativeRoll" name="d20" size={24} color="var(--color-bg1)"/>
+            Roll<br/><Icon className="initiativeRoll" name="d20" size={24} color="white"/>
           </button>
         </div>
       </div>

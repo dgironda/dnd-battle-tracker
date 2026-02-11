@@ -146,7 +146,7 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
   let startG: number;
   let startB: number;
 
-  // Start color: #f8f2eb (100% HP)
+  // Start color: light-dark(#f8f2eb, #484c51) (100% HP)
   if (currentTheme === 'light') {
     startR = 0xf8;
     startG = 0xf2;

@@ -70,18 +70,21 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
       <h3>Add New Hero</h3>
       <div id="addHeroInner">
         <input
+          id="addHeroName"
           placeholder="Name"
           value={form.name}
           onKeyDown={keyDownAddHero}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
         <input
+          id="addHeroPlayer"
           placeholder="Player"
           value={form.player}
           onKeyDown={keyDownAddHero}
           onChange={(e) => setForm({ ...form, player: e.target.value })}
         />
         <input
+          id="addHeroHP"
           type="number"
           placeholder="HP"
           value={form.hp === 10 ? '' : form.hp}
@@ -97,6 +100,7 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
           }}
         />
         <input
+          id="addHeroAC"
           type="number"
           placeholder="AC"
           value={form.ac === 10 ? '' : form.ac}
