@@ -50,6 +50,9 @@ export default function PatreonOverlay({ onClose }: PatreonOverlayProps) {
             <p>
                 Support Simulacrum Technologies on Patreon to help us keep improving, or just continue to your tracker.
             </p>
+            <p>
+                If you are new here consider taking the tour.
+            </p>
             <div>
                 <button
                     onClick={handlePatreonLogin}

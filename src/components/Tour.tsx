@@ -13,10 +13,15 @@ const { updateSetting } = useGlobalContext();
 
 useEffect(() => {
  driverObj = driver({
-  showProgress: false,
+  showProgress: true,
 //   overlayClickBehavior: "none",
   showButtons: ['next', 'previous'],
   allowClose: false,
+  stagePadding: 10,
+  stageRadius: 10,
+  onCloseClick: () => {
+      driverObj.destroy()
+    },
   steps: [
     {
       element: '#heroManagerButton',
@@ -37,7 +42,7 @@ useEffect(() => {
         side: "bottom",
         align: 'center',
         title: 'Add a hero',
-        description: 'Type a name and any other attributes for your hero. Then press enter or click the Add Hero button to add your hero. All this can be changed or added to in the Hero Manager below.',
+        description: 'Type a name and any other attributes for your hero. <br/>Then press enter or click the Add Hero button to add your hero. <br/>All this can be changed or added to in the Hero Manager below.',
         onNextClick: () => {
           driverObj.moveTo(2);
         },
@@ -72,7 +77,7 @@ useEffect(() => {
         side: "bottom",
         align: 'center',
         title: 'Add a monster',
-        description: 'Type a creature name to look one up or just type a name for your monster. Then press enter or click the Add Monster button or enter a number and press Add Monsters to add more than 1.',
+        description: 'Type a creature name to look one up or just type a name for your monster. <br/>Then press enter or click the Add Monster button or enter a number and press Add Monsters to add more than 1.',
         onNextClick: () => {
           driverObj.moveTo(4);
         },
@@ -91,7 +96,7 @@ useEffect(() => {
         side: "bottom",
         align: 'center',
         title: 'Edit your monsters',
-        description: 'Adjust stats on any monsters that need it.\nMake sure to mark Ready for Next Battle any monsters you want to join the next battle.',
+        description: 'Adjust stats on any monsters that need it.<br/>Make sure to mark Ready for Next Battle any monsters you want to join the next battle you start.',
         onNextClick: () => {
           driverObj.moveTo(5);
         },
@@ -158,15 +163,16 @@ useEffect(() => {
         side: "top",
         align: 'center',
         title: 'Are you sure?',
-        description: 'If you don\'t mind your current battle being deleted press Continue. Otherwise click outside the highlighted area and come back later.',
+        description: 'If you don\'t mind your current battle being deleted press Continue. Otherwise press the x in the corner of this box, click cancel in the popup, and come back later.',
         onNextClick: () => {
           driverObj.moveTo(8);
         },
         onPrevClick: () => {
             const element = document.querySelector(".btn-cancel");
+            driverObj.moveTo(6);
             if (element instanceof HTMLButtonElement) {
                 element.click()}
-          driverObj.moveTo(6);
+          
         },
         showButtons: ['previous', 'close'],
       },
@@ -194,6 +200,7 @@ useEffect(() => {
         onNextClick: () => {
           driverObj.destroy();
         },
+        // showButtons: ['close'],
         disableButtons: ['previous']
       },
     },
@@ -246,5 +253,5 @@ export function startTour() {
   if (driverObj) {
     driverObj.destroy();
   }
-  driverObj.drive(0);
+  driverObj.drive();
 }
