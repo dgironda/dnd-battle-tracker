@@ -2,11 +2,12 @@ import { DEVMODE } from "../utils/devmode";
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 interface Settings {
+  // Add settings here
   version: 'twentyFourteen' | 'twentyTwentyFour';
-  // Add other settings here
   theme?: 'light' | 'dark';
   conditionReminderOn?: boolean;
   currentTurnTime?: boolean;
+  tourReady: boolean;
 }
 
 interface GlobalContextType {
@@ -28,7 +29,8 @@ export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         version: "twentyFourteen",
         theme: "light",
         conditionReminderOn: true,
-        currentTurnTime: true
+        currentTurnTime: true,
+        tourReady: true,
       };
     } catch (error) {
       console.error("Error loading settings:", error);
@@ -36,7 +38,8 @@ export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         version: "twentyFourteen",
         theme: "light",
         conditionReminderOn: true,
-        currentTurnTime: true
+        currentTurnTime: true,
+        tourReady: true,
       };
     }
     

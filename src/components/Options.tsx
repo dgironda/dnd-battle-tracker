@@ -1,7 +1,6 @@
 import { DEVMODE } from "../utils/devmode";
 import { GlobalProvider, useGlobalContext } from "../hooks/optionsContext";
 import ToggleComponent from "../components/ToggleContext";
-// import { exportAllToJson, importFromJson } from "./utils/LocalStorage";
 import { useState, useEffect } from "react";
 import React from "react";
 import Icon from "./Icon";
@@ -34,10 +33,8 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
                 <ul>
                     <li><ToggleComponent /></li>
                     <li><button onClick={() => updateSetting('conditionReminderOn', !settings.conditionReminderOn)} id="buttonConditionReminder">Condition Reminder Pop-up: {settings.conditionReminderOn ? 'Off' : 'On'}</button></li>
-                    {isSupporter && (<>
-                      <li><button onClick={() => updateSetting('currentTurnTime', !settings.currentTurnTime)} id="buttonCurrentTurnTime">Current Turn Time Display: {settings.currentTurnTime ? 'On' : 'Off'}</button></li>
-                    </>
-                        )}
+                    <li><button onClick={() => updateSetting('currentTurnTime', !settings.currentTurnTime)} id="buttonCurrentTurnTime">Current Turn Time Display: {settings.currentTurnTime ? 'On' : 'Off'}</button></li>
+                    <li><button onClick={() => updateSetting('tourReady', !settings.tourReady)} id="buttonTourReady">{settings.tourReady ? 'Tour Available' : 'Reset Tour'}</button></li>
                     <li id="colorMode">{isSupporter && (<>
                     <input type="checkbox" id="light-dark" checked={settings.theme === 'dark'} onChange={handleThemeChange}></input>
                     <label htmlFor="light-dark">Light/Dark mode</label></>)}</li>

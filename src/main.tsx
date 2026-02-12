@@ -9,6 +9,7 @@ import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
+import { Tour } from "./components/Tour";
 
 posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
@@ -18,18 +19,15 @@ posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
-  <GlobalProvider>
-  <React.StrictMode>
-    {/* <div id="header">
-      <About /><ToggleComponent />
-    </div> */}
-    <PostHogProvider client={posthog}>
-      <div id="page">
-        <App />
-      </div>
-    </PostHogProvider>
-
-  </React.StrictMode>
-  </GlobalProvider>
+    <React.StrictMode>
+      <GlobalProvider>
+        <PostHogProvider client={posthog}>
+          <Tour />
+          <div id="page">
+            <App />
+          </div>
+        </PostHogProvider>
+      </GlobalProvider>
+    </React.StrictMode>
   </HelmetProvider>
 );

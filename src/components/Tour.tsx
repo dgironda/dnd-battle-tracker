@@ -2,10 +2,17 @@ import React, { useEffect } from 'react';
 import { driver } from 'driver.js';
 import 'driver.js/dist/driver.css'; 
 import { getCombatants } from '../utils/LocalStorage';
+import { useGlobalContext } from '../hooks/optionsContext';
 
-const combatants = getCombatants();
+let driverObj: any = null
 
-const driverObj = driver({
+export function Tour() {
+
+    const combatants = getCombatants();
+const { updateSetting } = useGlobalContext();
+
+useEffect(() => {
+ driverObj = driver({
   showProgress: false,
 //   overlayClickBehavior: "none",
   showButtons: ['next', 'previous'],
@@ -222,12 +229,22 @@ onDestroyed: () => {
     const newButton = button.cloneNode(true);
     button.parentNode?.replaceChild(newButton, button);
   });
+  updateSetting('tourReady', false)
 }
 });
+}, [updateSetting]);
+    return null;
+}
+
 
 
 export function startTour() {
-    if (driverObj) {
-    driverObj.destroy()}
+  if (!driverObj) {
+    console.error('Tour not initialized. Make sure Tour component is mounted.');
+    return;
+  }
+  if (driverObj) {
+    driverObj.destroy();
+  }
   driverObj.drive(0);
 }
