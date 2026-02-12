@@ -9,6 +9,7 @@ const driverObj = driver({
   showProgress: false,
 //   overlayClickBehavior: "none",
   showButtons: ['next', 'previous'],
+  allowClose: false,
   steps: [
     {
       element: '#heroManagerButton',
@@ -16,11 +17,11 @@ const driverObj = driver({
         side: "right",
         align: 'center',
         title: 'Hero Manager',
-        description: 'Start by opening the Hero Manager',
+        description: 'Start by clicking here to open the Hero Manager',
         onNextClick: () => {
           driverObj.moveTo(1);
         },
-        disableButtons: ['next'],
+        showButtons: ['close'],
       },
     },
     {
@@ -33,6 +34,13 @@ const driverObj = driver({
         onNextClick: () => {
           driverObj.moveTo(2);
         },
+        onPrevClick: () => {
+            const element = document.getElementById("heroManagerButton");
+            if (element instanceof HTMLButtonElement) {
+                element.click()}
+          driverObj.moveTo(0);
+        },
+        showButtons: ['previous', 'next', 'close'],
       },
     },
     {
@@ -41,11 +49,14 @@ const driverObj = driver({
         side: "right",
         align: 'center',
         title: 'Monster Manager',
-        description: 'Now open the Monster Manager',
+        description: 'Now click here to open the Monster Manager. The Hero Manager will automatically close.',
         onNextClick: () => {
           driverObj.moveTo(3);
         },
-        disableButtons: ['next'],
+        onPrevClick: () => {
+          driverObj.moveTo(1);
+        },
+        showButtons: ['previous', 'close'],
       },
     },
     {
@@ -58,6 +69,13 @@ const driverObj = driver({
         onNextClick: () => {
           driverObj.moveTo(4);
         },
+        onPrevClick: () => {
+            const element = document.getElementById("heroManagerButton");
+            if (element instanceof HTMLButtonElement) {
+                element.click()}
+          driverObj.moveTo(2);
+        },
+        showButtons: ['previous', 'next', 'close'],
       },
     },
     {
@@ -65,24 +83,36 @@ const driverObj = driver({
       popover: {
         side: "bottom",
         align: 'center',
-        title: 'Add a monster',
+        title: 'Edit your monsters',
         description: 'Adjust stats on any monsters that need it.\nMake sure to mark Ready for Next Battle any monsters you want to join the next battle.',
         onNextClick: () => {
           driverObj.moveTo(5);
         },
+        onPrevClick: () => {
+          driverObj.moveTo(3);
+        },
+        showButtons: ['previous', 'next', 'close'],
       },
     },
     {
       element: '#mmSaveCloseButton',
       popover: {
-        side: "top",
+        side: "bottom",
         align: 'center',
         title: 'Return to Battle Tracker',
-        description: 'Close the Monster Manager to return to the Battle Tracker.',
+        description: 'Click here to close the Monster Manager and return to the Battle Tracker.',
         onNextClick: () => {
           driverObj.moveTo(6);
+          const buttons = document.querySelectorAll('[data-driver-element]');
+  buttons.forEach(button => {
+    const newButton = button.cloneNode(true);
+    button.parentNode?.replaceChild(newButton, button);
+  });
         },
-        disableButtons: ['next'],
+        onPrevClick: () => {
+          driverObj.moveTo(4);
+        },
+        showButtons: ['previous', 'close'],
       },
     },
     {
@@ -91,24 +121,47 @@ const driverObj = driver({
         side: "bottom",
         align: 'center',
         title: 'Start your first battle',
-        description: 'If everything is ready to go, press Start Battle.',
+        description: 'If everything is ready to go, press here to Start Battle.',
         onNextClick: () => {
           driverObj.moveTo(7);
+          const buttons = document.querySelectorAll('[data-driver-element]');
+  buttons.forEach(button => {
+    const newButton = button.cloneNode(true);
+    button.parentNode?.replaceChild(newButton, button);
+  });
         },
-        disableButtons: ['next'],
+        onPrevClick: () => {
+            const element = document.getElementById("monsterManagerButton");
+            if (element instanceof HTMLButtonElement) {
+                element.click()}
+          setTimeout(() => {
+            driverObj.moveTo(5)
+        const buttons = document.querySelectorAll('[data-driver-element]');
+  buttons.forEach(button => {
+    const newButton = button.cloneNode(true);
+    button.parentNode?.replaceChild(newButton, button);
+  });}, 50);
+        },
+        showButtons: ['previous', 'close'],
       },
     },
     {
       element: '.popup-container',
       popover: {
-        side: "bottom",
+        side: "top",
         align: 'center',
         title: 'Are you sure?',
         description: 'If you don\'t mind your current battle being deleted press Continue. Otherwise click outside the highlighted area and come back later.',
         onNextClick: () => {
           driverObj.moveTo(8);
         },
-        disableButtons: ['next'],
+        onPrevClick: () => {
+            const element = document.querySelector(".btn-cancel");
+            if (element instanceof HTMLButtonElement) {
+                element.click()}
+          driverObj.moveTo(6);
+        },
+        showButtons: ['previous', 'close'],
       },
     },
     {
@@ -120,7 +173,8 @@ const driverObj = driver({
         description: 'Either enter the number rolled plus the intiative modifer or press Roll and it will do the rolling for you and add the initiative modifier set in the hero or monster manager. Do this for each combatant and then press next.',
         onNextClick: () => {
           driverObj.moveTo(9);
-        }
+        },
+        showButtons: ['previous', 'next', 'close'],
       },
     },
     {
@@ -129,14 +183,15 @@ const driverObj = driver({
         side: "top",
         align: 'center',
         title: 'Run your battle',
-        description: 'Checking action, bonus, and move for each combatant will advance the turn.',
+        description: 'Checking action, bonus, and move for each combatant will advance the turn.\nApply conditions as needed and hover for quick reference tooltips.\nHover over any combatant to view their stat block.\nClick a combatant\'s name to pin their details, accessing notes and source links.',
         onNextClick: () => {
           driverObj.destroy();
-        }
+        },
+        disableButtons: ['previous']
       },
     },
   ],
-
+  
   onHighlighted: (element) => {
   const currentStepIndex = driverObj.getActiveIndex();
   
@@ -160,19 +215,19 @@ const driverObj = driver({
       }, { once: true });
     }
   }
+},
+onDestroyed: () => {
+    const buttons = document.querySelectorAll('[data-driver-element]');
+  buttons.forEach(button => {
+    const newButton = button.cloneNode(true);
+    button.parentNode?.replaceChild(newButton, button);
+  });
 }
 });
 
 
-
-// driverObj.setSteps(driver.steps)
-
-// steps.forEach((step, index) => {
-//     const element = document.querySelector(step.element)
-
-//     if (element){element.addEventListener('click', () => driverObj.moveTo(index + 1))};
-// })
-
 export function startTour() {
+    if (driverObj) {
+    driverObj.destroy()}
   driverObj.drive(0);
 }

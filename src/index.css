@@ -87,6 +87,11 @@ body {
   font-size: 1.5rem;
 }
 
+.driver-popover-close-btn {
+  color: var(--color-btn2) !important;
+  font-size: 1.5rem !important;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

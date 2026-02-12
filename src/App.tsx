@@ -15,6 +15,7 @@ import { useGlobalContext } from "./hooks/optionsContext";
 import "./components/BattleManager/BattleManager.css";
 import { Helmet } from "react-helmet-async";
 import monsterShareURL from "./utils/monsterShareURL";
+import { startTour } from "./components/Tour";
 
 
 
@@ -189,6 +190,10 @@ function App() {
         onToggle={() => setOpenPanel(openPanel === 'options' ? null : 'options')} 
         isSupporter={isSupporter}
       />
+      <button onClick={() => {
+                startTour();
+                handleClosePanel();
+              }}>Start Tour</button>
       
     
     

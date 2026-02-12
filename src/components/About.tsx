@@ -1,5 +1,5 @@
 import { DEVMODE } from "../utils/devmode";
-import { startTour } from "./Tour";
+
 
 
 import Options from "./Options";
@@ -17,36 +17,20 @@ export default function About({ isVisible, onToggle }: AboutProps) {
   return (
     <>
       <button id="aboutButton" title="Instructions and credits" onClick={onToggle}>
-        {isVisible ? "Close About" : "About / Instructions"}
+        {isVisible ? "Close About" : "About"}
       </button>
       
       {isVisible && (
         <div id="about">
           <button id="aboutCloseButton" onClick={onToggle}>Close</button>
             <div id="instructions">
-              <button onClick={() => {
-                startTour();
-                onToggle();
-              }}>Start Quick Tour</button>
+              
               <h3>Instructions</h3>
                 <ul>
                     <li>Toggle your D&D edition (5e 2014/2024) using the rules version button in Options.</li> 
                     <li className="indent">This affects concentration checks, condition definitions and which monsters auto populate in the monster manager dropdown.</li>
                     <br/>
-                    <li>Add party members and recurring characters via the Hero Manager.</li>
-                    <li>Configure hero stats as needed. Uncheck "Ready For Next Battle" for absent party members.</li>
-                    <li>Add monsters via the Monster Manager either selecting from the list or typing a name and adding stats after.</li>
-                    <li className="indent">Duplicate monster names are automatically appended with numbers.</li>
-                    <li className="indent">Renamed monsters retain their stat blocks if added from the dropdown.</li>
-                    <li>Store multiple monsters for current or future encounters—only "Ready For Next Battle" creatures join battles.</li>
                     <li>Monsters are removed from the Manager when added to battle.</li>
-                    <br/>
-                    <li>Click "Start Battle" and either enter initiative or click for a random roll for each combatant.</li>
-                    <li>Track actions, bonus actions, movement, and reactions. These auto-reset at round or turn start as appropriate.</li>
-                    <li>Turns advance automatically when action, bonus action, and movement are marked complete.</li>
-                    <li>Apply conditions as needed and hover for quick reference tooltips.</li>
-                    <li>Hover over any combatant to view their stat block.</li>
-                    <li>Click a combatant's name to pin their details, accessing notes and source links.</li>
                     <br/>
                     <li>Patreon members can use the Battle Manager to save battles as well as export and import all data.</li>
                     
