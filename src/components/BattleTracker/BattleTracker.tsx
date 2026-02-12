@@ -502,7 +502,7 @@ useEffect(() => {
       <button title="Start a new Battle" id="buttonStartBattle" onClick={() => {
         setLastRun(Date.now());
         // handleStartBattle();
-        setIsSBPopupOpen(true)
+        if (combatants.length > 0){setIsSBPopupOpen(true)} else handleStartBattle()
       }}>
           Start Battle
       </button>

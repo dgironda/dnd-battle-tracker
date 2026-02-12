@@ -154,7 +154,7 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
       </table>
 
       <p className="saveClose">
-        <button onClick={onClose}>Save and Close</button>
+        <button id="hmSaveCloseButton" onClick={onClose}>Save and Close</button>
       </p>
     </div>
   );

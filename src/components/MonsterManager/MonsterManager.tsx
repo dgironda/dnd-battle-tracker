@@ -160,7 +160,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
         </div>
       </div>
 
-      <table>
+      <table id="monsterManagerTable">
         <thead>
           <tr id="monsterManagerHeader">
             <th>Name</th>
@@ -216,7 +216,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
         </tbody>
       </table>
 
-      <button onClick={onClose}>Save and Close</button>
+      <button id="mmSaveCloseButton" onClick={onClose}>Save and Close</button>
     </div>
   );
 };

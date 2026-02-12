@@ -76,6 +76,17 @@ body {
   color: var(--color-fg);
 }
 
+.driver-popover {
+  background-color: var(--color-bg2) !important;
+  color: var(--color-fg) !important;
+  border: 2px solid var(--color-chk1);
+}
+
+#driver-popover-title {
+  font-family: 'Caudex', serif !important;
+  font-size: 1.5rem;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
