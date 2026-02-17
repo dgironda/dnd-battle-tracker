@@ -156,7 +156,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
           editingField={editingField}
           setEditingField={setEditingField}
           updateEntity={updateCombatant}
-          />
+          >{c.notes ? (c.notes.length > 0 ? c.notes : `Enter ${c.name}'s notes here`) : `Enter ${c.name}'s notes here`}</EditableCell>
           ))}
           
         </div>

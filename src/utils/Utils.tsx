@@ -1,6 +1,6 @@
 import { DEVMODE } from "../utils/devmode";
 
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, ReactNode } from "react";
 import { Hero, Monster, Combatant } from "../types/index";
 import { useEffect, useState } from "react";
 import { getHeroes, storeHeroes, getMonsters, storeMonsters } from "../utils/LocalStorage";
@@ -165,7 +165,8 @@ export const EditableCell = <T extends Record<string, any>>({
   type = 'text',
   editingField,
   setEditingField,
-  updateEntity
+  updateEntity,
+  children
 }: {
   entity: T;
   field: keyof T;
@@ -173,6 +174,7 @@ export const EditableCell = <T extends Record<string, any>>({
   editingField: string | null;
   setEditingField: Dispatch<SetStateAction<string | null>>;
   updateEntity: (entityId: string, field: keyof T, value: string | number ) => void;
+  children?: ReactNode;
 }) => {
   const fieldKey = `${entity.id}-${String(field)}`;
   const isEditing = editingField === fieldKey;
@@ -260,7 +262,7 @@ export const EditableCell = <T extends Record<string, any>>({
       className="setEditingField"
       title="Click to edit"
     >
-      {inputValue}
+      {inputValue || children}
       <span role="button" aria-label="Edit" className="edit">
         📝
       </span>

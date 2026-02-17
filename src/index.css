@@ -172,6 +172,12 @@ button:hover {
   background-color: var(--color-roweven);
 }
 
+textarea {
+  field-sizing: content;
+  min-height: 3lh;
+  min-width: 5rem;
+}
+
 .combatantName {
   cursor: pointer;
   display: flex;

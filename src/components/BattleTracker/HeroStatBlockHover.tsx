@@ -160,7 +160,7 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
           editingField={editingField}
           setEditingField={setEditingField}
           updateEntity={updateHero}
-          />
+          >{h.notes ? (h.notes.length > 0 ? h.notes : `Enter ${h.name}'s notes here`) : `Enter ${h.name}'s notes here`}</EditableCell>
           ))}
           
         </div>
