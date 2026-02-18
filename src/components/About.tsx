@@ -28,22 +28,24 @@ export default function About({ isVisible, onToggle }: AboutProps) {
               <h3>Instructions</h3>
                 <ul>
                     <li>Toggle your D&D edition (5e 2014/2024) using the rules version button in Options.</li> 
-                    <li className="indent">This affects concentration checks, condition definitions and which monsters auto populate in the monster manager dropdown.</li>
+                    <li className="indent">This affects concentration checks, condition definitions and which monsters you can add in the monster manager dropdown.</li>
+                    <li>You can turn off/on the turn condition reminders and time display as well as reset the tour in Options.</li>
                     <br/>
                     <li>Monsters are removed from the Manager when added to battle.</li>
                     <br/>
+                    <li>During battle Concentration and Death Saving Throw reminders will pop up if the correct status is marked.</li>
                     <li>Patreon members can use the Battle Manager to save battles as well as export and import all data.</li>
                     
                 </ul>
                 <div>
                     <h3>Keyboard Shortcuts</h3>
-                    <p><span className="bold">a</span> check/uncheck current player's Action</p>
-                    <p><span className="bold">s</span> check/uncheck current player's Bonus</p>
-                    <p><span className="bold">d</span> check/uncheck current player's Movement</p>
-                    <p><span className="bold">e</span> open/close Hero Manager</p>
-                    <p><span className="bold">w</span> open/close Monster Manager</p>
-                    <p><span className="bold">r</span> open/close Battle Manager</p>
-                    <p><span className="bold">x</span> close Combatant stat box</p>
+                    <p><span className="bold">a</span> - check/uncheck current player's Action</p>
+                    <p><span className="bold">s</span> - check/uncheck current player's Bonus</p>
+                    <p><span className="bold">d</span> - check/uncheck current player's Movement</p>
+                    <p><span className="bold">e</span> - open/close Hero Manager</p>
+                    <p><span className="bold">w</span> - open/close Monster Manager</p>
+                    <p><span className="bold">r</span> - open/close Battle Manager</p>
+                    <p><span className="bold">x</span> - close Combatant hover stat box</p>
                 </div>
             </div>
             <div id="credits">

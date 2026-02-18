@@ -194,7 +194,7 @@ useEffect(() => {
         side: "top",
         align: 'center',
         title: 'Run your battle',
-        description: 'Checking action, bonus, and move for each combatant will advance the turn.\nApply conditions as needed and hover for quick reference tooltips.\nHover over any combatant to view their stat block.\nClick a combatant\'s name to pin their details, accessing notes and source links.',
+        description: 'Checking action, bonus, and move for each combatant will advance the turn.<br>Apply conditions as needed and hover for quick reference tooltips.<br>Hover over any combatant to view their stat block and click it to make it stay. Here you can access notes and monster source links.',
         onNextClick: () => {
           tourCompletedNormally = true;
           driverObj.destroy()
