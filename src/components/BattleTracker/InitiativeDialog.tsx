@@ -46,9 +46,8 @@ export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: Ini
     <div
       id='initiativeDialogOuter'
     >
-      <div
-        id='initiativeDialogInner'
-      >
+      <div id='initiativeDialogInner'
+           className='initiativeDialogInner'>
         <h3>Enter Initiative of 1d20 {initiativeModifier !== 0 ? (initiativeModifier > 0 ? `+${initiativeModifier}` : initiativeModifier) : ''} for {heroName}</h3>
 
         <input
@@ -56,6 +55,7 @@ export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: Ini
           min={1}
           max={40}
           value={inputValue}
+          name='initiative-value-input'
           onChange={(e) => {
             const value = e.target.value;
             setInputValue(value === '' ? '' : parseInt(value, 10));

@@ -178,7 +178,7 @@ useEffect(() => {
       },
     },
     {
-      element: '#initiativeDialogInner',
+      element: '.initiativeDialogInner',
       popover: {
         side: "top",
         align: 'center',
@@ -217,6 +217,24 @@ useEffect(() => {
           driverObj.moveTo(8);
         }, 50);
       }, { once: true });
+      return;
+    }
+    
+    if (currentStepIndex === 8) { 
+      const checkPopupsClosed = () => {
+        const popups = document.querySelectorAll('.initiativeDialogInner');
+        
+        // If popups are still showing, check again in 50ms
+        if (popups.length > 0) {
+          setTimeout(checkPopupsClosed, 50);
+        } else {
+          // All popups are closed, advance to next step
+          driverObj.moveNext();
+        }
+      };
+      
+      // Start checking
+      checkPopupsClosed();
       return;
     }
     
