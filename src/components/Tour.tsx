@@ -5,6 +5,7 @@ import { getCombatants } from '../utils/LocalStorage';
 import { useGlobalContext } from '../hooks/optionsContext';
 
 let driverObj: any = null
+let tourCompletedNormally = false;
 
 export function Tour() {
 
@@ -19,9 +20,6 @@ useEffect(() => {
   allowClose: false,
   stagePadding: 10,
   stageRadius: 10,
-  onCloseClick: () => {
-      driverObj.destroy()
-    },
   steps: [
     {
       element: '#heroManagerButton',
@@ -198,7 +196,8 @@ useEffect(() => {
         title: 'Run your battle',
         description: 'Checking action, bonus, and move for each combatant will advance the turn.\nApply conditions as needed and hover for quick reference tooltips.\nHover over any combatant to view their stat block.\nClick a combatant\'s name to pin their details, accessing notes and source links.',
         onNextClick: () => {
-          driverObj.destroy();
+          tourCompletedNormally = true;
+          driverObj.destroy()
         },
         // showButtons: ['close'],
         disableButtons: ['previous']
@@ -249,12 +248,15 @@ useEffect(() => {
   }
 },
 onDestroyed: () => {
-    const buttons = document.querySelectorAll('[data-driver-element]');
+  const buttons = document.querySelectorAll('[data-driver-element]');
   buttons.forEach(button => {
     const newButton = button.cloneNode(true);
     button.parentNode?.replaceChild(newButton, button);
   });
-  updateSetting('tourReady', false)
+  
+  if (tourCompletedNormally) {
+    updateSetting('tourReady', false)
+  }
 }
 });
 }, [updateSetting]);
