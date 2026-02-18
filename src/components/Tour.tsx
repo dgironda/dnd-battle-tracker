@@ -242,7 +242,7 @@ useEffect(() => {
       element?.addEventListener('click', () => {
         setTimeout(() => {
           driverObj.moveNext();
-        }, 50);
+        }, 75);
       }, { once: true });
     }
   }
@@ -266,12 +266,18 @@ onDestroyed: () => {
 
 
 export function startTour() {
-  if (!driverObj) {
-    console.error('Tour not initialized. Make sure Tour component is mounted.');
-    return;
-  }
+  // if (!driverObj) {
+  //   console.error('Tour not initialized. Make sure Tour component is mounted.');
+  //   return;
+  // }
   if (driverObj) {
     driverObj.destroy();
   }
+  const buttons = document.querySelectorAll('[data-driver-element]');
+  buttons.forEach(button => {
+    const newButton = button.cloneNode(true);
+    button.parentNode?.replaceChild(newButton, button);
+  });
+  driverObj.refresh()
   driverObj.drive();
 }
