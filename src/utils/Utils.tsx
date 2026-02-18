@@ -245,7 +245,7 @@ export const EditableCell = <T extends Record<string, any>>({
             // Allow Shift+Enter for new lines
             return;
           }
-          if (e.key === 'Escape') {
+          if (e.key === 'Escape' || e.key === 'Enter') {
             setEditingField(null);
           }
         }}
