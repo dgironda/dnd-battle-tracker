@@ -148,6 +148,11 @@ function App() {
       <meta name="author" content="Simulacrum Technologies" />
       <meta name="language" content="English" />  
       <meta property="og:image" content="./src/assets/BattleTracker_v0.8.png" /> 
+      <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
+      <meta httpEquiv="X-Frame-Options" content="DENY" />
+      <meta httpEquiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains" />
+      <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: *.patreon.com; script-src 'self' *.patreon.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; frame-src *.patreon.com;" />
+
     </Helmet>
     <CombatProvider>
     {overlayVisible && (<PatreonOverlay onClose={() => {
