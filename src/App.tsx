@@ -152,6 +152,8 @@ function App() {
       <meta httpEquiv="X-Frame-Options" content="DENY" />
       <meta httpEquiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains" />
       <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: *.patreon.com; script-src 'self' *.patreon.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; frame-src *.patreon.com;" />
+      <meta httpEquiv="Referrer-Policy" content="no-referrer" />
+      <meta httpEquiv="Permissions-Policy" content="geolocation=(self), microphone='none'" />
 
     </Helmet>
     <CombatProvider>
@@ -174,12 +176,12 @@ function App() {
       />
       
         <button id="heroManagerButton" title="Add, Update, and Delete Heroes" onClick={() => setOpenPanel(openPanel === 'hero' ? null : 'hero')}>
-          {openPanel === 'hero' ? (<span>Close Hero Manager<sup>(e)</sup></span>) : (<span>Hero Manager<sup>(e)</sup></span>)}
+          {openPanel === 'hero' ? (<span></span>) : (<span></span>)}
         </button>
         {openPanel === 'hero' && (<HeroManager onClose={handleClosePanel}/>)}
         
         <button id="monsterManagerButton" title="Add, Update, and Delete Monsters" onClick={() => setOpenPanel(openPanel === 'monster' ? null : 'monster')}>
-          {openPanel === 'monster' ? (<span>Close Monster Manager<sup>(w)</sup></span>) : (<span>Monster Manager<sup>(w)</sup></span>)}
+          {openPanel === 'monster' ? (<span></span>) : (<span></span>)}
         </button>
       {openPanel === 'monster' && (<MonsterManager onClose={handleClosePanel}/>)}
       

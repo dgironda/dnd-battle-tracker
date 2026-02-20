@@ -1,0 +1,54 @@
+:root {
+    --button-width: 15rem;
+    --button-max-width: 30rem;
+    --button-min-height: 6rem;
+    --button-max-height: 15rem;
+}
+
+#heroManagerButton {
+    background-color: transparent;
+    border: none;
+    background-image: url('../draftsvgs/button_hero-manager.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: var(--button-width);
+    max-width: var(--max-button-width);
+    min-height: var(--button-min-height);
+    max-height: var(--button-max-height);
+}
+
+#heroManagerButton:hover {
+    background-image: url('../draftsvgs/button_hero-manager-hover.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: var(--button-width);
+    max-width: var(--max-button-width);
+    min-height: var(--button-min-height);
+    max-height: var(--button-max-height);
+}
+
+#monsterManagerButton {
+    background-color: transparent;
+    border: none;
+    background-image: url('../draftsvgs/button_monster-manager.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: var(--button-width);
+    max-width: var(--max-button-width);
+    min-height: var(--button-min-height);
+    max-height: var(--button-max-height);
+}
+
+#monsterManagerButton:hover {
+    background-image: url('../draftsvgs/button_monster-manager-hover.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: var(--button-width);
+    max-width: var(--max-button-width);
+    min-height: var(--button-min-height);
+    max-height: var(--button-max-height);
+}

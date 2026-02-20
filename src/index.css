@@ -4,6 +4,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Germania+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Balthazar&display=swap');
 @import './components/svg-components.css';
+@import './gfx.css';
 
 :root {
   color-scheme: light;
