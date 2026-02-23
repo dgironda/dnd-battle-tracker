@@ -1,11 +1,13 @@
 import { DEVMODE } from "../utils/devmode";
-
-
-
 import Options from "./Options";
-
-
 import React from "react";
+import KeyA from '../../public/draftsvgs/key_a.svg'
+import KeyS from '../../public/draftsvgs/key_s.svg'
+import KeyD from '../../public/draftsvgs/key_d.svg'
+import KeyW from '../../public/draftsvgs/key_w.svg'
+import KeyE from '../../public/draftsvgs/key_e.svg'
+import KeyR from '../../public/draftsvgs/key_r.svg'
+import KeyX from '../../public/draftsvgs/key_x.svg'
 
 interface AboutProps {
   isVisible: boolean;
@@ -39,13 +41,13 @@ export default function About({ isVisible, onToggle }: AboutProps) {
                 </ul>
                 <div>
                     <h3>Keyboard Shortcuts</h3>
-                    <p><span className="bold">a</span> - check/uncheck current player's Action</p>
-                    <p><span className="bold">s</span> - check/uncheck current player's Bonus</p>
-                    <p><span className="bold">d</span> - check/uncheck current player's Movement</p>
-                    <p><span className="bold">e</span> - open/close Hero Manager</p>
-                    <p><span className="bold">w</span> - open/close Monster Manager</p>
-                    <p><span className="bold">r</span> - open/close Battle Manager</p>
-                    <p><span className="bold">x</span> - close Combatant hover stat box</p>
+                    <p><img src={KeyA} alt="A key" className="keyShortcut"></img> - check/uncheck current player's Action</p>
+                    <p><img src={KeyS} alt="S key" className="keyShortcut"></img> - check/uncheck current player's Bonus</p>
+                    <p><img src={KeyD} alt="D key" className="keyShortcut"></img> - check/uncheck current player's Movement</p>
+                    <p><img src={KeyE} alt="E key" className="keyShortcut"></img> - open/close Hero Manager</p>
+                    <p><img src={KeyW} alt="W key" className="keyShortcut"></img> - open/close Monster Manager</p>
+                    <p><img src={KeyR} alt="R key" className="keyShortcut"></img> - open/close Battle Manager</p>
+                    <p><img src={KeyX} alt="X key" className="keyShortcut"></img> - close Combatant hover stat box</p>
                 </div>
             </div>
             <div id="credits">

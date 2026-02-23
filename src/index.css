@@ -313,6 +313,11 @@ sup {
   margin-left: .75rem;
 }
 
+.keyShortcut {
+  max-width: 3rem;
+  height: auto;
+}
+
 #options li {
   margin: .5rem 0 0 0;
 }
@@ -641,7 +646,7 @@ sup {
 }
 
 #preBattleCombatants tbody {
-  
+ background-color: var(--color-rowodd); 
 }
 
 #preBattleCombatants thead {
