@@ -19,7 +19,6 @@ const SBPopup: React.FC<PopupProps> = ({
   onContinue,
 }) =>
 {
-  if (!isOpen) return null;
   const [heroes, setHeroes] = useState<Hero[]>(() =>
   {
     const saved = getHeroes();
@@ -50,6 +49,8 @@ const SBPopup: React.FC<PopupProps> = ({
   const { monsters, setMonsters } = useMonsters();
   const updateMonster = createUpdateMonster(setMonsters);
   const [editingField, setEditingField] = useState<string | null>(null);
+
+  if (!isOpen) return null;
 
   return (
     <div className="popup-overlay">
