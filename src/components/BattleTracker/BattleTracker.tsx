@@ -20,6 +20,7 @@ import { MonsterStatBlockHover } from "./MonsterStatBlockHover";
 import { useBattleManager } from "../../hooks/useStartBattle";
 import { ConditionReminder } from "./ConditionReminder";
 import { Popup } from "../../utils/Popup";
+import SBPopup from "./SBPopup";
 import Icon from "../Icon";
 
 
@@ -805,12 +806,10 @@ useEffect(() => {
     updateCombatant={updateCombatant}
   />
 )}
-<Popup
-        message="Are you sure you want to start a new battle? Your previous one will be lost."
+<SBPopup
         isOpen={isSBPopupOpen}
         onCancel={handleSBCancel}
         onContinue={handleSBContinue}
-        title="Confirm Battle Start"
       />
     </>
 

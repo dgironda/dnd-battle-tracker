@@ -640,6 +640,15 @@ sup {
   height: fit-content;
 }
 
+#preBattleCombatants tbody {
+  
+  
+}
+
+#preBattleCombatants thead {
+  font-size: 1.3rem;
+}
+
 #buttonResetCombat {
   aspect-ratio: 1/1;
   align-self: flex-end;
