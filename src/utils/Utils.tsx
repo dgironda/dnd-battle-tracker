@@ -6,8 +6,10 @@ import { useEffect, useState } from "react";
 import { getHeroes, storeHeroes, getMonsters, storeMonsters } from "../utils/LocalStorage";
 
 
-export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
-  return (heroData: Omit<Hero, "id">) => {
+export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) =>
+{
+  return (heroData: Omit<Hero, "id">) =>
+  {
     const newHero: Hero = {
       ...heroData,
       id: crypto.randomUUID()
@@ -36,20 +38,23 @@ export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
 //   };
 // };
 
-export const createUpdateHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) => {
-  return (heroId: string, field: keyof Hero, value: string | number | boolean | string[]) => {
-    setHeroes(prevHeroes => {
+export const createUpdateHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) =>
+{
+  return (heroId: string, field: keyof Hero, value: string | number | boolean | string[]) =>
+  {
+    setHeroes(prevHeroes =>
+    {
       const newHeroes = prevHeroes.map(hero =>
         hero.id === heroId
           ? {
-              ...hero,
-              [field]:
-                field === "conditions" && Array.isArray(value)
-                  ? value
-                  : typeof value === "number" && !isNaN(value)
+            ...hero,
+            [field]:
+              field === "conditions" && Array.isArray(value)
+                ? value
+                : typeof value === "number" && !isNaN(value)
                   ? Number(value)
                   : value,
-            }
+          }
           : hero
       );
 
@@ -64,14 +69,16 @@ export const createUpdateHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) =>
 
 
 export const createDeleteHero = (
-  heroes: Hero[], 
+  heroes: Hero[],
   setHeroes: Dispatch<SetStateAction<Hero[]>>
-) => {
-  return (heroId: string) => {
+) =>
+{
+  return (heroId: string) =>
+  {
     const currentHeroes = getHeroes();
     const heroToDelete = heroes.find(hero => hero.id === heroId);
     const heroName = heroToDelete ? heroToDelete.name : 'this hero';
-    
+
     if (confirm(`Do you really want to delete ${heroName}?`)) {
       const updatedHeroes = currentHeroes.filter(hero => hero.id !== heroId);
       // setHeroes(prevHeroes => prevHeroes.filter(hero => hero.id !== heroId));
@@ -96,8 +103,10 @@ export const createDeleteHero = (
 //   };
 // };
 
-export const createUpdateMonster = (setMonsters: Dispatch<SetStateAction<Monster[]>>) => {
-  return (monsterId: string, field: keyof Monster, value: string | number | boolean) => {
+export const createUpdateMonster = (setMonsters: Dispatch<SetStateAction<Monster[]>>) =>
+{
+  return (monsterId: string, field: keyof Monster, value: string | number | boolean) =>
+  {
     setMonsters(prevMonsters =>
       prevMonsters.map(monster =>
         monster.id === monsterId
@@ -115,7 +124,7 @@ export const createUpdateMonster = (setMonsters: Dispatch<SetStateAction<Monster
 //   return (monsterId: string, skipPrompt = false) => {
 //     const monsterToDelete = monsters.find(monster => monster.id === monsterId);
 //     const monsterName = monsterToDelete ? monsterToDelete.name : 'this monster';
-    
+
 //     if (skipPrompt || confirm(`Do you really want to delete ${monsterName}?`)) {
 //       setMonsters(prevMonsters => prevMonsters.filter(monster => monster.id !== monsterId));
 //     }
@@ -123,32 +132,36 @@ export const createUpdateMonster = (setMonsters: Dispatch<SetStateAction<Monster
 // };
 
 export const createDeleteMonster = (
-  monsters: Monster[], 
+  monsters: Monster[],
   setMonsters: Dispatch<SetStateAction<Monster[]>>
-) => {
-  return (monsterId: string, skipPrompt = false) => {
+) =>
+{
+  return (monsterId: string, skipPrompt = false) =>
+  {
     const currentMonsters = getMonsters(); // Get fresh data from localStorage
     const monsterToDelete = currentMonsters.find(monster => monster.id === monsterId);
     const monsterName = monsterToDelete ? monsterToDelete.name : 'this monster';
-    
+
     if (skipPrompt || confirm(`Do you really want to delete ${monsterName}?`)) {
       const updatedMonsters = currentMonsters.filter(monster => monster.id !== monsterId);
-      
+
       // Update localStorage
       try {
         localStorage.setItem("storedMonsters", JSON.stringify(updatedMonsters));
       } catch (error) {
         console.error("Error saving monsters:", error);
       }
-      
+
       // Update state
       setMonsters(updatedMonsters);
     }
   };
 };
 
-export const createUpdateCombatant = (setCombatants: Dispatch<SetStateAction<Combatant[]>>) => {
-  return (combatantId: string, field: keyof Combatant, value: string | number | boolean) => {
+export const createUpdateCombatant = (setCombatants: Dispatch<SetStateAction<Combatant[]>>) =>
+{
+  return (combatantId: string, field: keyof Combatant, value: string | number | boolean) =>
+  {
     setCombatants(prevCombatants =>
       prevCombatants.map(combatant =>
         combatant.id === combatantId
@@ -173,33 +186,37 @@ export const EditableCell = <T extends Record<string, any>>({
   type?: 'text' | 'number' | 'textarea';
   editingField: string | null;
   setEditingField: Dispatch<SetStateAction<string | null>>;
-  updateEntity: (entityId: string, field: keyof T, value: string | number ) => void;
+  updateEntity: (entityId: string, field: keyof T, value: string | number) => void;
   children?: ReactNode;
-}) => {
+}) =>
+{
   const fieldKey = `${entity.id}-${String(field)}`;
   const isEditing = editingField === fieldKey;
 
   const [inputValue, setInputValue] = useState(entity[field]);
-  
-  useEffect(() => {
-        setInputValue(entity[field]);
-    }, [entity[field]]);
+
+  useEffect(() =>
+  {
+    setInputValue(entity[field]);
+  }, [entity[field]]);
 
   if (isEditing && type === 'number') {
 
     return (
       <input
         type="number"
-        value={inputValue}
-        onChange={(e) => {
-                    const newValue = Number(e.target.value);
-                    if (!isNaN(newValue)) {
-                        setInputValue(newValue as any);
-                        updateEntity(entity.id, field, newValue);
-                    }
-                }}
+        value={inputValue !== undefined && inputValue !== null ? String(inputValue) : "0"}
+        onChange={(e) =>
+        {
+          const newValue = Number(e.target.value);
+          if (!isNaN(newValue)) {
+            setInputValue(newValue as any);
+            updateEntity(entity.id, field, newValue);
+          }
+        }}
         onBlur={() => setEditingField(null)}
-        onKeyDown={(e) => {
+        onKeyDown={(e) =>
+        {
           if (e.key === 'Enter') {
             setEditingField(null);
           }
@@ -215,12 +232,14 @@ export const EditableCell = <T extends Record<string, any>>({
       <input
         type="text"
         value={inputValue as string}
-        onChange={(e) => {
-                    setInputValue(e.target.value as any); // Type assertion
-                    updateEntity(entity.id, field, e.target.value);
-                }}
+        onChange={(e) =>
+        {
+          setInputValue(e.target.value as any); // Type assertion
+          updateEntity(entity.id, field, e.target.value);
+        }}
         onBlur={() => setEditingField(null)}
-        onKeyDown={(e) => {
+        onKeyDown={(e) =>
+        {
           if (e.key === 'Enter') {
             setEditingField(null);
           }
@@ -235,12 +254,14 @@ export const EditableCell = <T extends Record<string, any>>({
     return (
       <textarea
         value={inputValue as string}
-        onChange={(e) => {
+        onChange={(e) =>
+        {
           setInputValue(e.target.value as any);
           updateEntity(entity.id, field, e.target.value);
         }}
         onBlur={() => setEditingField(null)}
-        onKeyDown={(e) => {
+        onKeyDown={(e) =>
+        {
           if (e.key === 'Enter' && e.shiftKey) {
             // Allow Shift+Enter for new lines
             return;
@@ -262,7 +283,7 @@ export const EditableCell = <T extends Record<string, any>>({
       className="setEditingField"
       title="Click to edit"
     >
-      {inputValue || children}
+      {(inputValue !== undefined && inputValue !== null && inputValue !== "") ? inputValue : children}
       <span role="button" aria-label="Edit" className="edit">
         📝
       </span>
