@@ -57,7 +57,7 @@ const SBPopup: React.FC<PopupProps> = ({
         <h3 className="popup-title">Confirm Battle Start</h3>
         
         <p className="popup-message">Are you sure you want to start a new battle? Your previous one will be lost.</p>
-        <p className="popup-message">Please confirm your combatants</p>
+        <p className="popup-message">All Heroes and Monsters marked Ready will join the battle. <br/>You can edit their ready status and initiative bonus as needed.</p>
         <div id='preBattleCombatants'>
           <table>
           <thead>Heroes</thead>
@@ -71,14 +71,7 @@ const SBPopup: React.FC<PopupProps> = ({
           {heroes.map((hero, index) => (
             <tr key={hero.id}>
               <td>
-                <EditableCell
-                  entity={hero}
-                  field='name'
-                  type='text'
-                  editingField={editingField}
-                  setEditingField={setEditingField}
-                  updateEntity={updateHero}
-                />
+                {hero.name}
               </td>
               <td>
                 <span onClick={() => updateHero(hero.id, "present", !hero.present)}
@@ -105,14 +98,7 @@ const SBPopup: React.FC<PopupProps> = ({
           {monsters.map((monster, index) => (
             <tr key={monster.id}>
               <td>
-                <EditableCell
-                  entity={monster}
-                  field='name'
-                  type='text'
-                  editingField={editingField}
-                  setEditingField={setEditingField}
-                  updateEntity={updateMonster}
-                />
+                {monster.name}
               </td>
               <td>
                 <span onClick={() => updateMonster(monster.id, "present", !monster.present)}
