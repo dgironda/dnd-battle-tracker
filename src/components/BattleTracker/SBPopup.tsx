@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getHeroes, getMonsters } from '../../utils/LocalStorage';
 import { EditableCell, createUpdateHero, createUpdateMonster } from '../../utils/Utils';
 import { Hero, Monster } from '../../types';
@@ -21,9 +21,9 @@ const SBPopup: React.FC<PopupProps> = ({
 {
   const [heroes, setHeroes] = useState<Hero[]>(() =>
   {
-    const saved = getHeroes();
+    const savedHeroes = getHeroes();
     // Ensure all numeric fields are numbers
-    return saved.map(h => ({
+    return savedHeroes.map(h => ({
       ...h,
       hp: h.hp ?? 10,
       ac: h.ac ?? 10,
@@ -49,6 +49,34 @@ const SBPopup: React.FC<PopupProps> = ({
   const { monsters, setMonsters } = useMonsters();
   const updateMonster = createUpdateMonster(setMonsters);
   const [editingField, setEditingField] = useState<string | null>(null);
+
+  useEffect(() =>
+  {
+    if (isOpen) {
+      const savedHeroes = getHeroes();
+      setHeroes(savedHeroes.map(h => ({
+        ...h,
+        hp: h.hp ?? 10,
+        ac: h.ac ?? 10,
+        currHp: h.currHp ?? h.hp ?? 10,
+        maxHp: h.maxHp ?? h.hp ?? 10,
+        tHp: h.tHp ?? 0,
+        str: h.str ?? 10,
+        dex: h.dex ?? 10,
+        con: h.con ?? 10,
+        int: h.int ?? 10,
+        wis: h.wis ?? 10,
+        cha: h.cha ?? 10,
+        pp: h.pp ?? 0,
+        init: h.init ?? 0,
+        conditions: h.conditions ?? [],
+        present: h.present ?? true,
+        link: h.link ?? "",
+        notes: h.notes ?? "",
+      })));
+      setMonsters(getMonsters());
+    }
+  }, [isOpen, setMonsters]);
 
   if (!isOpen) return null;
 
