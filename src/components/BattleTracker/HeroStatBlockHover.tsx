@@ -33,9 +33,10 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
   const { settings } = useGlobalContext();
   const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
-  function closeStatsButton() {
-    setIsStuck(false)
-    setIsHovering(false)
+  function closeStatsButton(e: React.MouseEvent) {
+    e.stopPropagation();
+    setIsStuck(false);
+    setIsHovering(false);
   }
 
   const handleKeyPressx = useCallback((event:KeyboardEvent) => {

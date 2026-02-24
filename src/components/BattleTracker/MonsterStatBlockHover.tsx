@@ -34,7 +34,8 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
   const { settings } = useGlobalContext();
   const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
-  function closeStatsButton() {
+  function closeStatsButton(e: React.MouseEvent) {
+    e.stopPropagation();
     setIsStuck(false)
     setIsHovering(false)
   }
