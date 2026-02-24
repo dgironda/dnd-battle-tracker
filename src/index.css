@@ -307,6 +307,7 @@ sup {
 #about h3 {
   margin-left: .25;
   filter: brightness(130%);
+  width: fit-content;
 }
 
 #about p {
@@ -954,13 +955,7 @@ sup {
   height: fit-content;
 }
 
-.twentyFour {
-  filter: hue-rotate(40deg) brightness(150%);
-}
 
-.fourteen {
-  filter: hue-rotate(190deg) brightness(90%);
-}
 
 /* .statHover:has(#light-dark:checked) {
   color-scheme: light !important; 

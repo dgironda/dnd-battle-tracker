@@ -1,13 +1,13 @@
 import { DEVMODE } from "../utils/devmode";
 import Options from "./Options";
 import React from "react";
-import KeyA from '../../public/draftsvgs/key_a.svg'
-import KeyS from '../../public/draftsvgs/key_s.svg'
-import KeyD from '../../public/draftsvgs/key_d.svg'
-import KeyW from '../../public/draftsvgs/key_w.svg'
-import KeyE from '../../public/draftsvgs/key_e.svg'
-import KeyR from '../../public/draftsvgs/key_r.svg'
-import KeyX from '../../public/draftsvgs/key_x.svg'
+import KeyA from '../assets/draftsvgs/key_a.svg'
+import KeyS from '../assets/draftsvgs/key_s.svg'
+import KeyD from '../assets/draftsvgs/key_d.svg'
+import KeyW from '../assets/draftsvgs/key_w.svg'
+import KeyE from '../assets/draftsvgs/key_e.svg'
+import KeyR from '../assets/draftsvgs/key_r.svg'
+import KeyX from '../assets/draftsvgs/key_x.svg'
 
 interface AboutProps {
   isVisible: boolean;

@@ -1,14 +1,14 @@
 :root {
     --button-width: 15rem;
     --button-max-width: 30rem;
-    --button-min-height: 6rem;
+    --button-min-height: 5rem;
     --button-max-height: 15rem;
 }
 
 #heroManagerButton {
     background-color: transparent;
     border: none;
-    background-image: url('../draftsvgs/button_hero-manager.svg');
+    background-image: url('./assets/draftsvgs/button_hero-manager.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -19,7 +19,7 @@
 }
 
 #heroManagerButton:hover {
-    background-image: url('../draftsvgs/button_hero-manager-hover.svg');
+    background-image: url('./assets/draftsvgs/button_hero-manager-hover.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -32,7 +32,7 @@
 #monsterManagerButton {
     background-color: transparent;
     border: none;
-    background-image: url('../draftsvgs/button_monster-manager.svg');
+    background-image: url('./assets/draftsvgs/button_monster-manager.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -43,7 +43,7 @@
 }
 
 #monsterManagerButton:hover {
-    background-image: url('../draftsvgs/button_monster-manager-hover.svg');
+    background-image: url('./assets/draftsvgs/button_monster-manager-hover.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -52,3 +52,37 @@
     min-height: var(--button-min-height);
     max-height: var(--button-max-height);
 }
+
+.twentyFour {
+    background-color: transparent;
+    border: none;
+    background-image: url('./assets/draftsvgs/button_2024-on.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: var(--button-width);
+    max-width: var(--max-button-width) !important;
+    min-height: var(--button-min-height);
+    max-height: var(--button-max-height) !important;
+}
+
+.fourteen {
+    background-color: transparent;
+    border: none;
+    background-image: url('./assets/draftsvgs/button_2014-on.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: var(--button-width);
+    max-width: var(--max-button-width) !important;
+    min-height: var(--button-min-height);
+    max-height: var(--button-max-height) !important;
+}
+
+/* .twentyFour:hover {
+    background-image: url('../draftsvgs/button_2024-hover.svg');
+}
+
+.fourteen:hover {
+    background-image: url('../draftsvgs/button_2014-hover.svg');
+} */
