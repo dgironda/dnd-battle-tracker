@@ -5,6 +5,8 @@ import { Hero } from "../../types/Hero";
 import AddHero from "../HeroManager/AddHero";
 import { createAddHero, createUpdateHero, createDeleteHero } from "../../utils/Utils";
 import { EditableCell } from "../../utils/Utils";
+import Icon from "../Icon";
+import HMBackground from '../../assets/draftsvgs/container_hero-manager.svg'
 
 interface HeroManagerProps {
   onClose: () => void;
@@ -47,6 +49,8 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
 
   return (
     <div id="heroAddManage">
+      <img className="hero-bg" src={HMBackground} alt=""></img>
+    <div className="hero-content">
       <AddHero onAddHero={addHero} />
       <h2>Hero Manager</h2>
 
@@ -113,7 +117,11 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
                 </td>
                 <td>
                   <button className="buttonDelete" onClick={() => deleteHero(hero.id)}>
-                    Delete
+                    <Icon
+                      name="delete"
+                      color="var(--color-bg1)"
+                      size={24}
+                      />
                   </button>
                 </td>
               </tr>
@@ -156,6 +164,7 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
       <p className="saveClose">
         <button id="hmSaveCloseButton" onClick={onClose}>Save and Close</button>
       </p>
+    </div>
     </div>
   );
 };

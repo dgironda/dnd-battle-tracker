@@ -425,7 +425,7 @@ sup {
   background-color: var(--color-hl1);
   font-family: 'Caudex', serif;
   border: .5rem solid var(--color-hl2);
-  max-height: 85vh;
+  max-height: none;
   overflow-y: auto;
 }
 

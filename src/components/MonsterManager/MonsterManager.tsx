@@ -7,6 +7,7 @@ import { useGlobalContext } from "../../hooks/optionsContext";
 import { useCombat } from "../BattleTracker/CombatContext";
 import monstersDataFourteen from "../../assets/2014monsters.json";
 import monstersDataTwentyFour from "../../assets/2024monsters.json";
+import Icon from "../Icon";
 
 interface MonsterManagerProps {
   onClose: () => void;
@@ -192,7 +193,12 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
                 </td>
                 <td>
                   <button onClick={async () => { await addMonsterToCombat(m); deleteMonster(m.id, true); }}>Add to Existing Battle</button>
-                  <button onClick={() => deleteMonster(m.id)}>Delete</button>
+                  <button onClick={() => deleteMonster(m.id)}>
+                    <Icon
+                      name="delete"
+                      color="var(--color-bg1)"
+                      size={24}
+                      /></button>
                 </td>
               </tr>
               <tr className="statsRow">
