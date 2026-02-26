@@ -127,39 +127,10 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
 
   return (
     <div id="monsterAddManage">
+      <div className="monster-content">
       <h2>Monster Manager</h2>
 
-      <div id="addMonsterOuter">
-        <div className="nameInputWrapper">
-          <input
-            id="monsterNameInput"
-            type="text"
-            placeholder="Search or custom Monster Name"
-            value={newMonster.name}
-            onKeyDown={keyDownAddMonster}
-            onChange={handleNameChange}
-            autoComplete="off"
-          />
-          {showSuggestions && (
-            <ul className="suggestion-list">
-              {filteredSuggestions.map((s) => (
-                <li key={s} onClick={() => handleSelectSuggestion(s)} className="filteredSuggestions">
-                  {s}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div>
-          <button onClick={() => addMonsters(1)}>Add Monster</button>
-        </div>
-
-        <div>
-          <input type="number" min="1" max="50" value={duplicateCount} onChange={handleDuplicateCountChange} />
-          <button onClick={() => addMonsters(duplicateCount)}>Add Monsters</button>
-        </div>
-      </div>
+      
 
       <table id="monsterManagerTable">
         <thead>
@@ -221,8 +192,39 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
           )}
         </tbody>
       </table>
+          <div id="addMonsterOuter">
+        <div className="nameInputWrapper">
+          <input
+            id="monsterNameInput"
+            type="text"
+            placeholder="Search or custom Monster Name"
+            value={newMonster.name}
+            onKeyDown={keyDownAddMonster}
+            onChange={handleNameChange}
+            autoComplete="off"
+          />
+          {showSuggestions && (
+            <ul className="suggestion-list">
+              {filteredSuggestions.map((s) => (
+                <li key={s} onClick={() => handleSelectSuggestion(s)} className="filteredSuggestions">
+                  {s}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
+        <div>
+          <button onClick={() => addMonsters(1)}>Add Monster</button>
+        </div>
+
+        <div>
+          <input type="number" min="1" max="50" value={duplicateCount} onChange={handleDuplicateCountChange} />
+          <button onClick={() => addMonsters(duplicateCount)}>Add Monsters</button>
+        </div>
+      </div>
       <button id="mmSaveCloseButton" onClick={onClose}>Save and Close</button>
+      </div>
     </div>
   );
 };

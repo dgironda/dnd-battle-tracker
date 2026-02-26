@@ -423,13 +423,31 @@ sup {
    HERO MANAGER CONTAINER
    ============================================ */
    
+#heroAddManage {
+  background-image: url('/src/assets/draftsvgs/container_hero-manager.svg');
+  color: var(--color-fg);
+}
+
+#monsterAddManage {
+  background-image: url(./assets/draftsvgs/container_monster-manager.svg);
+}
+
+#battleAddManage {
+  /* temp until it has a unique image */
+  background-image: url(./assets/draftsvgs/container_monster-manager.svg);
+}
 
 #heroAddManage, #monsterAddManage, #battleAddManage {
   position: absolute;
+  top: 5vw !important;
+  left: 5vw !important;
   z-index: 9;
   font-family: 'Caudex', serif;
   
   width: 40%; height: 40%!important;
+  background-color: transparent;
+  border: none;
+  padding: 2.2rem 3rem 2rem 3rem !important;
   
   /* Container size */
   min-width: 600px;
@@ -437,15 +455,11 @@ sup {
   min-height: 400px;
   max-height: 90vh;
   
-  /* Solid background and border (fallback) */
-  background-color: var(--color-hl1);
-  border: .5rem solid var(--color-hl2);
-  
   /* Don't let container scroll */
   overflow: hidden;
   
   /* SVG Background */
-  background-image: url('/src/assets/draftsvgs/container_hero-manager.svg'); 
+   
   background-size: 100% 100%; 
   background-repeat: no-repeat; 
   border: none;
@@ -524,7 +538,11 @@ sup {
    HERO MANAGER SPECIFIC STYLES
    ============================================ */
 
-.hero-content h2 {
+#heroAddManage h2 {
+    color: var(--color-bg1) !important;
+}
+
+.hero-content h2, .monster-content h2 {
   text-align: center;
   margin-top: 0;
   margin-bottom: 1rem;
@@ -638,7 +656,7 @@ sup {
 .heroesSpacer {
   height: .1rem;
   border: none;
-  background-color: transparent;
+  background-color: transparent !important;
 }
 
 .saveClose {
