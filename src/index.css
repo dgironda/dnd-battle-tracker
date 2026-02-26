@@ -419,43 +419,125 @@ sup {
   cursor: pointer;
 }
 
+/* ============================================
+   HERO MANAGER CONTAINER
+   ============================================ */
+
 #heroAddManage, #monsterAddManage, #battleAddManage {
   position: absolute;
   z-index: 9;
-  background-color: var(--color-hl1);
   font-family: 'Caudex', serif;
+  
+  /* Container size */
+  min-width: 600px;
+  max-width: 90vw;
+  min-height: 400px;
+  max-height: 90vh;
+  
+  /* Solid background and border (fallback) */
+  background-color: var(--color-hl1);
   border: .5rem solid var(--color-hl2);
-  max-height: none;
-  overflow-y: auto;
+  
+  /* Don't let container scroll */
+  overflow: hidden;
+  
+  /* SVG Background */
+  background-image: url('/src/assets/draftsvgs/container_hero-manager.svg'); 
+  background-size: 100% 100%; 
+  background-repeat: no-repeat; 
+  border: none;
 }
 
-#heroAddManage thead>tr, #monsterAddManage thead>tr, 
-#battleTracker thead>tr {
-  background-color: var(--color-bg1);
+/* ============================================
+   CONTENT WRAPPER - CRITICAL!
+   ============================================ */
+
+.hero-content, .monster-content, .battle-content {
+  /* MUST be relative positioned to sit inside parent */
+  position: relative;
+  
+  /* Fill the entire parent container */
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  max-height: 85vh;
+  
+  /* Box model */
+  box-sizing: border-box;
+  
+  /* Padding creates space from container edges */
+  padding: 1.5rem;
+  
+  /* Content scrolls, not container */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
+
+/* Scrollbar styling */
+.hero-content::-webkit-scrollbar,
+.monster-content::-webkit-scrollbar,
+.battle-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.hero-content::-webkit-scrollbar-track,
+.monster-content::-webkit-scrollbar-track,
+.battle-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.hero-content::-webkit-scrollbar-thumb,
+.monster-content::-webkit-scrollbar-thumb,
+.battle-content::-webkit-scrollbar-thumb {
+  background: var(--color-brdr1);
+  border-radius: 4px;
+}
+
+/* ============================================
+   ADD HERO SECTION
+   ============================================ */
 
 #addHeroOuter {
+  /* Make sure it's positioned normally (not absolute) */
+  position: relative;
+  
+  /* Spacing */
   margin-bottom: 1rem;
-  padding: 1rem; 
-  border: 1px solid var(--color-brdr1); 
-  border-radius: 4px; 
+  padding: 1rem;
+  
+  /* Styling */
+  border: 1px solid var(--color-brdr1);
+  border-radius: 4px;
   background-color: var(--color-bg2);
 }
 
 #addHeroOuter h3 {
   margin-top: 0;
-}
-
-.addPresent-div {
-  display: flex;
-} 
-
-#addHeroInner {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem; 
   margin-bottom: 1rem;
 }
+
+/* ============================================
+   HERO MANAGER SPECIFIC STYLES
+   ============================================ */
+
+.hero-content h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.hero-content table {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+
+
+/* ============================================
+   MONSTER MANAGER CONTAINER
+   ============================================ */
+
 
 #addMonsterOuter {
   display: flex;
@@ -1486,13 +1568,7 @@ sup {
   #footer {
     grid-area: footer;
   }
-  #heroAddManage, #monsterAddManage, #battleAddManage, #about, #options {
-    margin-top: 1rem;
-    top: 0vh;
-    left: 15vw;
-    width: 80vw;
-    padding: 1vw;
-  }
+
 .checkOverlay {
   display: none;
 }
@@ -1667,13 +1743,7 @@ sup {
   #patreonOverlayDiv>p {
     max-width: 75%;
   }
-  #heroAddManage, #monsterAddManage, #battleAddManage, #about, #options {
-    margin-top: 0rem;
-    top: 0vh;
-    left: 0vw;
-    width: auto;
-    padding: 1vw;
-  }
+
 #resumeCombat {
   margin: 1rem;
 }
