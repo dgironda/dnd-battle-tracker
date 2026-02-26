@@ -138,7 +138,6 @@
 #heroAddManage .hero-content, #heroAddManage .hero-content > * {
     position: relative;
     z-index: 11 !important;
-    margin-left: 2%;
     margin-right: 1%;
 }
 
