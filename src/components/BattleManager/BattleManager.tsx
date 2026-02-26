@@ -415,6 +415,7 @@ const removePhoto = () => {
   return (
     <div id="battleAddManage">
       <div className='battle-content'>
+        <h2>Battle Manager</h2>
       {/* Save Current Battle Section */}
       <div id="saveBattleOuter">
         <h3>Save Current Battle</h3>

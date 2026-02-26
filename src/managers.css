@@ -122,7 +122,7 @@
     color: var(--color-bg1) !important;
 }
 
-.hero-content h2, .monster-content h2 {
+.hero-content h2, .monster-content h2, .battle-content h2 {
   text-align: center;
   margin-top: 0;
   margin-bottom: 1rem;
