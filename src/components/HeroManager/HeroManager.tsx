@@ -12,6 +12,10 @@ interface HeroManagerProps {
 }
 
 const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
+  const [addHeroDiv, setAddHeroDiv] = useState(false)
+  function toggleAddHeroDiv() {
+    if(addHeroDiv === true) {setAddHeroDiv(false)} else setAddHeroDiv(true)
+  }
   const [heroes, setHeroes] = useState<Hero[]>(() => {
     const saved = getHeroes();
     // Ensure all numeric fields are numbers
@@ -49,7 +53,8 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
   return (
     <div id="heroAddManage">
     <div className="hero-content">
-      <AddHero onAddHero={addHero} />
+      <button onClick={toggleAddHeroDiv}>+Add a Hero</button>
+      {addHeroDiv && (<AddHero onAddHero={addHero} />)}
       <h2>Hero Manager</h2>
 
       <table>
