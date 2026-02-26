@@ -12,7 +12,6 @@ import { useBattleManager } from "./hooks/useStartBattle";
 import PatreonOverlay from "./components/PatreonOverlay";
 import { DEVMODE } from "./utils/devmode";
 import { useGlobalContext } from "./hooks/optionsContext";
-import "./components/BattleManager/BattleManager.css";
 import { Helmet } from "react-helmet-async";
 import monsterShareURL from "./utils/monsterShareURL";
 import { Tour, startTour } from "./components/Tour";

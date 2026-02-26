@@ -89,13 +89,3 @@
 
 
 
-#addMonsterOuter {
-    
-    background-repeat: no-repeat;
-    background-position: top;
-    background-size: cover;
-    background-color: transparent !important;
-    border: none !important;
-    padding: 2.2rem 3rem 2rem 3rem !important;
-    color: var(--color-fg) !important;
-}

@@ -414,6 +414,7 @@ const removePhoto = () => {
 
   return (
     <div id="battleAddManage">
+      <div className='battle-content'>
       {/* Save Current Battle Section */}
       <div id="saveBattleOuter">
         <h3>Save Current Battle</h3>
@@ -597,6 +598,7 @@ const removePhoto = () => {
       <p className="saveClose">
         <button onClick={onClose}>Save and Close</button>
       </p>
+      </div>
     </div>
     
   );
