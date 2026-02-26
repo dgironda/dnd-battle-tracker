@@ -422,11 +422,14 @@ sup {
 /* ============================================
    HERO MANAGER CONTAINER
    ============================================ */
+   
 
 #heroAddManage, #monsterAddManage, #battleAddManage {
   position: absolute;
   z-index: 9;
   font-family: 'Caudex', serif;
+  
+  width: 40%; height: 40%!important;
   
   /* Container size */
   min-width: 600px;
