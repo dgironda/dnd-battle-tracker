@@ -286,13 +286,14 @@ sup {
   margin-top: 1rem;
   z-index: 9;
   position: absolute;
-  /* top: 10vh;
-  left: 1vw; */
+  top: 2vh;
+  left: 5vw;
   background-color: var(--color-hl1);
   color: var(--color-fg);
   margin: auto;
   padding: 2vw;
-  width: 90vw;
+  width: fit-content;
+  max-width: 85vw;
   /* font-family: 'Caudex', serif; */
   border: .5rem solid var(--color-hl2);
 }

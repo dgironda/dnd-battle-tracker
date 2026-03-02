@@ -15,8 +15,8 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
   // const [overlayVisible, setOverlayVisible] = useState(true);
   const { settings, updateSetting } = useGlobalContext();
 
-  const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateSetting('theme', e.target.checked ? 'dark' : 'light');}
+  const handleThemeChange = () => {
+    updateSetting('theme', settings.theme === 'dark' ? 'light' : 'dark');}
   // const conditionReminderOn = !settings.conditionReminderOn;
   // const currentTurnTime = !settings.currentTurnTime;
   
@@ -35,9 +35,24 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
                     <li><button onClick={() => updateSetting('conditionReminderOn', !settings.conditionReminderOn)} id="buttonConditionReminder">Condition Reminder Pop-up: {settings.conditionReminderOn ? 'Off' : 'On'}</button></li>
                     <li><button onClick={() => updateSetting('currentTurnTime', !settings.currentTurnTime)} id="buttonCurrentTurnTime">Current Turn Time Display: {settings.currentTurnTime ? 'On' : 'Off'}</button></li>
                     <li><button onClick={() => updateSetting('tourReady', !settings.tourReady)} id="buttonTourReady">{settings.tourReady ? 'Tour Available' : 'Reset Tour'}</button></li>
-                    <li id="colorMode">{isSupporter && (<>
-                    <input type="checkbox" id="light-dark" checked={settings.theme === 'dark'} onChange={handleThemeChange}></input>
-                    <label htmlFor="light-dark">Light/Dark mode</label></>)}</li>
+                    <li id="colorMode">
+                      {isSupporter && (
+                          <button 
+                            onClick={handleThemeChange} 
+                            style={{ 
+                              backgroundColor: settings.theme === 'dark' ? 'var(--color-fg)' : 'var(--color-hero-bg1)', 
+                              color: settings.theme === 'dark' ? 'var(--color-bg1)' : 'var(--color-roweven)', 
+                              border: 'none', 
+                              padding: '10px 20px', 
+                              borderRadius: '5px', 
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {settings.theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                          </button>
+                      )}
+                    </li>
+
                     <li></li>
                     {/* {isSupporter && (
                           <>

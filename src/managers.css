@@ -1,20 +1,21 @@
 
-/* ============================================
-   HERO MANAGER CONTAINER
-   ============================================ */
+
    
 #heroAddManage {
   background-image: url('/src/assets/draftsvgs/container_hero-manager.svg');
   color: var(--color-fg);
+  width: 40%; height: 40%!important;
 }
 
 #monsterAddManage {
   background-image: url(./assets/draftsvgs/container_monster-manager.svg);
+  width: 50%; height: 40%!important;
 }
 
 #battleAddManage {
   /* temp until it has a unique image */
   background-image: url(./assets/draftsvgs/container_monster-manager.svg);
+  width: 65%; height: 40%!important;
 }
 
 #heroAddManage, #monsterAddManage, #battleAddManage {
@@ -24,7 +25,7 @@
   z-index: 9;
   font-family: 'Caudex', serif;
   
-  width: 40%; height: 40%!important;
+  
   background-color: transparent;
   border: none;
   padding: 2.2rem 3rem 2rem 3rem !important;
@@ -91,6 +92,9 @@
   border-radius: 4px;
 }
 
+/* ============================================
+   HERO MANAGER CONTAINER
+   ============================================ */
 /* ============================================
    ADD HERO SECTION
    ============================================ */
