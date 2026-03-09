@@ -28,6 +28,8 @@
   
   background-color: transparent;
   border: none;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
   padding: 2.2rem 3rem 2rem 3rem !important;
 
   /* Container size */

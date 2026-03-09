@@ -127,6 +127,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
 
   return (
     <div id="monsterAddManage">
+      <button className="saveClose" id="mmSaveCloseButton" onClick={onClose}>X</button>
       <div className="monster-content">
       <h2>Monster Manager</h2>
 
@@ -223,7 +224,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
           <button onClick={() => addMonsters(duplicateCount)}>Add Monsters</button>
         </div>
       </div>
-      <button id="mmSaveCloseButton" onClick={onClose}>Save and Close</button>
+      
       </div>
     </div>
   );

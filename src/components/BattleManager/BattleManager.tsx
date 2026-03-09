@@ -414,8 +414,12 @@ const removePhoto = () => {
 
   return (
     <div id="battleAddManage">
+      <p>
+        <button className="saveClose" onClick={onClose}>X</button>
+      </p>
       <div className='battle-content'>
         <h2>Battle Manager</h2>
+        
       {/* Save Current Battle Section */}
       <div id="saveBattleOuter">
         <h3>Save Current Battle</h3>
@@ -596,9 +600,7 @@ const removePhoto = () => {
         onContinue={handleImportContinue}
         title="Import new data"
       />
-      <p className="saveClose">
-        <button onClick={onClose}>Save and Close</button>
-      </p>
+      
       </div>
     </div>
     

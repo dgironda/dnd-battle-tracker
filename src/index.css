@@ -294,6 +294,10 @@ sup {
   padding: 2vw;
   width: fit-content;
   max-width: 85vw;
+  max-height: 60%;
+  overflow-x: scroll;
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--color-hl2) var(--color-hl1);
   /* font-family: 'Caudex', serif; */
   border: .5rem solid var(--color-hl2);
 }
@@ -325,9 +329,20 @@ sup {
   margin: .5rem 0 0 0;
 }
 
-#aboutCloseButton, #optionsCloseButton {
+#aboutCloseButton, #optionsCloseButton, .saveClose {
   /* margin-left: 95%; */
   float: right;
+  aspect-ratio: 1 / 1 !important;
+  /* background-color: inherit; */
+  position: sticky;
+}
+
+.saveClose {
+  margin-right: 1rem;
+}
+
+#heroAddManage .saveClose {
+  margin-top: 1rem;
 }
 
 #instructions {
@@ -437,14 +452,6 @@ sup {
   cursor: pointer;
   padding: 2px 4px;
   border-radius: 2px;
-}
-
-.saveClose {
-  background-color: inherit; 
-}
-
-.saveClose button {
-  margin-top: 1rem;
 }
 
 #round {

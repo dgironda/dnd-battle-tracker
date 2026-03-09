@@ -24,7 +24,7 @@ export default function About({ isVisible, onToggle }: AboutProps) {
       
       {isVisible && (
         <div id="about">
-          <button id="aboutCloseButton" onClick={onToggle}>Close</button>
+          <button id="aboutCloseButton" onClick={onToggle}>X</button>
             <div id="instructions">
               
               <h3>Instructions</h3>

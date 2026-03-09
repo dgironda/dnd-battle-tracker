@@ -52,6 +52,7 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
 
   return (
     <div id="heroAddManage">
+      <button className="saveClose" id="hmSaveCloseButton" onClick={onClose}>X</button>
     <div className="hero-content">
       <h2>Hero Manager</h2>
       {/* <button onClick={toggleAddHeroDiv}>+Add a Hero</button> */}
@@ -164,7 +165,7 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
       {/* <button onClick={toggleAddHeroDiv}>+Add a Hero</button>
       {addHeroDiv && (<AddHero onAddHero={addHero} />)} */}
       <AddHero onAddHero={addHero} />
-        <button id="hmSaveCloseButton" onClick={onClose}>Save and Close</button>
+        
     </div>
     </div>
   );

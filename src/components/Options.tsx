@@ -28,7 +28,7 @@ export default function Options({ isVisible, onToggle, isSupporter }: OptionsPro
       
       {isVisible && (
         <div id="options">
-          <button id="optionsCloseButton" onClick={onToggle}>Close</button>
+          <button id="optionsCloseButton" onClick={onToggle}>X</button>
             <div>
                 <ul>
                     <li><ToggleComponent /></li>
