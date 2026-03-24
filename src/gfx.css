@@ -13,7 +13,7 @@
 #heroManagerButton {
     background-color: transparent;
     border: none;
-    background-image: url('./assets/draftsvgs_v1/button_hero-manager.svg');
+    background-image: url('./assets/draftsvgs_v2/button_hero-manager.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -24,7 +24,7 @@
 }
 
 #heroManagerButton:hover {
-    background-image: url('./assets/draftsvgs_v1/button_hero-manager-hover.svg');
+    background-image: url('./assets/draftsvgs_v2/button_hero-manager-hover.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -135,7 +135,7 @@
 .twentyFour {
     background-color: transparent;
     border: none;
-    background-image: url('./assets/draftsvgs_v1/button_2024-on.svg');
+    background-image: url('./assets/draftsvgs_v2/button_2024-on.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -148,7 +148,7 @@
 .fourteen {
     background-color: transparent;
     border: none;
-    background-image: url('./assets/draftsvgs_v1/button_2014-on.svg');
+    background-image: url('./assets/draftsvgs_v2/button_2014-on.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -214,12 +214,13 @@
     background-repeat: no-repeat;
 }
 
+
 /* .twentyFour:hover {
-    background-image: url('../draftsvgs_v1/button_2024-hover.svg');
+    background-image: url('../draftsvgs_v2/button_2024-hover.svg');
 }
 
 .fourteen:hover {
-    background-image: url('../draftsvgs_v1/button_2014-hover.svg');
+    background-image: url('../draftsvgs_v2/button_2014-hover.svg');
 } */
 
 
