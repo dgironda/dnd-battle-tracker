@@ -505,7 +505,7 @@ useEffect(() => {
         // handleStartBattle();
         if (combatants.length > 0){setIsSBPopupOpen(true)} else handleStartBattle()
       }}>
-          Start Battle
+          {/* Start Battle */}
       </button>
       {combatants.length > 0 && <div id="round">
           <RoundNumberSpan

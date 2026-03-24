@@ -2,19 +2,22 @@
 
    
 #heroAddManage {
-  background-image: url('/src/assets/draftsvgs/container_hero-manager.svg');
+  background-image: url('/src/assets/draftsvgs_v2/container_hero-manager.svg');
   color: var(--color-fg);
   width: 40%; height: 40%!important;
+  background-repeat: no-repeat; 
 }
 
 #monsterAddManage {
-  background-image: url(./assets/draftsvgs/container_monster-manager.svg);
+  background-image: url('./assets/draftsvgs_v2/container_monster-manager.svg');
   width: 50%; height: 40%!important;
+  background-repeat: no-repeat; 
 }
 
 #battleAddManage {
   /* temp until it has a unique image */
-  background-image: url(./assets/draftsvgs/container_monster-manager.svg);
+  background-image: url('./assets/draftsvgs_v2/container_monster-manager.svg');
+  background-repeat: no-repeat;
   width: 65%; height: 40%!important;
 }
 
@@ -44,7 +47,7 @@
   /* SVG Background */
    
   background-size: 100% 100%; 
-  background-repeat: no-repeat; 
+
   border: none;
 }
 
@@ -69,7 +72,7 @@
   padding: 1.5rem;
   
   /* Content scrolls, not container */
-  overflow-y: auto;
+  overflow-y: scroll;
   overflow-x: hidden;
 }
 
@@ -345,6 +348,38 @@
 
 .save-dialog-buttons button:last-child:hover {
   background: #ccc;
+}
+
+#buttonDownloadData {
+  background-image: url('./assets/draftsvgs_v2/button_cutout-green-med.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  background-color: transparent;
+  width: 18rem !important;
+  height: 11rem;
+  
+}
+
+#buttonMonsterShareURL {
+  background-image: url('./assets/draftsvgs_v2/button_cutout-green-med.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  background-color: transparent;
+  width: 18rem !important;
+  height: 11rem;
+  
+}
+
+#inputImportData {
+  background-image: url('./assets/draftsvgs_v2/button_cutout-green-small.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
+  border: none;
+  width: 8rem !important;
+  height: 8rem;
 }
 
 .empty-state {

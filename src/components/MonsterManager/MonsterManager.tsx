@@ -216,7 +216,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
         </div>
 
         <div>
-          <button onClick={() => addMonsters(1)}>Add Monster</button>
+          <button id="addNewMonsterButton" onClick={() => addMonsters(1)}>Add Monster</button>
         </div>
 
         <div>

@@ -15,6 +15,8 @@ import { useGlobalContext } from "./hooks/optionsContext";
 import { Helmet } from "react-helmet-async";
 import monsterShareURL from "./utils/monsterShareURL";
 import { Tour, startTour } from "./components/Tour";
+import BTLogo from './assets/draftsvgs_v2/logo.svg';
+
 
 
 
@@ -168,7 +170,8 @@ function App() {
       )}
       
     <div id="header">
-      <h1 id="logo">D&D Battle Tracker</h1>
+      {/* <h1 id="logo">D&D Battle Tracker</h1> */}
+      <img id="logo" src={BTLogo} alt="D&D Battle Tracker" />
       <About 
         isVisible={openPanel === 'about'} 
         onToggle={() => setOpenPanel(openPanel === 'about' ? null : 'about')} 
@@ -185,7 +188,7 @@ function App() {
       {openPanel === 'monster' && (<MonsterManager onClose={handleClosePanel}/>)}
       
       <button id="battleManagerButton" title="Save and Load Battles" onClick={() => setOpenPanel(openPanel === 'battle' ? null : 'battle')}>
-        {openPanel === 'battle' ? (<span>Close Battle Manager<sup>(r)</sup></span>) : (<span>Battle Manager<sup>(r)</sup></span>)}
+        {openPanel === 'battle' ? (<span></span>) : (<span></span>)}
       </button>
       {openPanel === 'battle' && (<BattleManager onClose={handleClosePanel}/>)}
       
@@ -195,7 +198,7 @@ function App() {
         isSupporter={isSupporter}
       />
       
-      {settings.tourReady && !isPortrait && (<><button onClick={() => {
+      {settings.tourReady && !isPortrait && (<><button id="buttonStartTour" onClick={() => {
                 startTour();
                 handleClosePanel();
               }}>Start Tour</button></>)}

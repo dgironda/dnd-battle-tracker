@@ -1,13 +1,13 @@
 import { DEVMODE } from "../utils/devmode";
 import Options from "./Options";
 import React from "react";
-import KeyA from '../assets/draftsvgs/key_a.svg'
-import KeyS from '../assets/draftsvgs/key_s.svg'
-import KeyD from '../assets/draftsvgs/key_d.svg'
-import KeyW from '../assets/draftsvgs/key_w.svg'
-import KeyE from '../assets/draftsvgs/key_e.svg'
-import KeyR from '../assets/draftsvgs/key_r.svg'
-import KeyX from '../assets/draftsvgs/key_x.svg'
+import KeyA from '../assets/draftsvgs_v2/key_a.svg'
+import KeyS from '../assets/draftsvgs_v2/key_s.svg'
+import KeyD from '../assets/draftsvgs_v2/key_d.svg'
+import KeyW from '../assets/draftsvgs_v2/key_w.svg'
+import KeyE from '../assets/draftsvgs_v2/key_e.svg'
+import KeyR from '../assets/draftsvgs_v2/key_r.svg'
+import KeyX from '../assets/draftsvgs_v2/key_x.svg'
 
 interface AboutProps {
   isVisible: boolean;
@@ -19,7 +19,7 @@ export default function About({ isVisible, onToggle }: AboutProps) {
   return (
     <>
       <button id="aboutButton" title="Instructions and credits" onClick={onToggle}>
-        {isVisible ? "Close About" : "About"}
+        {isVisible ? "" : ""}
       </button>
       
       {isVisible && (

@@ -505,7 +505,7 @@ const removePhoto = () => {
             <input id="inputImportData" type="file" accept=".json" onChange={handleImport}/> */}
             <button id="inputImportData" onClick={handleImport}>Upload your data</button>
           </p>
-          <p><button onClick={monsterShareURL.generateMonsterShareURL}>Export Monster Share URL</button>This will generate a link that will allow someone to import the monsters in your monster manager at the time it is generated.</p>
+          <p><button id='buttonMonsterShareURL' onClick={monsterShareURL.generateMonsterShareURL}>Export Monster Share URL</button>This will generate a link that will allow someone to import the monsters in your monster manager at the time it is generated.</p>
         
       </div>
       {/* Saved Battles List */}

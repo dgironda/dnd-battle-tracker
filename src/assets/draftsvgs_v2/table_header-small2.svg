@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 139 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-2998,-3852)">
+        <g id="table_header-small2" transform="matrix(0.165273,0,0,0.556685,2653.97,2023.58)">
+            <rect x="2085.38" y="3286.02" width="834.981" height="123.05" style="fill:none;"/>
+            <clipPath id="_clip1">
+                <rect x="2085.38" y="3286.02" width="834.981" height="123.05"/>
+            </clipPath>
+            <g clip-path="url(#_clip1)">
+                <g transform="matrix(1.02884,0,0,1.04827,-72.1754,-161.582)">
+                    <g transform="matrix(6.03852,0,0,0.997318,1295.39,1945.9)">
+                        <clipPath id="_clip2">
+                            <rect x="134.695" y="1350.03" width="130.536" height="110.774"/>
+                        </clipPath>
+                        <g clip-path="url(#_clip2)">
+                            <g transform="matrix(0.973914,-0,-0,1.71824,132.153,1345.09)">
+                                <use xlink:href="#_Image3" x="2.611" y="2.874" width="135px" height="65px"/>
+                            </g>
+                        </g>
+                    </g>
+                    <g transform="matrix(6.03852,0,0,0.997318,1295.39,1945.9)">
+                        <path d="M265.231,1464.24L134.695,1464.24C133.619,1464.24 132.747,1462.7 132.747,1460.8L132.747,1350.03C132.747,1348.13 133.619,1346.59 134.695,1346.59L265.231,1346.59C266.307,1346.59 267.179,1348.13 267.179,1350.03L267.179,1460.8C267.179,1462.7 266.307,1464.24 265.231,1464.24ZM263.283,1457.36L263.283,1353.46L136.643,1353.46L136.643,1457.36L263.283,1457.36Z"/>
+                    </g>
+                    <g transform="matrix(-5.41319,0,0,0.833046,5724.85,2176.32)">
+                        <path d="M662.004,1403.19C662.157,1398.03 663.143,1375.65 663.09,1350.03C663.088,1348.96 662.632,1347.99 662.012,1347.97C656.425,1347.77 533.993,1347.77 528.405,1347.97C527.785,1347.99 527.329,1348.96 527.327,1350.03C527.281,1374.97 528.056,1392.89 528.414,1403.19C528.574,1398.26 528.798,1393.33 528.958,1388.4C529.01,1386.81 529.384,1375.27 529.438,1368.57C529.482,1363.07 529.456,1357.57 529.5,1352.07C552.219,1351.88 638.206,1351.88 660.917,1352.07C660.963,1357.39 660.938,1362.72 660.983,1368.05C661.04,1374.74 661.433,1387.1 661.486,1388.76C661.638,1393.57 661.851,1398.38 662.004,1403.19Z" style="fill:rgb(201,6,6);"/>
+                    </g>
+                    <g transform="matrix(-5.41319,0,0,-0.833046,5724.85,4518.76)">
+                        <path d="M529.5,1352.07C529.456,1357.57 529.482,1363.07 529.438,1368.57C529.384,1375.24 529.01,1386.81 528.958,1388.4C528.719,1395.8 528.686,1395.79 528.414,1403.19C528.219,1396.75 527.277,1377.14 527.327,1350.03C527.329,1348.96 527.785,1347.99 528.405,1347.97C533.993,1347.77 656.425,1347.77 662.012,1347.97C662.632,1347.99 663.088,1348.96 663.09,1350.03C663.143,1375.65 662.157,1398.03 662.004,1403.19C661.851,1398.38 661.638,1393.57 661.486,1388.76C661.433,1387.1 661.04,1374.74 660.983,1368.05C660.938,1362.72 660.963,1357.39 660.917,1352.07C638.207,1351.88 552.22,1351.88 529.5,1352.07Z" style="fill:rgb(201,6,6);"/>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+    <defs>
+        <image id="_Image3" width="135px" height="65px" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIcAAABBCAYAAAD7VrejAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABCUlEQVR4nO3by2qDQABA0Un/H/LJdtNA2nibISS2mnNAHAcXLi4Dvk7nMZYxxjh9bffGa/uamzmuuTWz5/1ny4Pn/Jxb7oxn9svK8fX4Y+Ja+WMzQb2COEjiIImDJA6SOEjiIImDJA7Sr3Ec4Ykkj7NykMTBN9eP6sVBEgdJHCRxkMRBEgdJHDu01Zdh4iCJgyQOkjhI4iCJ4w3N3u2Ig3QThw98uLBykMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHKTdxOGF4PZ2EwfbEwfpKXFY8o/JynEgz/7ZSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIH6ROXhxgN3e+l6wAAAABJRU5ErkJggg=="/>
+    </defs>
+</svg>

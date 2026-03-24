@@ -1,14 +1,19 @@
 :root {
     --button-width: 15rem;
-    --button-max-width: 30rem;
+    --button-max-width: 25rem;
     --button-min-height: 5rem;
     --button-max-height: 15rem;
+}
+
+#logo {
+    width: var(--button-width);
+    max-width: var(--max-button-width);
 }
 
 #heroManagerButton {
     background-color: transparent;
     border: none;
-    background-image: url('./assets/draftsvgs/button_hero-manager.svg');
+    background-image: url('./assets/draftsvgs_v1/button_hero-manager.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -19,7 +24,7 @@
 }
 
 #heroManagerButton:hover {
-    background-image: url('./assets/draftsvgs/button_hero-manager-hover.svg');
+    background-image: url('./assets/draftsvgs_v1/button_hero-manager-hover.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -32,7 +37,7 @@
 #monsterManagerButton {
     background-color: transparent;
     border: none;
-    background-image: url('./assets/draftsvgs/button_monster-manager.svg');
+    background-image: url('./assets/draftsvgs_v2/button_monster-manager.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -43,7 +48,7 @@
 }
 
 #monsterManagerButton:hover {
-    background-image: url('./assets/draftsvgs/button_monster-manager-hover.svg');
+    background-image: url('./assets/draftsvgs_v2/button_monster-manager-hover.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -53,10 +58,84 @@
     max-height: var(--button-max-height);
 }
 
+#battleManagerButton {
+    background-color: transparent;
+    border: none;
+    background-image: url('./assets/draftsvgs_v2/button_battle-manager.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: var(--button-width);
+    max-width: var(--max-button-width);
+    min-height: var(--button-min-height);
+    max-height: var(--button-max-height);
+}
+
+#buttonStartBattle {
+    background-image: url('./assets/draftsvgs_v2/button_start-battle.svg');
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    width: 10rem !important;
+    height: 4rem !important;
+}
+
+#optionsButton {
+    background-image: url('./assets//draftsvgs_v2/icon_settings.svg');
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    width: var(--button-width);
+    height: var(--button-min-height);
+    align-self: center;
+    margin-left: 65%;
+}
+
+#aboutButton {
+    background-image: url('./assets/draftsvgs_v2/button_about-alt.svg');
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    width: var(--button-width);
+    height: var(--button-min-height);
+}
+
+#buttonStartTour {
+    background-image: url('./assets/draftsvgs_v2/button_cutout-red-med.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    border: none;
+    background-color: transparent;
+    width: var(--button-width);
+    height: var(--button-min-height);
+}
+
+#addNewHeroButton {
+    background-image: url('./assets/draftsvgs_v2/button_add-hero.svg');
+    background-repeat: no-repeat;
+    border: none;
+    background-color: transparent;
+    font-size: 0;
+    line-height: 0;
+    width: 6rem;
+    height: var(--button-min-height);
+}
+
+#addNewMonsterButton {
+    background-image: url('./assets/draftsvgs_v2/button_add-monster.svg');
+    background-repeat: no-repeat;
+    border: none;
+    background-color: transparent;
+    font-size: 0;
+    line-height: 0;
+    width: 6rem;
+    height: var(--button-min-height);
+}
+
 .twentyFour {
     background-color: transparent;
     border: none;
-    background-image: url('./assets/draftsvgs/button_2024-on.svg');
+    background-image: url('./assets/draftsvgs_v1/button_2024-on.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -69,7 +148,7 @@
 .fourteen {
     background-color: transparent;
     border: none;
-    background-image: url('./assets/draftsvgs/button_2014-on.svg');
+    background-image: url('./assets/draftsvgs_v1/button_2014-on.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -80,12 +159,19 @@
 }
 
 /* .twentyFour:hover {
-    background-image: url('../draftsvgs/button_2024-hover.svg');
+    background-image: url('../draftsvgs_v1/button_2024-hover.svg');
 }
 
 .fourteen:hover {
-    background-image: url('../draftsvgs/button_2014-hover.svg');
+    background-image: url('../draftsvgs_v1/button_2014-hover.svg');
 } */
 
 
 
+/* html * {
+    cursor: url('./assets//draftsvgs_v2/pointer_arrow.png'), default;
+}
+
+a, button, .clickable {
+    cursor: url('./assets//draftsvgs_v2//pointer_gauntlet.png'), pointer;
+} */

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 156 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-2668,-3852)">
+        <g id="table_header-small1" transform="matrix(0.185633,0,0,0.556685,2281.45,2023.57)">
+            <rect x="2085.38" y="3286.02" width="834.981" height="123.05" style="fill:none;"/>
+            <clipPath id="_clip1">
+                <rect x="2085.38" y="3286.02" width="834.981" height="123.05"/>
+            </clipPath>
+            <g clip-path="url(#_clip1)">
+                <g transform="matrix(1.02136,0,0,1.04827,-54.2561,-161.582)">
+                    <g transform="matrix(5.4156,0,0,0.997318,1375.89,1945.9)">
+                        <clipPath id="_clip2">
+                            <rect x="134.695" y="1350.03" width="147.1" height="110.774"/>
+                        </clipPath>
+                        <g clip-path="url(#_clip2)">
+                            <g transform="matrix(0.973914,-0,-0,1.71824,132.215,1345.11)">
+                                <use xlink:href="#_Image3" x="2.547" y="2.859" width="152px" height="65px"/>
+                            </g>
+                        </g>
+                    </g>
+                    <g transform="matrix(5.4156,0,0,0.997318,1375.89,1945.9)">
+                        <path d="M281.795,1464.24L134.695,1464.24C133.619,1464.24 132.747,1462.7 132.747,1460.8L132.747,1350.03C132.747,1348.13 133.619,1346.59 134.695,1346.59L281.795,1346.59C282.871,1346.59 283.743,1348.13 283.743,1350.03L283.743,1460.8C283.743,1462.7 282.871,1464.24 281.795,1464.24ZM279.847,1457.36L279.847,1353.46L136.643,1353.46L136.643,1457.36L279.847,1457.36Z"/>
+                    </g>
+                    <g transform="matrix(-4.85479,0,0,0.833046,5348.42,2176.32)">
+                        <path d="M662.004,1403.19C662.04,1401.85 662.957,1376.82 663.09,1353.18C663.096,1352.13 663.095,1351.08 663.09,1350.03C663.085,1348.91 662.614,1347.99 662.012,1347.97C656.193,1347.77 515.748,1347.77 509.928,1347.97C509.32,1347.99 508.854,1348.93 508.85,1350.03C508.814,1359.5 509.004,1368.91 509.037,1370.55C509.367,1386.89 509.419,1386.88 509.936,1403.19C510.096,1397.78 510.321,1392.37 510.481,1386.96C510.532,1385.22 510.888,1373.18 510.96,1365.2C511,1360.82 510.983,1356.44 511.023,1352.07C535.82,1351.88 636.13,1351.88 660.917,1352.07C660.925,1352.87 660.873,1366.19 661.486,1387.35C661.638,1392.63 661.851,1397.91 662.004,1403.19Z" style="fill:rgb(201,6,6);"/>
+                    </g>
+                    <g transform="matrix(-4.85479,0,0,-0.833046,5348.42,4518.76)">
+                        <path d="M511.023,1352.07C510.983,1356.44 511,1360.82 510.96,1365.2C510.871,1374.98 509.962,1404 509.936,1403.19C509.928,1402.95 508.968,1377.06 508.85,1354.03C508.843,1352.69 508.845,1351.36 508.85,1350.03C508.854,1348.93 509.32,1347.99 509.928,1347.97C515.748,1347.77 656.193,1347.77 662.012,1347.97C662.614,1347.99 663.085,1348.91 663.09,1350.03C663.095,1351.08 663.096,1352.13 663.09,1353.18C662.957,1376.82 662.04,1401.85 662.004,1403.19C661.851,1397.91 661.638,1392.63 661.486,1387.35C660.873,1366.19 660.925,1352.87 660.917,1352.07C636.13,1351.88 535.821,1351.88 511.023,1352.07Z" style="fill:rgb(201,6,6);"/>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+    <defs>
+        <image id="_Image3" width="152px" height="65px" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJgAAABBCAYAAAAt823GAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABCElEQVR4nO3dywqCQABA0bH/75tr1UbyVV3QOAfEcXTh4jK4UJzuYzymMcZrG2/GR/Zr4z3HW/PfXnsljy+u25rbGi/Nzc/P5+bHt8W7hh8QGKv2rqJLBEZKYKQERkpgpARGSmCkBEZKYKQERkpgpARG6vavbyJwDlYwUgIjJTB2+fS1ncsH5hny3C4fGOcmMFICIyUwUgIjJTBSAiMlMFICIyUwUgIjJTBSAiMlMFICIyUwUgIjJTBSAiMlMFICI3UoMF/wcJQVjJTASAmMlMBICYyUwEgJjJTASAmMlMBICYyUwEgJjJTASAmMlMBICYyUwEi8ftwgMFICIyUwUgIjJTBSAiP1BOaQFw0g3S4AAAAAAElFTkSuQmCC"/>
+    </defs>
+</svg>
