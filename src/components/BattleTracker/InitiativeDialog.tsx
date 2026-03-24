@@ -3,6 +3,7 @@ import { DEVMODE } from "../../utils/devmode";
 import { useState } from 'react';
 import { useCombat } from './CombatContext';
 import Icon from "../Icon";
+import InitIcon from '../../assets/draftsvgs_v2/icon_init.svg'
 
 interface InitiativeDialogProps {
   heroName: string;
@@ -81,7 +82,9 @@ export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: Ini
             onClick={handleRandom}
             id='randomInit'
           >
-            Roll<br/><Icon className="initiativeRoll" name="d20" size={24} color="white"/>
+            Roll<br/>
+            {/* <Icon className="initiativeRoll" name="d20" size={24} color="white"/> */}
+            <img src={InitIcon} style={{ height: '2.5rem', width: 'auto' }} alt="Roll Initiative" />
           </button>
         </div>
       </div>

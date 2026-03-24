@@ -22,7 +22,7 @@ import { ConditionReminder } from "./ConditionReminder";
 import { Popup } from "../../utils/Popup";
 import SBPopup from "./SBPopup";
 import Icon from "../Icon";
-
+import HeartIcon from '../../assets/draftsvgs_v2/icon_hp.svg'
 
 interface BattleTrackerProps {
   setShowHeroManager: (show: boolean) => void;
@@ -541,14 +541,14 @@ useEffect(() => {
       <table id="battleTracker">
         <thead id="battleTrackerHeader">
           <tr>
-            <th title="Hero/Monster Name">Name</th>
-            <th title="Initiative, either input or rolled">Initiative</th>
-            <th title="Current HP / Maximum HP">HP</th>
-            <th title="Check if this combatant is using, passing, or holding their action">Action<sup>(a)</sup></th>
-            <th title="Check if this combatant is using or passing their bonus action">Bonus<sup>(s)</sup></th>
-            <th title="Check if this combatant is using or passing their movement">Move<sup>(d)</sup></th>
-            <th title="Check if this combatant has used their reaction, resets on their next turn">Reaction</th>
-            <th title="Input any conditions as they come up, hover over their name for a reminder of the effects. Reminder text changes depending on which version is selected in the upper right.">Conditions</th>
+            <th className="thFirst" title="Hero/Monster Name">Name</th>
+            <th className="thMiddle" title="Initiative, either input or rolled">Initiative</th>
+            <th className="thMiddle" title="Current HP / Maximum HP">HP</th>
+            <th className="thMiddle" title="Check if this combatant is using, passing, or holding their action">Action<sup>(a)</sup></th>
+            <th className="thMiddle" title="Check if this combatant is using or passing their bonus action">Bonus<sup>(s)</sup></th>
+            <th className="thMiddle" title="Check if this combatant is using or passing their movement">Move<sup>(d)</sup></th>
+            <th className="thMiddle" title="Check if this combatant has used their reaction, resets on their next turn">Reaction</th>
+            <th className="thLast" title="Input any conditions as they come up, hover over their name for a reminder of the effects. Reminder text changes depending on which version is selected in the upper right.">Conditions</th>
           </tr>
         </thead>
         <tbody>
@@ -666,7 +666,7 @@ useEffect(() => {
                 {combatant.tHp > 0 && (
                   <p className="thp">🛡️( {combatant.tHp} )</p>
                   )}
-                {combatant.currHp} / {combatant.maxHp}  <Icon name="heart" size={16} className="hpHeart" color="#dc3545" />  
+                {combatant.currHp} / {combatant.maxHp}  <img src={HeartIcon} style={{ height: '1.2rem', width: 'auto'}} />
               </td>
 			  
 			  {/* Added disabling of checkboxes on "Dead", might want to do this on "Death Saves" after prompt to roll and count of Saves/Fails? */}

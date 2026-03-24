@@ -158,6 +158,62 @@
     max-height: var(--button-max-height) !important;
 }
 
+#battleTracker {
+    table-layout: fixed;
+    column-width: auto;
+    gap: 0px;
+}
+
+#battleTracker th {
+    height: 5rem !important;
+}
+
+#battleTracker table, #battleTracker th, #battleTracker tr, #battleTracker td {
+    border: none !important;
+    color: var(--color-chk2) !important;
+    background-size: contain;
+}
+
+#battleTracker #battleTrackerHeader .thFirst {
+    background-image: url('./assets/draftsvgs_v2/table_header-long-left.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 4rem !important;
+    padding: 1rem .5rem 1rem .5rem !important;
+}
+
+.thMiddle {
+    background-image: url('./assets/draftsvgs_v2/table_header-small1.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 4rem !important;
+}
+
+.thLast {
+    background-image: url('./assets/draftsvgs_v2/table_header-long-right.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 4rem !important;
+}
+
+.combatantName {
+    background-image: url('./assets/draftsvgs_v2/table_item-long-left.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.combatantInit, .combatantHP, .combatantAction, .combatantBonus, .combatantMove, .combatantReaction {
+    background-image: url('./assets/draftsvgs_v2/table_item-small1-2.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.combatantConditions {
+    background-image: url('./assets/draftsvgs_v2/table_item-long-right.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 /* .twentyFour:hover {
     background-image: url('../draftsvgs_v1/button_2024-hover.svg');
 }
