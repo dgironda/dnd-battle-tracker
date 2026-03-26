@@ -16,6 +16,7 @@ import { Helmet } from "react-helmet-async";
 import monsterShareURL from "./utils/monsterShareURL";
 import { Tour, startTour } from "./components/Tour";
 import BTLogo from './assets/draftsvgs_v2/logo.svg';
+import Backdrop from "./utils/backdrop";
 
 
 
@@ -176,7 +177,10 @@ function App() {
         isVisible={openPanel === 'about'} 
         onToggle={() => setOpenPanel(openPanel === 'about' ? null : 'about')} 
       />
-      
+      <Backdrop 
+        isOpen={openPanel !== null} 
+        onClick={handleClosePanel}
+      />
         <button id="heroManagerButton" title="Add, Update, and Delete Heroes" onClick={() => setOpenPanel(openPanel === 'hero' ? null : 'hero')}>
           {openPanel === 'hero' ? (<span></span>) : (<span></span>)}
         </button>

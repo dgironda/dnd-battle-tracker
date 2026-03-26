@@ -25,7 +25,7 @@
   position: absolute;
   top: 2vw !important;
   left: 5vw !important;
-  z-index: 9;
+  z-index: 25;
   font-family: 'Caudex', serif;
   
   
@@ -50,6 +50,7 @@
 
   border: none;
 }
+
 
 /* ============================================
    CONTENT WRAPPER - CRITICAL!
