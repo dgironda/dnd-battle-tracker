@@ -115,7 +115,7 @@ th {
 }
 
 a {
-  color: var(--color-hl1);
+  color: var(--color-roweven);
 }
 a:visited {
   color: var(--color-hl2);

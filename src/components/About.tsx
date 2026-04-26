@@ -53,6 +53,7 @@ export default function About({ isVisible, onToggle }: AboutProps) {
             <div id="credits">
                 <p>Created by: DM Dave</p>
                 <p>Additional coding by: <a href="https://madmilliner.github.io/jasonPeterson/" target="_blank">Jason Peterson</a></p>
+                <p>Art by <a href="https://bio.site/aetherillo" target="_blank">Aether Ilo - Emily</a></p>
                 <p>QA Testers: Danny Cullen, Jayme Andrews, Zach Dender</p>
                 <p>Special Thanks: Wolf Harrington</p>
             </div>
