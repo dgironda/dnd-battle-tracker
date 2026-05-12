@@ -268,10 +268,13 @@ onDestroyed: () => {
 
 
 export function startTour() {
-  // if (!driverObj) {
-  //   console.error('Tour not initialized. Make sure Tour component is mounted.');
-  //   return;
-  // }
+  // Warm lazy chunks while the user reads step 0 (Hero Manager button).
+  void import("./HeroManager/HeroManager");
+  void import("./MonsterManager/MonsterManager");
+  void import("./BattleManager/BattleManager");
+  void import("./AboutPanel");
+  void import("./OptionsPanel");
+
   if (driverObj) {
     driverObj.destroy();
   }

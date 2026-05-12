@@ -1,7 +1,4 @@
-import React, { useState } from "react";
-import HeroManager from "../components/HeroManager/HeroManager";
-import MonsterManager from "../components/MonsterManager/MonsterManager";
-import { Hero, Monster, Combatant } from "../types/index";
+import { Hero, Combatant } from "../types/index";
 
 export async function startBattle(
   heroes: Hero[], 

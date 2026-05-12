@@ -1,7 +1,6 @@
 import { DEVMODE } from "../../utils/devmode";
 import ReactDom from "react-dom";
 import React, { useState, useEffect, useRef, useMemo, useCallback, createContext, useContext } from "react";
-import HeroManager from "../HeroManager/HeroManager";
 import { Hero, Monster, Combatant } from "../../types/index";
 import { startBattle } from "../../utils/battleUtils";
 import { predefinedConditions, conditionDescriptionsTwentyTwentyFour, conditionDescriptionsTwentyFourteen } from "../../constants/Conditions";
