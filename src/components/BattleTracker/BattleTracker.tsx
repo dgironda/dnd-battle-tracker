@@ -1,6 +1,6 @@
 import { DEVMODE } from "../../utils/devmode";
 import ReactDom from "react-dom";
-import React, { useState, useEffect, useRef, useMemo, createContext, useContext } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback, createContext, useContext } from "react";
 import HeroManager from "../HeroManager/HeroManager";
 import { Hero, Monster, Combatant } from "../../types/index";
 import { startBattle } from "../../utils/battleUtils";
@@ -11,7 +11,7 @@ import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
 import { useCombat } from "./CombatContext";
 import { InitiativeDialog } from "./InitiativeDialog";
-import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getRoundNumber, storeCombatants } from "../../utils/LocalStorage";
+import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getRoundNumber } from "../../utils/LocalStorage";
 import { useGlobalContext } from "../../hooks/optionsContext";
 import { createDeleteMonster } from "../../utils/Utils";
 import RoundNumberSpan from "./RoundNumber";
@@ -28,6 +28,10 @@ interface BattleTrackerProps {
   setShowHeroManager: (show: boolean) => void;
   setShowMonsterManager: (show: boolean) => void;
 }
+
+const numericFields: (keyof Combatant)[] = [
+  'hp','currHp','maxHp','ac','str','dex','con','int','wis','cha','pp','init','tHp'
+];
 
 interface StartBattleContextType {
   setRoundNumber: (round: number) => void;
@@ -71,7 +75,10 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
     [currentTurnIndex, roundNumber, combatants.length]
   );
   const processedTurnRef = useRef(-1);
-  const sortedCombatants = [...combatants].sort((a, b) => b.initiative - a.initiative);
+  const sortedCombatants = useMemo(
+    () => [...combatants].sort((a, b) => b.initiative - a.initiative),
+    [combatants]
+  );
   const [showConditionModal, setShowConditionModal] = useState(false);
   // const [roundNumber, setRoundNumber] = useState(() => {
   //   return getRoundNumber();
@@ -93,26 +100,21 @@ const BattleTracker: React.FC<BattleTrackerProps> = ({
     }
   }, [combatants.length]); // Only when length changes
 
-const numericFields: (keyof Combatant)[] = [
-  'hp','currHp','maxHp','ac','str','dex','con','int','wis','cha','pp','init','tHp'
-];
+const updateCombatant = useCallback((combatantId: string, field: keyof Combatant, value: string | number | boolean | string[]) => {
+  setCombatants(
+    (combatants
+      .map(c =>
+        c.id === combatantId
+          ? {
+              ...c,
+              [field]: field === 'conditions' && Array.isArray(value) ? value : numericFields.includes(field) ? Number(value) : value
 
-const updateCombatant = (combatantId: string, field: keyof Combatant, value: string | number | boolean | string[]) => {
-
-  const updatedCombatants = combatants
-    .map(c =>
-      c.id === combatantId
-        ? {
-            ...c,
-            [field]: field === 'conditions' && Array.isArray(value) ? value : numericFields.includes(field) ? Number(value) : value
-
-          }
-        : c
-    )
-    .sort((a, b) => b.initiative - a.initiative);
-
-  setCombatants(updatedCombatants);
-};
+            }
+          : c
+      )
+      .sort((a, b) => b.initiative - a.initiative))
+  );
+}, [combatants, setCombatants]);
 
 
   const addCondition = (combatantId: string, condition: string) => {
@@ -202,9 +204,9 @@ const updateCombatant = (combatantId: string, field: keyof Combatant, value: str
   });
 
 
-const handleNextTurn = () => {
+const handleNextTurn = useCallback(() => {
   setLastRun(Date.now());
-  
+
   if (sortedCombatants.length === 0) return;
   // Get all living combatant indices
   const livingIndices = sortedCombatants
@@ -219,15 +221,15 @@ const handleNextTurn = () => {
   const currentPosition = livingIndices.indexOf(currentTurnIndex);
   const nextPosition = (currentPosition + 1) % livingIndices.length;
   const nextIndex = livingIndices[nextPosition];
-  
+
   // We've wrapped around if next index is less than or equal to current
   const isNewRound = nextIndex <= currentTurnIndex;
   // Build updated combatants
   const updatedCombatants = combatants.map(c => {
     if (c.conditions.includes('Dead')) return c;
-    
+
     const isNextCombatant = c.id === sortedCombatants[nextIndex].id;
-    
+
     // Reset for new round OR for the next combatant's turn
     if (isNewRound || isNextCombatant) {
       return {
@@ -238,16 +240,16 @@ const handleNextTurn = () => {
         reaction: false
       };
     }
-    
+
     return c;
   }).sort((a, b) => b.initiative - a.initiative);
   setCombatants(updatedCombatants);
   setCurrentTurnIndex(nextIndex);
-  
+
   if (isNewRound) {
     setRoundNumber(roundNumber + 1);
   }
-};
+}, [sortedCombatants, currentTurnIndex, combatants, roundNumber, setCombatants, setCurrentTurnIndex, setRoundNumber]);
 
 
 // Condition modal popup
@@ -299,7 +301,8 @@ const handleNextTurn = () => {
   useEffect(() => {
     if (sortedCombatants.length === 0 || hpModalCombatant !== null) return;
     const currentCombatant = sortedCombatants[currentTurnIndex];
-   
+    if (!currentCombatant) return;
+
     DEVMODE && console.log('Auto-advance check:', currentCombatant.name, {
     action: currentCombatant.action,
     bonus: currentCombatant.bonus,
@@ -311,7 +314,7 @@ const handleNextTurn = () => {
   if ((currentCombatant.action && currentCombatant.bonus && currentCombatant.move)) {
     handleNextTurn();
 }
-}, [combatants]);
+}, [sortedCombatants, currentTurnIndex, hpModalCombatant, handleNextTurn]);
 
 useEffect(() => {
   const combatant = sortedCombatants[currentTurnIndex];
@@ -343,13 +346,8 @@ useEffect(() => {
   }
 }, [combatants]); 
 
-  // Save on every state change
-useEffect(() => {
-  if (combatants.length > 0) {
-    storeCombatants(combatants, roundNumber);
-    localStorage.setItem('currentTurnIndex', currentTurnIndex.toString());
-  }
-}, [combatants, currentTurnIndex]);
+  // Persistence of combatants/currentTurnIndex/roundNumber is handled by
+  // CombatProvider's effect in CombatContext.tsx. Avoid duplicating writes here.
 
   // Current Turn Time useRef tracker
   useEffect(() => {

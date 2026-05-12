@@ -1,5 +1,5 @@
 import { DEVMODE } from "../utils/devmode";
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
 
 interface Settings {
   // Add settings here
@@ -51,23 +51,28 @@ export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     document.documentElement.style.colorScheme = settings.theme || 'light';
     }, [settings.theme]);
 
-  const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
-    setSettings((prevSettings:Settings) => {
+  const updateSetting = useCallback(<K extends keyof Settings>(key: K, value: Settings[K]) => {
+    setSettings((prevSettings: Settings) => {
       const newSettings = { ...prevSettings, [key]: value };
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(newSettings));
       DEVMODE && console.log(`Setting ${String(key)} updated:`, value);
       return newSettings;
     });
-  };
+  }, []);
 
-  const toggleVersion = () => {
+  const toggleVersion = useCallback(() => {
     const newVersion = settings.version === 'twentyFourteen' ? 'twentyTwentyFour' : 'twentyFourteen';
     updateSetting('version', newVersion);
     DEVMODE && console.log("D&D 5e Version", newVersion);
-  };
+  }, [settings.version, updateSetting]);
+
+  const contextValue = useMemo(
+    () => ({ settings, updateSetting, toggleVersion }),
+    [settings, updateSetting, toggleVersion]
+  );
 
   return (
-    <GlobalContext.Provider value={{ settings, updateSetting, toggleVersion }}>
+    <GlobalContext.Provider value={contextValue}>
       {children}
     </GlobalContext.Provider>
   );

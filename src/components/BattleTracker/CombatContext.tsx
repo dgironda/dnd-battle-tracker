@@ -88,10 +88,11 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       pp: monster.pp,
     };
 
-    // Add and sort by initiative (descending)
+    // Add and sort by initiative (descending).
+    // Persistence is handled by the provider effect above, which fires when
+    // combatants changes; no inline storeCombatants call needed.
     setCombatants((prev) => {
       const updated = [...prev, newCombatant].sort((a, b) => b.initiative - a.initiative);
-      storeCombatants(updated, roundNumber);
       return updated;
     });
 

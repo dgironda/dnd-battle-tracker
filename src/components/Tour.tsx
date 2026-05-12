@@ -9,7 +9,6 @@ let tourCompletedNormally = false;
 
 export function Tour() {
 
-    const combatants = getCombatants();
 const { updateSetting } = useGlobalContext();
 
 useEffect(() => {
@@ -209,8 +208,11 @@ useEffect(() => {
   const currentStepIndex = driverObj.getActiveIndex();
   
   if (currentStepIndex !== undefined) {
-    // Check if we should skip step 6
-    if (currentStepIndex === 6 && combatants.length === 0) {
+    // Check if we should skip step 6.
+    // Read combatants from localStorage at the moment the step is evaluated so
+    // that newly added combatants are reflected even when the driver was set up
+    // earlier in the session.
+    if (currentStepIndex === 6 && getCombatants().length === 0) {
       element?.addEventListener('click', () => {
         setTimeout(() => {
           driverObj.moveTo(8);

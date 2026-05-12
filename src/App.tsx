@@ -14,7 +14,7 @@ import { DEVMODE } from "./utils/devmode";
 import { useGlobalContext } from "./hooks/optionsContext";
 import { Helmet } from "react-helmet-async";
 import monsterShareURL from "./utils/monsterShareURL";
-import { Tour, startTour } from "./components/Tour";
+import { startTour } from "./components/Tour";
 import BTLogo from './assets/draftsvgs_v2/logo.svg';
 import Backdrop from "./utils/backdrop";
 
@@ -75,7 +75,7 @@ function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  });
+  }, [openPanel]);
 
   // Patreon OAuth
   const [isSupporter, setIsSupporter] = useState(false);
