@@ -145,6 +145,11 @@ a:visited {
   color: var(--color-hl2);
   text-shadow: 2px 2px 4px var(--color-shadow);
   margin: .5rem .1rem;
+  transition: filter 0.2s ease;
+}
+
+html[style*="color-scheme: dark"] #logo {
+  filter: invert(1);
 }
 
 button {
