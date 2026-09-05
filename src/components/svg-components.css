@@ -177,7 +177,8 @@
 }
 
 .condition-badge .icon {
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  /* no drop shadow: these sit on drawn artwork, where a soft grey shadow reads
+     as a smudge rather than as depth */
 }
 
 /* ==================== DIVIDERS ==================== */

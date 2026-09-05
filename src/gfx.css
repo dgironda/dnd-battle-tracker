@@ -23,7 +23,8 @@
     max-height: var(--button-max-height);
 }
 
-#heroManagerButton:hover {
+#heroManagerButton:hover,
+#heroManagerButton[aria-expanded="true"] {
     background-image: url('./assets/draftsvgs_v2/button_hero-manager-hover.svg');
     background-repeat: no-repeat;
     background-size: contain;
@@ -47,7 +48,8 @@
     max-height: var(--button-max-height);
 }
 
-#monsterManagerButton:hover {
+#monsterManagerButton:hover,
+#monsterManagerButton[aria-expanded="true"] {
     background-image: url('./assets/draftsvgs_v2/button_monster-manager-hover.svg');
     background-repeat: no-repeat;
     background-size: contain;
@@ -110,26 +112,35 @@
     height: var(--button-min-height);
 }
 
+/* These are 462x120 (3.85:1). Forcing them into a 6rem x 5rem box letterboxed
+   the artwork into a 25px-tall strip and left ~55px of dead space under every
+   one of them. Sizing the box to the artwork removes the gap. */
 #addNewHeroButton {
     background-image: url('./assets/draftsvgs_v2/button_add-hero.svg');
     background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
     border: none;
     background-color: transparent;
     font-size: 0;
     line-height: 0;
-    width: 6rem;
-    height: var(--button-min-height);
+    width: 9rem;
+    height: auto;
+    aspect-ratio: 462 / 120;
 }
 
 #addNewMonsterButton {
     background-image: url('./assets/draftsvgs_v2/button_add-monster.svg');
     background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
     border: none;
     background-color: transparent;
     font-size: 0;
     line-height: 0;
-    width: 6rem;
-    height: var(--button-min-height);
+    width: 9rem;
+    height: auto;
+    aspect-ratio: 463 / 120;
 }
 
 .twentyFour {
@@ -164,55 +175,61 @@
     gap: 0px;
 }
 
-#battleTracker th {
-    height: 5rem !important;
-}
-
+/* Not !important: BattleTracker sets the HP cell's colour inline, switching
+   between --color-hphealthy and --color-hpbloodied as a combatant is worn
+   down, and an !important here silently overrode both - every HP cell rendered
+   in this one tan, down to 1.3:1 contrast on a wounded row. The ID selectors
+   already out-specify the plain `th` rule in index.css. */
 #battleTracker table, #battleTracker th, #battleTracker tr, #battleTracker td {
-    border: none !important;
-    color: var(--color-chk2) !important;
-    background-size: contain;
+    color: var(--color-chk2);
 }
 
+/* The plaques are 9-sliced rather than stretched as a background: the drawn
+   corners stay drawn, the wobbly edges stretch, and the parchment centre
+   fills. That decouples the row height from the art's aspect ratio, which is
+   what used to force ~70px rows. Sizing lives in fixes.css. */
 #battleTracker #battleTrackerHeader .thFirst {
-    background-image: url('./assets/draftsvgs_v2/table_header-long-left.svg');
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 4rem !important;
-    padding: 1rem .5rem 1rem .5rem !important;
+    border-image-source: url('./assets/draftsvgs_v2/table_header-long-left.svg');
 }
 
 .thMiddle {
-    background-image: url('./assets/draftsvgs_v2/table_header-small1.svg');
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 4rem !important;
+    border-image-source: url('./assets/draftsvgs_v2/table_header-small1.svg');
 }
 
 .thLast {
-    background-image: url('./assets/draftsvgs_v2/table_header-long-right.svg');
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 4rem !important;
+    border-image-source: url('./assets/draftsvgs_v2/table_header-long-right.svg');
 }
 
-.combatantName {
-    background-image: url('./assets/draftsvgs_v2/table_item-long-left.svg');
-    background-position: center;
-    background-repeat: no-repeat;
-}
+/* Each plaque has a hand-drawn notch in its edge. A 9-slice puts that notch at
+   the same fraction of every cell, so a single source lined every column's
+   notches up in a vertical stripe. BattleTracker hashes each cell to one of
+   these cuts instead (see plaqueVariant), which scatters them.
 
-.combatantInit, .combatantHP, .combatantAction, .combatantBonus, .combatantMove, .combatantReaction {
-    background-image: url('./assets/draftsvgs_v2/table_item-small1-2.svg');
-    background-position: center;
-    background-repeat: no-repeat;
-}
+   The `-v` / `-h` / `-hv` files are mirrors of the originals, generated rather
+   than drawn: a vertical mirror swaps a plaque's top and bottom notches while
+   leaving its left and right ends alone, and the long plaques are end-caps, so
+   only their horizontal mirrors may cross columns. */
 
-.combatantConditions {
-    background-image: url('./assets/draftsvgs_v2/table_item-long-right.svg');
-    background-position: center;
-    background-repeat: no-repeat;
-}
+/* Name column: the plaque's finished end must stay on the outside, so this
+   uses long-left plus long-right mirrored to bring its cap over to the left. */
+.combatantName.namePlaque0 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-left.svg'); }
+.combatantName.namePlaque1 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-left-v.svg'); }
+.combatantName.namePlaque2 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-right-h.svg'); }
+.combatantName.namePlaque3 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-right-hv.svg'); }
+
+/* Six middle columns: three drawn plaques, each also vertically mirrored. */
+.midPlaque0 { border-image-source: url('./assets/draftsvgs_v2/table_item-small1-1.svg'); }
+.midPlaque1 { border-image-source: url('./assets/draftsvgs_v2/table_item-small1-1-v.svg'); }
+.midPlaque2 { border-image-source: url('./assets/draftsvgs_v2/table_item-small1-2.svg'); }
+.midPlaque3 { border-image-source: url('./assets/draftsvgs_v2/table_item-small1-2-v.svg'); }
+.midPlaque4 { border-image-source: url('./assets/draftsvgs_v2/table_item-small2.svg'); }
+.midPlaque5 { border-image-source: url('./assets/draftsvgs_v2/table_item-small2-v.svg'); }
+
+/* Conditions column: mirror of the name column's reasoning. */
+.combatantConditions.condPlaque0 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-right.svg'); }
+.combatantConditions.condPlaque1 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-right-v.svg'); }
+.combatantConditions.condPlaque2 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-left-h.svg'); }
+.combatantConditions.condPlaque3 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-left-hv.svg'); }
 
 
 /* .twentyFour:hover {

@@ -1,17 +1,13 @@
-import { DEVMODE } from "../../utils/devmode";
 import { Combatant } from "../../types/index";
-import Icon from "../Icon";  // ADD THIS IMPORT
 
 interface Props {
   combatants: Combatant[];
-  currentTurn: number;
   setCombatants: React.Dispatch<React.SetStateAction<Combatant[]>>;
   setCurrentTurn: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function CombatantList({
   combatants,
-  currentTurn,
   setCombatants,
   setCurrentTurn,
 }: Props) {
@@ -43,7 +39,7 @@ export default function CombatantList({
         <tbody>
           {combatants
             .sort((a, b) => b.initiative - a.initiative)
-            .map((c, index) => (
+            .map((c) => (
               <tr
                 key={c.id}
                 style={{

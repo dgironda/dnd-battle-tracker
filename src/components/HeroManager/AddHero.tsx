@@ -1,61 +1,65 @@
-import { DEVMODE } from "../../utils/devmode";
 import { useState } from "react";
 import { Hero } from '../../types/index';
-import { storeHeroes } from "../../utils/LocalStorage";
+import { notify } from '../../utils/notify';
 
 interface AddHeroProps {
   onAddHero: (hero: Omit<Hero, "id">) => void;
 }
 
+const DEFAULTS = { hp: 10, ac: 10, pp: 10 };
+
 export default function AddHero({ onAddHero }: AddHeroProps) {
-  const initialForm: Omit<Hero, 'id'> = {
-    name: "",
-    player: "",
-    hp: 10,
-    currHp: 10,
-    maxHp: 10,
-    link: "",
-    tHp: 0,
-    ac: 10,
-    str: 10,
-    dex: 10,
-    con: 10,
-    int: 10,
-    wis: 10,
-    cha: 10,
-    pp: 10,
-    init: 0,
-    present: true,
-    conditions: [],
+  // The numeric fields are kept as strings so an empty box stays empty. The
+  // old version stored numbers and rendered `form.hp === 10 ? '' : form.hp`,
+  // which made the field blank itself the moment you typed "10".
+  const [name, setName] = useState("");
+  const [player, setPlayer] = useState("");
+  const [hp, setHp] = useState("");
+  const [ac, setAc] = useState("");
+
+  const reset = () => {
+    setName("");
+    setPlayer("");
+    setHp("");
+    setAc("");
   };
 
-  const [form, setForm] = useState<Omit<Hero, "id">>(initialForm);
-
-  const handleAddHero = () => {
-    if (!form.name.trim()) {
-      alert('Please enter a name');
+  const handleAddHero = async () => {
+    if (!name.trim()) {
+      await notify("Give your hero a name.", { title: "Name required" });
       return;
     }
 
-    // Ensure numeric values are proper numbers
-    const heroToAdd: Omit<Hero, "id"> = {
-      ...form,
-      hp: Number(form.hp) || 10,
-      currHp: Number(form.currHp) || Number(form.hp) || 10,
-      maxHp: Number(form.maxHp) || Number(form.hp) || 10,
-      ac: Number(form.ac) || 10,
-      str: Number(form.str) || 10,
-      dex: Number(form.dex) || 10,
-      con: Number(form.con) || 10,
-      int: Number(form.int) || 10,
-      wis: Number(form.wis) || 10,
-      cha: Number(form.cha) || 10,
-      pp: Number(form.pp) || 10,
-      init: Number(form.init) || 0,
+    const parse = (raw: string, fallback: number) => {
+      const value = Number(raw.trim());
+      return raw.trim() !== "" && Number.isFinite(value) ? value : fallback;
     };
 
-    onAddHero(heroToAdd);
-    setForm(initialForm);
+    const maxHp = parse(hp, DEFAULTS.hp);
+
+    onAddHero({
+      name: name.trim(),
+      player: player.trim(),
+      hp: maxHp,
+      currHp: maxHp,
+      maxHp,
+      tHp: 0,
+      ac: parse(ac, DEFAULTS.ac),
+      str: 10,
+      dex: 10,
+      con: 10,
+      int: 10,
+      wis: 10,
+      cha: 10,
+      pp: DEFAULTS.pp,
+      init: 0,
+      link: "",
+      present: true,
+      conditions: [],
+      notes: "",
+    });
+
+    reset();
   };
 
   const keyDownAddHero = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -72,42 +76,36 @@ export default function AddHero({ onAddHero }: AddHeroProps) {
         <input
           id="addHeroName"
           placeholder="Name"
-          value={form.name}
+          aria-label="Hero name"
+          value={name}
           onKeyDown={keyDownAddHero}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          onChange={(e) => setName(e.target.value)}
         />
         <input
           id="addHeroPlayer"
           placeholder="Player"
-          value={form.player}
+          aria-label="Player name"
+          value={player}
           onKeyDown={keyDownAddHero}
-          onChange={(e) => setForm({ ...form, player: e.target.value })}
+          onChange={(e) => setPlayer(e.target.value)}
         />
         <input
           id="addHeroHP"
           type="number"
-          placeholder="HP"
-          value={form.hp === 10 ? '' : form.hp}
+          placeholder={`HP (default ${DEFAULTS.hp})`}
+          aria-label="Hit points"
+          value={hp}
           onKeyDown={keyDownAddHero}
-          onChange={(e) => {
-            const newValue = Number(e.target.value);
-            setForm({
-              ...form,
-              hp: isNaN(newValue) ? 0 : newValue,
-              currHp: isNaN(newValue) ? 0 : newValue,
-              maxHp: isNaN(newValue) ? 0 : newValue,
-            });
-          }}
+          onChange={(e) => setHp(e.target.value)}
         />
         <input
           id="addHeroAC"
           type="number"
-          placeholder="AC"
-          value={form.ac === 10 ? '' : form.ac}
+          placeholder={`AC (default ${DEFAULTS.ac})`}
+          aria-label="Armour class"
+          value={ac}
           onKeyDown={keyDownAddHero}
-          onChange={(e) => {
-            const newValue =Number(e.target.value);
-            setForm({ ...form, ac: isNaN(newValue) ? 0 : newValue })}}
+          onChange={(e) => setAc(e.target.value)}
         />
       </div>
 

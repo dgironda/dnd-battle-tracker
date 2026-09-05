@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { DEVMODE } from "../../utils/devmode";
-import { getHeroes, storeHeroes } from "../../utils/LocalStorage";
-import { Hero } from "../../types/Hero";
+import React, { useState } from "react";
+import type { Hero } from "../../types/Hero";
 import AddHero from "../HeroManager/AddHero";
 import { createAddHero, createUpdateHero, createDeleteHero } from "../../utils/Utils";
 import { EditableCell } from "../../utils/Utils";
+import { useHeroes } from "../../hooks/useHeroes";
 import Icon from "../Icon";
 
 interface HeroManagerProps {
@@ -12,38 +11,9 @@ interface HeroManagerProps {
 }
 
 const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
-  const [addHeroDiv, setAddHeroDiv] = useState(false)
-  function toggleAddHeroDiv() {
-    setAddHeroDiv(!addHeroDiv)
-  }
-  const [heroes, setHeroes] = useState<Hero[]>(() => {
-    const saved = getHeroes();
-    // Ensure all numeric fields are numbers
-    return saved.map(h => ({
-      ...h,
-      hp: h.hp ?? 10,
-      ac: h.ac ?? 10,
-      currHp: h.currHp ?? h.hp ?? 10,
-      maxHp: h.maxHp ?? h.hp ?? 10,
-      tHp: h.tHp ?? 0,
-      str: h.str ?? 10,
-      dex: h.dex ?? 10,
-      con: h.con ?? 10,
-      int: h.int ?? 10,
-      wis: h.wis ?? 10,
-      cha: h.cha ?? 10,
-      pp: h.pp ?? 0,
-      init: h.init ?? 0,
-      conditions: h.conditions ?? [],
-      present: h.present ?? true,
-      link: h.link ?? "",
-      notes: h.notes ?? "",
-    }));
-  });
-
-  useEffect(() => {
-    storeHeroes(heroes);
-  }, [heroes]);
+  // Heroes come from the shared roster context — no private copy, no
+  // write-back effect. Normalisation happens once in RosterProvider.
+  const { heroes, setHeroes } = useHeroes();
 
   const [editingField, setEditingField] = useState<string | null>(null);
   const addHero = createAddHero(setHeroes);
@@ -55,7 +25,8 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
       <button className="saveClose" id="hmSaveCloseButton" onClick={onClose}>X</button>
     <div className="hero-content">
       <h2>Hero Manager</h2>
-      {/* <button onClick={toggleAddHeroDiv}>+Add a Hero</button> */}
+      <AddHero onAddHero={addHero} />
+      <div className="managerTableScroll">
       <table>
         <thead>
           <tr key="heroHeader" id="heroManagerHeader">
@@ -162,10 +133,7 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
           )}
         </tbody>
       </table>
-      {/* <button onClick={toggleAddHeroDiv}>+Add a Hero</button>
-      {addHeroDiv && (<AddHero onAddHero={addHero} />)} */}
-      <AddHero onAddHero={addHero} />
-        
+      </div>
     </div>
     </div>
   );

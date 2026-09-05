@@ -1,5 +1,3 @@
-import { DEVMODE } from "../utils/devmode";
-
 export interface Monster {
   id: string;
   name: string;

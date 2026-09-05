@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { Combatant } from '../../types/index';
-import { getCombatants, storeCombatants } from "../../utils/LocalStorage";
-import { predefinedConditions, conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
+import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
 import { useGlobalContext } from '../../hooks/optionsContext';
 
 interface ConditionReminderProps {
@@ -17,9 +16,6 @@ export const ConditionReminder: React.FC<ConditionReminderProps> = ({
   onClose,
   timeout = 10000
 }) => {
-  const [isHovering, setIsHovering] = useState(false);
-  const [isStuck, setIsStuck] = useState(false);
-  const combatants = getCombatants();
   const { settings } = useGlobalContext();
 
   useEffect(() => {
@@ -42,12 +38,12 @@ export const ConditionReminder: React.FC<ConditionReminderProps> = ({
     }, timeout);
 
     // Dismiss on key press
-    const handleKeyPress = (e: KeyboardEvent) => {
+    const handleKeyPress = () => {
       setTimeout(() => onClose(), 0);
     };
 
     // Dismiss on mouse click
-    const handleClick = (e: MouseEvent) => {
+    const handleClick = () => {
       setTimeout(() => onClose(), 0);
     };
 

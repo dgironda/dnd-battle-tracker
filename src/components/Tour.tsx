@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { driver } from 'driver.js';
 import 'driver.js/dist/driver.css'; 
 import { getCombatants } from '../utils/LocalStorage';
 import { useGlobalContext } from '../hooks/optionsContext';
 
-let driverObj: any = null
+let driverObj: ReturnType<typeof driver> | null = null
 let tourCompletedNormally = false;
 
 export function Tour() {
@@ -12,7 +12,7 @@ export function Tour() {
 const { updateSetting } = useGlobalContext();
 
 useEffect(() => {
- driverObj = driver({
+ const instance = driver({
   showProgress: true,
 //   overlayClickBehavior: "none",
   showButtons: ['next', 'previous'],
@@ -28,7 +28,7 @@ useEffect(() => {
         title: 'Hero Manager',
         description: 'Start by clicking here to open the Hero Manager',
         onNextClick: () => {
-          driverObj.moveTo(1);
+          instance.moveTo(1);
         },
         showButtons: ['close'],
       },
@@ -41,13 +41,13 @@ useEffect(() => {
         title: 'Add a hero',
         description: 'Type a name and any other attributes for your hero. <br/>Then press enter or click the Add Hero button to add your hero. <br/>All this can be changed or added to in the Hero Manager below.',
         onNextClick: () => {
-          driverObj.moveTo(2);
+          instance.moveTo(2);
         },
         onPrevClick: () => {
             const element = document.getElementById("heroManagerButton");
             if (element instanceof HTMLButtonElement) {
                 element.click()}
-          driverObj.moveTo(0);
+          instance.moveTo(0);
         },
         showButtons: ['previous', 'next', 'close'],
       },
@@ -60,10 +60,10 @@ useEffect(() => {
         title: 'Monster Manager',
         description: 'Now click here to open the Monster Manager. The Hero Manager will automatically close.',
         onNextClick: () => {
-          driverObj.moveTo(3);
+          instance.moveTo(3);
         },
         onPrevClick: () => {
-          driverObj.moveTo(1);
+          instance.moveTo(1);
         },
         showButtons: ['previous', 'close'],
       },
@@ -76,13 +76,13 @@ useEffect(() => {
         title: 'Add a monster',
         description: 'Type a creature name to look one up or just type a name for your monster. <br/>Then press enter or click the Add Monster button or enter a number and press Add Monsters to add more than 1.',
         onNextClick: () => {
-          driverObj.moveTo(4);
+          instance.moveTo(4);
         },
         onPrevClick: () => {
             const element = document.getElementById("heroManagerButton");
             if (element instanceof HTMLButtonElement) {
                 element.click()}
-          driverObj.moveTo(2);
+          instance.moveTo(2);
         },
         showButtons: ['previous', 'next', 'close'],
       },
@@ -95,10 +95,10 @@ useEffect(() => {
         title: 'Edit your monsters',
         description: 'Adjust stats on any monsters that need it.<br/>Make sure to mark Ready for Next Battle any monsters you want to join the next battle you start.',
         onNextClick: () => {
-          driverObj.moveTo(5);
+          instance.moveTo(5);
         },
         onPrevClick: () => {
-          driverObj.moveTo(3);
+          instance.moveTo(3);
         },
         showButtons: ['previous', 'next', 'close'],
       },
@@ -111,7 +111,7 @@ useEffect(() => {
         title: 'Return to Battle Tracker',
         description: 'Click here to close the Monster Manager and return to the Battle Tracker.',
         onNextClick: () => {
-          driverObj.moveTo(6);
+          instance.moveTo(6);
           const buttons = document.querySelectorAll('[data-driver-element]');
   buttons.forEach(button => {
     const newButton = button.cloneNode(true);
@@ -119,7 +119,7 @@ useEffect(() => {
   });
         },
         onPrevClick: () => {
-          driverObj.moveTo(4);
+          instance.moveTo(4);
         },
         showButtons: ['previous', 'close'],
       },
@@ -132,7 +132,7 @@ useEffect(() => {
         title: 'Start your first battle',
         description: 'If everything is ready to go, press here to Start Battle.',
         onNextClick: () => {
-          driverObj.moveTo(7);
+          instance.moveTo(7);
           const buttons = document.querySelectorAll('[data-driver-element]');
   buttons.forEach(button => {
     const newButton = button.cloneNode(true);
@@ -144,7 +144,7 @@ useEffect(() => {
             if (element instanceof HTMLButtonElement) {
                 element.click()}
           setTimeout(() => {
-            driverObj.moveTo(5)
+            instance.moveTo(5)
         const buttons = document.querySelectorAll('[data-driver-element]');
   buttons.forEach(button => {
     const newButton = button.cloneNode(true);
@@ -162,11 +162,11 @@ useEffect(() => {
         title: 'Are you sure?',
         description: 'If you don\'t mind your current battle being deleted press Continue. Otherwise press the x in the corner of this box, click cancel in the popup, and come back later.',
         onNextClick: () => {
-          driverObj.moveTo(8);
+          instance.moveTo(8);
         },
         onPrevClick: () => {
             const element = document.querySelector(".btn-cancel");
-            driverObj.moveTo(6);
+            instance.moveTo(6);
             if (element instanceof HTMLButtonElement) {
                 element.click()}
           
@@ -182,7 +182,7 @@ useEffect(() => {
         title: 'Roll for initative',
         description: 'Either enter the number rolled plus the intiative modifer or press Roll and it will do the rolling for you and add the initiative modifier set in the hero or monster manager. Do this for each combatant and then press next.',
         onNextClick: () => {
-          driverObj.moveTo(9);
+          instance.moveTo(9);
         },
         showButtons: ['previous', 'next', 'close'],
       },
@@ -196,7 +196,7 @@ useEffect(() => {
         description: 'Checking action, bonus, and move for each combatant will advance the turn.<br>Apply conditions as needed and hover for quick reference tooltips.<br>Hover over any combatant to view their stat block and click it to make it stay. Here you can access notes and monster source links.',
         onNextClick: () => {
           tourCompletedNormally = true;
-          driverObj.destroy()
+          instance.destroy()
         },
         // showButtons: ['close'],
         disableButtons: ['previous']
@@ -205,7 +205,7 @@ useEffect(() => {
   ],
   
   onHighlighted: (element) => {
-  const currentStepIndex = driverObj.getActiveIndex();
+  const currentStepIndex = instance.getActiveIndex();
   
   if (currentStepIndex !== undefined) {
     // Check if we should skip step 6.
@@ -215,7 +215,7 @@ useEffect(() => {
     if (currentStepIndex === 6 && getCombatants().length === 0) {
       element?.addEventListener('click', () => {
         setTimeout(() => {
-          driverObj.moveTo(8);
+          instance.moveTo(8);
         }, 50);
       }, { once: true });
       return;
@@ -230,7 +230,7 @@ useEffect(() => {
           setTimeout(checkPopupsClosed, 50);
         } else {
           // All popups are closed, advance to next step
-          driverObj.moveNext();
+          instance.moveNext();
         }
       };
       
@@ -243,7 +243,7 @@ useEffect(() => {
     if ([0, 2, 5, 6, 7].includes(currentStepIndex)) {
       element?.addEventListener('click', () => {
         setTimeout(() => {
-          driverObj.moveNext();
+          instance.moveNext();
         }, 75);
       }, { once: true });
     }
@@ -261,6 +261,8 @@ onDestroyed: () => {
   }
 }
 });
+
+  driverObj = instance;
 }, [updateSetting]);
     return null;
 }
@@ -275,14 +277,14 @@ export function startTour() {
   void import("./AboutPanel");
   void import("./OptionsPanel");
 
-  if (driverObj) {
-    driverObj.destroy();
-  }
+  if (!driverObj) return;
+
+  driverObj.destroy();
   const buttons = document.querySelectorAll('[data-driver-element]');
   buttons.forEach(button => {
     const newButton = button.cloneNode(true);
     button.parentNode?.replaceChild(newButton, button);
   });
-  driverObj.refresh()
+  driverObj.refresh();
   driverObj.drive();
 }

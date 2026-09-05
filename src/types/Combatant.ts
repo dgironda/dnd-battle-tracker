@@ -1,5 +1,3 @@
-import { DEVMODE } from "../utils/devmode";
-
 export interface Combatant {
   id: string;
   name: string;

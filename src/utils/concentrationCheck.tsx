@@ -1,5 +1,3 @@
-import { DEVMODE } from "./devmode";
-
 interface ConcentrationCheckModalProps {
   combatantName: string;
   dc: number;

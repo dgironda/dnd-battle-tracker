@@ -1,5 +1,3 @@
-import { DEVMODE } from "../utils/devmode";
-
 interface Hero {
   id: string;
   name: string;

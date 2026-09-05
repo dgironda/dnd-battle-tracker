@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Hero, Combatant } from '../../types/index';
-import { getHeroes, storeHeroes } from "../../utils/LocalStorage";
-import { createAddHero, createUpdateHero, createDeleteHero, EditableCell } from "../../utils/Utils";
+import { createUpdateHero, EditableCell } from "../../utils/Utils";
+import { useHeroes } from "../../hooks/useHeroes";
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
 import { useGlobalContext } from '../../hooks/optionsContext';
 
@@ -16,7 +16,10 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
   const [isHovering, setIsHovering] = useState(false);
   const [isStuck, setIsStuck] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
-  const [heroes, setHeroes] = useState<Hero[]>(() => getHeroes() || []);
+  // Shared roster. This component renders once per hero row, so the old
+  // private useState + storeHeroes effect meant N copies of the whole list all
+  // writing to localStorage on mount.
+  const { heroes, setHeroes } = useHeroes();
   const updateHero = createUpdateHero(setHeroes);
   const [showConditions, setShowConditions] = useState(false);
   const toggleConditions = () => {
@@ -39,15 +42,14 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
     setIsHovering(false);
   }
 
-  const handleKeyPressx = useCallback((event:KeyboardEvent) => {
-    if (event.key === 'x' && !(event.ctrlKey || event.shiftKey || event.altKey || event.metaKey))
-    {let statsHover = document.querySelectorAll('.statHover') as NodeListOf<HTMLElement>;
-      statsHover.forEach(hover => {
-        setIsStuck(false)
-        hover.style.opacity = '0'
-        hover.style.left = '-300'
-      })
-    };
+  const handleKeyPressx = useCallback((event: KeyboardEvent) => {
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+    if (event.key === 'x' && !(event.ctrlKey || event.shiftKey || event.altKey || event.metaKey)) {
+      // Drive this through state. The old version wrote inline styles onto
+      // every .statHover node, which React overwrote on the next render.
+      setIsStuck(false);
+      setIsHovering(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -72,10 +74,6 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
   };
   const pp = safe(hero?.pp, 10);
   const id = safe(hero?.id, hero?.name);
-
-    useEffect(() => {
-    storeHeroes(heroes)
-  }, [heroes]) 
 
   return (
     <div

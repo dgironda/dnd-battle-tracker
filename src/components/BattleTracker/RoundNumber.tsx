@@ -1,11 +1,10 @@
-import { DEVMODE } from "../../utils/devmode";
 import { useGlobalContext } from "../../hooks/optionsContext";
 
 import { useState, useEffect } from "react";
 
 interface RoundNumberSpanProps {
     roundNumber: number;
-    timerRef: React.RefObject<HTMLSpanElement | null>;
+    timerRef: React.RefObject<HTMLSpanElement>;
 }
 
 const RoundNumberSpan: React.FC<RoundNumberSpanProps> = ({roundNumber, timerRef}) => {

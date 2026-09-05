@@ -1,823 +1,743 @@
 import { DEVMODE } from "../../utils/devmode";
-import ReactDom from "react-dom";
-import React, { useState, useEffect, useRef, useMemo, useCallback, createContext, useContext } from "react";
-import { Hero, Monster, Combatant } from "../../types/index";
-import { startBattle } from "../../utils/battleUtils";
-import { predefinedConditions, conditionDescriptionsTwentyTwentyFour, conditionDescriptionsTwentyFourteen } from "../../constants/Conditions";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { Monster, Combatant } from "../../types/index";
+import {
+  predefinedConditions,
+  conditionDescriptionsTwentyTwentyFour,
+  conditionDescriptionsTwentyFourteen,
+} from "../../constants/Conditions";
 import { EditableCell } from "../../utils/Utils";
 import { HpChangeModal } from "../../utils/dmg-heal";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
 import { useCombat } from "./CombatContext";
-import { InitiativeDialog } from "./InitiativeDialog";
-import { getHeroes, storeHeroes, getMonsters, storeMonsters, getCombatants, getRoundNumber } from "../../utils/LocalStorage";
 import { useGlobalContext } from "../../hooks/optionsContext";
-import { createDeleteMonster } from "../../utils/Utils";
 import RoundNumberSpan from "./RoundNumber";
 import { HeroStatBlockHover } from "./HeroStatBlockHover";
 import { MonsterStatBlockHover } from "./MonsterStatBlockHover";
 import { useBattleManager } from "../../hooks/useStartBattle";
 import { ConditionReminder } from "./ConditionReminder";
-import { Popup } from "../../utils/Popup";
 import SBPopup from "./SBPopup";
-import Icon from "../Icon";
-import HeartIcon from '../../assets/draftsvgs_v2/icon_hp.svg'
-
-interface BattleTrackerProps {
-  setShowHeroManager: (show: boolean) => void;
-  setShowMonsterManager: (show: boolean) => void;
-}
+import HeartIcon from "../../assets/draftsvgs_v2/icon_hp.svg";
 
 const numericFields: (keyof Combatant)[] = [
-  'hp','currHp','maxHp','ac','str','dex','con','int','wis','cha','pp','init','tHp'
+  "hp", "currHp", "maxHp", "ac", "str", "dex", "con", "int", "wis", "cha", "pp", "init", "tHp",
 ];
 
-interface StartBattleContextType {
-  setRoundNumber: (round: number) => void;
-  setShowHeroManager: (show: boolean) => void;
-  setShowMonsterManager: (show: boolean) => void;
-  getHeroes: () => Hero[];
-  getMonsters: () => Monster[];
-  setCurrentCombatant: (combatant: any) => void;
-  setInitiativeResolver: (resolver: any) => void;
-  storeMonsters: (monsters: Monster[]) => void;
-  setCombatants: (combatants: Combatant[]) => void;
-  setCurrentTurnIndex: (index: number) => void;
-}
-const StartBattleContext = createContext<StartBattleContextType | null>(null);
+type UpdateCombatant = (
+  combatantId: string,
+  field: keyof Combatant,
+  value: string | number | boolean | string[]
+) => void;
 
-const BattleTracker: React.FC<BattleTrackerProps> = ({ 
-  setShowHeroManager, 
-  setShowMonsterManager 
+/**
+ * Build the Monster shape the hover card expects from a combatant row.
+ * This used to be a 40-line IIFE inlined in the JSX, re-running for every
+ * monster on every render.
+ */
+function combatantToMonster(c: Combatant): Monster {
+  return {
+    id: c.id,
+    name: c.name,
+    link: c.link ?? "",
+    hp: c.currHp,
+    maxHp: c.maxHp,
+    currHp: c.currHp,
+    ac: c.ac,
+    str: c.str,
+    dex: c.dex,
+    con: c.con,
+    int: c.int,
+    wis: c.wis,
+    cha: c.cha,
+    pp: c.pp,
+    init: c.init,
+    hidden: false,
+    present: true,
+    conditions: c.conditions ?? [],
+  };
+}
+
+interface ConditionsEditorProps {
+  combatant: Combatant;
+  isEditing: boolean;
+  conditionDescriptions: Record<string, string>;
+  onStartEditing: (id: string) => void;
+  onStopEditing: () => void;
+  onAdd: (id: string, condition: string) => void;
+  onRemove: (id: string, condition: string) => void;
+}
+
+/**
+ * Declared at module scope. It used to live inside BattleTracker's body, so
+ * React saw a brand-new component type on every render and remounted the whole
+ * subtree — losing focus and the open <select> mid-edit.
+ */
+const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
+  combatant,
+  isEditing,
+  conditionDescriptions,
+  onStartEditing,
+  onStopEditing,
+  onAdd,
+  onRemove,
 }) => {
-  const { heroes, setHeroes } = useHeroes();
-  //   const [combatants, setCombatants] = useState<Combatant[]>(() => {
-  //   return getCombatants() || [];
-  // });
-  const { combatants, setCombatants, currentTurnIndex, setCurrentTurnIndex, roundNumber, setRoundNumber } = useCombat();
+  if (isEditing) {
+    return (
+      <div className="conditionEditOuter">
+        <div>
+          {combatant.conditions.map((conditionName) => (
+            <button
+              type="button"
+              key={conditionName}
+              className="conditionNameEditing"
+              onClick={() => onRemove(combatant.id, conditionName)}
+              title={conditionDescriptions[conditionName] || conditionName}
+            >
+              {conditionName} ×
+            </button>
+          ))}
+        </div>
+
+        <select
+          onChange={(e) => {
+            if (e.target.value) {
+              onAdd(combatant.id, e.target.value);
+              e.target.value = "";
+            }
+          }}
+          className="conditionSelect"
+          name="conditionSelect"
+          aria-label={`Add a condition to ${combatant.name}`}
+        >
+          <option className="addConditionBox" value="">Add condition...</option>
+          {predefinedConditions
+            .filter((condition) => !combatant.conditions.includes(condition))
+            .map((condition) => (
+              <option key={condition} value={condition}>{condition}</option>
+            ))}
+        </select>
+
+        <button onClick={onStopEditing} className="editConditionsDone">
+          Done
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onStartEditing(combatant.id)}
+      className="editConditions"
+      title="Click to edit conditions"
+    >
+      {combatant.conditions.length > 0 ? (
+        combatant.conditions.map((conditionName) => (
+          <span
+            key={conditionName}
+            className="conditionName"
+            title={conditionDescriptions[conditionName] || conditionName}
+          >
+            {conditionName}
+          </span>
+        ))
+      ) : (
+        <span className="noCondition">Click to add conditions</span>
+      )}
+    </button>
+  );
+};
+
+/**
+ * Picks which cut of the plaque artwork a cell gets.
+ *
+ * Every plaque carries a hand-drawn notch in its edge, and a 9-sliced image
+ * puts that notch at the same fraction of every cell it is drawn into — so a
+ * column of cells lines the notches up in a visible vertical stripe. Choosing
+ * between mirrored cuts of the artwork per cell breaks that up.
+ *
+ * The choice is a hash of the combatant's id and the column, so it is stable:
+ * a given combatant's row keeps the same plaques across re-renders, sorting
+ * and reloads, instead of reshuffling underneath the reader.
+ */
+function plaqueVariant(id: string, column: number, count: number): number {
+  let h = 0x811c9dc5;
+  const key = `${id}:${column}`;
+  for (let i = 0; i < key.length; i++) {
+    h ^= key.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return Math.abs(h) % count;
+}
+
+const BattleTracker: React.FC = () => {
+  const { heroes } = useHeroes();
+  const { monsters, setMonsters } = useMonsters();
+  const {
+    combatants,
+    setCombatants,
+    currentTurnIndex,
+    setCurrentTurnIndex,
+    roundNumber,
+    setRoundNumber,
+    askForInitiative,
+  } = useCombat();
+
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingConditions, setEditingConditions] = useState<string | null>(null);
-  // const [currentTurnIndex, setCurrentTurnIndex] = useState(() => {
-  //   const saved = localStorage.getItem('currentTurnIndex');
-  //   return saved ? parseInt(saved) : 0;
-  // });
-  const [hasSavedCombat, setHasSavedCombat] = useState(false);
-  const [currentCombatant, setCurrentCombatant] = useState<Hero | Monster | null>(null);
-  const { monsters, setMonsters } = useMonsters();
-  const deleteMonster = createDeleteMonster(monsters, setMonsters);
-  const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
-  const { settings } = useGlobalContext();
   const [hpModalCombatant, setHpModalCombatant] = useState<Combatant | null>(null);
   const [conditionModalCombatant, setConditionModalCombatant] = useState<Combatant | null>(null);
-  const totalTurns = useMemo(
-    () => currentTurnIndex + ((roundNumber - 1) * combatants.length),
-    [currentTurnIndex, roundNumber, combatants.length]
-  );
+  const [showConditionModal, setShowConditionModal] = useState(false);
+  const [isSBPopupOpen, setIsSBPopupOpen] = useState(false);
+  const [lastRun, setLastRun] = useState<number | null>(null);
+
+  const { settings } = useGlobalContext();
+  const timerRef = useRef<HTMLSpanElement>(null);
   const processedTurnRef = useRef(-1);
+
   const sortedCombatants = useMemo(
     () => [...combatants].sort((a, b) => b.initiative - a.initiative),
     [combatants]
   );
-  const [showConditionModal, setShowConditionModal] = useState(false);
-  // const [roundNumber, setRoundNumber] = useState(() => {
-  //   return getRoundNumber();
-  // });
-  const [lastRun, setLastRun] = useState<number | null>(null);
-  const timerRef = useRef<HTMLSpanElement>(null);
-  
-  
 
-  useEffect(() => {
-    const saved = getCombatants();
-    setHasSavedCombat(saved && saved.length > 0);
-  }, []); // Only run on mount
+  const totalTurns = useMemo(
+    () => currentTurnIndex + (roundNumber - 1) * combatants.length,
+    [currentTurnIndex, roundNumber, combatants.length]
+  );
 
-  // Update when combatants change
-  useEffect(() => {
-    if (combatants.length > 0) {
-      setHasSavedCombat(false); // Combat is active, not saved
-    }
-  }, [combatants.length]); // Only when length changes
+  // Index is clamped so a stale value (after an import, a battle load, or a
+  // delete) can never index past the end of the list.
+  const safeTurnIndex =
+    sortedCombatants.length === 0
+      ? 0
+      : Math.min(Math.max(currentTurnIndex, 0), sortedCombatants.length - 1);
+  const activeCombatant: Combatant | undefined = sortedCombatants[safeTurnIndex];
 
-const updateCombatant = useCallback((combatantId: string, field: keyof Combatant, value: string | number | boolean | string[]) => {
-  setCombatants(
-    (combatants
-      .map(c =>
-        c.id === combatantId
-          ? {
-              ...c,
-              [field]: field === 'conditions' && Array.isArray(value) ? value : numericFields.includes(field) ? Number(value) : value
+  const conditionDescriptions =
+    settings.version === "twentyFourteen"
+      ? conditionDescriptionsTwentyFourteen
+      : conditionDescriptionsTwentyTwentyFour;
+  const showConditionReminders = settings.conditionReminderOn !== false;
+  const currentTheme = settings.theme;
 
-            }
+  const updateCombatant = useCallback<UpdateCombatant>((combatantId, field, value) => {
+    setCombatants((prev) =>
+      prev
+        .map((c) =>
+          c.id === combatantId
+            ? {
+                ...c,
+                [field]:
+                  field === "conditions" && Array.isArray(value)
+                    ? value
+                    : numericFields.includes(field)
+                      ? Number(value)
+                      : value,
+              }
+            : c
+        )
+        .sort((a, b) => b.initiative - a.initiative)
+    );
+  }, [setCombatants]);
+
+  const addCondition = useCallback((combatantId: string, condition: string) => {
+    setCombatants((prev) =>
+      prev.map((c) =>
+        c.id === combatantId && !c.conditions.includes(condition)
+          ? { ...c, conditions: [...c.conditions, condition] }
           : c
       )
-      .sort((a, b) => b.initiative - a.initiative))
-  );
-}, [combatants, setCombatants]);
+    );
+  }, [setCombatants]);
 
-
-  const addCondition = (combatantId: string, condition: string) => {
-    const combatant = combatants.find(c => c.id === combatantId);
-    if (combatant && !combatant.conditions.includes(condition)) {
-      const updatedConditions = [...combatant.conditions, condition];
-      updateCombatant(combatantId, 'conditions', updatedConditions);
-    }
-  };
-
-  const removeCondition = (combatantId: string, conditionToRemove: string) => {
-    const combatant = combatants.find(c => c.id === combatantId);
-    if (combatant) {
-      const updatedConditions = combatant.conditions.filter(c => c !== conditionToRemove);
-      updateCombatant(combatantId, 'conditions', updatedConditions);
-    }
-  };
-  
-  const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
-  const conditionReminderOn = settings.conditionReminderOn === true ? false : true;
-  const currentTurnTime = settings.currentTurnTime ?? true; 
-  const currentTheme = settings.theme
-
-
+  const removeCondition = useCallback((combatantId: string, conditionToRemove: string) => {
+    setCombatants((prev) =>
+      prev.map((c) =>
+        c.id === combatantId
+          ? { ...c, conditions: c.conditions.filter((x) => x !== conditionToRemove) }
+          : c
+      )
+    );
+  }, [setCombatants]);
 
   const getHpColor = (currHp: number, maxHp: number): string => {
-  if (maxHp === 0) return '#f8f2eb';
-  
-  const percentage = Math.max(0, Math.min(1, currHp / maxHp));
-  
-  let startR: number;
-  let startG: number;
-  let startB: number;
+    if (maxHp === 0) return "#f8f2eb";
 
-  // Start color: light-dark(#f8f2eb, #484c51) (100% HP)
-  if (currentTheme === 'light') {
-    startR = 0xf8;
-    startG = 0xf2;
-    startB = 0xeb;}
-    else {
-      startR = 0x48;
-      startG = 0x4c;
-      startB = 0x51;}
-  
-  // End color: #880808 (0% HP)
-  const endR = 0x88;
-  const endG = 0x08;
-  const endB = 0x08;
-  
-  // Interpolate each channel
-  const r = Math.round(endR + (startR - endR) * percentage);
-  const g = Math.round(endG + (startG - endG) * percentage);
-  const b = Math.round(endB + (startB - endB) * percentage);
-  
-  // Convert to hex
-  const rHex = r.toString(16).padStart(2, '0');
-  const gHex = g.toString(16).padStart(2, '0');
-  const bHex = b.toString(16).padStart(2, '0');
-  
-  return `#${rHex}${gHex}${bHex}`;
-};
+    const percentage = Math.max(0, Math.min(1, currHp / maxHp));
 
+    // Start color: light-dark(#f8f2eb, #484c51) (100% HP)
+    const [startR, startG, startB] =
+      currentTheme === "light" ? [0xf8, 0xf2, 0xeb] : [0x48, 0x4c, 0x51];
+    // End color: #880808 (0% HP)
+    const [endR, endG, endB] = [0x88, 0x08, 0x08];
 
+    const mix = (start: number, end: number) =>
+      Math.round(end + (start - end) * percentage)
+        .toString(16)
+        .padStart(2, "0");
 
-  const [isSBPopupOpen, setIsSBPopupOpen] = React.useState(false);
-  
-    const handleSBContinue = () => {
-      setIsSBPopupOpen(false);
-      handleStartBattle()
-    };
-  
-    const handleSBCancel = () => {
-      setIsSBPopupOpen(false);
-    };
+    return `#${mix(startR, endR)}${mix(startG, endG)}${mix(startB, endB)}`;
+  };
+
+  const removeMonstersFromRoster = useCallback(
+    (ids: string[]) => {
+      const doomed = new Set(ids);
+      setMonsters((prev) => prev.filter((m) => !doomed.has(m.id)));
+    },
+    [setMonsters]
+  );
+
+  // Refs of both rosters for the start-battle callback, so its identity
+  // doesn't churn on every roster edit. Reads go through the shared context,
+  // never localStorage.
+  const heroesRef = useRef(heroes);
+  const monstersRef = useRef(monsters);
+  useEffect(() => {
+    heroesRef.current = heroes;
+  }, [heroes]);
+  useEffect(() => {
+    monstersRef.current = monsters;
+  }, [monsters]);
 
   const { handleStartBattle } = useBattleManager({
     setRoundNumber,
-    setShowHeroManager,
-    setShowMonsterManager,
-    getHeroes,
-    getMonsters,
-    setCurrentCombatant,
-    setInitiativeResolver,
-    storeMonsters,
+    getHeroes: useCallback(() => heroesRef.current, []),
+    getMonsters: useCallback(() => monstersRef.current, []),
+    askForInitiative,
+    removeMonstersFromRoster,
     setCombatants,
-    setCurrentTurnIndex
+    setCurrentTurnIndex,
   });
 
+  const handleSBContinue = () => {
+    setIsSBPopupOpen(false);
+    setLastRun(Date.now());
+    handleStartBattle();
+  };
 
-const handleNextTurn = useCallback(() => {
-  setLastRun(Date.now());
+  const handleNextTurn = useCallback(() => {
+    setLastRun(Date.now());
 
-  if (sortedCombatants.length === 0) return;
-  // Get all living combatant indices
-  const livingIndices = sortedCombatants
-    .map((c, idx) => ({ combatant: c, index: idx }))
-    .filter(({ combatant }) => !combatant.conditions.includes('Dead'))
-    .map(({ index }) => index);
-  if (livingIndices.length === 0) {
-    console.warn("All combatants are dead. Battle is over.");
-    return;
-  }
-  // Find next living combatant after current turn
-  const currentPosition = livingIndices.indexOf(currentTurnIndex);
-  const nextPosition = (currentPosition + 1) % livingIndices.length;
-  const nextIndex = livingIndices[nextPosition];
+    if (sortedCombatants.length === 0) return;
 
-  // We've wrapped around if next index is less than or equal to current
-  const isNewRound = nextIndex <= currentTurnIndex;
-  // Build updated combatants
-  const updatedCombatants = combatants.map(c => {
-    if (c.conditions.includes('Dead')) return c;
+    const livingIndices = sortedCombatants
+      .map((c, idx) => ({ combatant: c, index: idx }))
+      .filter(({ combatant }) => !combatant.conditions.includes("Dead"))
+      .map(({ index }) => index);
 
-    const isNextCombatant = c.id === sortedCombatants[nextIndex].id;
-
-    // Reset for new round OR for the next combatant's turn
-    if (isNewRound || isNextCombatant) {
-      return {
-        ...c,
-        action: false,
-        bonus: false,
-        move: false,
-        reaction: false
-      };
+    if (livingIndices.length === 0) {
+      if (DEVMODE) console.warn("All combatants are dead. Battle is over.");
+      return;
     }
 
-    return c;
-  }).sort((a, b) => b.initiative - a.initiative);
-  setCombatants(updatedCombatants);
-  setCurrentTurnIndex(nextIndex);
+    // Where the current combatant sits among the living. If they just died they
+    // are not in the list at all, so fall back to the next living index after
+    // them rather than snapping to the top of the order.
+    let nextPosition: number;
+    const currentPosition = livingIndices.indexOf(safeTurnIndex);
+    if (currentPosition === -1) {
+      const after = livingIndices.findIndex((i) => i > safeTurnIndex);
+      nextPosition = after === -1 ? 0 : after;
+    } else {
+      nextPosition = (currentPosition + 1) % livingIndices.length;
+    }
 
-  if (isNewRound) {
-    setRoundNumber(roundNumber + 1);
-  }
-}, [sortedCombatants, currentTurnIndex, combatants, roundNumber, setCombatants, setCurrentTurnIndex, setRoundNumber]);
+    const nextIndex = livingIndices[nextPosition];
+    // A new round starts only when we actually wrap past the end of the order.
+    const isNewRound = nextPosition === 0;
 
+    setCombatants((prev) =>
+      prev
+        .map((c) => {
+          if (c.conditions.includes("Dead")) return c;
+          const isNextCombatant = c.id === sortedCombatants[nextIndex].id;
+          if (isNewRound || isNextCombatant) {
+            return { ...c, action: false, bonus: false, move: false, reaction: false };
+          }
+          return c;
+        })
+        .sort((a, b) => b.initiative - a.initiative)
+    );
 
-// Condition modal popup
-//   useEffect(() => {
-//   if (combatants.length > 0) {
-//     const nextCombatant = sortedCombatants[currentTurnIndex];
-//     const hasConditions = nextCombatant.conditions.length > 0
-//   if (hasConditions) {
-//     // Perform any operations with nextCombatant here
-//     setConditionModalCombatant(nextCombatant);
-//     setShowConditionModal(true);
-//   }}
-// }, [currentTurnIndex, sortedCombatants]);
+    setCurrentTurnIndex(nextIndex);
+    if (isNewRound) setRoundNumber(roundNumber + 1);
+  }, [sortedCombatants, safeTurnIndex, roundNumber, setCombatants, setCurrentTurnIndex, setRoundNumber]);
+
+  // Always-current handle on the active combatant, so effects can read it
+  // without taking a dependency on every mutation of the object.
+  const activeCombatantRef = useRef(activeCombatant);
+  activeCombatantRef.current = activeCombatant;
+
+  // Condition reminder for whoever's turn it is. Keyed on the turn moving and
+  // on conditions being added or removed — depending on the whole combatant
+  // would reopen the reminder on every HP change during that turn.
+  const activeCombatantId = activeCombatant?.id;
+  const activeConditionCount = activeCombatant?.conditions.length ?? 0;
   useEffect(() => {
-  if (sortedCombatants.length === 0) return;
-  
-  const currentCombatant = sortedCombatants[currentTurnIndex];
-  if (!currentCombatant) return;
-  
-  const hasConditions = currentCombatant.conditions.length > 0;
-  
-  if (hasConditions) {
-    setConditionModalCombatant(currentCombatant);
+    const current = activeCombatantRef.current;
+    if (!current || activeConditionCount === 0) {
+      setShowConditionModal(false);
+      return;
+    }
+    setConditionModalCombatant(current);
     setShowConditionModal(true);
-  } else {
-    // Close modal if no conditions
-    setShowConditionModal(false);
-  }
-}, [currentTurnIndex]);
+  }, [activeCombatantId, activeConditionCount]);
 
   // Auto-open HP modal for death saves
   useEffect(() => {
-  if (sortedCombatants.length === 0 || hpModalCombatant !== null) return;
-  if (processedTurnRef.current === totalTurns) return;
-  
-  const currentCombatant = sortedCombatants[currentTurnIndex];
-  const dying = currentCombatant.conditions.includes('Death Saves')
-  if (dying) {
-    setHpModalCombatant(currentCombatant);
-    processedTurnRef.current = totalTurns;
-    DEVMODE && console.log(currentCombatant.name," needs to make a death saving throw. ", "Total Turns is ",totalTurns)
-    updateCombatant(currentCombatant.id, 'action', true);
-    updateCombatant(currentCombatant.id, 'bonus', true);
-    updateCombatant(currentCombatant.id, 'move', true);
-  }
-}, [sortedCombatants, currentTurnIndex, hpModalCombatant, totalTurns, updateCombatant]);
+    if (!activeCombatant || hpModalCombatant !== null) return;
+    if (processedTurnRef.current === totalTurns) return;
 
-  // Advance turn when action, bonus, and move are checked
+    if (activeCombatant.conditions.includes("Death Saves")) {
+      setHpModalCombatant(activeCombatant);
+      processedTurnRef.current = totalTurns;
+      if (DEVMODE) console.log(activeCombatant.name, "needs to make a death saving throw.");
+    }
+  }, [activeCombatant, hpModalCombatant, totalTurns]);
+
+  // A dead combatant has no actions to spend — mark them used so the turn can
+  // move on. This used to assign straight onto the state object without a
+  // setter, so React never saw the change.
   useEffect(() => {
-    if (sortedCombatants.length === 0 || hpModalCombatant !== null) return;
-    const currentCombatant = sortedCombatants[currentTurnIndex];
-    if (!currentCombatant) return;
+    if (!activeCombatant) return;
+    if (
+      activeCombatant.conditions.includes("Dead") &&
+      !(activeCombatant.action && activeCombatant.bonus && activeCombatant.move)
+    ) {
+      setCombatants((prev) =>
+        prev.map((c) =>
+          c.id === activeCombatant.id
+            ? { ...c, action: true, bonus: true, move: true }
+            : c
+        )
+      );
+    }
+  }, [activeCombatant, setCombatants]);
 
-    DEVMODE && console.log('Auto-advance check:', currentCombatant.name, {
-    action: currentCombatant.action,
-    bonus: currentCombatant.bonus,
-    move: currentCombatant.move,
-    conditions: currentCombatant.conditions
-  });
-
-    // Skip if dead OR if all three are checked
-  if ((currentCombatant.action && currentCombatant.bonus && currentCombatant.move)) {
-    handleNextTurn();
-}
-}, [sortedCombatants, currentTurnIndex, hpModalCombatant, handleNextTurn]);
-
-useEffect(() => {
-  const combatant = sortedCombatants[currentTurnIndex];
-  if (!combatant) return; // Guard against undefined
-  if (!combatant.conditions) combatant.conditions = []; // Ensure conditions exist
-
-  if (combatant.conditions.includes("Dead")) {
-    combatant.action = true;
-    combatant.bonus = true;
-    combatant.move = true;
-  }
-}, [sortedCombatants, currentTurnIndex]);
-
-
-  // Unchecking will set that player as Current Turn
+  // Advance turn when action, bonus, and move are all checked
   useEffect(() => {
-  if (sortedCombatants.length === 0) return;
+    if (!activeCombatant || hpModalCombatant !== null) return;
+    if (activeCombatant.conditions.includes("Dead")) return;
 
-  // Find first combatant that has at least one action unchecked and is not dead
-  const uncheckedCombatantIndex = sortedCombatants.findIndex(combatant =>
-    // removed skipping dead combatants since their a/b/m are disabled and can't be unchecked
-    (!combatant.action || !combatant.bonus || !combatant.move)
-  );
+    if (activeCombatant.action && activeCombatant.bonus && activeCombatant.move) {
+      handleNextTurn();
+    }
+  }, [activeCombatant, hpModalCombatant, handleNextTurn]);
 
-  // If we found one and it's different from current turn, switch to it
-  if (uncheckedCombatantIndex != -1 && uncheckedCombatantIndex !== currentTurnIndex) {
-    DEVMODE && console.log("✔️Switching turn because of uncheck")
-    setCurrentTurnIndex(uncheckedCombatantIndex);
-  }
-}, [combatants]); 
+  // Unchecking an action hands the turn back to that combatant
+  useEffect(() => {
+    if (sortedCombatants.length === 0) return;
 
-  // Persistence of combatants/currentTurnIndex/roundNumber is handled by
-  // CombatProvider's effect in CombatContext.tsx. Avoid duplicating writes here.
+    const uncheckedIndex = sortedCombatants.findIndex(
+      (c) => !c.conditions.includes("Dead") && (!c.action || !c.bonus || !c.move)
+    );
 
-  // Current Turn Time useRef tracker
+    if (uncheckedIndex !== -1 && uncheckedIndex !== currentTurnIndex) {
+      if (DEVMODE) console.log("Switching turn because of an uncheck");
+      setCurrentTurnIndex(uncheckedIndex);
+    }
+    // Deliberately keyed on combatants only: this reacts to edits, not to the
+    // turn pointer moving.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combatants]);
+
+  // Keep the clamped index in sync if the list shrank underneath us.
+  useEffect(() => {
+    if (sortedCombatants.length > 0 && currentTurnIndex !== safeTurnIndex) {
+      setCurrentTurnIndex(safeTurnIndex);
+    }
+  }, [currentTurnIndex, safeTurnIndex, sortedCombatants.length, setCurrentTurnIndex]);
+
+  // Current Turn Time
   useEffect(() => {
     if (!lastRun) {
-    if (timerRef.current) {
-      timerRef.current.innerText = 'Advance the turn to start the timer';
+      if (timerRef.current) {
+        timerRef.current.innerText = "Advance the turn to start the timer";
+      }
+      return;
     }
-    return;
-  }
 
-    const interval = setInterval(() => {
+    const render = () => {
       const totalSeconds = Math.floor((Date.now() - lastRun) / 1000);
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
-      
-      let timeString = `${seconds}s`;
-      
-      if (minutes > 0) {
-        timeString = `${minutes}m ${timeString}`;
-      }
-      
-      if (hours > 0) {
-        timeString = `${hours}h ${timeString}`;
-      }
-      
-      if (timerRef.current) {
-        timerRef.current.innerText = 'Current Turn Time: ' + timeString;
-      }
-    }, 1000);
 
+      let timeString = `${seconds}s`;
+      if (minutes > 0) timeString = `${minutes}m ${timeString}`;
+      if (hours > 0) timeString = `${hours}h ${timeString}`;
+
+      if (timerRef.current) {
+        timerRef.current.innerText = "Current Turn Time: " + timeString;
+      }
+    };
+
+    render();
+    const interval = setInterval(render, 1000);
     return () => clearInterval(interval);
   }, [lastRun]);
 
-  // Action, Bonus, Movement Keyboard shortcuts
+  // Action, Bonus, Movement keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      const target = e.target as HTMLElement | null;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target?.isContentEditable
+      ) {
+        return;
+      }
+      if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
+      if (!activeCombatant) return;
+      if (
+        activeCombatant.conditions.includes("Dead") ||
+        activeCombatant.conditions.includes("Death Saves")
+      ) {
         return;
       }
 
-      if (sortedCombatants.length === 0) return;
-
-      if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) {
-      return;
-    }
-      
-      const currentCombatant = sortedCombatants[currentTurnIndex];
-      
-      switch(e.key.toLowerCase()) {
-        case 'a':
-          updateCombatant(currentCombatant.id, 'action', !currentCombatant.action);
+      switch (e.key.toLowerCase()) {
+        case "a":
+          updateCombatant(activeCombatant.id, "action", !activeCombatant.action);
           break;
-        case 's':
-          updateCombatant(currentCombatant.id, 'bonus', !currentCombatant.bonus);
+        case "s":
+          updateCombatant(activeCombatant.id, "bonus", !activeCombatant.bonus);
           break;
-        case 'd':
-          updateCombatant(currentCombatant.id, 'move', !currentCombatant.move);
+        case "d":
+          updateCombatant(activeCombatant.id, "move", !activeCombatant.move);
           break;
       }
-  };
+    };
 
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [activeCombatant, updateCombatant]);
 
-  // Add event listener
-  window.addEventListener('keydown', handleKeyPress);
-
-  // Cleanup: remove listener when component unmounts
-  return () => {
-    window.removeEventListener('keydown', handleKeyPress);
-  };
-}, [sortedCombatants, currentTurnIndex, updateCombatant]);
-
-  const ConditionsEditor = ({ combatant }: { combatant: Combatant }) => {
-    const isEditing = editingConditions === combatant.id;
-
-    if (isEditing) {
-      return (
-        <div className="conditionEditOuter">
-          {/* Current conditions with remove buttons */}
-          <div>
-            {combatant.conditions.map((conditionName) => (
-              <span
-                key={conditionName}
-                className="conditionNameEditing"
-                onClick={() => removeCondition(combatant.id, conditionName)}
-                title={conditionDescriptions[conditionName] || conditionName}
-              >
-                {conditionName} ×
-              </span>
-            ))}
-          </div>
-          
-          {/* Add new conditions */}
-          <select
-            onChange={(e) => {
-              if (e.target.value) {
-                addCondition(combatant.id, e.target.value);
-                e.target.value = '';
-              }
-            }}
-            className="conditionSelect"
-            name="conditionSelect"
-          >
-            <option className="addConditionBox" value="">Add condition...</option>
-            {predefinedConditions
-              .filter(condition => !combatant.conditions.includes(condition))
-              .map(condition => (
-                <option key={condition} value={condition}>{condition}</option>
-              ))}
-          </select>
-          
-          <button
-            onClick={() => setEditingConditions(null)}
-            className="editConditionsDone"
-          >
-            Done
-          </button>
-        </div>
-      );
-      
-    }
-
-    return (
-      <span 
-        onClick={() => setEditingConditions(combatant.id)}
-        className="editConditions" 
-        title="Click to edit conditions"
-      >
-        {combatant.conditions.length > 0 
-          ? combatant.conditions.map((conditionName) => (
-              <span
-                key={conditionName}
-                className="conditionName"
-                title={conditionDescriptions[conditionName] || conditionName}
-              >
-                {conditionName}
-              </span>
-            ))
-          : <span className="noCondition">Click to add conditions</span>
-        }
-      </span>
-    );
-  };
-  let freshHeroes = getHeroes();
-  const resetCombat = () => {
-    setCombatants([])
-  }
+  const actionCells: { key: "action" | "bonus" | "move" | "reaction"; cls: string; label: string }[] = [
+    { key: "action", cls: "combatantAction", label: "A" },
+    { key: "bonus", cls: "combatantBonus", label: "B" },
+    { key: "move", cls: "combatantMove", label: "M" },
+    { key: "reaction", cls: "combatantReaction", label: "R" },
+  ];
 
   return (
     <>
-      <button title="Start a new Battle" id="buttonStartBattle" onClick={() => {
-        setLastRun(Date.now());
-        // handleStartBattle();
-        if (combatants.length > 0){setIsSBPopupOpen(true)} else handleStartBattle()
-      }}>
-          {/* Start Battle */}
-      </button>
-      {combatants.length > 0 && <div id="round">
-          <RoundNumberSpan
-          roundNumber={roundNumber}
-          timerRef={timerRef} />
+      <div id="battleControls">
+        <button
+          title="Start a new Battle"
+          id="buttonStartBattle"
+          aria-label="Start the battle"
+          onClick={() => {
+            if (combatants.length > 0) {
+              setIsSBPopupOpen(true);
+            } else {
+              setLastRun(Date.now());
+              handleStartBattle();
+            }
+          }}
+        />
       </div>
-}
-      {/* #7: Resume Combat UI */}
-      {hasSavedCombat && combatants.length === 0 ? (
-        <div id="battleInProgress">
-          <p>
-            ⚠️ Battle in progress detected!
-          </p>
-          <button 
-            id="resumeCombat"
-            onClick={() => {
-              const saved = getCombatants();
-              if (saved) setCombatants(saved);
-              setHasSavedCombat(false);
-            }}
-          >
-            Resume Combat?
-          </button>
-          {/* <button onClick={handleStartBattle}>
-            Start New Combat
-          </button> */}
+
+      {combatants.length > 0 && (
+        <div id="round">
+          <RoundNumberSpan roundNumber={roundNumber} timerRef={timerRef} />
         </div>
-      ) : sortedCombatants.length === 0 ? (
-        <p id="noCombatants">
-          No combatants in battle. Start a battle to see combatants here.
-        </p> ) : (
-      
-      <table id="battleTracker">
-        <thead id="battleTrackerHeader">
-          <tr>
-            <th className="thFirst" title="Hero/Monster Name">Name</th>
-            <th className="thMiddle" title="Initiative, either input or rolled">Initiative</th>
-            <th className="thMiddle" title="Current HP / Maximum HP">HP</th>
-            <th className="thMiddle" title="Check if this combatant is using, passing, or holding their action">Action<sup>(a)</sup></th>
-            <th className="thMiddle" title="Check if this combatant is using or passing their bonus action">Bonus<sup>(s)</sup></th>
-            <th className="thMiddle" title="Check if this combatant is using or passing their movement">Move<sup>(d)</sup></th>
-            <th className="thMiddle" title="Check if this combatant has used their reaction, resets on their next turn">Reaction</th>
-            <th className="thLast" title="Input any conditions as they come up, hover over their name for a reminder of the effects. Reminder text changes depending on which version is selected in the upper right.">Conditions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedCombatants.map((combatant, index) => (
-            <tr 
-              key={combatant.id}
-              style={{ 
-                // backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa',
-                borderLeft: index === currentTurnIndex ? '5px solid #777777' : 'none'
-              }}
-              className="combatantInfo"
-            >
-              {/* Do we need to update the styles above and below this? */}
-			  <td
-  style={{ fontWeight: index === currentTurnIndex ? "bold" : "normal" }}
-  className="combatantName"
->
-  {index === currentTurnIndex && (
-    <span className="currentTurnIndicator">▶</span>
-  )}
+      )}
 
-  {/* HERO */}
-  {combatant.type === "hero" ? (
-    <HeroStatBlockHover
-      hero={freshHeroes.find((h) => h.id === combatant.id)!}
-      combatant={combatants.find((c) => c.id === combatant.id)!}
-    >
-      {combatant.conditions.includes('Dead') ? (<span className="strike">{combatant.name}</span>) : (<span>{combatant.name}</span>)}
-    </HeroStatBlockHover>
-  ) : combatant.type === "monster" ? (
-    /* MONSTER */
-    <MonsterStatBlockHover
-      monster={
-		  (() => {
-			const found = combatants.find((m) => m.id === combatant.id) as Combatant | undefined;
-			if (found) {
-			  return {
-				id: found.id,
-				name: found.name,
-				link: found.link ?? "",
-				hp: found.currHp,        // legacy field
-				maxHp: found.maxHp,
-				currHp: found.currHp,
-				ac: found.ac,
-				str: found.str,
-				dex: found.dex,
-				con: found.con,
-				int: found.int,
-				wis: found.wis,
-				cha: found.cha,
-				pp: found.pp,
-				init: found.init,
-				hidden: false,
-				present: true,
-				conditions: found.conditions ?? [],
-			  } as Monster;
-			}
+      {sortedCombatants.length === 0 ? (
+        <p id="noCombatants">No combatants in battle. Start a battle to see combatants here.</p>
+      ) : (
+        <div id="battleTrackerScroll">
+          <table id="battleTracker">
+            <thead id="battleTrackerHeader">
+              <tr>
+                <th className="thFirst" title="Hero/Monster Name">Name</th>
+                <th className="thMiddle" title="Initiative, either input or rolled">Initiative</th>
+                <th className="thMiddle" title="Current HP / Maximum HP">HP</th>
+                <th className="thMiddle" title="Check if this combatant is using, passing, or holding their action">Action<sup>(a)</sup></th>
+                <th className="thMiddle" title="Check if this combatant is using or passing their bonus action">Bonus<sup>(s)</sup></th>
+                <th className="thMiddle" title="Check if this combatant is using or passing their movement">Move<sup>(d)</sup></th>
+                <th className="thMiddle" title="Check if this combatant has used their reaction, resets on their next turn">Reaction</th>
+                <th className="thLast" title="Input any conditions as they come up, hover over their name for a reminder of the effects.">Conditions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedCombatants.map((combatant, index) => {
+                const isCurrent = index === safeTurnIndex;
+                const isDead = combatant.conditions.includes("Dead");
+                const isDying = combatant.conditions.includes("Death Saves");
+                const hero = combatant.type === "hero"
+                  ? heroes.find((h) => h.id === combatant.id)
+                  : undefined;
 
-			// fallback built from combatant
-			return {
-			  id: combatant.id,
-			  name: combatant.name,
-			  link: (combatant as any).link ?? "",
-			  hp: combatant.currHp ?? combatant.maxHp ?? 0,
-			  maxHp: combatant.maxHp ?? (combatant.currHp ?? 0),
-			  currHp: combatant.currHp ?? (combatant.maxHp ?? 0),
-			  ac: (combatant as any).ac ?? 10,
-			  str: (combatant as any).str ?? 10,
-			  dex: (combatant as any).dex ?? 10,
-			  con: (combatant as any).con ?? 10,
-			  int: (combatant as any).int ?? (combatant as any).init ?? 10,
-			  wis: (combatant as any).wis ?? 10,
-			  cha: (combatant as any).cha ?? 10,
-			  pp: (combatant as any).pp ?? 0,
-			  init: (combatant as any).init ?? 0,
-			  hidden: false,
-			  present: true,
-			  conditions: (combatant as any).conditions ?? [],
-			} as Monster;
-		  })()
-	  }
+                return (
+                  <tr
+                    key={combatant.id}
+                    className={`combatantInfo${isCurrent ? " isCurrentTurn" : ""}`}
+                  >
+                    <td className={`combatantName namePlaque${plaqueVariant(combatant.id, 0, 4)}`}>
+                      {isCurrent && <span className="currentTurnIndicator" aria-hidden="true">▶</span>}
 
-      currentHp={combatant.currHp}
-      updateCombatant={updateCombatant}
-    >
-      {combatant.conditions.includes('Dead') ? (<span className="strike">{combatant.name}</span>) : (<span>{combatant.name}</span>)}
-    </MonsterStatBlockHover>
-  ) : (
-    /* FALLBACK */
-    <span>{combatant.name}</span>
-  )}
-</td>
+                      {combatant.type === "hero" ? (
+                        // hero may be undefined if they were deleted mid-battle;
+                        // HeroStatBlockHover handles that and falls back to the
+                        // combatant's own data.
+                        <HeroStatBlockHover hero={hero} combatant={combatant}>
+                          <span className={isDead ? "strike" : undefined}>{combatant.name}</span>
+                        </HeroStatBlockHover>
+                      ) : combatant.type === "monster" ? (
+                        <MonsterStatBlockHover
+                          monster={combatantToMonster(combatant)}
+                          currentHp={combatant.currHp}
+                          updateCombatant={updateCombatant}
+                        >
+                          <span className={isDead ? "strike" : undefined}>{combatant.name}</span>
+                        </MonsterStatBlockHover>
+                      ) : (
+                        <span>{combatant.name}</span>
+                      )}
+                    </td>
 
+                    <td className={`combatantInit midPlaque${plaqueVariant(combatant.id, 1, 6)}`}>
+                      <span title="Initiative">
+                        <EditableCell
+                          entity={combatant}
+                          field="initiative"
+                          type="number"
+                          editingField={editingField}
+                          setEditingField={setEditingField}
+                          updateEntity={updateCombatant}
+                        />
+                      </span>
+                    </td>
 
-              <td className="combatantInit">
-                <span title="Initiative">
-                  <EditableCell
-                    entity={combatant}
-                    field="initiative"
-                    type="number"
-                    editingField={editingField}
-                    setEditingField={setEditingField}
-                    updateEntity={updateCombatant}
-                  />
-                </span>
-              </td>
-              <td
-              className="combatantHP"
-              style={{ 
-                backgroundColor: getHpColor(combatant.currHp, combatant.maxHp),
-                color: combatant.currHp < combatant.maxHp * 0.5 ? 'var(--color-hpbloodied)' : 'var(--color-hphealthy)'
-              }}
-              onClick={() => setHpModalCombatant(combatant)}
-              title="Click to change HP"> 
-                {combatant.tHp > 0 && (
-                  <p className="thp">🛡️( {combatant.tHp} )</p>
-                  )}
-                {combatant.currHp} / {combatant.maxHp}  <img src={HeartIcon} style={{ height: '1.2rem', width: 'auto'}} />
-              </td>
-			  
-			  {/* Added disabling of checkboxes on "Dead", might want to do this on "Death Saves" after prompt to roll and count of Saves/Fails? */}
-			  <td className="combatantAction">
-			    <input
-          key={combatant.id}
-				  type="checkbox"
-          id={`${combatant.id}-action`}
-				  checked={combatant.action}
-				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
-				  onChange={(e) => updateCombatant(combatant.id, 'action', e.target.checked)}
-			    />
-          <label htmlFor={`${combatant.id}-action`} className="checkOverlay">A</label>
-			  </td>
-			  <td className="combatantBonus">
-			    <input
-          key={combatant.id}
-				  type="checkbox"
-          id={`${combatant.id}-bonus`}
-				  checked={combatant.bonus}
-				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
-				  onChange={(e) => updateCombatant(combatant.id, 'bonus', e.target.checked)}
-			    />
-          <label htmlFor={`${combatant.id}-bonus`} className="checkOverlay">B</label>
-			  </td>
-			  <td className="combatantMove">
-			    <input
-          key={combatant.id}
-				  type="checkbox"
-          id={`${combatant.id}-move`}
-				  checked={combatant.move}
-				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
-				  onChange={(e) => updateCombatant(combatant.id, 'move', e.target.checked)}
-			    />
-          <label htmlFor={`${combatant.id}-move`} className="checkOverlay">M</label>
-			  </td>
-			  <td className="combatantReaction">
-			    <input
-          key={combatant.id}
-				  type="checkbox"
-          id={`${combatant.id}-reaction`}
-				  checked={combatant.reaction}
-				  disabled={combatant.conditions.includes('Dead') || combatant.conditions.includes('Death Saves')}
-				  onChange={(e) => updateCombatant(combatant.id, 'reaction', e.target.checked)}
-			    />
-          <label htmlFor={`${combatant.id}-reaction`} className="checkOverlay">R</label>
-			  </td>
+                    <td
+                      className={`combatantHP midPlaque${plaqueVariant(combatant.id, 2, 6)}`}
+                      style={{
+                        backgroundColor: getHpColor(combatant.currHp, combatant.maxHp),
+                        color:
+                          combatant.currHp < combatant.maxHp * 0.5
+                            ? "var(--color-hpbloodied)"
+                            : "var(--color-hphealthy)",
+                      }}
+                      onClick={() => setHpModalCombatant(combatant)}
+                      title="Click to change HP"
+                    >
+                      {combatant.tHp > 0 && <span className="thp">🛡️({combatant.tHp})</span>}
+                      <span className="hpValue">
+                        {combatant.currHp} / {combatant.maxHp}
+                      </span>
+                      <img src={HeartIcon} alt="" aria-hidden="true" className="hpHeart" />
+                    </td>
 
-              <td className="combatantConditions">
-                <ConditionsEditor combatant={combatant} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-          )}
-          
-      {conditionModalCombatant && conditionReminderOn && (
-        <ConditionReminder 
+                    {actionCells.map(({ key, cls, label }, i) => (
+                      <td className={`${cls} midPlaque${plaqueVariant(combatant.id, 3 + i, 6)}`} key={key}>
+                        <input
+                          type="checkbox"
+                          id={`${combatant.id}-${key}`}
+                          checked={combatant[key]}
+                          disabled={isDead || isDying}
+                          onChange={(e) => updateCombatant(combatant.id, key, e.target.checked)}
+                        />
+                        <label htmlFor={`${combatant.id}-${key}`} className="checkOverlay">
+                          {label}
+                        </label>
+                      </td>
+                    ))}
+
+                    <td className={`combatantConditions condPlaque${plaqueVariant(combatant.id, 7, 4)}`}>
+                      <ConditionsEditor
+                        combatant={combatant}
+                        isEditing={editingConditions === combatant.id}
+                        conditionDescriptions={conditionDescriptions}
+                        onStartEditing={setEditingConditions}
+                        onStopEditing={() => setEditingConditions(null)}
+                        onAdd={addCondition}
+                        onRemove={removeCondition}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {conditionModalCombatant && showConditionReminders && (
+        <ConditionReminder
           combatant={conditionModalCombatant}
           isOpen={showConditionModal}
           onClose={() => setShowConditionModal(false)}
         />
-      )}    
-      {currentCombatant && initiativeResolver && (
-        <>
-        {DEVMODE && console.log('InitiativeDialog rendering for:', currentCombatant.name)}
-        <InitiativeDialog 
-          heroName={currentCombatant.name}
-          initiativeModifier={currentCombatant.init}
-          onSubmit={(init) => {
-            DEVMODE && console.log('Initiative submitted:', init);
-            initiativeResolver(init);
-            setCurrentCombatant(null);
-            setInitiativeResolver(null);
-      }}
-  />
-  </>
-)}
-{hpModalCombatant && (
-  <HpChangeModal
-    combatant={hpModalCombatant}
-    combatantId={hpModalCombatant.id}
-    combatantName={hpModalCombatant.name}
-    currentHp={hpModalCombatant.currHp}
-    maxHp={hpModalCombatant.maxHp}
-    tHp={hpModalCombatant.tHp}
-    conditions={hpModalCombatant.conditions}
-    type={hpModalCombatant.type}
-    deathsaves={hpModalCombatant.deathsaves || []}
-    currentCombatantID={sortedCombatants[currentTurnIndex].id}
-    onSubmit={(newHp, newtHp) => {
-      // updateCombatant(hpModalCombatant.id, 'currHp', newHp);
-      const updatedCombatants = combatants.map(c =>
-        c.id === hpModalCombatant.id
-          ? { ...c, currHp: newHp, tHp: newtHp, }
-          : c
-      ).sort((a, b) => b.initiative - a.initiative);
-      setCombatants(updatedCombatants);
-    }}
-    onRemoveCondition={(condition) => {
-      const updated = hpModalCombatant.conditions.filter(c => c !== condition);
-      updateCombatant(hpModalCombatant.id, 'conditions', updated);
-    }}
-    onAddCondition={(newCondition) => {
-      const updated = [...hpModalCombatant.conditions, newCondition];
-      updateCombatant(hpModalCombatant.id, 'conditions', updated);
-    }}
-    onUpdateBoth={(newHp, newtHp, newConditions) => {
-      const updatedCombatants = combatants.map(c =>
-        c.id === hpModalCombatant.id
-          ? { ...c, currHp: newHp, tHp: newtHp, conditions: newConditions }
-          : c
-      ).sort((a, b) => b.initiative - a.initiative);
-      setCombatants(updatedCombatants);
-      setHpModalCombatant(null); // Close modal here after update
-    }}
-    onUpdateDeathSaves={(saves) => {
-      DEVMODE && console.log('BattleTracker onUpdateDeathSaves called with:', saves);
-      DEVMODE && console.log('Updating combatant:', hpModalCombatant.name);
-      const updated = combatants.map(c =>
-        c.id === hpModalCombatant.id ? { ...c, deathsaves: saves } : c
-      ).sort((a, b) => b.initiative - a.initiative);
-      DEVMODE && console.log('Updated combatants:', updated);
-      setCombatants(updated);
-      setHpModalCombatant({ ...hpModalCombatant, deathsaves: saves });
-    }}
-    onClose={() => {
-      if (processedTurnRef.current === totalTurns) {
-        sortedCombatants[currentTurnIndex].action = true;
-        sortedCombatants[currentTurnIndex].bonus = true;
-        sortedCombatants[currentTurnIndex].move = true;
-        handleNextTurn();
-      }
-      setHpModalCombatant(null)}}
-    handleNextTurn={handleNextTurn}
-    updateCombatant={updateCombatant}
-  />
-)}
-<SBPopup
+      )}
+
+      {hpModalCombatant && (
+        <HpChangeModal
+          combatant={hpModalCombatant}
+          combatantName={hpModalCombatant.name}
+          currentHp={hpModalCombatant.currHp}
+          maxHp={hpModalCombatant.maxHp}
+          tHp={hpModalCombatant.tHp}
+          conditions={hpModalCombatant.conditions}
+          type={hpModalCombatant.type}
+          deathsaves={hpModalCombatant.deathsaves || []}
+          updateCombatant={updateCombatant}
+          onSubmit={(newHp, newtHp) => {
+            setCombatants((prev) =>
+              prev
+                .map((c) => (c.id === hpModalCombatant.id ? { ...c, currHp: newHp, tHp: newtHp } : c))
+                .sort((a, b) => b.initiative - a.initiative)
+            );
+          }}
+          onUpdateBoth={(newHp, newtHp, newConditions) => {
+            setCombatants((prev) =>
+              prev
+                .map((c) =>
+                  c.id === hpModalCombatant.id
+                    ? { ...c, currHp: newHp, tHp: newtHp, conditions: newConditions }
+                    : c
+                )
+                .sort((a, b) => b.initiative - a.initiative)
+            );
+            setHpModalCombatant(null);
+          }}
+          onUpdateDeathSaves={(saves) => {
+            setCombatants((prev) =>
+              prev
+                .map((c) => (c.id === hpModalCombatant.id ? { ...c, deathsaves: saves } : c))
+                .sort((a, b) => b.initiative - a.initiative)
+            );
+            setHpModalCombatant((prev) => (prev ? { ...prev, deathsaves: saves } : prev));
+          }}
+          onClose={() => {
+            // If this modal was opened automatically for a death save, spend the
+            // turn on the way out. Done through the setter, not by assigning
+            // onto the sorted array.
+            if (processedTurnRef.current === totalTurns && activeCombatant) {
+              const id = activeCombatant.id;
+              setCombatants((prev) =>
+                prev.map((c) =>
+                  c.id === id ? { ...c, action: true, bonus: true, move: true } : c
+                )
+              );
+              handleNextTurn();
+            }
+            setHpModalCombatant(null);
+          }}
+        />
+      )}
+
+      <SBPopup
         isOpen={isSBPopupOpen}
-        onCancel={handleSBCancel}
+        onCancel={() => setIsSBPopupOpen(false)}
         onContinue={handleSBContinue}
       />
     </>
-
   );
-  
 };
-
-export function useStartBattle() {
-  const context = useContext(StartBattleContext);
-  if (!context) throw new Error('useStartBattle must be used inside CombatProvider');
-  return context;
-}
 
 export default BattleTracker;

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createUpdateMonster, createDeleteMonster } from '../src/utils/Utils';
-import * as LocalStorage from '../src/utils/LocalStorage';
 import type { Monster } from '../src/types/index';
 
 function makeMonster(overrides: Partial<Monster> & Pick<Monster, 'id' | 'name'>): Monster {
@@ -24,29 +23,21 @@ function makeMonster(overrides: Partial<Monster> & Pick<Monster, 'id' | 'name'>)
   };
 }
 
-function stubLocalStorage() {
-  const store = new Map<string, string>();
-  vi.stubGlobal('localStorage', {
-    getItem: (key: string) => (store.has(key) ? store.get(key)! : null),
-    setItem: (key: string, value: string) => {
-      store.set(key, value);
-    },
-    removeItem: (key: string) => {
-      store.delete(key);
-    },
-    clear: () => {
-      store.clear();
-    },
-  });
+/** Apply the updater a mocked setState was called with. */
+function applyUpdater(setter: ReturnType<typeof vi.fn>, prev: Monster[]): Monster[] {
+  const updater = setter.mock.calls[0][0];
+  expect(typeof updater).toBe('function');
+  return (updater as (p: Monster[]) => Monster[])(prev);
 }
 
 describe('Utils monster helpers', () => {
   const confirmMock = vi.fn(() => true);
 
   beforeEach(() => {
-    stubLocalStorage();
     confirmMock.mockReset();
     confirmMock.mockReturnValue(true);
+    // No DialogHost is mounted in unit tests, so confirmDialog falls back to
+    // window.confirm.
     vi.stubGlobal('confirm', confirmMock);
   });
 
@@ -66,47 +57,43 @@ describe('Utils monster helpers', () => {
     update('b', 'ac', 18);
 
     expect(setMonsters).toHaveBeenCalledTimes(1);
-    const updater = setMonsters.mock.calls[0][0];
-    expect(typeof updater).toBe('function');
-    const next = (updater as (p: Monster[]) => Monster[])(prev);
+    const next = applyUpdater(setMonsters, prev);
     expect(next.find((m) => m.id === 'b')?.ac).toBe(18);
     expect(next.find((m) => m.id === 'a')?.ac).toBe(10);
   });
 
-  it('createDeleteMonster removes id when confirm returns true', () => {
+  it('createDeleteMonster removes the id when the user confirms', async () => {
     const monsters: Monster[] = [makeMonster({ id: 'x', name: 'X' }), makeMonster({ id: 'y', name: 'Y' })];
-    vi.spyOn(LocalStorage, 'getMonsters').mockReturnValue(monsters);
-
     const setMonsters = vi.fn();
     const del = createDeleteMonster(monsters, setMonsters);
 
-    del('x', false);
+    await del('x', false);
 
     expect(confirmMock).toHaveBeenCalled();
-    expect(setMonsters).toHaveBeenCalledWith([monsters[1]]);
-    expect(JSON.parse(localStorage.getItem('storedMonsters')!)).toEqual([expect.objectContaining({ id: 'y' })]);
+    // Deletion goes through the state updater now. It used to write
+    // localStorage directly and hand back a plain array, which left every other
+    // mounted copy of the roster stale.
+    expect(applyUpdater(setMonsters, monsters)).toEqual([monsters[1]]);
   });
 
-  it('createDeleteMonster skips confirm when skipPrompt is true', () => {
+  it('createDeleteMonster skips the prompt when skipPrompt is true', async () => {
     const monsters: Monster[] = [makeMonster({ id: 'only', name: 'Solo' })];
-    vi.spyOn(LocalStorage, 'getMonsters').mockReturnValue(monsters);
     const setMonsters = vi.fn();
     const del = createDeleteMonster(monsters, setMonsters);
 
-    del('only', true);
+    await del('only', true);
 
     expect(confirmMock).not.toHaveBeenCalled();
-    expect(setMonsters).toHaveBeenCalledWith([]);
+    expect(applyUpdater(setMonsters, monsters)).toEqual([]);
   });
 
-  it('createDeleteMonster does nothing when confirm returns false', () => {
+  it('createDeleteMonster does nothing when the user cancels', async () => {
     confirmMock.mockReturnValue(false);
     const monsters: Monster[] = [makeMonster({ id: 'z', name: 'Z' })];
-    vi.spyOn(LocalStorage, 'getMonsters').mockReturnValue(monsters);
     const setMonsters = vi.fn();
     const del = createDeleteMonster(monsters, setMonsters);
 
-    del('z', false);
+    await del('z', false);
 
     expect(setMonsters).not.toHaveBeenCalled();
   });

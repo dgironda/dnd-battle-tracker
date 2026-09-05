@@ -50,12 +50,9 @@ function makeCombatant(overrides: Partial<Combatant> = {}): Combatant {
 function defaultCallbacks() {
   return {
     onSubmit: vi.fn(),
-    onRemoveCondition: vi.fn(),
-    onAddCondition: vi.fn(),
     onUpdateBoth: vi.fn(),
     onUpdateDeathSaves: vi.fn(),
     onClose: vi.fn(),
-    handleNextTurn: vi.fn(),
     updateCombatant: vi.fn(),
   };
 }
@@ -74,7 +71,6 @@ function renderModal(overrides: {
   render(
     <HpChangeModal
       combatant={combatant}
-      combatantId={combatant.id}
       combatantName={combatant.name}
       currentHp={overrides.currentHp ?? combatant.currHp}
       maxHp={overrides.maxHp ?? combatant.maxHp}
@@ -82,7 +78,6 @@ function renderModal(overrides: {
       conditions={overrides.conditions ?? combatant.conditions}
       type={overrides.type ?? combatant.type}
       deathsaves={overrides.deathsaves ?? combatant.deathsaves}
-      currentCombatantID={combatant.id}
       {...cbs}
     />
   );
@@ -107,7 +102,7 @@ describe('HpChangeModal', () => {
   it('shows error when Take Damage is used with empty amount', () => {
     renderModal();
     fireEvent.click(screen.getByRole('button', { name: 'Take Damage' }));
-    expect(screen.getByText('Please enter a valid number')).toBeInTheDocument();
+    expect(screen.getByText('Enter an amount.')).toBeInTheDocument();
   });
 
   it('applies damage and closes when amount is valid (no concentration)', () => {
@@ -126,14 +121,14 @@ describe('HpChangeModal', () => {
   it('shows error when Heal is used with empty amount', () => {
     renderModal();
     fireEvent.click(screen.getByRole('button', { name: 'Heal' }));
-    expect(screen.getByText('Please enter a valid number')).toBeInTheDocument();
+    expect(screen.getByText('Enter an amount.')).toBeInTheDocument();
   });
 
   it('shows error when Heal amount is negative', () => {
     renderModal();
     fireEvent.change(screen.getByPlaceholderText('Enter amount'), { target: { value: '-2' } });
     fireEvent.click(screen.getByRole('button', { name: 'Heal' }));
-    expect(screen.getByText('Healing must be positive')).toBeInTheDocument();
+    expect(screen.getByText('Healing must be positive.')).toBeInTheDocument();
   });
 
   it('applies healing capped at max HP', () => {

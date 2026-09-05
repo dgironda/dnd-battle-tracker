@@ -1,0 +1,563 @@
+
+/* ==========================================================================
+   Review fixes — B1-B3 (row art), B8 (panel overflow), B10/B11 (dialogs).
+   Loaded last so these win at equal specificity.
+   ========================================================================== */
+
+/* --- B1: the battle table, 9-sliced ---------------------------------------
+   The cell art used to be painted as a stretched background, so every cell had
+   to be held at the artwork's own aspect ratio (long 525x138, small 166x138)
+   or the plaques distorted. That is what pinned rows at ~70px and pushed a
+   twelve-combatant fight off the screen — in v.0.3.1 the same fight fitted
+   entirely, because its rows were flat and ~23px.
+
+   `border-image` slices each plaque into nine pieces instead: the drawn
+   corners are placed untouched, the four wobbly edges stretch along their own
+   axis, and the parchment centre fills the rest. The artwork then fits any
+   cell shape without distorting, so the row height is free again and the
+   columns can be sized for reading rather than for the art.
+
+   Two constraints worth knowing: `border-image` is ignored under
+   `border-collapse: collapse`, and a unitless `border-image-slice` does not
+   resolve against these SVGs (they carry width="100%" with only a viewBox), so
+   the slices are percentages. */
+/* The app switches layout on orientation, not width (see index.css), and the
+   portrait grid is a different design, so this stays scoped to landscape. */
+@media (orientation: landscape) {
+  #battleTracker {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 2px 3px;
+  }
+
+  #battleTracker tbody tr {
+    height: 1.75rem;
+  }
+
+  #battleTracker tbody td,
+  #battleTracker #battleTrackerHeader th {
+    border-style: solid;
+    border-color: transparent;
+    border-width: 2px;
+    border-image-repeat: stretch;
+    vertical-align: middle;
+    padding: 0 0.5rem;
+    overflow: hidden;
+  }
+
+  #battleTracker tbody td {
+    /* 24% of the 138-tall body art is the drawn frame; 7px is how thick it is
+       drawn, which leaves the middle of a 28px row clear for the text. */
+    border-image-slice: 24% fill;
+    border-image-width: 7px;
+  }
+
+  /* The HP cell carries an inline background that ramps from parchment to
+     #880808 as a combatant is worn down - the at-a-glance bloodied signal
+     v.0.3.1 had. Dropping `fill` here leaves the plaque as a frame with
+     nothing painted in the middle, so that colour shows through again;
+     with `fill` the artwork's centre covered it and a bloodied combatant
+     rendered as light text on light parchment. */
+  #battleTracker tbody td.combatantHP {
+    border-image-slice: 24%;
+  }
+
+  #battleTracker #battleTrackerHeader th.thFirst,
+  #battleTracker #battleTrackerHeader th.thMiddle,
+  #battleTracker #battleTrackerHeader th.thLast {
+    height: 1.9rem !important;
+    padding: 0 0.5rem !important;
+    border-image-slice: 26% fill;
+    border-image-width: 7px;
+  }
+
+  /* Sized for reading now that the art no longer dictates proportions. */
+  #battleTracker .combatantName,
+  #battleTracker #battleTrackerHeader th.thFirst {
+    width: 24%;
+  }
+
+  #battleTracker .combatantConditions,
+  #battleTracker #battleTrackerHeader th.thLast {
+    width: 22%;
+  }
+
+  #battleTracker .combatantInit,
+  #battleTracker .combatantHP,
+  #battleTracker .combatantAction,
+  #battleTracker .combatantBonus,
+  #battleTracker .combatantMove,
+  #battleTracker .combatantReaction,
+  #battleTracker #battleTrackerHeader th.thMiddle {
+    width: 9%;
+  }
+}
+
+/* --- B2: keep the name inside the plaque ---------------------------------
+   Text used to start 5px from the cell edge while the art sat centred, so the
+   first letter fell outside the frame and long names ran into the far end. */
+/* A td must stay display: table-cell. index.css made this one a flex
+   container, which takes it out of the table layout algorithm entirely — so
+   `table-layout: fixed` stopped sizing the column and it collapsed to its
+   content. Lay the contents out on an inner wrapper instead. */
+#battleTracker .combatantName {
+  display: table-cell !important;
+  vertical-align: middle;
+  /* Clears the 9-sliced frame, which is only ~7px thick, plus room on the left
+     for the turn marker. The old 1.9rem/1.4rem was sized for the artwork when
+     it was stretched across the whole cell. */
+  padding-left: 1.15rem !important;
+  padding-right: 0.6rem !important;
+  min-width: 0;
+}
+
+#battleTracker .combatantName > div,
+#battleTracker .combatantName > span:not(.currentTurnIndicator) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The turn marker sits in the row's left margin, so it must not eat into the
+   space the name has to work with. */
+.currentTurnIndicator {
+  position: absolute;
+  left: 0.15rem;
+  font-size: 1.4rem !important;
+  line-height: 1;
+}
+
+#battleTracker tbody tr {
+  position: relative;
+}
+
+/* --- B3: stop the HP and conditions text being clipped ------------------- */
+/* Same reason as .combatantName: keep it a table cell and centre the contents
+   inline rather than turning the cell into a flex container. */
+#battleTracker .combatantHP {
+  display: table-cell !important;
+  vertical-align: middle;
+  text-align: center;
+  line-height: 1.15;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+#battleTracker .combatantHP .hpValue {
+  display: inline;
+}
+
+#battleTracker .combatantHP .thp {
+  display: block;
+  margin: 0;
+  font-size: 0.7rem;
+}
+
+#battleTracker .combatantHP .hpHeart {
+  height: 1.05rem;
+  width: auto;
+  vertical-align: -0.18rem;
+  margin-left: 0.15rem;
+}
+
+#battleTracker .combatantConditions {
+  padding-right: 1.9rem !important;
+  vertical-align: middle;
+}
+
+.editConditions {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  max-height: 2.6rem;
+  /* hidden, not auto: an inner scrollbar in every row was both ugly and clipped
+     the prompt text */
+  overflow: hidden;
+  background: none;
+  border: none;
+  text-align: center;
+  padding: 0;
+}
+
+.noCondition {
+  font-size: 0.72rem;
+  line-height: 1.15;
+  white-space: normal;
+}
+
+/* The table and the Start/End buttons are now wrapped, so the wrappers have to
+   take over the named grid areas their contents used to occupy — #page is a
+   grid, and an unplaced item collapses into an auto column. */
+#battleTrackerScroll {
+  grid-area: battletracker;
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  /* Fills its grid area, the way it did in v.0.3.1. The old 1100px cap only
+     existed to hold the cells at the artwork's aspect ratio; 9-slicing the
+     plaques removed that constraint. */
+  margin: 2vh 1vw auto auto;
+}
+
+#battleControls {
+  grid-area: sbbutt;
+}
+
+#battleTrackerScroll #battleTracker {
+  grid-area: auto;
+  margin: 0;
+}
+
+/* --- EditableCell is a <button> now, so strip the UA chrome -------------- */
+.setEditingField {
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.conditionNameEditing,
+.editConditions {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* --- Start Battle placement ---------------------------------------------- */
+#battleControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+  margin-left: 5vw;
+  align-self: center;
+}
+
+#battleControls #buttonStartBattle {
+  grid-area: auto;
+  margin: 0;
+}
+
+/* --- B8: panels must not overflow the viewport --------------------------- */
+/* The three manager panels are sized to their container artwork in
+   managers.css; these two have no artwork, so they keep a plain cap. */
+#about,
+#options {
+  max-width: min(96vw, 1100px);
+  max-height: 88vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+#monsterManagerTable,
+#heroAddManage table,
+#battleAddManage table {
+  max-width: 100%;
+}
+
+#instructions {
+  overflow-x: auto;
+}
+
+/* The close button belongs to the panel, not the viewport corner.
+   (The managers place theirs against the artwork instead - managers.css.) */
+.saveClose,
+#aboutCloseButton,
+#optionsCloseButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+}
+
+#about,
+#options {
+  position: fixed;
+}
+
+/* --- B4: initiative prompt, in the app's own colours --------------------- */
+#initiativeDialogOuter#initiativeDialogOuter {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1100;
+}
+
+#initiativeDialogInner.initiativeDialogInner {
+  background-color: var(--color-hl1);
+  color: var(--color-fg);
+  border: 3px double var(--color-btn1);
+  border-radius: 4px;
+  padding: 1.5rem 1.75rem;
+  min-width: min(24rem, 92vw);
+  max-width: 92vw;
+  box-shadow: 0 8px 30px -8px var(--color-shadow);
+  font-family: 'Caudex', serif;
+  text-align: center;
+}
+
+#initiativeDialogInner.initiativeDialogInner > h3 {
+  margin: 0 0 1rem;
+  font-family: 'Germania One', 'Caudex', serif;
+  font-size: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+#initiativeDialogInner .initiativeFormula {
+  font-family: 'Caudex', serif;
+  font-size: 0.95rem;
+  color: var(--color-chk2);
+  font-variant-numeric: tabular-nums;
+}
+
+#initiativeDialogInner > input[type="number"] {
+  width: 100%;
+  padding: 0.55rem;
+  font-size: 1.05rem;
+  text-align: center;
+  border: 2px solid var(--color-brdr1);
+  border-radius: 3px;
+  background-color: var(--color-bg1);
+  color: var(--color-fg);
+  font-family: 'Caudex', serif;
+}
+
+.initiativeDialogButtons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+#initiativeDialogInner #submitInit,
+#initiativeDialogInner #randomInit {
+  flex: 1;
+  padding: 0.6rem 0.75rem;
+  border: 2px solid var(--color-btn1);
+  border-radius: 3px;
+  background-color: var(--color-btn2);
+  color: var(--color-bg1);
+  font-family: 'Caudex', serif;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+#initiativeDialogInner #randomInit img {
+  height: 1.9rem;
+  width: auto;
+}
+
+#initiativeDialogInner #cancelInit {
+  margin-top: 0.85rem;
+  background: none;
+  border: none;
+  color: var(--color-chk1);
+  font-family: 'Caudex', serif;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+#initiativeDialogInner #cancelInit:hover {
+  color: var(--color-fg);
+}
+
+/* --- B11: themed replacements for alert() / confirm() -------------------- */
+.appDialogOuter {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1200;
+}
+
+.appDialogInner {
+  background-color: var(--color-hl1);
+  color: var(--color-fg);
+  border: 3px double var(--color-btn1);
+  border-left: 6px solid var(--color-chk2);
+  border-radius: 4px;
+  padding: 1.35rem 1.6rem;
+  min-width: min(23rem, 92vw);
+  max-width: min(34rem, 92vw);
+  box-shadow: 0 8px 30px -8px var(--color-shadow);
+  font-family: 'Caudex', serif;
+}
+
+.appDialogInner.tone-warning { border-left-color: var(--color-chk2); }
+.appDialogInner.tone-danger  { border-left-color: var(--color-redwarn); }
+.appDialogInner.tone-info    { border-left-color: var(--color-hl2); }
+
+.appDialogTitle {
+  margin: 0 0 0.5rem;
+  font-family: 'Germania One', 'Caudex', serif;
+  font-size: 1.25rem;
+}
+
+.appDialogMessage {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.appDialogButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.appDialogButtons button {
+  padding: 0.45rem 1.1rem;
+  border-radius: 3px;
+  font-family: 'Caudex', serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: 2px solid var(--color-btn1);
+}
+
+.appDialogConfirm {
+  background-color: var(--color-btn2);
+  color: var(--color-bg1);
+}
+
+.appDialogCancel {
+  background-color: transparent;
+  color: var(--color-fg);
+  border-color: var(--color-brdr1);
+}
+
+/* --- B10: storage warning, themed instead of a hardcoded light palette --- */
+.storage-warning-container {
+  padding: 0.75rem 0;
+}
+
+.storage-warning-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-bg2);
+  border: 1px solid var(--color-redwarn);
+  border-left: 4px solid var(--color-redwarn);
+  border-radius: 4px;
+  color: var(--color-fg);
+}
+
+.storage-warning-banner .warning-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-redwarn);
+}
+
+.storage-warning-banner .warning-title {
+  margin: 0 0 0.25rem;
+  font-weight: 700;
+}
+
+.storage-warning-banner .warning-message {
+  margin: 0 0 0.4rem;
+  line-height: 1.45;
+}
+
+.storage-warning-banner .storage-info {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- death save marks, moved out of inline styles ------------------------ */
+.deathSaveMark {
+  font-size: 1.5rem;
+  font-weight: bold;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.deathSaveMark.removable {
+  cursor: pointer;
+  opacity: 1;
+}
+
+/* --- theme toggle in Options -------------------------------------------- */
+#buttonThemeToggle {
+  background-color: var(--color-btn2);
+  color: var(--color-bg1);
+  border: 2px solid var(--color-btn1);
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Caudex', serif;
+}
+
+/* --- B9: even spacing down the header rail ------------------------------- */
+#header > button {
+  margin-bottom: 0.75rem;
+}
+
+/* --- visible keyboard focus everywhere ----------------------------------- */
+:focus-visible {
+  outline: 3px solid var(--color-chk2);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --- v.0.3.1 parity: the keyboard shortcut is visible again --------------
+   v.0.3.1 wrote it into the button label as a superscript. The SVG art has no
+   room for that, so it sits as a small badge in the corner of the button. */
+.panelButton {
+  position: relative;
+}
+
+.panelButtonKey {
+  position: absolute;
+  /* Bottom-right, clear of the ribbon's tapered tail where a bare letter is
+     unreadable against the page. */
+  bottom: 0.15rem;
+  right: 0.35rem;
+  padding: 0 0.28rem;
+  border: 1px solid var(--color-brdr1);
+  border-radius: 3px;
+  background-color: var(--color-bg1);
+  font-family: 'Caudex', serif;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: var(--color-fg);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.panelButton:hover .panelButtonKey,
+.panelButton[aria-expanded="true"] .panelButtonKey {
+  opacity: 1;
+}

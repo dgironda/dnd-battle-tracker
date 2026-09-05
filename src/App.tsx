@@ -1,12 +1,14 @@
-import React, { lazy, Suspense, useState, useEffect } from "react";
+import { Fragment, lazy, Suspense, useState, useEffect, type ReactNode } from "react";
 import BattleTracker from "./components/BattleTracker/BattleTracker";
 import { CombatProvider } from "./components/BattleTracker/CombatContext";
+import { RosterProvider } from "./hooks/rosterContext";
 import PatreonOverlay from "./components/PatreonOverlay";
 import { DEVMODE } from "./utils/devmode";
 import { useGlobalContext } from "./hooks/optionsContext";
 import { Helmet } from "react-helmet-async";
 import monsterShareURL from "./utils/monsterShareURL";
 import { startTour } from "./components/Tour";
+import { DialogHost } from "./utils/notify";
 import BTLogo from "./assets/draftsvgs_v2/logo.svg";
 import Backdrop from "./utils/backdrop";
 
@@ -18,13 +20,36 @@ const OptionsPanel = lazy(() => import("./components/OptionsPanel"));
 
 const ENABLE_PATREON = !DEVMODE;
 
+type PanelName = "hero" | "monster" | "battle" | "about" | "options";
+
+/**
+ * The header buttons carry their label in a background image, so each one needs
+ * an explicit accessible name — without it a screen reader announces "button"
+ * and voice control has nothing to match on.
+ */
+const PANEL_BUTTONS: {
+  panel: PanelName;
+  id: string;
+  label: string;
+  title: string;
+  /* The keyboard shortcut, shown on the button the way v.0.3.1 did — the SVG
+     art carries the name but had no room for the hint, so it was lost. */
+  key?: string;
+}[] = [
+  { panel: "about", id: "aboutButton", label: "About and instructions", title: "Instructions and credits" },
+  { panel: "hero", id: "heroManagerButton", label: "Hero Manager", title: "Add, Update, and Delete Heroes", key: "e" },
+  { panel: "monster", id: "monsterManagerButton", label: "Monster Manager", title: "Add, Update, and Delete Monsters", key: "w" },
+  { panel: "battle", id: "battleManagerButton", label: "Battle Manager", title: "Save and Load Battles", key: "r" },
+  { panel: "options", id: "optionsButton", label: "Options", title: "Options and settings" },
+];
+
 function App() {
-  const [showHeroManager, setShowHeroManager] = useState(false);
-  const [showMonsterManager, setShowMonsterManager] = useState(false);
-  const [openPanel, setOpenPanel] = useState<"hero" | "monster" | "battle" | "about" | "options" | null>(null);
+  const [openPanel, setOpenPanel] = useState<PanelName | null>(null);
   const { settings } = useGlobalContext();
   const handleClosePanel = () => setOpenPanel(null);
   const [isPortrait, setIsPortrait] = useState(window.matchMedia("(orientation: portrait)").matches);
+
+  const togglePanel = (panel: PanelName) => setOpenPanel((prev) => (prev === panel ? null : panel));
 
   useEffect(() => {
     monsterShareURL.loadMonstersFromURL();
@@ -40,7 +65,13 @@ function App() {
   // Manager Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      const target = e.target as HTMLElement | null;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target?.isContentEditable
+      ) {
         return;
       }
 
@@ -50,13 +81,16 @@ function App() {
 
       switch (e.key.toLowerCase()) {
         case "w":
-          setOpenPanel(openPanel === "monster" ? null : "monster");
+          togglePanel("monster");
           break;
         case "e":
-          setOpenPanel(openPanel === "hero" ? null : "hero");
+          togglePanel("hero");
           break;
         case "r":
-          setOpenPanel(openPanel === "battle" ? null : "battle");
+          togglePanel("battle");
+          break;
+        case "escape":
+          setOpenPanel(null);
           break;
       }
     };
@@ -65,9 +99,14 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [openPanel]);
+  }, []);
 
-  // Patreon OAuth
+  // Patreon OAuth.
+  //
+  // Note this is a client-side courtesy gate, not real authentication: the code
+  // is never exchanged for a token, so anyone can unlock these features from the
+  // console. That is a deliberate trade-off for a supporter perk — if it ever
+  // needs enforcing, the exchange belongs in worker/index.ts.
   const [isSupporter, setIsSupporter] = useState(false);
 
   useEffect(() => {
@@ -118,6 +157,14 @@ function App() {
     window.location.href = authUrl;
   };
 
+  const panelContent: Record<PanelName, ReactNode> = {
+    about: <AboutPanel onClose={handleClosePanel} />,
+    hero: <HeroManager onClose={handleClosePanel} />,
+    monster: <MonsterManager onClose={handleClosePanel} />,
+    battle: <BattleManager onClose={handleClosePanel} />,
+    options: <OptionsPanel onClose={handleClosePanel} isSupporter={isSupporter} />,
+  };
+
   return (
     <>
       <Helmet>
@@ -129,109 +176,68 @@ function App() {
         <meta property="og:title" content="D&D Battle Tracker" />
         <meta property="og:description" content="Keep your combat clean and simple with the D&D Battle Tracker." />
         <meta name="keywords" content="D&D, 2014, 2024, 5e, initiative, battle, combat" />
-        <meta property="og:url" content="http://battletracker.simulacrumtechnologies.com/" />
-        <link rel="canonical" href="http://battletracker.simulacrumtechnologies.com/" />
-        <meta property="og:type" content="application" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <meta property="og:url" content="https://battletracker.simulacrumtechnologies.com/" />
+        <link rel="canonical" href="https://battletracker.simulacrumtechnologies.com/" />
+        <meta property="og:type" content="website" />
         <meta name="author" content="Simulacrum Technologies" />
         <meta name="language" content="English" />
-        <meta property="og:image" content="./src/assets/BattleTracker_v0.8.png" />
-        <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
-        <meta httpEquiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains" />
-        <meta
-          httpEquiv="Content-Security-Policy"
-          content="default-src 'self'; img-src 'self' data: *.patreon.com; script-src 'self' *.patreon.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; frame-src *.patreon.com;"
-        />
-        <meta httpEquiv="Referrer-Policy" content="no-referrer" />
-        <meta httpEquiv="Permissions-Policy" content="geolocation=(self), microphone='none'" />
+        <meta property="og:image" content="https://battletracker.simulacrumtechnologies.com/og-image.png" />
+        {/*
+          Security headers live in public/_headers, which Cloudflare Pages serves
+          as real HTTP headers. HSTS, X-Content-Type-Options, Referrer-Policy and
+          Permissions-Policy are ignored entirely when set as <meta http-equiv>,
+          so having them here did nothing. The CSP that used to sit here also
+          blocked PostHog outright: it declared no connect-src, so every
+          analytics request fell back to default-src 'self' and was refused.
+        */}
       </Helmet>
-      <CombatProvider>
-        {overlayVisible && (
-          <PatreonOverlay
-            onClose={() => {
-              setOverlayVisible(false);
-            }}
-          />
-        )}
-
-        {battleOverlayVisible && (
-          <PatreonOverlay
-            onClose={() => {
-              setBattleOverlayVisible(false);
-              setOpenPanel(null);
-            }}
-          />
-        )}
-
-        <div id="header">
-          <img id="logo" src={BTLogo} alt="D&D Battle Tracker" />
-          <button
-            id="aboutButton"
-            title="Instructions and credits"
-            onClick={() => setOpenPanel(openPanel === "about" ? null : "about")}
-          >
-            {openPanel === "about" ? "" : ""}
-          </button>
-          {openPanel === "about" && (
-            <Suspense fallback={null}>
-              <AboutPanel onClose={handleClosePanel} />
-            </Suspense>
-          )}
-          <Backdrop isOpen={openPanel !== null} onClick={handleClosePanel} />
-          <button
-            id="heroManagerButton"
-            title="Add, Update, and Delete Heroes"
-            onClick={() => setOpenPanel(openPanel === "hero" ? null : "hero")}
-          >
-            {openPanel === "hero" ? <span></span> : <span></span>}
-          </button>
-          {openPanel === "hero" && (
-            <Suspense fallback={null}>
-              <HeroManager onClose={handleClosePanel} />
-            </Suspense>
+      <RosterProvider>
+        <CombatProvider>
+          {overlayVisible && (
+            <PatreonOverlay
+              onClose={() => {
+                setOverlayVisible(false);
+              }}
+            />
           )}
 
-          <button
-            id="monsterManagerButton"
-            title="Add, Update, and Delete Monsters"
-            onClick={() => setOpenPanel(openPanel === "monster" ? null : "monster")}
-          >
-            {openPanel === "monster" ? <span></span> : <span></span>}
-          </button>
-          {openPanel === "monster" && (
-            <Suspense fallback={null}>
-              <MonsterManager onClose={handleClosePanel} />
-            </Suspense>
+          {battleOverlayVisible && (
+            <PatreonOverlay
+              onClose={() => {
+                setBattleOverlayVisible(false);
+                setOpenPanel(null);
+              }}
+            />
           )}
 
-          <button
-            id="battleManagerButton"
-            title="Save and Load Battles"
-            onClick={() => setOpenPanel(openPanel === "battle" ? null : "battle")}
-          >
-            {openPanel === "battle" ? <span></span> : <span></span>}
-          </button>
-          {openPanel === "battle" && (
-            <Suspense fallback={null}>
-              <BattleManager onClose={handleClosePanel} />
-            </Suspense>
-          )}
+          <div id="header">
+            <img id="logo" src={BTLogo} alt="D&D Battle Tracker" />
 
-          <button
-            id="optionsButton"
-            title="Options and settings"
-            onClick={() => setOpenPanel(openPanel === "options" ? null : "options")}
-          >
-            {openPanel === "options" ? "" : ""}
-          </button>
-          {openPanel === "options" && (
-            <Suspense fallback={null}>
-              <OptionsPanel onClose={handleClosePanel} isSupporter={isSupporter} />
-            </Suspense>
-          )}
+            <Backdrop isOpen={openPanel !== null} onClick={handleClosePanel} />
 
-          {settings.tourReady && !isPortrait && (
-            <>
+            {PANEL_BUTTONS.map(({ panel, id, label, title, key }) => (
+              <Fragment key={panel}>
+                <button
+                  id={id}
+                  className="panelButton"
+                  title={key ? `${title} (${key})` : title}
+                  aria-label={openPanel === panel ? `Close ${label}` : label}
+                  aria-expanded={openPanel === panel}
+                  onClick={() => togglePanel(panel)}
+                >
+                  {key && (
+                    <span className="panelButtonKey" aria-hidden="true">
+                      {key}
+                    </span>
+                  )}
+                </button>
+                {openPanel === panel && (
+                  <Suspense fallback={null}>{panelContent[panel]}</Suspense>
+                )}
+              </Fragment>
+            ))}
+
+            {settings.tourReady && !isPortrait && (
               <button
                 id="buttonStartTour"
                 onClick={() => {
@@ -241,43 +247,46 @@ function App() {
               >
                 Start Tour
               </button>
-            </>
-          )}
-
-          <div id="patreonLink">
-            {!isSupporter ? (
-              <button onClick={handlePatreonLogin}>Support us on Patreon!</button>
-            ) : (
-              <div>
-                <p>✅ Thank you for your support!</p>{" "}
-                <p>
-                  Don&apos;t forget to join our{" "}
-                  <a href="https://discord.gg/m4AnYSDueM" target="_blank" rel="noreferrer">
-                    Discord Community
-                  </a>
-                  .
-                </p>
-              </div>
             )}
-          </div>
-        </div>
 
-        <BattleTracker setShowHeroManager={setShowHeroManager} setShowMonsterManager={setShowMonsterManager} />
-        <div id="footer">
-          ©2026{" "}
-          <a href="https://www.simulacrumtechnologies.com" target="_blank" rel="noreferrer">
-            Simulacrum Technologies
-          </a>
-          . All rights reserved. Website design and content are protected by copyright law. Built by DMs, for DMs.
-          <p>
-            Join our{" "}
-            <a href="https://discord.gg/m4AnYSDueM" target="_blank" rel="noreferrer">
-              Discord server
-            </a>{" "}
-            for updates and to provide feedback.
-          </p>
-        </div>
-      </CombatProvider>
+            <div id="patreonLink">
+              {!isSupporter ? (
+                <button onClick={handlePatreonLogin}>Support us on Patreon!</button>
+              ) : (
+                <div>
+                  <p>✅ Thank you for your support!</p>{" "}
+                  <p>
+                    Don&apos;t forget to join our{" "}
+                    <a href="https://discord.gg/m4AnYSDueM" target="_blank" rel="noreferrer">
+                      Discord Community
+                    </a>
+                    .
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <BattleTracker />
+
+          <div id="footer">
+            ©{new Date().getFullYear()}{" "}
+            <a href="https://www.simulacrumtechnologies.com" target="_blank" rel="noreferrer">
+              Simulacrum Technologies
+            </a>
+            . All rights reserved. Website design and content are protected by copyright law. Built by DMs, for DMs.
+            <p>
+              Join our{" "}
+              <a href="https://discord.gg/m4AnYSDueM" target="_blank" rel="noreferrer">
+                Discord server
+              </a>{" "}
+              for updates and to provide feedback.
+            </p>
+          </div>
+
+          <DialogHost />
+        </CombatProvider>
+      </RosterProvider>
     </>
   );
 }

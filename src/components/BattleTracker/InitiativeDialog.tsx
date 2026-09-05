@@ -1,92 +1,111 @@
-import { DEVMODE } from "../../utils/devmode";
-
-import { useState } from 'react';
-import { useCombat } from './CombatContext';
-import Icon from "../Icon";
-import InitIcon from '../../assets/draftsvgs_v2/icon_init.svg'
+import { useEffect, useState } from 'react';
+import InitIcon from '../../assets/draftsvgs_v2/icon_init.svg';
 
 interface InitiativeDialogProps {
-  heroName: string;
+  combatantName: string;
   initiativeModifier: number;
   onSubmit: (initiative: number) => void;
+  onCancel: () => void;
 }
 
-export function InitiativeDialog({ heroName, initiativeModifier, onSubmit }: InitiativeDialogProps) {
-  const { initiativeResolver, setInitiativeResolver } = useCombat();
-  const [inputValue, setInputValue] = useState<number | ''>('');
+export function InitiativeDialog({
+  combatantName,
+  initiativeModifier,
+  onSubmit,
+  onCancel,
+}: InitiativeDialogProps) {
+  const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
 
-  const submitInitiative = (value: number) => {
-    // Resolve if we’re in a combat-initiated flow (e.g., adding monster mid-battle)
-    if (initiativeResolver) {
-      initiativeResolver(value);
-      setInitiativeResolver(null);
-    }
-
-    // Always call onSubmit for normal battle start flow
-    onSubmit(value);
-  };
+  // Escape backs out of the whole start-battle flow. Without this the only way
+  // out of an accidental "Start Battle" was to roll for every combatant or
+  // reload the page.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        onCancel();
+      }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [onCancel]);
 
   const handleSubmit = () => {
-    if (inputValue === '' || isNaN(Number(inputValue)) || Number(inputValue) <= 0) {
-      setError('Please enter a valid number greater than zero.');
+    const trimmed = inputValue.trim();
+    if (trimmed === '') {
+      setError('Enter a total, or press Roll.');
+      return;
+    }
+    const value = Number(trimmed);
+    // Negative and zero totals are legal: a natural 1 with a -2 Dex modifier
+    // really is -1. The old check rejected anything <= 0.
+    if (!Number.isFinite(value)) {
+      setError('That is not a number.');
       return;
     }
     setError('');
-    submitInitiative(Number(inputValue));
+    onSubmit(value);
   };
 
   const handleRandom = () => {
     const roll = Math.floor(Math.random() * 20) + 1;
-    const total = roll + initiativeModifier;
-    console.log(heroName, " Roll: ", roll, "Total: ", total)
-    submitInitiative(total);
+    onSubmit(roll + initiativeModifier);
   };
 
+  const modifierLabel =
+    initiativeModifier === 0 ? '' : initiativeModifier > 0 ? `+${initiativeModifier}` : `${initiativeModifier}`;
+
   return (
-    <div
-      id='initiativeDialogOuter'
-    >
-      <div id='initiativeDialogInner'
-           className='initiativeDialogInner'>
-        <h3>Enter Initiative of 1d20 {initiativeModifier !== 0 ? (initiativeModifier > 0 ? `+${initiativeModifier}` : initiativeModifier) : ''} for {heroName}</h3>
+    <div id="initiativeDialogOuter" role="presentation" onClick={onCancel}>
+      <div
+        id="initiativeDialogInner"
+        className="initiativeDialogInner"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Initiative for ${combatantName}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3>
+          Initiative for {combatantName}
+          <span className="initiativeFormula">1d20 {modifierLabel}</span>
+        </h3>
 
         <input
           type="number"
-          min={1}
-          max={40}
           value={inputValue}
-          name='initiative-value-input'
+          name="initiative-value-input"
           onChange={(e) => {
-            const value = e.target.value;
-            setInputValue(value === '' ? '' : parseInt(value, 10));
+            setInputValue(e.target.value);
+            setError('');
           }}
-          placeholder="Enter initiative value"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSubmit();
+            }
+          }}
+          placeholder="Enter the rolled total"
+          aria-label="Initiative total"
           autoFocus
         />
 
-        {error && (
-          <p className="errorMsg">
-            {error}
-          </p>
-        )}
+        {error && <p className="errorMsg">{error}</p>}
 
-        <div>
-          <button
-            onClick={handleSubmit}
-            id='submitInit'
-          >
+        <div className="initiativeDialogButtons">
+          <button type="button" onClick={handleSubmit} id="submitInit">
             Submit
           </button>
-          <button
-            onClick={handleRandom}
-            id='randomInit'
-          >
-            Roll<br/>
-            {/* <Icon className="initiativeRoll" name="d20" size={24} color="white"/> */}
-            <img src={InitIcon} style={{ height: '2.5rem', width: 'auto' }} alt="Roll Initiative" />
+          <button type="button" onClick={handleRandom} id="randomInit">
+            Roll
+            <img src={InitIcon} alt="" aria-hidden="true" />
           </button>
         </div>
+
+        <button type="button" onClick={onCancel} id="cancelInit">
+          Cancel battle
+        </button>
       </div>
     </div>
   );

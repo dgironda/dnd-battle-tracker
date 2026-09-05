@@ -1,54 +1,101 @@
-import React, { useState } from "react";
-import { DEVMODE } from "../../utils/devmode";
+import React, { useEffect, useMemo, useState } from "react";
 import { useMonsters } from "../../hooks/useMonsters";
 import { Monster } from "../../types/Monster";
 import { createUpdateMonster, createDeleteMonster, EditableCell } from "../../utils/Utils";
 import { useGlobalContext } from "../../hooks/optionsContext";
 import { useCombat } from "../BattleTracker/CombatContext";
-import monstersDataFourteen from "../../assets/2014monsters.json";
-import monstersDataTwentyFour from "../../assets/2024monsters.json";
 import Icon from "../Icon";
 
 interface MonsterManagerProps {
   onClose: () => void;
 }
 
+/** Shape of one row in the bundled bestiary JSON. */
+type MonsterEntry = Pick<
+  Monster,
+  "name" | "link" | "hp" | "ac" | "str" | "dex" | "con" | "int" | "wis" | "cha" | "pp" | "init"
+>;
+
+/** Adding more than this at once is a typo, not an encounter. */
+const MAX_DUPLICATES = 50;
+/** Rendering every match of "a" meant ~1000 list items on one keystroke. */
+const MAX_SUGGESTIONS = 20;
+
+// The two bestiaries total ~690KB. They used to be static imports, so opening
+// the manager pulled in both editions even though only one is ever in use.
+// Fetched on demand instead, and cached so switching back is free.
+const bestiaryCache: Partial<Record<"twentyFourteen" | "twentyTwentyFour", MonsterEntry[]>> = {};
+
+async function loadBestiary(version: "twentyFourteen" | "twentyTwentyFour"): Promise<MonsterEntry[]> {
+  const cached = bestiaryCache[version];
+  if (cached) return cached;
+
+  const mod =
+    version === "twentyFourteen"
+      ? await import("../../assets/2014monsters.json")
+      : await import("../../assets/2024monsters.json");
+
+  const data = (mod.default ?? mod) as MonsterEntry[];
+  bestiaryCache[version] = data;
+  return data;
+}
+
 const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
   const { monsters, setMonsters } = useMonsters();
   const { settings } = useGlobalContext();
-  const monstersData = settings.version === "twentyFourteen" ? monstersDataFourteen : monstersDataTwentyFour;
   const { addMonsterToCombat } = useCombat();
 
-  const initialMonster: Monster = {
-    id: crypto.randomUUID(),
-    name: "",
-    link: "https://5e.tools",
-    hp: 0,
-    currHp: 0,
-    maxHp: 0,
-    ac: 0,
-    str: 10,
-    dex: 10,
-    con: 10,
-    int: 10,
-    wis: 10,
-    cha: 10,
-    pp: 10,
-    init: 0,
-    hidden: false,
-    present: false,
-    conditions: [],
-  };
+  const [monstersData, setMonstersData] = useState<MonsterEntry[]>([]);
 
-  const [newMonster, setNewMonster] = useState<Monster>(initialMonster);
+  useEffect(() => {
+    let cancelled = false;
+    loadBestiary(settings.version)
+      .then((data) => {
+        if (!cancelled) setMonstersData(data);
+      })
+      .catch((err) => console.error("Could not load the bestiary:", err));
+    return () => {
+      cancelled = true;
+    };
+  }, [settings.version]);
+
+  const blankMonster = useMemo<Omit<Monster, "id">>(
+    () => ({
+      name: "",
+      link: "https://5e.tools",
+      hp: 0,
+      currHp: 0,
+      maxHp: 0,
+      ac: 0,
+      str: 10,
+      dex: 10,
+      con: 10,
+      int: 10,
+      wis: 10,
+      cha: 10,
+      pp: 10,
+      init: 0,
+      hidden: false,
+      // Monsters join a battle from the Monster Manager, so a freshly added one
+      // is ready by default. It used to default to false, which is why newly
+      // added monsters silently sat out the next battle.
+      present: true,
+      conditions: [],
+    }),
+    []
+  );
+
+  const [newMonster, setNewMonster] = useState<Omit<Monster, "id">>(blankMonster);
   const [duplicateCount, setDuplicateCount] = useState(1);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
 
   const handleDuplicateCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Math.max(1, parseInt(e.target.value)) || 1;
-    setDuplicateCount(value);
+    const parsed = parseInt(e.target.value, 10);
+    // Clamped: the old version had no upper bound, so a stray "999999" locked
+    // the tab in the name-uniquing loop.
+    setDuplicateCount(Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), MAX_DUPLICATES) : 1);
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,9 +108,14 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
       return;
     }
 
-    const matches = monstersData
-      .filter((m) => m.name.toLowerCase().indexOf(value.toLowerCase()) !== -1)
-      .map((m) => m.name);
+    const needle = value.toLowerCase();
+    const matches: string[] = [];
+    for (const m of monstersData) {
+      if (m.name.toLowerCase().includes(needle)) {
+        matches.push(m.name);
+        if (matches.length >= MAX_SUGGESTIONS) break;
+      }
+    }
 
     setFilteredSuggestions(matches);
     setShowSuggestions(matches.length > 0);
@@ -71,21 +123,32 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
 
   const handleSelectSuggestion = (name: string) => {
     const selected = monstersData.find((m) => m.name === name);
-    if (selected) setNewMonster({ ...newMonster, ...selected, id: crypto.randomUUID() });
+    if (selected) {
+      setNewMonster({
+        ...blankMonster,
+        ...selected,
+        currHp: selected.hp,
+        maxHp: selected.hp,
+      });
+    }
     setShowSuggestions(false);
   };
 
   const addMonsters = (count: number) => {
-    if (!newMonster.name.trim() || count <= 0) return;
+    const baseName = newMonster.name.trim();
+    if (!baseName) return;
 
-    let newMonsters: Monster[] = [];
+    const howMany = Math.min(Math.max(count, 1), MAX_DUPLICATES);
+    const newMonsters: Monster[] = [];
     const existingNames = new Set(monsters.map((m) => m.name));
 
-    for (let i = 0; i < count; i++) {
-      let uniqueName = newMonster.name;
-      let suffix = 1;
+    let suffix = 1;
+    for (let i = 0; i < howMany; i++) {
+      let uniqueName = baseName;
+      // Carry the counter between iterations rather than restarting the scan
+      // from 1 for every copy.
       while (existingNames.has(uniqueName)) {
-        uniqueName = `${newMonster.name} ${suffix}`;
+        uniqueName = `${baseName} ${suffix}`;
         suffix++;
       }
       newMonsters.push({ ...newMonster, id: crypto.randomUUID(), name: uniqueName });
@@ -93,7 +156,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
     }
 
     setMonsters((prev) => [...prev, ...newMonsters]);
-    setNewMonster(initialMonster);
+    setNewMonster(blankMonster);
     setFilteredSuggestions([]);
     setShowSuggestions(false);
     setDuplicateCount(1);
@@ -133,6 +196,40 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
 
       
 
+        <div id="addMonsterOuter">
+      <div className="nameInputWrapper">
+        <input
+          id="monsterNameInput"
+          type="text"
+          placeholder="Search or custom Monster Name"
+          value={newMonster.name}
+          onKeyDown={keyDownAddMonster}
+          onChange={handleNameChange}
+          autoComplete="off"
+        />
+        {showSuggestions && (
+          <ul className="suggestion-list">
+            {filteredSuggestions.map((s) => (
+              <li key={s} onClick={() => handleSelectSuggestion(s)} className="filteredSuggestions">
+                {s}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div>
+        <button id="addNewMonsterButton" onClick={() => addMonsters(1)}>Add Monster</button>
+      </div>
+
+      <div>
+        <input type="number" min="1" max={MAX_DUPLICATES} value={duplicateCount} onChange={handleDuplicateCountChange} aria-label="How many copies to add" />
+        <button onClick={() => addMonsters(duplicateCount)}>Add Monsters</button>
+      </div>
+    </div>
+    
+
+      <div className="managerTableScroll">
       <table id="monsterManagerTable">
         <thead>
           <tr id="monsterManagerHeader">
@@ -193,38 +290,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
           )}
         </tbody>
       </table>
-          <div id="addMonsterOuter">
-        <div className="nameInputWrapper">
-          <input
-            id="monsterNameInput"
-            type="text"
-            placeholder="Search or custom Monster Name"
-            value={newMonster.name}
-            onKeyDown={keyDownAddMonster}
-            onChange={handleNameChange}
-            autoComplete="off"
-          />
-          {showSuggestions && (
-            <ul className="suggestion-list">
-              {filteredSuggestions.map((s) => (
-                <li key={s} onClick={() => handleSelectSuggestion(s)} className="filteredSuggestions">
-                  {s}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div>
-          <button id="addNewMonsterButton" onClick={() => addMonsters(1)}>Add Monster</button>
-        </div>
-
-        <div>
-          <input type="number" min="1" max="50" value={duplicateCount} onChange={handleDuplicateCountChange} />
-          <button onClick={() => addMonsters(duplicateCount)}>Add Monsters</button>
-        </div>
       </div>
-      
       </div>
     </div>
   );

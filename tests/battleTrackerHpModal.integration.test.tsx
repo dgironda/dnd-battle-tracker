@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import type { Combatant } from '../src/types/index';
 import { GlobalProvider } from '../src/hooks/optionsContext';
 import { CombatProvider } from '../src/components/BattleTracker/CombatContext';
+import { RosterProvider } from '../src/hooks/rosterContext';
 import BattleTracker from '../src/components/BattleTracker/BattleTracker';
 
 function createMemoryLocalStorage() {
@@ -69,9 +70,11 @@ function seedCombatLocalStorage(memory: ReturnType<typeof createMemoryLocalStora
 function renderBattleTracker() {
   return render(
     <GlobalProvider>
-      <CombatProvider>
-        <BattleTracker setShowHeroManager={vi.fn()} setShowMonsterManager={vi.fn()} />
-      </CombatProvider>
+      <RosterProvider>
+        <CombatProvider>
+          <BattleTracker />
+        </CombatProvider>
+      </RosterProvider>
     </GlobalProvider>
   );
 }
@@ -136,6 +139,6 @@ describe('BattleTracker + HpChangeModal (integration)', () => {
     expect(modal.getByRole('heading', { level: 3, name: 'Grick' })).toBeInTheDocument();
 
     fireEvent.click(modal.getByRole('button', { name: 'Take Damage' }));
-    expect(modal.getByText('Please enter a valid number')).toBeInTheDocument();
+    expect(modal.getByText('Enter an amount.')).toBeInTheDocument();
   });
 });

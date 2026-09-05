@@ -1,8 +1,6 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
-import { getHeroes, getMonsters } from '../../utils/LocalStorage';
+import { useState } from 'react';
 import { EditableCell, createUpdateHero, createUpdateMonster } from '../../utils/Utils';
-import { Hero, Monster } from '../../types';
 import { useHeroes } from '../../hooks/useHeroes';
 import { useMonsters } from '../../hooks/useMonsters';
 
@@ -19,64 +17,14 @@ const SBPopup: React.FC<PopupProps> = ({
   onContinue,
 }) =>
 {
-  const [heroes, setHeroes] = useState<Hero[]>(() =>
-  {
-    const savedHeroes = getHeroes();
-    // Ensure all numeric fields are numbers
-    return savedHeroes.map(h => ({
-      ...h,
-      hp: h.hp ?? 10,
-      ac: h.ac ?? 10,
-      currHp: h.currHp ?? h.hp ?? 10,
-      maxHp: h.maxHp ?? h.hp ?? 10,
-      tHp: h.tHp ?? 0,
-      str: h.str ?? 10,
-      dex: h.dex ?? 10,
-      con: h.con ?? 10,
-      int: h.int ?? 10,
-      wis: h.wis ?? 10,
-      cha: h.cha ?? 10,
-      pp: h.pp ?? 0,
-      init: h.init ?? 0,
-      conditions: h.conditions ?? [],
-      present: h.present ?? true,
-      link: h.link ?? "",
-      notes: h.notes ?? "",
-    }));
-  });
-
-  const updateHero = createUpdateHero(setHeroes);
+  // Both rosters come from the shared context, so this dialog always shows the
+  // same data the managers do. It used to keep a private normalised copy and
+  // re-read storage whenever it opened.
+  const { heroes, setHeroes } = useHeroes();
   const { monsters, setMonsters } = useMonsters();
+  const updateHero = createUpdateHero(setHeroes);
   const updateMonster = createUpdateMonster(setMonsters);
   const [editingField, setEditingField] = useState<string | null>(null);
-
-  useEffect(() =>
-  {
-    if (isOpen) {
-      const savedHeroes = getHeroes();
-      setHeroes(savedHeroes.map(h => ({
-        ...h,
-        hp: h.hp ?? 10,
-        ac: h.ac ?? 10,
-        currHp: h.currHp ?? h.hp ?? 10,
-        maxHp: h.maxHp ?? h.hp ?? 10,
-        tHp: h.tHp ?? 0,
-        str: h.str ?? 10,
-        dex: h.dex ?? 10,
-        con: h.con ?? 10,
-        int: h.int ?? 10,
-        wis: h.wis ?? 10,
-        cha: h.cha ?? 10,
-        pp: h.pp ?? 0,
-        init: h.init ?? 0,
-        conditions: h.conditions ?? [],
-        present: h.present ?? true,
-        link: h.link ?? "",
-        notes: h.notes ?? "",
-      })));
-      setMonsters(getMonsters());
-    }
-  }, [isOpen, setMonsters]);
 
   if (!isOpen) return null;
 

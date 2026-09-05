@@ -1,8 +1,3 @@
-/* Import IM Fell English SC font */
-@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=New+Rocker&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Germania+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Balthazar&display=swap');
 @import './components/svg-components.css';
 @import './gfx.css';
 @import './managers.css';
@@ -23,7 +18,7 @@
   --color-rowodd: light-dark(#ffffff, #3c3f43);    /* row odd colors */
   --color-roweven: light-dark(#f8f2eb, #484c51);   /* row even colors, if this changes, update getHpColor in BattleTracker */
   --color-hphealthy: light-dark(#000, #fff);       /* hp above 50% */
-  --color-hpbloodied: light-dark(#fff, #000);      /* hp below 50% */
+  --color-hpbloodied: #fdf3f3;                     /* hp below 50%: the cell is dark red in BOTH themes, so this stays light. It used to be light-dark(#fff, #000), which put black text on dark red in dark mode. */
   --color-shadow: light-dark(#555555, #aca9a9);    /* shadow */
   --color-hero-bg1: light-dark(#181715, #f4e8d8);
   --color-hero-bg2: light-dark(#2e2c28 ,#e8dcc8);
@@ -44,6 +39,8 @@
  
   /* Photo Upload Colors */
   --color-photo-border: light-dark(#ccc, #555);
+  --color-link: light-dark(#8a2b12, #f0a97e);          /* readable on parchment and on dark */
+  --color-link-visited: light-dark(#6a2472, #d4a6da);
   --color-photo-border-hover: light-dark(#4CAF50, #66bb6a);
   --color-photo-upload-bg: light-dark(#4CAF50, #388e3c);
   --color-photo-upload-bg-hover: light-dark(#45a049, #2e7d32);
@@ -115,10 +112,14 @@ th {
 }
 
 a {
-  color: var(--color-roweven);
+  color: var(--color-link);
+  text-underline-offset: 2px;
 }
 a:visited {
-  color: var(--color-hl2);
+  color: var(--color-link-visited);
+}
+a:hover {
+  text-decoration: none;
 }
 .bold {
   font-weight: 900;
@@ -143,11 +144,11 @@ a:visited {
   font-size: clamp(1.75rem, calc(1.5rem + 2vw), 4rem);
   text-align: center;
   color: var(--color-hl2);
-  text-shadow: 2px 2px 4px var(--color-shadow);
   margin: .5rem .1rem;
   transition: filter 0.2s ease;
 }
 
+html[data-theme="dark"] #logo,
 html[style*="color-scheme: dark"] #logo {
   filter: invert(1);
 }
@@ -159,7 +160,6 @@ button {
   text-decoration: none;
   padding: .6rem;
   cursor: pointer;
-  text-shadow: -1px -1px 2px var(--color-shadow);
   background: var(--color-btn2);
   color: var(--color-bg1);
   border: .15rem double var(--color-btn1);
@@ -466,7 +466,6 @@ sup {
   align-items: center;
   font-size: 1.5rem;
   font-weight: 800;
-  /* filter: drop-shadow(5px 5px 10px var(--color-shadow)); */
 }
 
 #initiativeDialogOuter {

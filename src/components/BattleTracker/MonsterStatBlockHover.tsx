@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Monster, Combatant } from '../../types/index';
-import { createUpdateMonster, createDeleteMonster, EditableCell } from "../../utils/Utils";
-import { getCombatants, getMonsters, storeMonsters } from '../../utils/LocalStorage';
+import { EditableCell } from "../../utils/Utils";
+import { useCombat } from './CombatContext';
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
 import { useGlobalContext } from '../../hooks/optionsContext';
 
@@ -9,14 +9,21 @@ interface MonsterStatBlockHoverProps {
   monster: Monster;
   currentHp?: number;
   children: React.ReactNode;
-  updateCombatant: (combatantID:string, field:keyof Combatant, value:any) => void;
+  updateCombatant: (
+    combatantID: string,
+    field: keyof Combatant,
+    value: string | number | boolean | string[]
+  ) => void;
 }
 
 export function MonsterStatBlockHover({ monster, currentHp, children, updateCombatant }: MonsterStatBlockHoverProps) {
   const [isHovering, setIsHovering] = useState(false);
   const [isStuck, setIsStuck] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
-  const [combatants, setCombatants] = useState<Combatant[]>(() => getCombatants() || []);
+  // Combatants come from the shared combat context. This used to be a private
+  // copy seeded from localStorage on mount, so the notes shown here drifted out
+  // of step with the tracker.
+  const { combatants } = useCombat();
   const [showConditions, setShowConditions] = useState(false);
   const toggleConditions = () => {
     setShowConditions(prevState => !prevState);
@@ -40,16 +47,21 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
     setIsHovering(false)
   }
 
-  const handleKeyPressx = useCallback((event:KeyboardEvent) => {
-    if (event.key === 'x' || event.key === 'X')
-    {let statsHover = document.querySelectorAll('.statHover') as NodeListOf<HTMLElement>;
-      statsHover.forEach(hover => {
-        setIsStuck(false)
-        hover.style.opacity = '0'
-        hover.style.left = '-300'
-      })
-    };
+  // Was declared but never registered, so X didn't close monster stat blocks the
+  // way it does hero ones. Driven through state rather than by writing inline
+  // styles React then overwrites.
+  const handleKeyPressx = useCallback((event: KeyboardEvent) => {
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+    if (event.key.toLowerCase() === 'x' && !(event.ctrlKey || event.shiftKey || event.altKey || event.metaKey)) {
+      setIsStuck(false);
+      setIsHovering(false);
+    }
   }, []);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyPressx);
+    return () => document.removeEventListener('keydown', handleKeyPressx);
+  }, [handleKeyPressx]);
 
   // Safe fields
   const name = safe(monster.name, 'Unknown Creature');

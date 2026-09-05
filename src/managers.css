@@ -1,100 +1,193 @@
 
 
    
+/* ============================================
+   MANAGER PANELS
+
+   The container artwork is 9-sliced (`border-image`) rather than stretched
+   across the panel: the drawn corners are placed untouched, the ragged edges
+   stretch along their own axis, and the parchment or banner centre fills the
+   rest. On the monster frame that keeps the scroll rods pinned to the top
+   corners at any size.
+
+   Because the frame no longer dictates the panel's shape, the panels size
+   themselves to their content again the way they did in v.0.3.1, instead of
+   being locked to the artwork's 16:9 and leaving a band of bare frame under
+   short content.
+   ============================================ */
+
+/* Each panel publishes the colours of the artwork it is painted on, so the
+   tables and section panels inside can be built from the scroll itself rather
+   than dropped on top of it as opaque white slabs. Sampled from the SVGs:
+   the banner runs #7e1717 to #a41818, the scroll #c3a688 to #d1baa2. */
 #heroAddManage {
-  background-image: url('/src/assets/draftsvgs_v2/container_hero-manager.svg');
-  color: var(--color-fg);
-  width: 40%; height: 40%!important;
-  background-repeat: no-repeat; 
+  border-image-source: url('./assets/draftsvgs_v2/container_hero-manager.svg');
+
+  --panel-ink: #fbf3e7;
+  --panel-ink-soft: #eed6ba;
+  --panel-rule: rgba(251, 243, 231, 0.26);
+  --panel-rule-soft: rgba(251, 243, 231, 0.13);
+  --panel-row: rgba(251, 243, 231, 0.05);
+  --panel-row-alt: rgba(0, 0, 0, 0.22);
+  --panel-head: rgba(0, 0, 0, 0.46);
+  --panel-head-ink: #fbf3e7;
+  --panel-inset: rgba(0, 0, 0, 0.24);
+  --panel-field: rgba(251, 243, 231, 0.94);
+  --panel-field-ink: #2b1c10;
+
+  color: var(--panel-ink);
 }
 
-#monsterAddManage {
-  background-image: url('./assets/draftsvgs_v2/container_monster-manager.svg');
-  width: 50%; height: 40%!important;
-  background-repeat: no-repeat; 
-}
-
+#monsterAddManage,
 #battleAddManage {
-  /* temp until it has a unique image */
-  background-image: url('./assets/draftsvgs_v2/container_monster-manager.svg');
-  background-repeat: no-repeat;
-  width: 65%; height: 40%!important;
+  /* the battle manager borrows the monster frame until it has its own */
+  border-image-source: url('./assets/draftsvgs_v2/container_monster-manager.svg');
+
+  --panel-ink: #2b1a0c;
+  --panel-ink-soft: #56391d;
+  --panel-rule: rgba(43, 26, 12, 0.30);
+  --panel-rule-soft: rgba(43, 26, 12, 0.15);
+  --panel-row: rgba(255, 250, 240, 0.30);
+  --panel-row-alt: rgba(107, 72, 36, 0.14);
+  --panel-head: rgba(126, 23, 23, 0.92);
+  --panel-head-ink: #fbf3e7;
+  --panel-inset: rgba(107, 72, 36, 0.15);
+  --panel-field: rgba(255, 253, 248, 0.80);
+  --panel-field-ink: #2b1a0c;
+
+  color: var(--panel-ink);
 }
 
 #heroAddManage, #monsterAddManage, #battleAddManage {
-  position: absolute;
-  top: 2vw !important;
-  left: 5vw !important;
+  position: fixed;
+  top: 3vh;
+  left: 15vw;
+  width: 80vw;
+  height: auto;
+  max-height: 88vh;
   z-index: 25;
   font-family: 'Caudex', serif;
-  
-  
-  background-color: transparent;
-  border: none;
-  scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  padding: 2.2rem 3rem 2rem 3rem !important;
+  box-sizing: border-box;
 
-  /* Container size */
-  min-width: 600px;
-  max-width: 90vw;
-  min-height: 400px;
-  max-height: 90vh;
-  
-  /* Don't let container scroll */
+  background: none;
+  border-style: solid;
+  border-color: transparent;
+  /* The corner pieces are drawn at a fixed size in the artwork's own 1926:1097
+     ratio (53/30 = 1.77), so they keep their shape whatever shape the panel
+     takes. A percentage border-image-width instead ties the drawn corner to
+     the *panel's* aspect, which squashed the scroll rods and flattened the
+     torn edges as soon as the panel was not the artwork's shape - worst in
+     portrait, where they were stretched nearly 3x vertically.
+     Only the edge strips stretch now, along their own length, which is what
+     they are for. */
+  border-width: 30px 53px;
+  border-image-slice: 6% fill;
+  border-image-width: 30px 53px;
+  border-image-repeat: stretch;
+
+  padding: 0;
   overflow: hidden;
-  
-  /* SVG Background */
-   
-  background-size: 100% 100%; 
 
-  border: none;
+  /* The fields inside all sit on light grounds taken from the artwork, and the
+     artwork does not follow the theme - so neither should the checkboxes and
+     number spinners the browser draws. Without this they render dark-on-
+     parchment whenever the app is in dark mode. */
+  color-scheme: light;
+
+  /* A flex column so the content wrapper gets a definite height to work
+     against. A percentage max-height would resolve to `none` here, because the
+     panel's own height is auto. */
+  display: flex;
+  flex-direction: column;
 }
 
 
 /* ============================================
-   CONTENT WRAPPER - CRITICAL!
+   CONTENT WRAPPER
    ============================================ */
 
 .hero-content, .monster-content, .battle-content {
-  /* MUST be relative positioned to sit inside parent */
-  position: relative;
-  
-  /* Fill the entire parent container */
+  /* Takes the panel's remaining height, and may shrink below its content so
+     the scrolling below actually engages. */
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
-  height: 100%;
-  min-height: 400px;
-  max-height: 85vh;
-  
-  /* Box model */
   box-sizing: border-box;
-  
-  /* Padding creates space from container edges */
-  padding: 1.5rem;
-  
-  /* Content scrolls, not container */
-  overflow-y: scroll;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
 }
 
-/* Scrollbar styling */
+.hero-content > *, .monster-content > *, .battle-content > * {
+  flex: 0 0 auto;
+}
+
+/* The roster takes whatever room is left under the add-form and scrolls on its
+   own, so the add-form stays put while a long roster moves. */
+.managerTableScroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.managerTableScroll table {
+  width: 100%;
+}
+
+/* A long roster scrolls under its own column headings. */
+.managerTableScroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* The close button sits inside the top-right of the frame. */
+#heroAddManage .saveClose,
+#monsterAddManage .saveClose,
+#battleAddManage .saveClose {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  z-index: 3;
+  margin: 0;
+  float: none;
+}
+
+/* Scrollbars take the panel's own ink so the track does not cut a pale strip
+   down the side of the scroll. */
+.hero-content, .monster-content, .battle-content, .managerTableScroll {
+  scrollbar-color: var(--panel-rule) transparent;
+}
+
 .hero-content::-webkit-scrollbar,
 .monster-content::-webkit-scrollbar,
-.battle-content::-webkit-scrollbar {
+.battle-content::-webkit-scrollbar,
+.managerTableScroll::-webkit-scrollbar {
   width: 8px;
 }
 
 .hero-content::-webkit-scrollbar-track,
 .monster-content::-webkit-scrollbar-track,
-.battle-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
+.battle-content::-webkit-scrollbar-track,
+.managerTableScroll::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .hero-content::-webkit-scrollbar-thumb,
 .monster-content::-webkit-scrollbar-thumb,
-.battle-content::-webkit-scrollbar-thumb {
-  background: var(--color-brdr1);
+.battle-content::-webkit-scrollbar-thumb,
+.managerTableScroll::-webkit-scrollbar-thumb {
+  background: var(--panel-rule);
   border-radius: 4px;
 }
 
@@ -106,37 +199,49 @@
    ============================================ */
 
 #addHeroOuter {
-  /* Make sure it's positioned normally (not absolute) */
   position: relative;
-  
-  /* Spacing */
-  margin-bottom: 1rem;
-  padding: 1rem;
-  
-  /* Styling */
-  border: 1px solid var(--color-brdr1);
-  border-radius: 4px;
-  background-color: var(--color-bg2);
+  margin-bottom: 0.7rem;
+  padding: 0.6rem 0.7rem;
+  /* An inset area of the same scroll, not a separate card. */
+  border: none;
+  border-bottom: 1px solid var(--panel-rule);
+  border-radius: 0;
+  background-color: var(--panel-inset);
+  color: var(--panel-ink);
 }
 
 #addHeroOuter h3 {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+/* v.0.3.1 laid these out as a proper four-column grid; the SVG work left them
+   as inline inputs that bunched up at one end of the panel. */
+#addHeroInner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+#addHeroInner input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.addPresent-div {
+  display: flex;
+  align-items: center;
 }
 
 /* ============================================
    HERO MANAGER SPECIFIC STYLES
    ============================================ */
 
-#heroAddManage h2 {
-    color: var(--color-bg1) !important;
-}
-
 .hero-content h2, .monster-content h2, .battle-content h2 {
   text-align: center;
   margin-top: 0;
-  margin-bottom: 1rem;
-  color: var(--color-text);
+  margin-bottom: 0.6rem;
 }
 
 .hero-content table {
@@ -152,17 +257,16 @@
 
 
 #addMonsterOuter {
+  /* One compact row at the top of the panel, the way v.0.3.1 had it, instead
+     of a 2-3rem-padded block. */
   display: flex;
-  gap: 3rem;
+  gap: 1rem;
   align-items: center;
-  margin-bottom: .4rem;
-  background-repeat: no-repeat;
-  background-position: top;
-  background-size: cover;
+  flex-wrap: wrap;
+  margin-bottom: .6rem;
   background-color: transparent !important;
   border: none !important;
-  padding: 2.2rem 3rem 2rem 3rem !important;
-  color: var(--color-fg) !important;
+  padding: 0.3rem 0 0.6rem 0 !important;
 }
 
 #monsterNameInput {
@@ -178,8 +282,9 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: var(--color-roweven);
-  border: 1px solid var(--color-brdr1);
+  background: #fbf5ea;
+  color: #2e1d0f;
+  border: 1px solid var(--panel-rule);
   list-style: none;
   padding: 0;
   margin: 2px 0 0 0;
@@ -197,19 +302,45 @@
 }
 
 .filteredSuggestions:hover {
-  background-color: #8b8b8b;
+  background-color: rgba(126, 23, 23, 0.14);
 }
 
-.heroTableBody, .monsterTableBody {
-  filter: brightness(115%);
+/* ============================================
+   ROSTER TABLES - drawn on the scroll, not on top of it
+
+   These used to be opaque white cells with a 115% brightness filter over the
+   top, which read as a sheet of printer paper laid on the parchment. They are
+   now translucent tints of the artwork underneath, ruled with the panel's own
+   ink, so the scroll shows through and the table belongs to it.
+   ============================================ */
+
+.managerTableScroll table {
+  border-collapse: collapse;
+  color: var(--panel-ink);
 }
 
-.heroTableBody td, .monsterTableBody td{
-  background-color:white;
+.managerTableScroll thead th {
+  background-color: var(--panel-head);
+  color: var(--panel-head-ink);
+  border: none;
+  border-bottom: 2px solid var(--panel-rule);
+  padding: 0.3rem 0.5rem;
+  font-size: 0.92rem;
+  letter-spacing: 0.03em;
+  text-transform: none;
 }
 
-.heroTableBody .statsRow td, .monsterTableBody .statsRow td{
-  background-color:lightgrey;
+.managerTableScroll tbody td {
+  background-color: var(--panel-row);
+  color: var(--panel-ink);
+  border: none;
+  border-bottom: 1px solid var(--panel-rule-soft);
+  padding: 0.3rem 0.45rem;
+}
+
+.heroTableBody tr.heroManagerHero:nth-of-type(4n + 3) td,
+.monsterTableBody tr.monsterManagerMonster:nth-of-type(4n + 3) td {
+  background-color: var(--panel-row-alt);
 }
 
 .heroStats {
@@ -218,24 +349,43 @@
   justify-content: space-around;
 }
 
-.statsRow {
-  background-color: var(--color-roweven);
-}
-
-.statsRow>td {
-  border: 1px solid var(--color-brdr1);
-  padding: .3rem;
-  font-size: .7rem;
+/* The stat strip is secondary information: same ground, smaller type. It keeps
+   full-strength ink rather than a softened one - it is small enough already,
+   and these numbers get read mid-fight. Scoped through .managerTableScroll so
+   it out-specifies the generic cell rule above. */
+.managerTableScroll .statsRow > td {
+  background-color: var(--panel-inset);
+  border: none;
+  border-bottom: 1px solid var(--panel-rule-soft);
+  padding: .25rem .4rem;
+  font-size: .74rem;
 }
 
 .heroesSpacer {
   height: .1rem;
-  border: none;
+  border: none !important;
   background-color: transparent !important;
 }
 
+/* Editable values read as buttons on the scroll rather than as plain text. */
+.managerTableScroll .setEditingField {
+  color: inherit;
+}
+
+.managerTableScroll .setEditingField:hover {
+  background-color: var(--panel-rule-soft);
+}
+
+/* The pencil marker beside every editable value carried a grey drop shadow,
+   which put a smudge in every cell of every table. */
 .edit {
-  filter: drop-shadow(1px 2px 1px #666);
+  opacity: 0.55;
+  font-size: 0.8em;
+  margin-left: 0.15em;
+}
+
+.setEditingField:hover .edit {
+  opacity: 1;
 }
 
 /* Battle Manager Popup Styles - Matches HeroManager/MonsterManager */
@@ -244,35 +394,37 @@
 #saveBattleOuter,
 #exportImportBattles,
 #savedBattlesOuter {
-  margin-bottom: 1.5rem;
-  padding: 1rem; 
-  border: 1px solid var(--color-brdr1); 
-  border-radius: 4px; 
-  background-color: var(--color-bg2);
+  margin-bottom: 1rem;
+  padding: 0.7rem 0.8rem;
+  border: none;
+  border-bottom: 1px solid var(--panel-rule);
+  border-radius: 0;
+  background-color: var(--panel-inset);
+  color: var(--panel-ink);
 }
 
 #saveBattleOuter h3,
 #exportImportBattles h3,
 #savedBattlesOuter h3 {
   margin-top: 0;
-  margin-bottom: 1rem;
-  color: var(--color-hl2);
-  font-size: 1.3em;
+  margin-bottom: 0.6rem;
+  color: var(--panel-ink);
+  font-size: 1.15em;
 }
 
 .battle-info {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: rgba(139, 69, 19, 0.1);
-  border-radius: 4px;
+  margin-bottom: 0.7rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--panel-row);
   font-size: 1em;
-  border-left: 4px solid var(--color-hl2);
+  color: var(--panel-ink);
+  border-left: 3px solid var(--panel-rule);
 }
 
 .no-battle-warning {
-  color: #888;
+  color: var(--panel-ink-soft);
   font-style: italic;
-  padding: 1rem;
+  padding: 0.8rem;
   text-align: center;
 }
 
@@ -300,19 +452,21 @@
 
 .save-dialog input {
   width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 0.75rem;
-  border: 2px solid var(--color-hl2);
-  border-radius: 4px;
+  padding: 0.5rem;
+  margin-bottom: 0.6rem;
+  border: 1px solid var(--panel-rule);
+  border-radius: 2px;
   font-size: 1em;
   font-family: 'Caudex', serif;
-  background: var(--color-bg1);
+  background: var(--panel-field);
+  color: var(--panel-field-ink);
 }
 
-.save-dialog input:focus {
-  outline: none;
-  border-color: var(--color-hl3);
-  box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
+/* A real outline rather than `outline: none` plus a shadow ring - the shadow
+   version disappears in forced-colours mode and left no focus indicator. */
+.save-dialog input:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 1px;
 }
 
 .save-dialog-buttons {
@@ -351,42 +505,48 @@
   background: #ccc;
 }
 
+/* 463x120 artwork; an 18rem x 11rem box letterboxed it and left a large
+   empty band under each button. */
 #buttonDownloadData {
   background-image: url('./assets/draftsvgs_v2/button_cutout-green-med.svg');
   background-repeat: no-repeat;
   background-position: center;
+  background-size: 100% 100%;
   border: none;
   background-color: transparent;
-  width: 18rem !important;
-  height: 11rem;
-  
+  width: 13rem !important;
+  height: auto;
+  aspect-ratio: 463 / 120;
 }
 
 #buttonMonsterShareURL {
   background-image: url('./assets/draftsvgs_v2/button_cutout-green-med.svg');
   background-repeat: no-repeat;
   background-position: center;
+  background-size: 100% 100%;
   border: none;
   background-color: transparent;
-  width: 18rem !important;
-  height: 11rem;
-  
+  width: 13rem !important;
+  height: auto;
+  aspect-ratio: 463 / 120;
 }
 
 #inputImportData {
   background-image: url('./assets/draftsvgs_v2/button_cutout-green-small.svg');
   background-repeat: no-repeat;
   background-position: center;
+  background-size: 100% 100%;
   background-color: transparent;
   border: none;
-  width: 8rem !important;
-  height: 8rem;
+  width: 7rem !important;
+  height: auto;
+  aspect-ratio: 172 / 120;
 }
 
 .empty-state {
-  color: #888;
+  color: var(--panel-ink-soft);
   text-align: center;
-  padding: 2rem;
+  padding: 1.2rem;
   font-style: italic;
 }
 
@@ -397,24 +557,23 @@
 }
 
 .battle-card {
-  border: 2px solid var(--color-brdr1);
-  border-radius: 8px;
-  padding: 1rem;
-  background: var(--color-bg1);
+  border: 1px solid var(--panel-rule);
+  border-radius: 3px;
+  padding: 0.7rem;
+  background: var(--panel-row);
+  color: var(--panel-ink);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .battle-card:hover {
-  border-color: var(--color-hl2);
-  box-shadow: 0 2px 8px rgba(139, 69, 19, 0.2);
-  transform: translateY(-2px);
+  border-color: var(--panel-ink-soft);
+  background: var(--panel-row-alt);
 }
 
 .battle-card.selected {
-  border-color: var(--color-hl2);
-  background: var(--color-hl1);
-  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+  border-color: var(--panel-ink);
+  background: var(--panel-row-alt);
 }
 
 .battle-card-header {
@@ -426,8 +585,8 @@
 
 .battle-card-header h4 {
   margin: 0;
-  color: var(--color-hl2);
-  font-size: 1.2em;
+  color: var(--panel-ink);
+  font-size: 1.1em;
 }
 
 .battle-card-actions {
@@ -468,8 +627,8 @@
 }
 
 .battle-card-info {
-  font-size: 0.95em;
-  color: #666;
+  font-size: 0.92em;
+  color: var(--panel-ink-soft);
 }
 
 .battle-date {
@@ -479,18 +638,18 @@
 .battle-stats {
   margin: 0.25rem 0;
   font-weight: bold;
-  color: var(--color-text);
+  color: var(--panel-ink);
 }
 
 .battle-card-details {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 2px solid var(--color-brdr1);
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--panel-rule);
 }
 
 .battle-card-details h5 {
-  margin: 0 0 0.75rem 0;
-  color: var(--color-hl2);
+  margin: 0 0 0.5rem 0;
+  color: var(--panel-ink);
 }
 
 .battle-card-details ul {
@@ -500,9 +659,9 @@
 }
 
 .battle-card-details li {
-  padding: 0.4rem 0;
-  font-size: 0.95em;
-  border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+  padding: 0.3rem 0;
+  font-size: 0.93em;
+  border-bottom: 1px solid var(--panel-rule-soft);
 }
 
 .battle-card-details li:last-child {
@@ -525,4 +684,51 @@
   .btn-delete {
     flex: 1;
   }
+}
+
+/* ============================================
+   FIELDS AND CONTROLS ON THE SCROLL
+   ============================================ */
+
+.hero-content input[type="text"],
+.hero-content input[type="number"],
+.hero-content input:not([type]),
+.hero-content textarea,
+.monster-content input[type="text"],
+.monster-content input[type="number"],
+.monster-content input:not([type]),
+.monster-content textarea,
+.battle-content input[type="text"],
+.battle-content input:not([type]),
+.battle-content textarea {
+  background-color: var(--panel-field);
+  color: var(--panel-field-ink);
+  border: 1px solid var(--panel-rule);
+  border-radius: 2px;
+  padding: 0.2rem 0.4rem;
+  font-family: 'Caudex', serif;
+}
+
+.hero-content ::placeholder,
+.monster-content ::placeholder,
+.battle-content ::placeholder {
+  color: var(--panel-field-ink);
+  opacity: 0.62;
+}
+
+.hero-content input:focus-visible,
+.monster-content input:focus-visible,
+.battle-content input:focus-visible,
+.hero-content textarea:focus-visible,
+.monster-content textarea:focus-visible,
+.battle-content textarea:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 1px;
+}
+
+/* Headings take the panel's ink rather than a theme token: the artwork does
+   not follow the theme, so text sitting on it cannot either. */
+.hero-content h2, .monster-content h2, .battle-content h2,
+.hero-content h3, .monster-content h3, .battle-content h3 {
+  color: var(--panel-ink);
 }
