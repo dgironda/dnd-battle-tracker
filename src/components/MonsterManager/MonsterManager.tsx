@@ -5,6 +5,7 @@ import { createUpdateMonster, createDeleteMonster, EditableCell } from "../../ut
 import { useGlobalContext } from "../../hooks/optionsContext";
 import { useCombat } from "../BattleTracker/CombatContext";
 import Icon from "../Icon";
+import { checkboxStyle, checkboxVariant } from "../../utils/handArt";
 
 interface MonsterManagerProps {
   onClose: () => void;
@@ -142,14 +143,18 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
     const newMonsters: Monster[] = [];
     const existingNames = new Set(monsters.map((m) => m.name));
 
-    let suffix = 1;
+    /* A batch is numbered from 1, so five goblins read "Goblin 1".."Goblin 5".
+       Previously the first copy took the bare name and only the rest were
+       numbered, which gave "Goblin" and "Goblin 1" — a set where the first one
+       is the odd one out. A single monster still gets its plain name.
+
+       The counter carries between iterations rather than restarting the scan,
+       and the loop still steps past any name already on the roster. */
+    let next = 1;
     for (let i = 0; i < howMany; i++) {
-      let uniqueName = baseName;
-      // Carry the counter between iterations rather than restarting the scan
-      // from 1 for every copy.
+      let uniqueName = howMany === 1 ? baseName : `${baseName} ${next++}`;
       while (existingNames.has(uniqueName)) {
-        uniqueName = `${baseName} ${suffix}`;
-        suffix++;
+        uniqueName = `${baseName} ${next++}`;
       }
       newMonsters.push({ ...newMonster, id: crypto.randomUUID(), name: uniqueName });
       existingNames.add(uniqueName);
@@ -201,7 +206,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
         <input
           id="monsterNameInput"
           type="text"
-          placeholder="Search or custom Monster Name"
+          placeholder="Search"
           value={newMonster.name}
           onKeyDown={keyDownAddMonster}
           onChange={handleNameChange}
@@ -233,12 +238,15 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
       <table id="monsterManagerTable">
         <thead>
           <tr id="monsterManagerHeader">
+            {/* Short labels: "Ready For Next Battle" wrapped to four lines and
+                made the header taller than a monster's whole entry. The full
+                wording stays as the tooltip. */}
             <th>Name</th>
             <th>HP</th>
             <th>AC</th>
-            <th>Hiding?</th>
-            <th>Ready For Next Battle</th>
-            <th></th>
+            <th title="Hidden from the party">Hiding</th>
+            <th title="Ready for the next battle">Ready</th>
+            <th><span className="visuallyHidden">Actions</span></th>
           </tr>
         </thead>
         <tbody className="monsterTableBody">
@@ -254,28 +262,56 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
                 <td>
                   <EditableCell entity={m} field="ac" type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} />
                 </td>
-                <td>
-                  <input type="checkbox" checked={m.hidden} onChange={() => toggleHidden(m.id)} />
+                {/* Both booleans use the tracker's drawn box and tick, as the
+                    Hero Manager's "Ready?" does. Pinned to a tick: a cross
+                    against either of these would read as its opposite. */}
+                {/* An eye rather than a box: open when the monster is in plain
+                    sight, shut when it is hidden. Still a real checkbox, so it
+                    is reachable by keyboard and reads as a toggle. */}
+                <td className="managerCheckCell">
+                  <label className="hidingToggle">
+                    <input
+                      type="checkbox"
+                      checked={!!m.hidden}
+                      onChange={() => toggleHidden(m.id)}
+                      aria-label={`${m.name} is hidden from the party`}
+                    />
+                  </label>
                 </td>
-                <td onClick={() => updateMonster(m.id, "present", !m.present)} className="pointer">
-                  {m.present ? "✅" : "❌"}
+                <td className={`managerCheckCell ${checkboxVariant(m.id, "present", "Check")}`}>
+                  <label className="managerCheck" style={checkboxStyle(m.id, "present")}>
+                    <input
+                      type="checkbox"
+                      checked={!!m.present}
+                      onChange={() => updateMonster(m.id, "present", !m.present)}
+                      aria-label={`${m.name} is ready for the next battle`}
+                    />
+                    <span className="tickMark" aria-hidden="true" />
+                  </label>
                 </td>
-                <td>
-                  <button onClick={async () => { await addMonsterToCombat(m); deleteMonster(m.id, true); }}>Add to Existing Battle</button>
-                  <button onClick={() => deleteMonster(m.id)}>
-                    <Icon
-                      name="delete"
-                      color="var(--color-bg1)"
-                      size={24}
-                      /></button>
+                <td className="monsterActions">
+                  <button
+                    className="buttonJoinFray"
+                    onClick={async () => { await addMonsterToCombat(m); deleteMonster(m.id, true); }}
+                  >
+                    Join the Fray
+                  </button>
+                  <button
+                    className="buttonDelete"
+                    onClick={() => deleteMonster(m.id)}
+                    aria-label={`Delete ${m.name}`}
+                  >
+                    <Icon name="delete" color="currentColor" size={24} />
+                  </button>
                 </td>
               </tr>
               <tr className="statsRow">
                 <td colSpan={6}>
                   <div className="heroStats">
                     {["str", "dex", "con", "int", "wis", "cha", "pp", "init"].map((stat) => (
-                      <span key={stat}>
-                        {stat.toUpperCase()}: <EditableCell entity={m} field={stat as keyof Monster} type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} />
+                      <span className="heroStat" key={stat}>
+                        <span className="heroStatLabel">{stat.toUpperCase()}</span>
+                        <EditableCell entity={m} field={stat as keyof Monster} type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} />
                       </span>
                     ))}
                   </div>

@@ -5,6 +5,7 @@ import { createAddHero, createUpdateHero, createDeleteHero } from "../../utils/U
 import { EditableCell } from "../../utils/Utils";
 import { useHeroes } from "../../hooks/useHeroes";
 import Icon from "../Icon";
+import { checkboxStyle, checkboxVariant } from "../../utils/handArt";
 
 interface HeroManagerProps {
   onClose: () => void;
@@ -82,11 +83,21 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
                     updateEntity={updateHero}
                   />
                 </td>
-                <td
-                  onClick={() => updateHero(hero.id, "present", !hero.present)}
-                  className="pointer"
-                >
-                  {hero.present ? "✅" : "❌"}
+                {/* The same drawn box and mark as the tracker's action
+                    columns, rather than the ✅/❌ glyphs — a real checkbox, so
+                    it is reachable by keyboard and reads as one control. The
+                    mark is pinned to a tick: a cross against "Ready?" would
+                    read as the opposite of what it means. */}
+                <td className={`managerCheckCell ${checkboxVariant(hero.id, "present", "Check")}`}>
+                  <label className="managerCheck" style={checkboxStyle(hero.id, "present")}>
+                    <input
+                      type="checkbox"
+                      checked={!!hero.present}
+                      onChange={() => updateHero(hero.id, "present", !hero.present)}
+                      aria-label={`${hero.name} is ready`}
+                    />
+                    <span className="tickMark" aria-hidden="true" />
+                  </label>
                 </td>
                 <td>
                   <button className="buttonDelete" onClick={() => deleteHero(hero.id)}>
@@ -103,8 +114,8 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
                 <td colSpan={6}>
                   <div className="heroStats">
                     {["str", "dex", "con", "int", "wis", "cha", "pp", "init"].map((stat) => (
-                      <span key={stat} title={stat.toUpperCase()}>
-                        {stat.toUpperCase()}:{" "}
+                      <span className="heroStat" key={stat}>
+                        <span className="heroStatLabel">{stat.toUpperCase()}</span>
                         <EditableCell
                           entity={hero}
                           field={stat as keyof Hero}

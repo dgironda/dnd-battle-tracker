@@ -34,7 +34,6 @@
 
 /* Fallback if SVG doesn't load */
 .svg-border-default {
-  border: 2px solid var(--color-brdr1, #8b4513);
 }
 
 .svg-border-fancy {

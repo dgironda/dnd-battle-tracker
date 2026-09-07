@@ -4,6 +4,7 @@ import { createUpdateHero, EditableCell } from "../../utils/Utils";
 import { useHeroes } from "../../hooks/useHeroes";
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
 import { useGlobalContext } from '../../hooks/optionsContext';
+import { useConditionTip } from './useConditionTip';
 
 
 interface HeroStatBlockHoverProps {
@@ -21,10 +22,12 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
   // writing to localStorage on mount.
   const { heroes, setHeroes } = useHeroes();
   const updateHero = createUpdateHero(setHeroes);
-  const [showConditions, setShowConditions] = useState(false);
-  const toggleConditions = () => {
-    setShowConditions(prevState => !prevState);
-  };
+  // The descriptions are on the chips themselves now, so the old click-to-
+  // expand toggle (which appended ": <description>" after each name and made
+  // the panel several times taller) is gone.
+  const { showTip, hideTip, tipNode, tipId, tipName } = useConditionTip(
+    `hero-${combatant?.id ?? hero?.id ?? 'x'}`,
+  );
 
   const safe = <T,>(value: T | undefined | null, fallback: T): T =>
     value !== undefined && value !== null ? value : fallback;
@@ -36,10 +39,15 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
   const { settings } = useGlobalContext();
   const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
-  function closeStatsButton(e: React.MouseEvent) {
+  function closeStatsButton(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
     setIsStuck(false);
     setIsHovering(false);
+    /* The close button lives inside .statBlockTrigger, and the trigger draws
+       the name's underline on :focus-within as well as on open. A mouse click
+       leaves focus on the button, so without this the underline stayed drawn
+       after the panel had shut. */
+    e.currentTarget.blur();
   }
 
   const handleKeyPressx = useCallback((event: KeyboardEvent) => {
@@ -77,29 +85,26 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
 
   return (
     <div
-      
+      className={`statBlockTrigger${isHovering || isStuck ? " isOpen" : ""}`}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
-      onClick={() => setIsStuck(!isStuck)}  style={{left: '0px', opacity: 1}}
+      onClick={() => setIsStuck(!isStuck)}
+      style={{ left: '0px', opacity: 1 }}
     >
       {children}
 
       {/* Slide-in stat block */}
-      <div
-        className='statHover heroStatHover'
-        style={{
-          position: 'fixed',
-          top: '5vh',
-          left: (isHovering || isStuck) ? '0px' : '-380px',
-          transform: 'translateY(0)',
-          opacity: (isHovering || isStuck) ? 1 : 0,
-          transition: 'left 0.35s ease-out, opacity 0.3s ease-out',
-        }}
-      >
+      {/* The scroll: rolled up off to the left when shut, it slides out and
+          then unrolls to the right. All of that is in CSS so the two phases
+          can be timed against each other; this only says whether it is open. */}
+      <div className={`statHover heroStatHover${(isHovering || isStuck) ? ' isOpen' : ''}`}>
         {/* Header */}
         <button className='closeStats'
           onClick={closeStatsButton}>X
         </button>
+        {/* Fixed width, so the text does not reflow line by line while the
+            scroll is still unrolling. */}
+        <div className='statHoverSheet'>
         <div className='heroStatHeader'>
           <h3 className='heroStatHeaderName'>
             {name}
@@ -137,17 +142,27 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
           <span>Passive Perception</span>
           <span>{pp}</span>
         </div>
-        <div className='heroStatConditions' onClick={toggleConditions} >
-          <div>
-          Current conditions:{combatant?.conditions.map((conditionName) => (
-            <div
-            key={conditionName}>
-              <span className="heroStatConditionsName">{conditionName}</span>{showConditions && (<span className={`${conditionName}-description`}>: {conditionDescriptions[conditionName]}</span>)}
-            </div>
-          ))}
-        </div>
-        
-        
+        <div className='heroStatConditions'>
+          <span className='statConditionsLabel'>Conditions</span>
+          {combatant?.conditions.length ? (
+            combatant.conditions.map((conditionName) => (
+              <span
+                key={conditionName}
+                className='conditionName'
+                tabIndex={0}
+                onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+                onMouseLeave={hideTip}
+                onFocus={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+                onBlur={hideTip}
+                aria-describedby={tipName === conditionName ? tipId : undefined}
+              >
+                {conditionName}
+              </span>
+            ))
+          ) : (
+            <span className='noStatCondition'>none</span>
+          )}
+          {tipNode}
       </div>
       <div className={`${id}-notes`}>
           Notes: {heroes.filter(h => h.id === id).map(h => (
@@ -163,6 +178,7 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
           ))}
           
         </div>
+    </div>
     </div>
   </div>
   );

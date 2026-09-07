@@ -4,6 +4,7 @@ import { EditableCell } from "../../utils/Utils";
 import { useCombat } from './CombatContext';
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
 import { useGlobalContext } from '../../hooks/optionsContext';
+import { useConditionTip } from './useConditionTip';
 
 interface MonsterStatBlockHoverProps {
   monster: Monster;
@@ -24,10 +25,12 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
   // copy seeded from localStorage on mount, so the notes shown here drifted out
   // of step with the tracker.
   const { combatants } = useCombat();
-  const [showConditions, setShowConditions] = useState(false);
-  const toggleConditions = () => {
-    setShowConditions(prevState => !prevState);
-  };
+  // The descriptions are on the chips themselves now, so the old click-to-
+  // expand toggle (which appended ": <description>" after each name and made
+  // the panel several times taller) is gone.
+  const { showTip, hideTip, tipNode, tipId, tipName } = useConditionTip(
+    `monster-${monster.id ?? monster.name}`,
+  );
 
   const safe = <T,>(value: T | undefined | null, fallback: T): T =>
     value !== undefined && value !== null ? value : fallback;
@@ -41,10 +44,15 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
   const { settings } = useGlobalContext();
   const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
-  function closeStatsButton(e: React.MouseEvent) {
+  function closeStatsButton(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
     setIsStuck(false)
     setIsHovering(false)
+    /* The close button lives inside .statBlockTrigger, and the trigger draws
+       the name's underline on :focus-within as well as on open. A mouse click
+       leaves focus on the button, so without this the underline stayed drawn
+       after the panel had shut. */
+    e.currentTarget.blur();
   }
 
   // Was declared but never registered, so X didn't close monster stat blocks the
@@ -84,26 +92,24 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
 
   return (
     <div
+      className={`statBlockTrigger${isHovering || isStuck ? " isOpen" : ""}`}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
-      onClick={() => setIsStuck(!isStuck)} style={{left: '0px', opacity: 1}}
+      onClick={() => setIsStuck(!isStuck)}
+      style={{ left: '0px', opacity: 1 }}
     >
       {children}
 
-      <div
-        className='statHover monsterStatHover'
-        style={{
-          position: 'fixed',
-          top: '5vh',
-          left: (isHovering || isStuck) ? '0px' : '-380px',
-          transform: 'translateY(0)',
-          opacity: (isHovering || isStuck) ? 1 : 0,
-          transition: 'left 0.35s ease-out, opacity 0.3s ease-out',
-        }}
-      >
+      {/* The scroll: rolled up off to the left when shut, it slides out and
+          then unrolls to the right. All of that is in CSS so the two phases
+          can be timed against each other; this only says whether it is open. */}
+      <div className={`statHover monsterStatHover${(isHovering || isStuck) ? ' isOpen' : ''}`}>
         <button className='closeStats'
           onClick={closeStatsButton}>X
         </button>
+        {/* Fixed width, so the text does not reflow line by line while the
+            scroll is still unrolling. */}
+        <div className='statHoverSheet'>
         <div className='monsterStatName'>
           <h3>
             {name}
@@ -147,17 +153,27 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
           {/* <span style={{ fontWeight: 'bold' }}>Senses </span> */}
           <span>Passive Perception {pp}</span>
         </div>
-        <div className='monsterStatConditions' onClick={toggleConditions} >
-          <div>
-          Current conditions:{monster.conditions.map((conditionName) => (
-            <div
-            key={conditionName}>
-              <span className="monsterStatConditionsName">{conditionName}</span>{showConditions && (<span className={`${conditionName}-description`}>: {conditionDescriptions[conditionName]}</span>)}
-            </div>
-          ))}
-        </div>
-        
-        
+        <div className='monsterStatConditions'>
+          <span className='statConditionsLabel'>Conditions</span>
+          {monster.conditions.length ? (
+            monster.conditions.map((conditionName) => (
+              <span
+                key={conditionName}
+                className='conditionName'
+                tabIndex={0}
+                onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+                onMouseLeave={hideTip}
+                onFocus={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+                onBlur={hideTip}
+                aria-describedby={tipName === conditionName ? tipId : undefined}
+              >
+                {conditionName}
+              </span>
+            ))
+          ) : (
+            <span className='noStatCondition'>none</span>
+          )}
+          {tipNode}
         </div>
         <div className={`${id}-notes`}>
           Notes: {combatants.filter(c => c.id === id).map(c => (
@@ -172,6 +188,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
           >{c.notes ? (c.notes.length > 0 ? c.notes : `Enter ${c.name}'s notes here`) : `Enter ${c.name}'s notes here`}</EditableCell>
           ))}
           
+        </div>
         </div>
       </div>
     </div>

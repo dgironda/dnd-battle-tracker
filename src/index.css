@@ -11,13 +11,13 @@
   --color-btn1: light-dark(#6a0500, #9b1c20);     /* dark button border vs lighter border */
   --color-btn2: light-dark(#b3190e, #e95348);     /* button background for light vs lighter dark */
   --color-chk1: light-dark(#8b8b8b, #a1a1a1);     /* disabled text / info */
-  --color-chk2: light-dark(#a7743b, #c89e63);     /* secondary highlight */
+  --color-chk2: light-dark(#96612d, #c89e63);     /* secondary highlight; the light value carries the battle tracker's values, so it is dark enough to clear 4.5:1 on the parchment plaques */
+  --color-header-ink: #e2b964;                    /* goldenrod on the red table headers; fixed, because the header artwork is the same red in both themes */
   --color-hl1: light-dark(#d6b88c, #313335);       /* popup / panel background */
   --color-hl2: light-dark(#5b0f00, #e49668);       /* header / highlight */
   --color-brdr1: light-dark(#b5a37b, #b5a37b);     /* consistent table borders */
   --color-rowodd: light-dark(#ffffff, #3c3f43);    /* row odd colors */
   --color-roweven: light-dark(#f8f2eb, #484c51);   /* row even colors, if this changes, update getHpColor in BattleTracker */
-  --color-hphealthy: light-dark(#000, #fff);       /* hp above 50% */
   --color-hpbloodied: #fdf3f3;                     /* hp below 50%: the cell is dark red in BOTH themes, so this stays light. It used to be light-dark(#fff, #000), which put black text on dark red in dark mode. */
   --color-shadow: light-dark(#555555, #aca9a9);    /* shadow */
   --color-hero-bg1: light-dark(#181715, #f4e8d8);
@@ -32,6 +32,11 @@
   --color-monster-fg2: light-dark(#e28466, #822000);
   --transparent: rgba(0, 0, 0, 0.85);
   --clear: rgb(255, 255, 255, 0.1);
+  /* The editable-value pencil, one size across the whole app. Viewport-based
+     rather than tied to any one surface's type, since it appears in the
+     tracker, the managers and the side-car panels, and has to read the same
+     in all three. */
+  --edit-size: clamp(1.15rem, 1.73vw, 2.2rem);
   --color-redwarn: #dc3545;
   --color-greengo: #28a745;
   --color-bluebeetle: #007bff;
@@ -78,7 +83,6 @@ body {
 .driver-popover {
   background-color: var(--color-bg2) !important;
   color: var(--color-fg) !important;
-  border: 2px solid var(--color-chk1);
 }
 
 #driver-popover-title {
@@ -97,7 +101,6 @@ table {
 }
 
 th, td {
-  border: 1px solid var(--color-brdr1);
   padding: 0.03rem;
   text-align: center;
   font-family: 'Caudex', serif;
@@ -106,7 +109,6 @@ th, td {
 
 th {
   background-color: var(--color-roweven);
-  border: 1px solid var(--color-brdr1);
   padding: .4rem;
   color: var(--color-hl2);
 }
@@ -162,7 +164,6 @@ button {
   cursor: pointer;
   background: var(--color-btn2);
   color: var(--color-bg1);
-  border: .15rem double var(--color-btn1);
   font-family: "Germania One", system-ui !important;
   font-size: 1.15rem;
   transition: background 0.2s ease;
@@ -176,9 +177,9 @@ button:hover {
   filter: brightness(130%);
 }
 
-.combatantInfo {
-  background-color: var(--color-roweven);
-}
+/* No ground of its own: the row is drawn plaques now, and a themed fill behind
+   them showed at the torn edges — dark in dark mode, where the artwork is not
+   themed. */
 
 textarea {
   field-sizing: content;
@@ -259,11 +260,6 @@ textarea {
   font-family: 'Caudex', serif;
 }
 
-.noCondition {
-  color: var(--color-chk1);
-  font-size: .9rem;
-}
-
 .pointer {
   cursor: pointer;
   user-select: none;
@@ -271,7 +267,6 @@ textarea {
 
 input[type="text"] {
   padding: 0.5rem; 
-  border: 1px solid var(--color-brdr1); 
   border-radius: 2px;
   line-height: 1.5rem;
   font-family: 'Caudex', serif;
@@ -304,7 +299,6 @@ sup {
   scrollbar-width: thin !important;
   scrollbar-color: var(--color-hl2) var(--color-hl1);
   /* font-family: 'Caudex', serif; */
-  border: .5rem solid var(--color-hl2);
 }
 
 .optionsGear, .initiativeRoll {
@@ -435,7 +429,6 @@ sup {
 #patreonContinue {
   background-color: #444;
   color: white;
-  border: 1px solid #777;
   border-radius: 8px;
   padding: 1rem 1.5rem;
   cursor: pointer;
@@ -444,13 +437,11 @@ sup {
 .editableCellNum {
   width: 60px;
   padding: 2px; 
-  border: 1px solid var(--color-brdr1);
 }
 
 .editableCellTxt {
   width: 100px;
   padding: 2px; 
-  border: 1px solid var(--color-brdr1);
 }
 
 .setEditingField {
@@ -464,7 +455,10 @@ sup {
   justify-content: flex-start;
   gap: 4rem;
   align-items: center;
-  font-size: 1.5rem;
+  /* Scales with the viewport like the tracker below it, so the top bar and the
+     table read at one size instead of the bar staying fixed while the table
+     grew. */
+  font-size: clamp(1.25rem, 1.8vw, 2.4rem);
   font-weight: 800;
 }
 
@@ -491,7 +485,6 @@ sup {
   width: 100%;
   padding: .5rem;
   font-size: 1.1rem;
-  border: 1px solid var(--color-brdr1);
   border-radius: 4px;
   margin-bottom: .5rem;
 }
@@ -542,7 +535,10 @@ sup {
 }
 
 #preBattleCombatants tbody {
- background-color: var(--color-rowodd); 
+  /* No ground of its own: the window is a banner now and the rows are tinted
+     against it in fixes.css. A solid fill here put the window's cream ink on
+     white, where it could not be read at all. */
+  background-color: transparent;
 }
 
 #preBattleCombatants thead {
@@ -556,7 +552,6 @@ sup {
 
 #battleTracker {
   width: 96%;
-  border: 4px double var(--color-brdr1);
 }
 
 #battleInProgress {
@@ -584,12 +579,10 @@ sup {
   text-decoration: underline;
 }
 
+/* The marker is drawn art now (see fixes.css); nothing here should try to
+   colour or size a glyph that no longer exists. */
 .currentTurnIndicator {
-  color: var(--color-greengo);
-  font-weight: 900;
-  font-size: 2rem;
   position: relative;
-  left: -20px;
 }
 
 .combatantHP {
@@ -622,7 +615,6 @@ sup {
   border-radius: 4px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   /* width: 30vw; */
-  border: 2px groove var(--color-hero-brdr1);
   margin: 2% 0 0 2%;
   transform: scale(0);
   opacity: 0;
@@ -663,7 +655,6 @@ sup {
   padding: .5rem;
   border-radius: 4px;
   margin-bottom: 1rem;
-  border: 1px solid var(--color-brdr1);
 }
 
 #deathSavesBox>h2 {
@@ -705,7 +696,6 @@ sup {
   padding: 0.75rem;
   margin: .5rem auto;
   font-size: 1.1rem;
-  border: 1px solid var(--color-brdr1);
   border-radius: 4px;
 }
 
@@ -793,7 +783,6 @@ sup {
   padding: 1rem;
   background-color: var(--color-roweven);
   border-radius: 4px;
-  border: 1px solid var(--color-brdr1);
 }
 
 #conCheckDC {
@@ -864,7 +853,6 @@ sup {
 
 .heroStatHover {
   background-color: var(--color-hero-bg1);
-  border: 3px solid var(--color-hero-brdr1);
   border-radius: 8px;
   padding: 1rem;
   width: 320px;
@@ -876,7 +864,6 @@ sup {
 }
 
 .heroStatHeader {
-  border-bottom: 2px solid var(--color-hero-brdr1);
   padding-bottom: .5rem;
   margin-bottom: .75rem;
 }
@@ -905,7 +892,6 @@ sup {
   padding: .5rem;
   background-color: var(--color-hero-bg2);
   border-radius: 4px;
-  border: 1px solid var(--color-hero-brdr1);
 }
 
 .heroStatACInit>div {
@@ -934,7 +920,6 @@ sup {
 
 .heroStatAbility>div {
   background-color: var(--color-hero-bg2);
-  border: 2px solid var(--color-hero-brdr1);
   border-radius: 4px;
   padding: .4rem;
   text-align: center;
@@ -965,7 +950,6 @@ sup {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 2px solid var(--color-hero-brdr1);
   padding-top: .5rem;
   font-size: 13px;
 }
@@ -982,7 +966,6 @@ sup {
   background-color: var(--color-hero-bg2);
   padding: 2px 8px;
   border-radius: 4px;
-  border: 1px solid var(--color-hero-brdr1);
 }
 
 .heroStatConditions, .monsterStatConditions {
@@ -997,7 +980,6 @@ sup {
 
 .monsterStatHover {
   background-color: var(--color-monster-bg1);
-  border: 2px solid var(--color-monster-brdr1);
   border-radius: 4px;
   padding: 1rem;
   width: 350px;
@@ -1011,7 +993,6 @@ sup {
 .monsterStatName {
   display: flex;
   justify-content: center;
-  border-bottom: 2px solid var(--color-monster-brdr1);
   padding-bottom: .25rem;
   margin-bottom: .5rem;
   justify-self: center;
@@ -1043,7 +1024,6 @@ sup {
   justify-content: space-between;
   margin-bottom: .5rem;
   padding: .4rem 0;
-  border-bottom: 1px solid var(--color-monster-brdr2);
   font-weight: bold;
   font-size: 13px;
 }
@@ -1088,7 +1068,6 @@ sup {
 
 .closeStats {
   background-color: var(--color-shadow);
-  border: 4px thick var(--color-btn2) !important;
   color: var(--color-redwarn);
   width: 3vh;
   height: 3vh;
@@ -1122,7 +1101,6 @@ sup {
 .photo-upload-section {
   margin: 10px 0;
   padding: 10px;
-  border: 1px dashed var(--color-photo-border);
   border-radius: 4px;
   background-color: var(--color-bg2);
 }
@@ -1159,7 +1137,6 @@ sup {
   max-width: 200px;
   max-height: 150px;
   border-radius: 4px;
-  border: 2px solid var(--color-photo-preview-border);
 }
 
 .btn-remove-photo {
@@ -1200,13 +1177,11 @@ sup {
   height: 100%;
   object-fit: cover;
   border-radius: 4px;
-  border: 2px solid var(--color-photo-preview-border);
   transition: transform 0.2s, border-color 0.2s;
 }
 
 .battle-photo-thumbnail:hover > img {
   transform: scale(1.05);
-  border-color: var(--color-photo-border-hover);
 }
 
 /* Overlay wrapper for expanded photo */
@@ -1266,7 +1241,6 @@ sup {
   border-radius: 50%;
   background: var(--color-photo-close-bg);
   color: var(--color-photo-upload-text);
-  border: 2px solid var(--color-photo-close-border);
   font-size: 18px;
   font-weight: bold;
   cursor: pointer;
@@ -1316,24 +1290,41 @@ sup {
 @media (orientation: landscape) {
   #page {
     display: grid;
-    grid-template-areas: "header sbbutt round" "header battletracker battletracker" "header footer footer";
-    grid-template-columns: .2fr .3fr .8fr;
-    grid-template-rows: .2fr 1fr .2fr;
+    /* The banner takes its own row above the tracker rather than sharing one:
+       its height is reserved whether or not anything fills it, so the tracker
+       never shifts when an ad loads late or fails. */
+    grid-template-areas:
+      "header sbbutt round"
+      "header adbanner adbanner"
+      "header battletracker battletracker"
+      "header footer footer";
+    /* Was `.24fr .3fr .8fr`. Those do not sum to 1, and once the Start Battle
+       ribbon floored the middle column at its own width the leftover went
+       unallocated — the columns summed to 1706 of 1920 and the tracker lost
+       200px. The rail is a proportion with a floor, the controls take what the
+       ribbon needs, and the last column absorbs the rest, so the row always
+       fills the viewport. */
+    grid-template-columns: minmax(21rem, 18%) auto minmax(0, 1fr);
+    grid-template-rows: .2fr auto 1fr .2fr;
     max-width: 100vw;
     height: 100vh;
   }
   #header {
   grid-area: header;
   display: grid;
-  grid-template-areas: "logo" "hmbutt" "mmbutt" "sbbutt" "lightdark" "about" "options" "patreon";
-  grid-template-rows: 1.5fr .7fr .7fr 1fr .3fr .5fr .5fr .6fr;
+  grid-template-areas: "options" "logo" "hmbutt" "mmbutt" "sbbutt" "lightdark" "about" "patreon" "adtower";
+  /* Content-sized rows for everything that holds artwork. The buttons are
+     sized by aspect-ratio now, and an `fr` row will happily come out shorter
+     than that — which made each ribbon overhang the next by ~23px. The single
+     fr row (lightdark, which is empty here) takes up whatever slack is left so
+     the ad still sits at the foot of the rail. */
+  grid-template-rows: auto auto auto auto auto 1fr auto auto auto;
   align-items: start;
   justify-items: center;
-  border-right: 2px solid var(--color-brdr1);
   }
   #logo {
     grid-area: logo;
-    margin-top: 2rem;
+    margin-top: 0.2rem;
   }
   #heroManagerButton {
     grid-area: hmbutt;
@@ -1356,6 +1347,11 @@ sup {
   }
   #optionsButton {
     grid-area: options;
+    /* Right into the corner, above the logo — it is a settings affordance, not
+       part of the masthead. */
+    justify-self: start;
+    align-self: start;
+    margin: 0.55rem 0 0 0.55rem;
   }
   #aboutButton {
     grid-area: about;
@@ -1408,7 +1404,6 @@ sup {
     display: grid;
     grid-template-areas: "logo about patreon" "options lightdark lightdark" "hmbutt mmbutt .";
     /* grid-template-columns: 1fr .5fr .5fr; */
-    border-bottom: 2px thin var(--color-brdr1);
     align-items: center;
     gap: 0;
     max-width: 100vw;
@@ -1445,8 +1440,11 @@ sup {
   }
   #optionsButton {
     grid-area: options;
-    max-width: fit-content;
-    height: fit-content;
+    /* Explicit size: the button has no text (the gear is a background image),
+       so `fit-content` collapsed it to nothing and the settings could not be
+       opened at all in portrait. */
+    width: 2.6rem;
+    height: 2.6rem;
     margin-left: 1.5rem;
   }
   #aboutButton {

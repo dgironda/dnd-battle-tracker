@@ -2,11 +2,19 @@ import { DEVMODE } from "../../utils/devmode";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Monster, Combatant } from "../../types/index";
 import {
-  predefinedConditions,
+  conditionOptions,
   conditionDescriptionsTwentyTwentyFour,
   conditionDescriptionsTwentyFourteen,
 } from "../../constants/Conditions";
 import { EditableCell } from "../../utils/Utils";
+import { useConditionTip } from "./useConditionTip";
+import {
+  checkboxStyle,
+  checkboxVariant,
+  turnCircleVariant,
+  underlineStyle,
+  underlineVariant,
+} from "../../utils/handArt";
 import { HpChangeModal } from "../../utils/dmg-heal";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
@@ -82,7 +90,30 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
   onAdd,
   onRemove,
 }) => {
-  if (isEditing) {
+  const { showTip, hideTip, tipNode, tipId, tipName } = useConditionTip(combatant.id);
+
+  /* An empty cell IS the editor. "Click to add conditions" was a button whose
+     only job was to reveal the control right behind it — one click of pure
+     ceremony on the thing a DM reaches for most. With nothing to show, the
+     editor is barely taller than the prompt was, so the picker just sits
+     there ready.
+     Once there is something to show, the cell goes back to being a display
+     that opens the editor on click; `Done` is what makes that switch, which is
+     why adding a condition also starts an explicit edit. */
+  const isEmpty = combatant.conditions.length === 0;
+  const showEditor = isEditing || isEmpty;
+
+  /* A chip that is clicked away unmounts without ever firing mouseleave, so
+     its tooltip would sit there pointing at nothing. Done does the same by
+     swapping every editing chip for a display one — the condition is still in
+     the list, so checking the list alone does not catch it.
+     Clearing on both the list and the mode covers every route a chip can
+     vanish by. */
+  useEffect(() => {
+    hideTip();
+  }, [combatant.conditions, isEditing, hideTip]);
+
+  if (showEditor) {
     return (
       <div className="conditionEditOuter">
         <div>
@@ -91,10 +122,20 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
               type="button"
               key={conditionName}
               className="conditionNameEditing"
-              onClick={() => onRemove(combatant.id, conditionName)}
-              title={conditionDescriptions[conditionName] || conditionName}
+              onClick={() => {
+                // straight away, so it cannot flash on the way out
+                hideTip();
+                onRemove(combatant.id, conditionName);
+              }}
+              onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+              onMouseLeave={hideTip}
+              onFocus={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+              onBlur={hideTip}
+              aria-label={`Remove ${conditionName}`}
+              aria-describedby={tipName === conditionName ? tipId : undefined}
             >
-              {conditionName} ×
+              {conditionName}
+              <span className="conditionRemove" aria-hidden="true">×</span>
             </button>
           ))}
         </div>
@@ -103,6 +144,10 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
           onChange={(e) => {
             if (e.target.value) {
               onAdd(combatant.id, e.target.value);
+              /* Hold the editor open so more can be added; Done closes it.
+                 Without this the cell would flip to the display view the
+                 instant the first condition landed. */
+              onStartEditing(combatant.id);
               e.target.value = "";
             }
           }}
@@ -110,66 +155,50 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
           name="conditionSelect"
           aria-label={`Add a condition to ${combatant.name}`}
         >
-          <option className="addConditionBox" value="">Add condition...</option>
-          {predefinedConditions
+          <option className="addConditionBox" value="">+ Add</option>
+          {conditionOptions
             .filter((condition) => !combatant.conditions.includes(condition))
             .map((condition) => (
               <option key={condition} value={condition}>{condition}</option>
             ))}
         </select>
 
-        <button onClick={onStopEditing} className="editConditionsDone">
-          Done
-        </button>
+        {/* Only once there is something to finish: an empty cell's picker is
+            already its resting state, so Done would have nothing to close. */}
+        {isEditing && !isEmpty && (
+          <button onClick={onStopEditing} className="editConditionsDone">
+            Done
+          </button>
+        )}
+        {tipNode}
       </div>
     );
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => onStartEditing(combatant.id)}
-      className="editConditions"
-      title="Click to edit conditions"
-    >
-      {combatant.conditions.length > 0 ? (
-        combatant.conditions.map((conditionName) => (
+    <>
+      <button
+        type="button"
+        onClick={() => onStartEditing(combatant.id)}
+        className="editConditions"
+        aria-label="Click to edit conditions"
+      >
+        {combatant.conditions.map((conditionName) => (
           <span
             key={conditionName}
             className="conditionName"
-            title={conditionDescriptions[conditionName] || conditionName}
+            onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+            onMouseLeave={hideTip}
+            aria-describedby={tipName === conditionName ? tipId : undefined}
           >
             {conditionName}
           </span>
-        ))
-      ) : (
-        <span className="noCondition">Click to add conditions</span>
-      )}
-    </button>
+        ))}
+      </button>
+      {tipNode}
+    </>
   );
 };
-
-/**
- * Picks which cut of the plaque artwork a cell gets.
- *
- * Every plaque carries a hand-drawn notch in its edge, and a 9-sliced image
- * puts that notch at the same fraction of every cell it is drawn into — so a
- * column of cells lines the notches up in a visible vertical stripe. Choosing
- * between mirrored cuts of the artwork per cell breaks that up.
- *
- * The choice is a hash of the combatant's id and the column, so it is stable:
- * a given combatant's row keeps the same plaques across re-renders, sorting
- * and reloads, instead of reshuffling underneath the reader.
- */
-function plaqueVariant(id: string, column: number, count: number): number {
-  let h = 0x811c9dc5;
-  const key = `${id}:${column}`;
-  for (let i = 0; i < key.length; i++) {
-    h ^= key.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  return Math.abs(h) % count;
-}
 
 const BattleTracker: React.FC = () => {
   const { heroes } = useHeroes();
@@ -219,7 +248,6 @@ const BattleTracker: React.FC = () => {
       ? conditionDescriptionsTwentyFourteen
       : conditionDescriptionsTwentyTwentyFour;
   const showConditionReminders = settings.conditionReminderOn !== false;
-  const currentTheme = settings.theme;
 
   const updateCombatant = useCallback<UpdateCombatant>((combatantId, field, value) => {
     setCombatants((prev) =>
@@ -262,13 +290,18 @@ const BattleTracker: React.FC = () => {
   }, [setCombatants]);
 
   const getHpColor = (currHp: number, maxHp: number): string => {
-    if (maxHp === 0) return "#f8f2eb";
+    // At full health the plaque shows through untouched. Painting parchment
+    // over parchment would otherwise leave a faint rectangle wherever the two
+    // tones did not match exactly.
+    if (maxHp === 0 || currHp >= maxHp) return "transparent";
 
     const percentage = Math.max(0, Math.min(1, currHp / maxHp));
 
-    // Start color: light-dark(#f8f2eb, #484c51) (100% HP)
-    const [startR, startG, startB] =
-      currentTheme === "light" ? [0xf8, 0xf2, 0xeb] : [0x48, 0x4c, 0x51];
+    // Start colour: the parchment, in both themes. It used to follow the theme
+    // (#484c51 in dark), which made sense when the row was a themed table cell
+    // — but the row is drawn artwork now and the artwork does not follow the
+    // theme, so dark mode ramped from a dark grey sitting on a light plaque.
+    const [startR, startG, startB] = [0xf8, 0xf2, 0xeb];
     // End color: #880808 (0% HP)
     const [endR, endG, endB] = [0x88, 0x08, 0x08];
 
@@ -351,10 +384,25 @@ const BattleTracker: React.FC = () => {
       prev
         .map((c) => {
           if (c.conditions.includes("Dead")) return c;
-          const isNextCombatant = c.id === sortedCombatants[nextIndex].id;
-          if (isNewRound || isNextCombatant) {
+
+          // Action, bonus and move are cleared once a round, when the order
+          // wraps — never on entering a turn. Clearing them on entry meant
+          // that stepping back to an earlier combatant (done by unticking one
+          // of their boxes, which hands the turn back) and then coming forward
+          // again wiped whatever the later combatant had already marked. The
+          // marks are the DM's record of what has happened this round, so they
+          // survive moving around in it.
+          if (isNewRound) {
             return { ...c, action: false, bonus: false, move: false, reaction: false };
           }
+
+          // A reaction refreshes at the start of its owner's turn, which is
+          // the rule as written, and is not part of the walk-the-order record
+          // above — nothing hands the turn back on the strength of it.
+          if (c.id === sortedCombatants[nextIndex].id) {
+            return { ...c, reaction: false };
+          }
+
           return c;
         })
         .sort((a, b) => b.initiative - a.initiative)
@@ -551,20 +599,20 @@ const BattleTracker: React.FC = () => {
         <p id="noCombatants">No combatants in battle. Start a battle to see combatants here.</p>
       ) : (
         <div id="battleTrackerScroll">
-          <table id="battleTracker">
-            <thead id="battleTrackerHeader">
-              <tr>
-                <th className="thFirst" title="Hero/Monster Name">Name</th>
-                <th className="thMiddle" title="Initiative, either input or rolled">Initiative</th>
-                <th className="thMiddle" title="Current HP / Maximum HP">HP</th>
-                <th className="thMiddle" title="Check if this combatant is using, passing, or holding their action">Action<sup>(a)</sup></th>
-                <th className="thMiddle" title="Check if this combatant is using or passing their bonus action">Bonus<sup>(s)</sup></th>
-                <th className="thMiddle" title="Check if this combatant is using or passing their movement">Move<sup>(d)</sup></th>
-                <th className="thMiddle" title="Check if this combatant has used their reaction, resets on their next turn">Reaction</th>
-                <th className="thLast" title="Input any conditions as they come up, hover over their name for a reminder of the effects.">Conditions</th>
+          <table id="battleTracker" role="table">
+            <thead id="battleTrackerHeader" role="rowgroup">
+              <tr role="row">
+                <th role="columnheader" className="thFirst" title="Hero/Monster Name">Name</th>
+                <th role="columnheader" className="thMiddle" title="Initiative, either input or rolled">Initiative</th>
+                <th role="columnheader" className="thMiddle" title="Current HP / Maximum HP">HP</th>
+                <th role="columnheader" className="thMiddle" title="Check if this combatant is using, passing, or holding their action">Action<sup className="colKey" data-key="a">(a)</sup></th>
+                <th role="columnheader" className="thMiddle" title="Check if this combatant is using or passing their bonus action">Bonus<sup className="colKey" data-key="s">(s)</sup></th>
+                <th role="columnheader" className="thMiddle" title="Check if this combatant is using or passing their movement">Move<sup className="colKey" data-key="d">(d)</sup></th>
+                <th role="columnheader" className="thMiddle" title="Check if this combatant has used their reaction, resets on their next turn">Reaction</th>
+                <th role="columnheader" className="thLast" title="Input any conditions as they come up, hover over their name for a reminder of the effects.">Conditions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {sortedCombatants.map((combatant, index) => {
                 const isCurrent = index === safeTurnIndex;
                 const isDead = combatant.conditions.includes("Dead");
@@ -576,17 +624,18 @@ const BattleTracker: React.FC = () => {
                 return (
                   <tr
                     key={combatant.id}
-                    className={`combatantInfo${isCurrent ? " isCurrentTurn" : ""}`}
+                    role="row"
+                    className={`combatantInfo${isCurrent ? ` isCurrentTurn ${turnCircleVariant(combatant.id)}` : ""}`}
                   >
-                    <td className={`combatantName namePlaque${plaqueVariant(combatant.id, 0, 4)}`}>
-                      {isCurrent && <span className="currentTurnIndicator" aria-hidden="true">▶</span>}
+                    <td role="cell" className={`combatantName ${underlineVariant(combatant.id)}`} style={underlineStyle(combatant.id)}>
+                      {isCurrent && <span className="currentTurnIndicator" aria-hidden="true" />}
 
                       {combatant.type === "hero" ? (
                         // hero may be undefined if they were deleted mid-battle;
                         // HeroStatBlockHover handles that and falls back to the
                         // combatant's own data.
                         <HeroStatBlockHover hero={hero} combatant={combatant}>
-                          <span className={isDead ? "strike" : undefined}>{combatant.name}</span>
+                          <span className={`combatantNameText${isDead ? " strike" : ""}`}>{combatant.name}</span>
                         </HeroStatBlockHover>
                       ) : combatant.type === "monster" ? (
                         <MonsterStatBlockHover
@@ -594,14 +643,14 @@ const BattleTracker: React.FC = () => {
                           currentHp={combatant.currHp}
                           updateCombatant={updateCombatant}
                         >
-                          <span className={isDead ? "strike" : undefined}>{combatant.name}</span>
+                          <span className={`combatantNameText${isDead ? " strike" : ""}`}>{combatant.name}</span>
                         </MonsterStatBlockHover>
                       ) : (
-                        <span>{combatant.name}</span>
+                        <span className="combatantNameText">{combatant.name}</span>
                       )}
                     </td>
 
-                    <td className={`combatantInit midPlaque${plaqueVariant(combatant.id, 1, 6)}`}>
+                    <td role="cell" className="combatantInit">
                       <span title="Initiative">
                         <EditableCell
                           entity={combatant}
@@ -615,26 +664,52 @@ const BattleTracker: React.FC = () => {
                     </td>
 
                     <td
-                      className={`combatantHP midPlaque${plaqueVariant(combatant.id, 2, 6)}`}
+                      role="cell"
+                      className="combatantHP"
                       style={{
-                        backgroundColor: getHpColor(combatant.currHp, combatant.maxHp),
+                        /* A custom property, not backgroundColor: the tint is
+                           painted by the button inside the cell, not by the
+                           cell — see .combatantHP in fixes.css for why. */
+                        ["--hp-tint" as string]: getHpColor(combatant.currHp, combatant.maxHp),
+                        // Healthy HP inherits the table's own ink, so it
+                        // matches initiative exactly. Only a bloodied cell
+                        // overrides it, because by then the cell's ground has
+                        // gone dark red and that ink no longer reads on it.
                         color:
                           combatant.currHp < combatant.maxHp * 0.5
                             ? "var(--color-hpbloodied)"
-                            : "var(--color-hphealthy)",
+                            : undefined,
                       }}
-                      onClick={() => setHpModalCombatant(combatant)}
-                      title="Click to change HP"
                     >
-                      {combatant.tHp > 0 && <span className="thp">🛡️({combatant.tHp})</span>}
-                      <span className="hpValue">
-                        {combatant.currHp} / {combatant.maxHp}
-                      </span>
-                      <img src={HeartIcon} alt="" aria-hidden="true" className="hpHeart" />
+                      {/* A button, like the initiative cell: it picks up the
+                          same face, padding and hover, and unlike the click
+                          handler that used to sit on the <td> it can be
+                          reached from the keyboard. */}
+                      <button
+                        type="button"
+                        className="setEditingField hpButton"
+                        onClick={() => setHpModalCombatant(combatant)}
+                        title="Click to change HP"
+                      >
+                        {combatant.tHp > 0 && <span className="thp">🛡️({combatant.tHp})</span>}
+                        <span className="hpValue">
+                          {combatant.currHp} / {combatant.maxHp}
+                        </span>
+                        <img src={HeartIcon} alt="" aria-hidden="true" className="hpHeart" />
+                      </button>
                     </td>
 
-                    {actionCells.map(({ key, cls, label }, i) => (
-                      <td className={`${cls} midPlaque${plaqueVariant(combatant.id, 3 + i, 6)}`} key={key}>
+                    {/* The drawn box and the drawn tick are separate elements: the
+                        tick is wiped in as if being drawn, and a mask on the input
+                        itself would have taken the box with it. The cell carries the
+                        variant and the per-instance tilt so both inherit them. */}
+                    {actionCells.map(({ key, cls, label }) => (
+                      <td
+                        role="cell"
+                        className={`${cls} ${checkboxVariant(combatant.id, key)}`}
+                        style={checkboxStyle(combatant.id, key)}
+                        key={key}
+                      >
                         <input
                           type="checkbox"
                           id={`${combatant.id}-${key}`}
@@ -642,13 +717,14 @@ const BattleTracker: React.FC = () => {
                           disabled={isDead || isDying}
                           onChange={(e) => updateCombatant(combatant.id, key, e.target.checked)}
                         />
+                        <span className="tickMark" aria-hidden="true" />
                         <label htmlFor={`${combatant.id}-${key}`} className="checkOverlay">
                           {label}
                         </label>
                       </td>
                     ))}
 
-                    <td className={`combatantConditions condPlaque${plaqueVariant(combatant.id, 7, 4)}`}>
+                    <td role="cell" className="combatantConditions">
                       <ConditionsEditor
                         combatant={combatant}
                         isEditing={editingConditions === combatant.id}

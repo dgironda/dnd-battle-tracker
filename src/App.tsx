@@ -3,7 +3,9 @@ import BattleTracker from "./components/BattleTracker/BattleTracker";
 import { CombatProvider } from "./components/BattleTracker/CombatContext";
 import { RosterProvider } from "./hooks/rosterContext";
 import PatreonOverlay from "./components/PatreonOverlay";
-import { DEVMODE } from "./utils/devmode";
+import { DEVMODE, TOUR_ENABLED } from "./utils/devmode";
+import { DISCORD_URL } from "./utils/links";
+import AdSlot from "./components/AdSlot";
 import { useGlobalContext } from "./hooks/optionsContext";
 import { Helmet } from "react-helmet-async";
 import monsterShareURL from "./utils/monsterShareURL";
@@ -37,8 +39,8 @@ const PANEL_BUTTONS: {
   key?: string;
 }[] = [
   { panel: "about", id: "aboutButton", label: "About and instructions", title: "Instructions and credits" },
-  { panel: "hero", id: "heroManagerButton", label: "Hero Manager", title: "Add, Update, and Delete Heroes", key: "e" },
-  { panel: "monster", id: "monsterManagerButton", label: "Monster Manager", title: "Add, Update, and Delete Monsters", key: "w" },
+  { panel: "hero", id: "heroManagerButton", label: "Hero Manager", title: "Add, Update, and Delete Heroes", key: "w" },
+  { panel: "monster", id: "monsterManagerButton", label: "Monster Manager", title: "Add, Update, and Delete Monsters", key: "e" },
   { panel: "battle", id: "battleManagerButton", label: "Battle Manager", title: "Save and Load Battles", key: "r" },
   { panel: "options", id: "optionsButton", label: "Options", title: "Options and settings" },
 ];
@@ -81,10 +83,10 @@ function App() {
 
       switch (e.key.toLowerCase()) {
         case "w":
-          togglePanel("monster");
+          togglePanel("hero");
           break;
         case "e":
-          togglePanel("hero");
+          togglePanel("monster");
           break;
         case "r":
           togglePanel("battle");
@@ -226,7 +228,9 @@ function App() {
                   onClick={() => togglePanel(panel)}
                 >
                   {key && (
-                    <span className="panelButtonKey" aria-hidden="true">
+                    /* The letter is drawn art (key_*.svg); the character stays
+                       in the DOM as the alt text the image replaces. */
+                    <span className="panelButtonKey" data-key={key} aria-hidden="true">
                       {key}
                     </span>
                   )}
@@ -237,7 +241,12 @@ function App() {
               </Fragment>
             ))}
 
-            {settings.tourReady && !isPortrait && (
+            {/* The tour is switched off and unreachable, but kept whole so it
+                can be picked back up: `startTour` still exists, <Tour /> is
+                still mounted in main.tsx, and the `tourReady` setting is still
+                stored. Re-enabling it is deleting TOUR_ENABLED and this guard.
+                See also the Options panel, where its toggle is hidden. */}
+            {TOUR_ENABLED && settings.tourReady && !isPortrait && (
               <button
                 id="buttonStartTour"
                 onClick={() => {
@@ -257,7 +266,7 @@ function App() {
                   <p>✅ Thank you for your support!</p>{" "}
                   <p>
                     Don&apos;t forget to join our{" "}
-                    <a href="https://discord.gg/m4AnYSDueM" target="_blank" rel="noreferrer">
+                    <a href={DISCORD_URL} target="_blank" rel="noreferrer">
                       Discord Community
                     </a>
                     .
@@ -265,7 +274,11 @@ function App() {
                 </div>
               )}
             </div>
+
+            <AdSlot slot="tower" isSupporter={isSupporter} onSupport={handlePatreonLogin} />
           </div>
+
+          <AdSlot slot="banner" isSupporter={isSupporter} onSupport={handlePatreonLogin} />
 
           <BattleTracker />
 
@@ -277,7 +290,7 @@ function App() {
             . All rights reserved. Website design and content are protected by copyright law. Built by DMs, for DMs.
             <p>
               Join our{" "}
-              <a href="https://discord.gg/m4AnYSDueM" target="_blank" rel="noreferrer">
+              <a href={DISCORD_URL} target="_blank" rel="noreferrer">
                 Discord server
               </a>{" "}
               for updates and to provide feedback.

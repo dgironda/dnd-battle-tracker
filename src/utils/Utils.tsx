@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, ReactNode } from "react";
 import { useEffect, useState } from "react";
+import EditIcon from "../assets/draftsvgs_v2/icon_edit.svg";
 
 // The hero/monster/combatant action factories moved to ./entityActions so this
 // file only exports a component (keeps React Fast Refresh working). Re-exported
@@ -141,9 +142,7 @@ export const EditableCell = <T extends { id: string }>({
       title="Click to edit"
     >
       {isEmpty ? children : String(currentValue)}
-      <span aria-hidden="true" className="edit">
-        📝
-      </span>
+      <img src={EditIcon} alt="" aria-hidden="true" className="edit" />
     </button>
   );
 };

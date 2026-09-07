@@ -39,7 +39,8 @@
 }
 
 #monsterAddManage,
-#battleAddManage {
+#battleAddManage,
+#options {
   /* the battle manager borrows the monster frame until it has its own */
   border-image-source: url('./assets/draftsvgs_v2/container_monster-manager.svg');
 
@@ -204,7 +205,6 @@
   padding: 0.6rem 0.7rem;
   /* An inset area of the same scroll, not a separate card. */
   border: none;
-  border-bottom: 1px solid var(--panel-rule);
   border-radius: 0;
   background-color: var(--panel-inset);
   color: var(--panel-ink);
@@ -265,7 +265,6 @@
   flex-wrap: wrap;
   margin-bottom: .6rem;
   background-color: transparent !important;
-  border: none !important;
   padding: 0.3rem 0 0.6rem 0 !important;
 }
 
@@ -284,7 +283,6 @@
   right: 0;
   background: #fbf5ea;
   color: #2e1d0f;
-  border: 1px solid var(--panel-rule);
   list-style: none;
   padding: 0;
   margin: 2px 0 0 0;
@@ -323,7 +321,6 @@
   background-color: var(--panel-head);
   color: var(--panel-head-ink);
   border: none;
-  border-bottom: 2px solid var(--panel-rule);
   padding: 0.3rem 0.5rem;
   font-size: 0.92rem;
   letter-spacing: 0.03em;
@@ -334,7 +331,6 @@
   background-color: var(--panel-row);
   color: var(--panel-ink);
   border: none;
-  border-bottom: 1px solid var(--panel-rule-soft);
   padding: 0.3rem 0.45rem;
 }
 
@@ -356,14 +352,12 @@
 .managerTableScroll .statsRow > td {
   background-color: var(--panel-inset);
   border: none;
-  border-bottom: 1px solid var(--panel-rule-soft);
   padding: .25rem .4rem;
   font-size: .74rem;
 }
 
 .heroesSpacer {
   height: .1rem;
-  border: none !important;
   background-color: transparent !important;
 }
 
@@ -376,15 +370,25 @@
   background-color: var(--panel-rule-soft);
 }
 
-/* The pencil marker beside every editable value carried a grey drop shadow,
-   which put a smudge in every cell of every table. */
+/* The marker beside every editable value: icon_edit.svg drawn in full. It is
+   a pencil on the diagonal, so it needs a squarer, slightly larger box than a
+   glyph would to read at this size. */
 .edit {
-  opacity: 0.55;
-  font-size: 0.8em;
+  display: inline-block;
+  /* One size everywhere. It was sized in em, so the same pencil came out a
+     different size in every context it appears in — the tracker, the manager
+     and the side-car panels all set their own type scale. */
+  width: var(--edit-size);
+  height: var(--edit-size);
   margin-left: 0.15em;
+  vertical-align: -0.22em;
+  flex: 0 0 auto;
+  opacity: 0.75;
+  transition: opacity 0.15s ease;
 }
 
-.setEditingField:hover .edit {
+.setEditingField:hover .edit,
+.setEditingField:focus-visible .edit {
   opacity: 1;
 }
 
@@ -397,7 +401,6 @@
   margin-bottom: 1rem;
   padding: 0.7rem 0.8rem;
   border: none;
-  border-bottom: 1px solid var(--panel-rule);
   border-radius: 0;
   background-color: var(--panel-inset);
   color: var(--panel-ink);
@@ -418,7 +421,6 @@
   background: var(--panel-row);
   font-size: 1em;
   color: var(--panel-ink);
-  border-left: 3px solid var(--panel-rule);
 }
 
 .no-battle-warning {
@@ -454,7 +456,6 @@
   width: 100%;
   padding: 0.5rem;
   margin-bottom: 0.6rem;
-  border: 1px solid var(--panel-rule);
   border-radius: 2px;
   font-size: 1em;
   font-family: 'Caudex', serif;
@@ -557,7 +558,6 @@
 }
 
 .battle-card {
-  border: 1px solid var(--panel-rule);
   border-radius: 3px;
   padding: 0.7rem;
   background: var(--panel-row);
@@ -567,12 +567,10 @@
 }
 
 .battle-card:hover {
-  border-color: var(--panel-ink-soft);
   background: var(--panel-row-alt);
 }
 
 .battle-card.selected {
-  border-color: var(--panel-ink);
   background: var(--panel-row-alt);
 }
 
@@ -644,7 +642,6 @@
 .battle-card-details {
   margin-top: 0.7rem;
   padding-top: 0.7rem;
-  border-top: 1px solid var(--panel-rule);
 }
 
 .battle-card-details h5 {
@@ -661,7 +658,6 @@
 .battle-card-details li {
   padding: 0.3rem 0;
   font-size: 0.93em;
-  border-bottom: 1px solid var(--panel-rule-soft);
 }
 
 .battle-card-details li:last-child {
@@ -703,7 +699,6 @@
 .battle-content textarea {
   background-color: var(--panel-field);
   color: var(--panel-field-ink);
-  border: 1px solid var(--panel-rule);
   border-radius: 2px;
   padding: 0.2rem 0.4rem;
   font-family: 'Caudex', serif;

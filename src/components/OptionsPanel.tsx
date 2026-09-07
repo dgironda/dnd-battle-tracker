@@ -1,4 +1,5 @@
 import { useGlobalContext } from "../hooks/optionsContext";
+import { TOUR_ENABLED } from "../utils/devmode";
 import ToggleComponent from "./ToggleContext";
 
 interface OptionsPanelProps {
@@ -39,11 +40,16 @@ export default function OptionsPanel({ onClose, isSupporter }: OptionsPanelProps
               Current Turn Time Display: {settings.currentTurnTime ? "On" : "Off"}
             </button>
           </li>
-          <li>
-            <button onClick={() => updateSetting("tourReady", !settings.tourReady)} id="buttonTourReady">
-              {settings.tourReady ? "Tour Available" : "Reset Tour"}
-            </button>
-          </li>
+          {/* The tour is off (see TOUR_ENABLED in App.tsx); its control would
+              only offer to reset something nobody can reach. The setting and
+              this markup stay for when it comes back. */}
+          {TOUR_ENABLED && (
+            <li>
+              <button onClick={() => updateSetting("tourReady", !settings.tourReady)} id="buttonTourReady">
+                {settings.tourReady ? "Tour Available" : "Reset Tour"}
+              </button>
+            </li>
+          )}
           <li id="colorMode">
             {isSupporter && (
               <button onClick={handleThemeChange} id="buttonThemeToggle">

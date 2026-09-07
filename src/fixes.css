@@ -4,145 +4,396 @@
    Loaded last so these win at equal specificity.
    ========================================================================== */
 
-/* --- B1: the battle table, 9-sliced ---------------------------------------
-   The cell art used to be painted as a stretched background, so every cell had
-   to be held at the artwork's own aspect ratio (long 525x138, small 166x138)
-   or the plaques distorted. That is what pinned rows at ~70px and pushed a
-   twelve-combatant fight off the screen — in v.0.3.1 the same fight fitted
-   entirely, because its rows were flat and ~23px.
+/* --- B1: the battle table --------------------------------------------------
+   Every cell is its own plaque with a gap around it. The rows are laid out as
+   a grid rather than as table rows: the header row and every body row share
+   one `grid-template-columns`, which is what keeps the columns aligned, and it
+   gives exact control over the gap. Semantics are restored with explicit ARIA
+   roles in BattleTracker.tsx, since overriding `display` on a table drops the
+   implicit ones.
 
-   `border-image` slices each plaque into nine pieces instead: the drawn
-   corners are placed untouched, the four wobbly edges stretch along their own
-   axis, and the parchment centre fills the rest. The artwork then fits any
-   cell shape without distorting, so the row height is free again and the
-   columns can be sized for reading rather than for the art.
-
-   Two constraints worth knowing: `border-image` is ignored under
-   `border-collapse: collapse`, and a unitless `border-image-slice` does not
-   resolve against these SVGs (they carry width="100%" with only a viewBox), so
-   the slices are percentages. */
-/* The app switches layout on orientation, not width (see index.css), and the
-   portrait grid is a different design, so this stays scoped to landscape. */
+   `border-image` 9-slices each plaque - drawn corners placed untouched, edges
+   stretched along their own axis, parchment centre filling behind the text -
+   so a cell's shape no longer has to match the artwork's aspect ratio. Sizing
+   is all in `cqw`, measured against the table's own width, so the tracker
+   holds one set of proportions at every viewport. */
 @media (orientation: landscape) {
-  #battleTracker {
+  #battleTracker,
+  #battleTracker thead,
+  #battleTracker tbody {
+    display: block;
     width: 100%;
-    table-layout: fixed;
     border-collapse: separate;
-    border-spacing: 2px 3px;
+    border-spacing: 0;
+  }
+
+  #battleTracker {
+    /* Sized against the table's own width so the tracker holds one set of
+       proportions at every viewport. Taller than the original reference (which
+       was 3.55cqw / 1.34cqw) - the rows were legible but tight, and the extra
+       height gives the values room to read at a glance mid-fight. The plaque's
+       drawn edge tracks the row so the artwork stays in proportion with it. */
+    /* The body type lands at 27px on a ~1400px-wide table. The row is left at
+       its old proportion rather than scaled with the type: a taller row spaces
+       the whole thing out again, and the point of the larger type was that the
+       row reads cleaner, not looser. */
+    --row-h: clamp(2.85rem, 5cqw, 6.1rem);
+    --row-gap: clamp(0.16rem, 0.26cqw, 0.42rem);
+    --tbl-font: clamp(1.16rem, 1.92cqw, 2.3rem);
+    --plaque-edge: clamp(7px, 1.1cqw, 24px);
+  }
+
+  #battleTracker thead tr,
+  #battleTracker tbody tr {
+    display: grid;
+    /* Name, Initiative, HP, then the four checkbox columns, then Conditions.
+       HP carries the most text of any narrow column ("100 / 100" plus its
+       heart) so it gets the extra; the four action columns hold a single
+       checkbox each and need almost nothing. */
+    grid-template-columns:
+      minmax(0, 24fr) minmax(0, 9fr) minmax(0, 13fr)
+      repeat(4, minmax(0, 8fr)) minmax(0, 20fr);
+    /* No gap: the cells butt together so a row reads as one continuous strip
+       rather than eight separate plaques. */
+    column-gap: 0;
+    align-items: stretch;
+    font-size: var(--tbl-font);
   }
 
   #battleTracker tbody tr {
-    height: 1.75rem;
+    margin-bottom: var(--row-gap);
+    min-height: var(--row-h);
   }
 
+  /* The rows are grids, so the sections are not doing table layout for
+     anything; keeping them as table parts is still what makes the header
+     behave like a table's, rather than a bar floating over the page. */
+  #battleTracker,
+  #battleTracker thead,
+  #battleTracker tbody {
+    display: block;
+  }
+
+  /* An ordinary frozen header: it pins to the top of the roster's own scroll
+     box and everything in the table passes beneath it — including the turn
+     circle, which would otherwise be drawn over the column headings as a
+     circled row scrolled past.
+
+     Both this and the circle sit BELOW the managers (25). The scroll container
+     does not trap them the way I first assumed — a sticky header with a
+     z-index competes with the rest of the page, and at 25 it tied with the
+     Hero Manager and won on DOM order, painting over the open panel. The two
+     tracker layers are 10 (circle) and 12 (header) so a modal always wins. */
+  #battleTracker thead {
+    position: sticky;
+    top: 0;
+    z-index: 12;
+    /* The header's plaques are drawn art, and their torn edges are transparent
+       outside the tear — without a ground behind them the rows scrolling under
+       showed straight through the notches. This is the page's own colour, so
+       the gaps read as page rather than as a window onto the roster. */
+    background-color: var(--color-bg1);
+  }
+
+  #battleTracker thead tr {
+    margin-bottom: var(--row-gap);
+    min-height: calc(var(--row-h) * 0.82);
+    /* Column labels, not data: a touch smaller than the values they head, which
+       also keeps "Reaction" inside its column now the body type is larger. */
+    font-size: calc(var(--tbl-font) * 0.88);
+  }
+
+  /* ---- the plaques ------------------------------------------------------ */
   #battleTracker tbody td,
-  #battleTracker #battleTrackerHeader th {
+  #battleTracker thead th {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
+    background: none;
+    padding: 0 0.7cqw;
+
     border-style: solid;
     border-color: transparent;
     border-width: 2px;
     border-image-repeat: stretch;
-    vertical-align: middle;
-    padding: 0 0.5rem;
-    overflow: hidden;
+    border-image-width: var(--plaque-edge);
   }
 
-  #battleTracker tbody td {
-    /* 24% of the 138-tall body art is the drawn frame; 7px is how thick it is
-       drawn, which leaves the middle of a 28px row clear for the text. */
-    border-image-slice: 24% fill;
-    border-image-width: 7px;
+  /* Only the two outer ends of a row are drawn. Every interior boundary has
+     its vertical edges zeroed, so nothing is painted where cells meet and the
+     row reads as one unbroken sheet — the top and bottom edges simply carry
+     on across it. */
+  #battleTracker tbody td,
+  #battleTracker thead th {
+    border-image-width: var(--plaque-edge) 0;
   }
 
-  /* The HP cell carries an inline background that ramps from parchment to
-     #880808 as a combatant is worn down - the at-a-glance bloodied signal
-     v.0.3.1 had. Dropping `fill` here leaves the plaque as a frame with
-     nothing painted in the middle, so that colour shows through again;
-     with `fill` the artwork's centre covered it and a bloodied combatant
-     rendered as light text on light parchment. */
+  #battleTracker tbody td:first-child,
+  #battleTracker thead th:first-child {
+    border-image-width: var(--plaque-edge) 0 var(--plaque-edge) var(--plaque-edge);
+  }
+
+  #battleTracker tbody td:last-child,
+  #battleTracker thead th:last-child {
+    border-image-width: var(--plaque-edge) var(--plaque-edge) var(--plaque-edge) 0;
+  }
+
+  /* The slice is per axis. 24% of the 138-tall artwork is 33 source pixels
+     drawn into the edge above; 24% of a 525-wide long plaque would be 126
+     source pixels into that same width, an 18x squash that flattened both
+     ends. 6.3% across a long plaque and 20% across a small one both come to
+     the same 33 source pixels. */
+  #battleTracker tbody td.combatantName,
+  #battleTracker tbody td.combatantConditions {
+    border-image-slice: 24% 6.3% fill;
+  }
+
+  #battleTracker tbody td.combatantInit,
+  #battleTracker tbody td.combatantAction,
+  #battleTracker tbody td.combatantBonus,
+  #battleTracker tbody td.combatantMove,
+  #battleTracker tbody td.combatantReaction {
+    border-image-slice: 24% 20% fill;
+  }
+
+  /* The header artwork is 156x70, so 24% of its height is 16.8 source pixels
+     and the matching figure across is 16.8/156 = 10.8%. */
+  #battleTracker thead th {
+    border-image-slice: 24% 10.8% fill;
+  }
+
+  /* The HP cell's inline background ramps from parchment to #880808 as a
+     combatant is worn down - the at-a-glance bloodied signal. Dropping `fill`
+     leaves the plaque as a frame with nothing painted in the middle, so that
+     colour shows through; with `fill` the artwork covered it and a bloodied
+     combatant rendered as light text on light parchment. */
   #battleTracker tbody td.combatantHP {
-    border-image-slice: 24%;
+    border-image-slice: 24% 20% fill;
+    /* The bloodied tint does NOT go here. The cell is a rectangle and the
+       plaque is a torn shape, so any background on the cell is wrong at the
+       edges whichever way it is clipped: clipped to the content box the page
+       shows through the tear (black bars in dark mode), clipped to the border
+       box the fill spills outside the tear (white bleed). The artwork paints
+       its own parchment with `fill`, and the tint sits on the button inside
+       it, where it cannot reach an edge. */
   }
-
-  #battleTracker #battleTrackerHeader th.thFirst,
-  #battleTracker #battleTrackerHeader th.thMiddle,
-  #battleTracker #battleTrackerHeader th.thLast {
-    height: 1.9rem !important;
-    padding: 0 0.5rem !important;
-    border-image-slice: 26% fill;
-    border-image-width: 7px;
-  }
-
-  /* Sized for reading now that the art no longer dictates proportions. */
-  #battleTracker .combatantName,
-  #battleTracker #battleTrackerHeader th.thFirst {
-    width: 24%;
-  }
-
-  #battleTracker .combatantConditions,
-  #battleTracker #battleTrackerHeader th.thLast {
-    width: 22%;
-  }
-
-  #battleTracker .combatantInit,
-  #battleTracker .combatantHP,
-  #battleTracker .combatantAction,
-  #battleTracker .combatantBonus,
-  #battleTracker .combatantMove,
-  #battleTracker .combatantReaction,
-  #battleTracker #battleTrackerHeader th.thMiddle {
-    width: 9%;
+  #battleTracker thead th {
+    height: auto;
+    padding: 0 0.7cqw;
+    /* Goldenrod on the red header plaques. The body cells' tan
+       (--color-chk2) is too dark against that red to read. */
+    color: var(--color-header-ink);
   }
 }
 
 /* --- B2: keep the name inside the plaque ---------------------------------
    Text used to start 5px from the cell edge while the art sat centred, so the
    first letter fell outside the frame and long names ran into the far end. */
-/* A td must stay display: table-cell. index.css made this one a flex
-   container, which takes it out of the table layout algorithm entirely — so
-   `table-layout: fixed` stopped sizing the column and it collapsed to its
-   content. Lay the contents out on an inner wrapper instead. */
+/* The rows are a grid now, so the cell is a flex box centring its contents;
+   it used to be pinned to `table-cell` to keep `table-layout: fixed` able to
+   size the column, which no longer applies. */
 #battleTracker .combatantName {
-  display: table-cell !important;
-  vertical-align: middle;
-  /* Clears the 9-sliced frame, which is only ~7px thick, plus room on the left
-     for the turn marker. The old 1.9rem/1.4rem was sized for the artwork when
-     it was stretched across the whole cell. */
-  padding-left: 1.15rem !important;
-  padding-right: 0.6rem !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  /* Room on the left for the turn marker. */
+  padding-left: 1.4cqw !important;
+  padding-right: 0.7cqw !important;
   min-width: 0;
+  /* The turn circle is drawn around the name and deliberately overruns it on
+     every side. Clipping here would cut it off whatever its z-index — a clip
+     beats stacking order — so truncation of long names is done on the name's
+     own span instead, further in. */
+  overflow: visible;
 }
 
 #battleTracker .combatantName > div,
 #battleTracker .combatantName > span:not(.currentTurnIndicator) {
   min-width: 0;
+  max-width: 100%;
+  /* visible, not hidden: this box carries the turn circle and the underline,
+     both of which overrun it on purpose. */
+  overflow: visible;
+  white-space: nowrap;
+  /* Shrink-wrapped to the name so the underline below matches its width, and
+     with room underneath for that underline to sit inside the overflow box —
+     `overflow: hidden` is what truncates a long name, and it would otherwise
+     clip the stroke away.
+
+     The padding is symmetric so the name sits on the row's centre line. With
+     it only on the bottom, the flex centring centred the box rather than the
+     text, which floated the name half the padding above where it belonged.
+     The trade is that the stroke now runs closer under the descenders, and
+     sometimes across them — which is what a pencil does anyway. */
+  display: inline-block;
+  padding-top: 0.6em;
+  padding-bottom: 0.6em;
+  vertical-align: middle;
+}
+
+/* Long names are cut here rather than on the boxes around them, so the marks
+   that hang off those boxes survive. */
+#battleTracker .combatantName .combatantNameText {
+  display: inline-block;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  vertical-align: bottom;
 }
 
 /* The turn marker sits in the row's left margin, so it must not eat into the
-   space the name has to work with. */
+   space the name has to work with. The green ▶ glyph is now the drawn
+   gauntlet, sized in the artwork's own 222:89 ratio. */
 .currentTurnIndicator {
   position: absolute;
-  left: 0.15rem;
-  font-size: 1.4rem !important;
-  line-height: 1;
+  /* Out past the cell's own padding, into the row's left margin, so a long
+     name has the whole column to itself. The name cell is `overflow: visible`
+     for the turn circle, so this is free to sit outside it. */
+  left: -0.7rem;
+  /* Sized off the row rather than the table's width, so it stays in scale with
+     the row it is pointing at. The art is 222:89, so asking for most of the
+     row's height makes it a wide, flat gauntlet — which is what it is. */
+  height: calc(var(--row-h) * 0.66);
+  aspect-ratio: 222 / 89;
+  background-image: url('./assets/draftsvgs_v2/pointer_gauntlet.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  /* over the plaque, which is opaque */
+  z-index: 3;
+  pointer-events: none;
 }
+
+/* --- the current combatant, circled ---------------------------------------
+   Round the name itself, not the whole row: a ring the width of the table read
+   as a border rather than as something somebody drew.
+
+   It hangs off .statBlockTrigger, which is the width of the name text, and it
+   draws itself on the same way the ticks and the underline do — a mask wipe.
+   An animation rather than a transition, because the element only exists once
+   the row becomes current and a transition has no start state to run from.
+
+   One of four scrawls, hashed per combatant (the class sits on the row) so it
+   does not change under the reader mid-turn. */
+#battleTracker tr.isCurrentTurn .statBlockTrigger::before {
+  content: "";
+  position: absolute;
+  inset: -0.5em -0.75em;
+  background-image: var(--turn-circle);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  /* Over everything in the row — plaques, ticks, the drawer's own trigger —
+     because it is a mark drawn on the page, not part of any one cell. Under
+     the frozen header (12) so a circled row slides beneath the column
+     headings, and well under the managers (25) and the side-car panels
+     (10000) so those still cover the table.
+
+     The row and the trigger are both `position: relative` with `z-index:
+     auto`, so neither traps this in a stacking context of its own and this
+     competes directly against the table's other positioned cells. */
+  z-index: 10;
+  pointer-events: none;
+
+  -webkit-mask-image: linear-gradient(#000, #000);
+  mask-image: linear-gradient(#000, #000);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: left center;
+  mask-position: left center;
+  animation: drawTurnCircle 0.5s cubic-bezier(0.32, 0.72, 0.4, 1) both;
+}
+
+@keyframes drawTurnCircle {
+  from {
+    -webkit-mask-size: 0% 100%;
+    mask-size: 0% 100%;
+  }
+  to {
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+}
+
+.turnCircle1 { --turn-circle: url('./assets/draftsvgs_v2/circle_hand-1.svg'); }
+.turnCircle2 { --turn-circle: url('./assets/draftsvgs_v2/circle_hand-2.svg'); }
+.turnCircle3 { --turn-circle: url('./assets/draftsvgs_v2/circle_hand-3.svg'); }
+.turnCircle4 { --turn-circle: url('./assets/draftsvgs_v2/circle_hand-4.svg'); }
 
 #battleTracker tbody tr {
   position: relative;
 }
 
 /* --- B3: stop the HP and conditions text being clipped ------------------- */
-/* Same reason as .combatantName: keep it a table cell and centre the contents
-   inline rather than turning the cell into a flex container. */
 #battleTracker .combatantHP {
-  display: table-cell !important;
-  vertical-align: middle;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   line-height: 1.15;
   white-space: nowrap;
+}
+
+/* HP and initiative are the same kind of control - a value you click to change
+   - so they are built the same way. Both are `.setEditingField` buttons, which
+   is where the face, padding, radius and pointer come from; the tabular
+   figures sit on the HP button so its digits do not shuffle as they change. */
+#battleTracker .combatantHP .hpButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1em;
+  max-width: 100%;
+  line-height: 1.15;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
+
+  /* The at-a-glance bloodied signal lives here rather than on the cell — see
+     the note on td.combatantHP. Inside the plaque it can never reach a torn
+     edge, so it needs no clipping and behaves the same in both themes. */
+  background-color: var(--hp-tint, transparent);
+  /* Spans the column so the bloodied signal reads as the whole cell going red
+     rather than as a chip floating in it — but stops short of the plaque's
+     drawn top and bottom edges. At full height it painted straight over the
+     torn edge and the HP cell lost its tears while every other cell kept
+     theirs. */
+  width: calc(100% + 1.4cqw);
+  margin: 0 -0.7cqw;
+  height: calc(100% - var(--plaque-edge) * 1.6);
+  padding: 0;
+  border: none;
+  transition: background-color 0.2s ease;
+}
+
+/* Neither had a hover state in the tracker - only the manager tables did - so
+   there was nothing to say either value was clickable until the cursor
+   changed. One rule now covers both. */
+/* Not the HP button: it also carries .setEditingField, and its background
+   colour is the bloodied tint. Setting the colour here replaced that tint
+   outright, so hovering a wounded cell dropped it to bare parchment and left
+   the pale bloodied ink on top — white on white. The HP button gets its own
+   hover below, layered as an image so the tint survives underneath. */
+#battleTracker .setEditingField:not(.hpButton):hover,
+#battleTracker .setEditingField:not(.hpButton):focus-visible {
+  background-color: rgba(60, 38, 18, 0.13);
+}
+
+#battleTracker .combatantHP .hpButton:hover,
+#battleTracker .combatantHP .hpButton:focus-visible {
+  /* The HP cell's own ground already shifts from parchment to deep red, so a
+     brown wash reads as mud on a bloodied row; lift it instead.
+
+     As a background IMAGE, not a background-color: the bloodied tint is this
+     element's background-color now, so setting that here replaced the red
+     outright — hovering a wounded cell dropped it back to parchment and left
+     the pale bloodied ink on top of it, white on white. An image layer
+     composites over the tint instead of standing in for it. */
+  background-image: linear-gradient(
+    rgba(255, 252, 245, 0.22),
+    rgba(255, 252, 245, 0.22)
+  );
 }
 
 #battleTracker .combatantHP .hpValue {
@@ -152,11 +403,11 @@
 #battleTracker .combatantHP .thp {
   display: block;
   margin: 0;
-  font-size: 0.7rem;
+  font-size: 0.62em;
 }
 
 #battleTracker .combatantHP .hpHeart {
-  height: 1.05rem;
+  height: 0.95em;
   width: auto;
   vertical-align: -0.18rem;
   margin-left: 0.15rem;
@@ -167,6 +418,15 @@
   vertical-align: middle;
 }
 
+/* The cell has no vertical padding, which is fine for one line of centred text
+   but not for the editor: at three rows it filled the plaque edge to edge and
+   the chips ended up sitting on the drawn tear. This keeps it inside the
+   parchment, and the row grows to suit. */
+#battleTracker td.combatantConditions:has(.conditionEditOuter) {
+  padding-top: var(--plaque-edge);
+  padding-bottom: var(--plaque-edge);
+}
+
 .editConditions {
   display: flex;
   flex-wrap: wrap;
@@ -174,7 +434,9 @@
   justify-content: center;
   gap: 2px;
   width: 100%;
-  max-height: 2.6rem;
+  /* Tied to the row rather than a fixed 2.6rem, so the taller row actually
+     buys the chips more space instead of the cap throwing it away. */
+  max-height: calc(var(--row-h) * 0.95);
   /* hidden, not auto: an inner scrollbar in every row was both ugly and clipped
      the prompt text */
   overflow: hidden;
@@ -184,10 +446,216 @@
   padding: 0;
 }
 
-.noCondition {
-  font-size: 0.72rem;
-  line-height: 1.15;
+/* --- conditions: one chip, resting and editing alike ----------------------
+   The cell and its editor were two different objects. At rest the conditions
+   were grey pills with tan text on them; open the editor and the same
+   conditions came back as bright red pills, beside a stock white <select> and
+   a bright green Done button — none of which belong to the rest of the page.
+
+   Everything below is the one chip: the row's own ink laid over the plaque at
+   low alpha, so it reads as something written on the parchment rather than
+   stuck to it. Red is kept for the one thing that is actually destructive —
+   hovering a chip in the editor, which removes it. */
+.conditionName,
+.conditionNameEditing {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3em;
+  margin: 0;
+  padding: 0.12em 0.62em 0.18em;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(150, 97, 45, 0.16);
+  color: #5c3a17;
+  font-family: 'Caudex', serif;
+  /* Deliberately not scaled with the row: the type around them went up 1.42x
+     and these read better small. 0.55em of the larger row is the size they
+     were at 0.78em of the smaller one. */
+  font-size: 0.55em;
+  line-height: 1.25;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background-color 0.13s ease, color 0.13s ease;
+}
+
+/* Only the chip under the pointer lights up. The cell is a single button
+   wrapping every chip, so the blanket `button:hover { filter: brightness() }`
+   was brightening all of them at once. */
+.editConditions:hover,
+.editConditions:focus-visible {
+  filter: none;
+}
+
+.conditionName:hover {
+  background-color: rgba(150, 97, 45, 0.3);
+}
+
+/* How many conditions a combatant is carrying is unpredictable, and past two
+   the chips wrapped to more rows than the cell could show — so the last of
+   them were sliced in half along the bottom edge.
+
+   The row is a little taller now, and beyond that the chips step down a size
+   as they multiply, the way you write smaller to get the rest of a list into
+   the margin. Each step is a quantity query: `:has(.conditionName:nth-child(n))`
+   is true only once there are at least n of them. Padding is in em, so it
+   tightens with the type and the chips stay in proportion. */
+.editConditions:has(.conditionName:nth-child(3)) .conditionName {
+  font-size: 0.49em;
+}
+
+.editConditions:has(.conditionName:nth-child(5)) .conditionName {
+  font-size: 0.42em;
+}
+
+.editConditions:has(.conditionName:nth-child(7)) .conditionName {
+  font-size: 0.37em;
+}
+
+.editConditions:has(.conditionName:nth-child(9)) .conditionName {
+  font-size: 0.33em;
+}
+
+/* The editor steps down on the same idea, but stops early and one notch
+   behind: these chips are the remove buttons, so they have to stay big enough
+   to hit. */
+.conditionEditOuter > div:has(.conditionNameEditing:nth-child(5)) .conditionNameEditing {
+  font-size: 0.44em;
+}
+
+.conditionEditOuter > div:has(.conditionNameEditing:nth-child(8)) .conditionNameEditing {
+  font-size: 0.40em;
+}
+
+/* In the editor a chip is a remove button, so hovering it says so. It also
+   sits a size below the resting chip: the editor packs the same conditions
+   plus a picker and a Done button into one row, and at full size that read as
+   a crowd of objects rather than one control. */
+.conditionNameEditing {
+  cursor: pointer;
+  font-size: 0.49em;
+  gap: 0.2em;
+  padding: 0.1em 0.5em 0.15em;
+}
+
+.conditionNameEditing:hover,
+.conditionNameEditing:focus-visible {
+  background-color: #a12b1c;
+  color: #f6efe3;
+  filter: none;
+}
+
+/* The × is an affordance, not a label — it only needs to be legible enough to
+   say the chip can be taken off. */
+.conditionRemove {
+  font-size: 0.95em;
+  line-height: 1;
+  opacity: 0.42;
+}
+
+.conditionNameEditing:hover .conditionRemove,
+.conditionNameEditing:focus-visible .conditionRemove {
+  opacity: 1;
+}
+
+/* The picker and its Done button, in the same hand as the chips. */
+.conditionEditOuter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem 0.25rem;
+  min-width: 0;
+  padding: 0.1rem 0;
+}
+
+.conditionEditOuter > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.15rem;
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.conditionSelect {
+  width: auto;
+  max-width: 100%;
+  margin-bottom: 0;
+  padding: 0.1em 0.35em;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(150, 97, 45, 0.16);
+  color: #5c3a17;
+  font-family: 'Caudex', serif;
+  font-size: 0.48em;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editConditionsDone {
+  padding: 0.12em 0.7em 0.17em;
+  border: none;
+  border-radius: 999px;
+  background-color: #6b4824;
+  color: #f6efe3;
+  font-family: 'Caudex', serif;
+  font-size: 0.48em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.13s ease;
+}
+
+/* The picker is a chip like the conditions beside it, so it lifts on hover the
+   way they do. */
+.conditionSelect:hover,
+.conditionSelect:focus-visible {
+  background-color: rgba(150, 97, 45, 0.3);
+}
+
+.editConditionsDone:hover,
+.editConditionsDone:focus-visible {
+  background-color: #4e341a;
+  filter: none;
+}
+
+/* The description, in an element we own so it can appear at once instead of
+   waiting out the browser's own delay on `title`. Portalled to <body>, so it
+   is positioned in viewport coordinates. */
+.conditionTip {
+  position: fixed;
+  z-index: 10050;
+  /* max-content first: a fixed box otherwise shrinks to the room left between
+     its own `left` and the viewport edge, so a chip near the right-hand side
+     got a narrow column of text instead of the same card as everywhere else.
+     The x is clamped in JS to half this width, so it always fits. */
+  width: max-content;
+  max-width: 20rem;
+  padding: 0.5rem 0.7rem;
+  transform: translateX(-50%);
+  background-color: #2b1a0c;
+  color: #f6efe3;
+  font-family: 'Caudex', serif;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  text-align: left;
   white-space: normal;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(43, 26, 12, 0.32);
+  pointer-events: none;
+}
+
+/* flipped when there is no room below */
+.conditionTip.isAbove {
+  transform: translate(-50%, -100%);
+}
+
+.conditionTipName {
+  display: block;
+  margin-bottom: 0.15rem;
+  color: #e2b964;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  font-weight: 700;
 }
 
 /* The table and the Start/End buttons are now wrapped, so the wrappers have to
@@ -197,11 +665,33 @@
   grid-area: battletracker;
   width: 100%;
   min-width: 0;
+  /* A grid item's automatic minimum size is its content, so a long roster made
+     this box grow past its row instead of scrolling inside it — nineteen
+     combatants came out 1634px tall in a 713px row, ran straight over the
+     footer and pushed the page into scrolling. Zeroing the minimum lets the
+     row bound it and hands the overflow to the scroller below. */
+  min-height: 0;
   overflow-x: auto;
+  overflow-y: auto;
+  /* Everything in the tracker is sized from the table's own width (cqw), so
+     the whole thing keeps one set of proportions at any viewport instead of
+     mixing fixed rem with fluid widths. The reference proportions are a 53px
+     row and 20px text on a 1495px table. */
+  container-type: inline-size;
+  /* The rule that boxes the tracker off from the rest of the page. No padding
+     at the top: the sticky header pins to the scrollport's top edge, and any
+     padding above it is a strip where scrolling rows show through above the
+     header. The table carries that space instead. */
+  padding: 0 0.6cqw 0.5cqw;
+  box-sizing: border-box;
   /* Fills its grid area, the way it did in v.0.3.1. The old 1100px cap only
      existed to hold the cells at the artwork's aspect ratio; 9-slicing the
-     plaques removed that constraint. */
-  margin: 2vh 1vw auto auto;
+     plaques removed that constraint.
+
+     The bottom margin is 0, not auto: an auto margin in the block axis turns
+     off a grid item's stretch, so the box sized itself to its content and ran
+     past the row — and over the footer — however tall the roster got. */
+  margin: 2vh 1vw 0 auto;
 }
 
 #battleControls {
@@ -224,7 +714,6 @@
   border-radius: 2px;
 }
 
-.conditionNameEditing,
 .editConditions {
   font: inherit;
   color: inherit;
@@ -245,6 +734,12 @@
 #battleControls #buttonStartBattle {
   grid-area: auto;
   margin: 0;
+  /* Nudged off its grid slot rather than re-margined: relative offsets do not
+     change the space it reserves, so the round number and timer beside it stay
+     where they are. */
+  position: relative;
+  left: -50px;
+  top: 12px;
 }
 
 /* --- B8: panels must not overflow the viewport --------------------------- */
@@ -296,19 +791,17 @@
 }
 
 #initiativeDialogInner.initiativeDialogInner {
-  background-color: var(--color-hl1);
-  color: var(--color-fg);
-  border: 3px double var(--color-btn1);
-  border-radius: 4px;
+  /* Ground, ink, edge and shadow all come from the scroll artwork now — see
+     the modal frames further down. Only the sizing is left here. */
   padding: 1.5rem 1.75rem;
   min-width: min(24rem, 92vw);
   max-width: 92vw;
-  box-shadow: 0 8px 30px -8px var(--color-shadow);
   font-family: 'Caudex', serif;
   text-align: center;
 }
 
 #initiativeDialogInner.initiativeDialogInner > h3 {
+  color: var(--panel-ink);
   margin: 0 0 1rem;
   font-family: 'Germania One', 'Caudex', serif;
   font-size: 1.35rem;
@@ -320,7 +813,9 @@
 #initiativeDialogInner .initiativeFormula {
   font-family: 'Caudex', serif;
   font-size: 0.95rem;
-  color: var(--color-chk2);
+  /* The table's tan reads on its cream plaques but not on the darker parchment
+     of the scroll — 2.5:1. The panel's own softened ink is the right one here. */
+  color: var(--panel-ink-soft);
   font-variant-numeric: tabular-nums;
 }
 
@@ -329,7 +824,6 @@
   padding: 0.55rem;
   font-size: 1.05rem;
   text-align: center;
-  border: 2px solid var(--color-brdr1);
   border-radius: 3px;
   background-color: var(--color-bg1);
   color: var(--color-fg);
@@ -346,7 +840,6 @@
 #initiativeDialogInner #randomInit {
   flex: 1;
   padding: 0.6rem 0.75rem;
-  border: 2px solid var(--color-btn1);
   border-radius: 3px;
   background-color: var(--color-btn2);
   color: var(--color-bg1);
@@ -394,8 +887,6 @@
 .appDialogInner {
   background-color: var(--color-hl1);
   color: var(--color-fg);
-  border: 3px double var(--color-btn1);
-  border-left: 6px solid var(--color-chk2);
   border-radius: 4px;
   padding: 1.35rem 1.6rem;
   min-width: min(23rem, 92vw);
@@ -404,9 +895,9 @@
   font-family: 'Caudex', serif;
 }
 
-.appDialogInner.tone-warning { border-left-color: var(--color-chk2); }
-.appDialogInner.tone-danger  { border-left-color: var(--color-redwarn); }
-.appDialogInner.tone-info    { border-left-color: var(--color-hl2); }
+.appDialogInner.tone-warning {}
+.appDialogInner.tone-danger  {}
+.appDialogInner.tone-info    {}
 
 .appDialogTitle {
   margin: 0 0 0.5rem;
@@ -432,7 +923,6 @@
   font-family: 'Caudex', serif;
   font-size: 0.95rem;
   cursor: pointer;
-  border: 2px solid var(--color-btn1);
 }
 
 .appDialogConfirm {
@@ -443,7 +933,6 @@
 .appDialogCancel {
   background-color: transparent;
   color: var(--color-fg);
-  border-color: var(--color-brdr1);
 }
 
 /* --- B10: storage warning, themed instead of a hardcoded light palette --- */
@@ -457,8 +946,6 @@
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   background-color: var(--color-bg2);
-  border: 1px solid var(--color-redwarn);
-  border-left: 4px solid var(--color-redwarn);
   border-radius: 4px;
   color: var(--color-fg);
 }
@@ -503,7 +990,6 @@
 #buttonThemeToggle {
   background-color: var(--color-btn2);
   color: var(--color-bg1);
-  border: 2px solid var(--color-btn1);
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
@@ -538,26 +1024,2028 @@
   position: relative;
 }
 
+/* --- keyboard hints, drawn ------------------------------------------------
+   The letters beside the manager buttons and in the Action/Bonus/Move headers
+   were typeset characters in a tinted box. They are Emily's key_*.svg now, so
+   the shortcut reads as a drawn key like everything else on the page. The
+   character stays in the DOM (the image replaces it visually, and it is the
+   fallback if the art fails to load). Art is 219x180. */
+.panelButtonKey,
+.colKey {
+  background-image: var(--key-art);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  color: transparent;
+}
+
+.colKey {
+  display: inline-block;
+  width: 1.5em;
+  aspect-ratio: 219 / 180;
+  vertical-align: super;
+  margin-left: 0.15em;
+  /* sup already shrinks it; this keeps the drawn key legible */
+  font-size: 0.62em;
+}
+
+[data-key="a"] { --key-art: url('./assets/draftsvgs_v1/key_a.svg'); }
+[data-key="d"] { --key-art: url('./assets/draftsvgs_v1/key_d.svg'); }
+[data-key="e"] { --key-art: url('./assets/draftsvgs_v1/key_e.svg'); }
+[data-key="r"] { --key-art: url('./assets/draftsvgs_v1/key_r.svg'); }
+[data-key="s"] { --key-art: url('./assets/draftsvgs_v1/key_s.svg'); }
+[data-key="w"] { --key-art: url('./assets/draftsvgs_v1/key_w.svg'); }
+[data-key="x"] { --key-art: url('./assets/draftsvgs_v1/key_x.svg'); }
+
 .panelButtonKey {
   position: absolute;
   /* Bottom-right, clear of the ribbon's tapered tail where a bare letter is
      unreadable against the page. */
   bottom: 0.15rem;
   right: 0.35rem;
-  padding: 0 0.28rem;
-  border: 1px solid var(--color-brdr1);
-  border-radius: 3px;
-  background-color: var(--color-bg1);
-  font-family: 'Caudex', serif;
+  /* no tinted pill behind the art */
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+  width: 2.5rem;
+  aspect-ratio: 219 / 180;
   font-size: 0.7rem;
   line-height: 1.35;
-  text-transform: uppercase;
-  color: var(--color-fg);
-  opacity: 0.6;
+  /* Full strength. It was faded to 0.6 when it was a typeset letter in a
+     tinted pill; the drawn keycap is meant to read as a key, not a hint. */
   pointer-events: none;
 }
 
-.panelButton:hover .panelButtonKey,
-.panelButton[aria-expanded="true"] .panelButtonKey {
+/* --- the name's pencil underline ------------------------------------------
+   Hovering a combatant's name slides its stat block in from the left edge
+   (`left: -380px -> 0` over 0.35s ease-out, in HeroStatBlockHover). The line
+   is drawn on the same curve, in the same direction, over very nearly the
+   same time, so the two read as one gesture. It follows the block's open
+   state rather than the pointer, so a stat block clicked open keeps its line.
+
+   The stroke is graphite: a filled outline warped by fractal noise so its
+   edges are never clean, then knocked through by a second noise so the lead
+   skips and pools the way it does on paper (see underline_pencil-*.svg). It
+   is applied as a mask over a flat near-black, so the grain comes from the
+   mask's own alpha.
+
+   Everything that varies between names — which of the three strokes, the
+   tilt, how far it sits below the word, where it starts and stops, how heavy
+   it is, how long it takes — comes from custom properties BattleTracker
+   hashes off the combatant's id (underlineStyle). Same name, same line, every
+   render; no two names alike. */
+.statBlockTrigger {
+  position: relative;
+  cursor: pointer;
+}
+
+.statBlockTrigger::after {
+  content: "";
+  --ul-box: var(--ul-weight, 0.5em);
+  position: absolute;
+  left: var(--ul-start, 0);
+  right: var(--ul-end, 0);
+  /* Positioned by where the ink lands, not by the box's bottom edge. The
+     stroke runs down the middle of its box, so anchoring the bottom made a
+     heavy stroke sit lower than a light one; this keeps every stroke on the
+     same line just under the word, whatever its weight, and lets --ul-drop
+     jitter it from there. */
+  height: var(--ul-box);
+  bottom: calc(0.52em - (var(--ul-box) / 2) + var(--ul-drop, 0em));
+
+  /* Two mechanisms, each doing the one job it is good at.
+
+     The stroke is a background image rather than a mask over a flat colour.
+     Masking with the stroke drew a thin rectangle around the whole underline:
+     the box's height is an em of a cqw-scaled font, so it always lands on a
+     fractional pixel, and a mask resampled into fractional bounds leaves faint
+     alpha along the box's own edges. Painting the artwork directly skips that
+     resample - and it is already black, so nothing is lost.
+
+     The reveal is then a single flat gradient in the mask, grown from nothing
+     to full width. It cannot be `clip-path`: that property applies here when
+     set outright but never transitions on this pseudo-element (checked with
+     getAnimations - no transition is ever created). `mask-size` does animate,
+     and a uniform gradient has no detail to resample, so it does not bring the
+     rectangle back. */
+  background-image: var(--ul-stroke);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: var(--ul-press, 0.9);
+
+  -webkit-mask-image: linear-gradient(#000, #000);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: left center;
+  -webkit-mask-size: 0% 100%;
+  mask-image: linear-gradient(#000, #000);
+  mask-repeat: no-repeat;
+  mask-position: left center;
+  mask-size: 0% 100%;
+
+  /* A hand does not draw a level line. */
+  transform: rotate(var(--ul-tilt, 0deg));
+  transform-origin: left center;
+
+  transition:
+    mask-size var(--ul-time, 0.35s) ease-out,
+    -webkit-mask-size var(--ul-time, 0.35s) ease-out;
+  pointer-events: none;
+}
+
+/* Which stroke this name gets. They are not all straight, and some of them are
+   not even sensible: 2 sags, 3 swooshes, 4 waves, 5 rises across the word,
+   6 squiggles, 7 loses patience and scribbles the second half, 8 bounces, and
+   9 and 10 throw an actual loop. */
+.pencil1  .statBlockTrigger { --ul-stroke: url('./assets/draftsvgs_v2/underline_pencil-1.svg'); }
+.pencil2  .statBlockTrigger { --ul-stroke: url('./assets/draftsvgs_v2/underline_pencil-2.svg'); }
+.pencil3  .statBlockTrigger { --ul-stroke: url('./assets/draftsvgs_v2/underline_pencil-3.svg'); }
+.pencil4  .statBlockTrigger { --ul-stroke: url('./assets/draftsvgs_v2/underline_pencil-4.svg'); }
+.pencil5  .statBlockTrigger { --ul-stroke: url('./assets/draftsvgs_v2/underline_pencil-5.svg'); }
+.pencil6  .statBlockTrigger { --ul-stroke: url('./assets/draftsvgs_v2/underline_pencil-6.svg'); }
+.pencil7  .statBlockTrigger { --ul-stroke: url('./assets/draftsvgs_v2/underline_pencil-7.svg'); }
+.pencil8  .statBlockTrigger { --ul-stroke: url('./assets/draftsvgs_v2/underline_pencil-8.svg'); }
+
+/* The looping two need more height than the rest — a loop squashed into a
+   5px band just reads as a smudge. */
+.pencil9  .statBlockTrigger { --ul-stroke: url('./assets/draftsvgs_v2/underline_pencil-9.svg'); }
+.pencil10 .statBlockTrigger { --ul-stroke: url('./assets/draftsvgs_v2/underline_pencil-10.svg'); }
+.pencil9  .statBlockTrigger::after,
+.pencil10 .statBlockTrigger::after {
+  /* Setting the box rather than the height keeps the looping pair on the same
+     line as everything else. */
+  --ul-box: calc(var(--ul-weight, 0.5em) * 1.5);
+}
+
+.statBlockTrigger.isOpen::after,
+.statBlockTrigger:focus-within::after {
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+/* A dead combatant's name is already struck through; a second line underneath
+   just reads as noise. */
+.statBlockTrigger:has(.strike)::after {
+  content: none;
+}
+
+/* --- the action checkboxes -------------------------------------------------
+   Action, Bonus, Move and Reaction are all the same control, so all four get
+   the same treatment: a box someone drew rather than one the browser drew.
+
+   The native input is kept and only its painting replaced (`appearance: none`
+   plus background layers). That keeps the checkbox a real checkbox — tabbable,
+   toggled with space, announced as a checkbox, and still driving React's
+   onChange — where a div dressed up as one would have to reimplement all of
+   that, badly.
+
+   Checked state adds the tick as a second background layer above the box
+   rather than swapping the image, so the box does not flicker on toggle. Which
+   box and which tick come from a hash per combatant and column, so a column of
+   them never looks stamped. */
+#battleTracker input[type="checkbox"],
+#heroAddManage .managerCheck input[type="checkbox"],
+#monsterAddManage .managerCheck input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  border: none;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  background-image: var(--hand-box);
+
+  /* An input does not inherit font-size, so `em` here was resolving against
+     the browser's own 13.33px default — the box stayed 23px however large the
+     table's type got, and the mark drawn over it grew to two and a half times
+     its size. */
+  font-size: inherit;
+  width: 1.2em;
+  height: 1.2em;
+  cursor: pointer;
+  /* The drawn boxes are near-black; this lets the ink follow the theme's own
+     opacity conventions without washing the line out. */
+  opacity: 0.82;
+
+  /* On top of picking from eight drawn boxes, each one is tilted, scaled and
+     nudged a little of its own, so a column of them reads as individually
+     scrawled rather than as eight stamps. The artwork is drawn inset in its
+     own square, which is what lets a tick's tail run outside the box without
+     being clipped. */
+  transform: rotate(var(--cb-tilt, 0deg)) scale(var(--cb-scale, 1))
+             translateY(var(--cb-nudge, 0));
+  transition: opacity 0.15s ease, transform 0.12s ease;
+}
+
+#battleTracker input[type="checkbox"]:hover:not(:disabled),
+#heroAddManage .managerCheck input[type="checkbox"]:hover:not(:disabled),
+#monsterAddManage .managerCheck input[type="checkbox"]:hover:not(:disabled) {
   opacity: 1;
 }
+
+#battleTracker input[type="checkbox"]:active:not(:disabled),
+#heroAddManage .managerCheck input[type="checkbox"]:active:not(:disabled),
+#monsterAddManage .managerCheck input[type="checkbox"]:active:not(:disabled) {
+  /* A pen pressing down. */
+  transform: rotate(var(--cb-tilt, 0deg)) scale(calc(var(--cb-scale, 1) * 0.93))
+             translateY(var(--cb-nudge, 0));
+}
+
+#battleTracker input[type="checkbox"]:focus-visible,
+#heroAddManage .managerCheck input[type="checkbox"]:focus-visible,
+#monsterAddManage .managerCheck input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--color-chk2);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+#battleTracker input[type="checkbox"]:checked,
+#heroAddManage .managerCheck input[type="checkbox"]:checked,
+#monsterAddManage .managerCheck input[type="checkbox"]:checked {
+  opacity: 1;
+}
+
+#battleTracker input[type="checkbox"]:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.handBox1 { --hand-box: url('./assets/draftsvgs_v2/checkbox_hand-1.svg'); }
+.handBox2 { --hand-box: url('./assets/draftsvgs_v2/checkbox_hand-2.svg'); }
+.handBox3 { --hand-box: url('./assets/draftsvgs_v2/checkbox_hand-3.svg'); }
+.handBox4 { --hand-box: url('./assets/draftsvgs_v2/checkbox_hand-4.svg'); }
+.handBox5 { --hand-box: url('./assets/draftsvgs_v2/checkbox_hand-5.svg'); }
+.handBox6 { --hand-box: url('./assets/draftsvgs_v2/checkbox_hand-6.svg'); }
+.handBox7 { --hand-box: url('./assets/draftsvgs_v2/checkbox_hand-7.svg'); }
+.handBox8 { --hand-box: url('./assets/draftsvgs_v2/checkbox_hand-8.svg'); }
+
+/* The three kinds of mark. Which one a row uses is decided in handArt.ts;
+   these just say what each one is drawn from. */
+.handMarkCheck1 { --hand-tick: url('./assets/draftsvgs_v2/check_hand-1.svg'); }
+.handMarkCheck2 { --hand-tick: url('./assets/draftsvgs_v2/check_hand-2.svg'); }
+.handMarkCheck3 { --hand-tick: url('./assets/draftsvgs_v2/check_hand-3.svg'); }
+.handMarkCheck4 { --hand-tick: url('./assets/draftsvgs_v2/check_hand-4.svg'); }
+.handMarkCheck5 { --hand-tick: url('./assets/draftsvgs_v2/check_hand-5.svg'); }
+.handMarkCheck6 { --hand-tick: url('./assets/draftsvgs_v2/check_hand-6.svg'); }
+
+.handMarkCross1 { --hand-tick: url('./assets/draftsvgs_v2/cross_hand-1.svg'); }
+.handMarkCross2 { --hand-tick: url('./assets/draftsvgs_v2/cross_hand-2.svg'); }
+.handMarkCross3 { --hand-tick: url('./assets/draftsvgs_v2/cross_hand-3.svg'); }
+.handMarkCross4 { --hand-tick: url('./assets/draftsvgs_v2/cross_hand-4.svg'); }
+
+.handMarkFill1 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-1.svg'); }
+.handMarkFill2 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-2.svg'); }
+.handMarkFill3 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-3.svg'); }
+.handMarkFill4 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-4.svg'); }
+
+/* --- modal windows on the managers' scrolls --------------------------------
+   Every modal is framed with the same container artwork the managers use, so
+   a dialog reads as another sheet from the same pad rather than as a browser
+   box. `border-image` 9-slices it, which is what lets one drawing wrap a
+   window of any size.
+
+   Most take the parchment scroll. The three that interrupt a fight — starting
+   a battle, taking damage, and a concentration check — take the hero banner
+   instead: they are the moments that should feel urgent, and the red says so
+   before the words do.
+
+   The border is the frame, so the box has to be border-box or the artwork
+   inflates the window; and the old background, radius and shadow all go,
+   since the artwork now supplies the edge. */
+#initiativeDialogInner,
+#conditionReminderContent,
+.appDialogInner,
+.hpChangeModalInner,
+.popup-container,
+#conCheckInner {
+  box-sizing: border-box;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 20px 35px;
+  border-image-slice: 6% fill;
+  border-image-width: 20px 35px;
+  border-image-repeat: stretch;
+  /* The artwork does not follow the theme, so neither can the text on it. */
+  color-scheme: light;
+  color: var(--panel-ink);
+}
+
+/* ---- parchment: everything that is not mid-fight ---- */
+#initiativeDialogInner,
+#conditionReminderContent,
+.appDialogInner {
+  border-image-source: url('./assets/draftsvgs_v2/container_monster-manager.svg');
+  --panel-ink: #2b1a0c;
+  --panel-ink-soft: #56391d;
+  --panel-rule: rgba(43, 26, 12, 0.30);
+  --panel-field: rgba(255, 253, 248, 0.80);
+  --panel-field-ink: #2b1a0c;
+}
+
+/* ---- the red banner: start a battle, take damage, hold concentration ---- */
+.hpChangeModalInner,
+.popup-container,
+#conCheckInner {
+  border-image-source: url('./assets/draftsvgs_v2/container_hero-manager.svg');
+  --panel-ink: #fbf3e7;
+  --panel-ink-soft: #eed6ba;
+  --panel-rule: rgba(251, 243, 231, 0.26);
+  --panel-field: rgba(251, 243, 231, 0.94);
+  --panel-field-ink: #2b1c10;
+}
+
+/* Headings and body copy take the panel's ink rather than a theme token. */
+#initiativeDialogInner h1, #initiativeDialogInner h2, #initiativeDialogInner h3,
+#conditionReminderContent h1, #conditionReminderContent h2, #conditionReminderContent h3,
+.appDialogInner .appDialogTitle, .appDialogInner .appDialogMessage,
+.hpChangeModalInner h1, .hpChangeModalInner h2, .hpChangeModalInner h3,
+.popup-container .popup-title, .popup-container .popup-message,
+#conCheckInner h1, #conCheckInner h2, #conCheckInner h3, #conCheckMessage,
+#deathSavesBox, #deathSavesBox > h2 {
+  color: var(--panel-ink);
+  background: none;
+}
+
+/* Fields sit on the artwork and have to stay legible on either ground. */
+#initiativeDialogInner input,
+.hpChangeModalInner input,
+#conCheckInner input,
+.appDialogInner input {
+  background-color: var(--panel-field);
+  color: var(--panel-field-ink);
+  border-radius: 2px;
+}
+
+/* Death saves are a section inside the HP window, not a window of their own,
+   so they get a tint of the banner rather than a frame. */
+#deathSavesBox {
+  background-color: rgba(0, 0, 0, 0.22);
+  border-radius: 0;
+}
+
+
+
+/* Left over from when these panels were manager-style frames. The parchment is
+   drawn by .statHover::after now, and with the panel's own border-image gone
+   these were painting a manager scroll behind it. */
+.heroStatHover,
+.monsterStatHover {
+  border-image-source: none;
+}
+
+/* The start-battle window carries two rosters, which is a lot of window: cap
+   it and let the content scroll inside the frame rather than running off the
+   bottom of the screen. The frame is the border, so it stays put while the
+   content moves. */
+.popup-container {
+  max-height: 86vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--panel-rule) transparent;
+}
+
+/* Those rosters kept their own light backgrounds, which left the window's
+   cream ink sitting on white and effectively invisible. Same treatment as the
+   hero manager's roster: tints of the banner underneath, ruled in its own ink,
+   so the table belongs to the sheet it is drawn on. */
+.popup-container table {
+  border-collapse: collapse;
+  width: 100%;
+  color: var(--panel-ink);
+}
+
+.popup-container th {
+  background-color: rgba(0, 0, 0, 0.34);
+  color: var(--panel-ink);
+  border: none;
+  border-bottom: 1px solid var(--panel-rule);
+  padding: 0.3rem 0.5rem;
+}
+
+.popup-container td {
+  background-color: rgba(251, 243, 231, 0.06);
+  color: var(--panel-ink);
+  border: none;
+  border-bottom: 1px solid rgba(251, 243, 231, 0.14);
+  padding: 0.28rem 0.5rem;
+}
+
+.popup-container tr:nth-of-type(even) td {
+  background-color: rgba(0, 0, 0, 0.16);
+}
+
+/* The editable initiative bonus sits on the banner too. */
+.popup-container .setEditingField {
+  color: inherit;
+}
+
+.popup-container .setEditingField:hover {
+  background-color: rgba(251, 243, 231, 0.14);
+}
+
+/* --- the sidebar stat blocks, as a scroll ----------------------------------
+   Both of them use the scroll artwork turned a quarter turn, so its rods run
+   down the left edge and the torn edge is on the right
+   (container_scroll-side.svg).
+
+   Opening it is two movements, not one. First the rolled-up scroll slides out
+   from the left edge; then, once it has arrived, it unrolls to the right.
+   The unroll is an animation of `width`, which is the whole trick: with
+   `border-image` the drawn end caps are placed and never stretched, so as the
+   box widens the torn right edge genuinely travels across the screen while the
+   rod stays put. Clipping instead would have revealed a hard straight edge
+   that only became the torn one at the very end.
+
+   Closing runs the same two movements backwards: it re-rolls first, then the
+   roll withdraws — hence the delays swapping between the two rules. */
+.statHover {
+  /* The rod is its own element, drawn on top of the sheet's leading edge at a
+     width that never changes. Closed, the panel is exactly one rod wide, so the
+     rod covers the whole thing — the torn right edge is underneath it and there
+     is nothing to see but the rod until it has finished arriving. That is what
+     stops it looking warped: previously the rod was the left slice of one
+     stretched border-image, so it was squeezed and pulled as the panel grew. */
+  /* One base the whole panel is built from: the geometry below is in em of
+     it, so the parchment, the roll and the type all scale together and the
+     layout holds at any size. 16px of type at this base is 1em. */
+  font-size: clamp(0.9rem, 1.3vw, 1.5rem);
+
+  --scroll-rod: 3.875em;
+  /* How far the paper's left edge sits INSIDE the roll, so the roll covers it
+     completely and the sheet looks wound around it. The panel is pushed right
+     by this much and the roll pulled left by the same, which leaves the roll
+     where it was on screen and buries the paper's edge under it. */
+  /* The pole's opaque body ends about 85/93 of its width, where its outline
+     is drawn. Tucking the sheet's edge well inside that — rather than near it
+     — is what makes the paper read as continuing out from under the roll
+     instead of butting against it. */
+  --scroll-lap: 2.7em;
+  /* the visible width, less the lap that goes under the roll */
+  --scroll-open: calc(23.5em - var(--scroll-lap));
+  /* the sheet's torn edges, as border-image scaffolding, in the art's ratio */
+  --sheet-cap: 3.375em;
+  --sheet-edge: 2em;
+  /* sidebar-scroll-pole.svg is 165 x 741. Scanned off the file, its shaped
+     ends run to 12% at the top and start at 89% at the bottom; the straight
+     part between is a constant-width column. Caps are held in the artwork's
+     own ratio (cap = width x fraction x 741/165) so the turned ends never
+     squash however tall the panel is. */
+  /* how far the paper laps left over the pole, and how far it rides up */
+  --sheet-overlap: 0.55em;
+  --sheet-lift: 0.3em;
+  --rod-cap-top: calc(var(--scroll-rod) * 0.54);
+  --rod-cap-bottom: calc(var(--scroll-rod) * 0.49);
+
+  position: fixed;
+  top: 5vh;
+  left: 0;
+  z-index: 10000;
+  box-sizing: border-box;
+  /* The sheet inside is laid out at its full open width the whole time, so the
+     panel has to clip it — otherwise the contents stand outside the parchment
+     while it is still unrolling. Clipping is also what unrolling paper does.
+
+     clip-path, not overflow: overflow clips at the PADDING box, which is inset
+     by the sheet's own 42px border scaffolding, and that ate the roll's knobs.
+     clip-path clips at the border box, which is the panel you can actually
+     see. */
+  clip-path: inset(0 0 0 calc(-1 * var(--scroll-lap)));
+
+  /* Shut, the panel is as narrow as its own right edge allows and parked off
+     the screen. Narrow matters: it is still this wide while the roll is
+     sliding out, and anything wider than the roll would ride alongside it as
+     a strip of torn paper. */
+  width: var(--sheet-edge);
+  transform: translateX(calc(-1 * (var(--scroll-lap) + var(--sheet-edge))));
+  pointer-events: none;
+
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  color-scheme: light;
+  color: #2b1a0c;
+
+  /* The old panels carried `padding: 1rem`. On a border-box element that sets a
+     floor under the used width — border-right + both paddings — so the closed
+     panel could never shrink to a single rod. The parchment's own inset comes
+     from the border-image now, and the sheet's margins below. */
+  padding: 0;
+
+  /* The scaffolding stays here so the panel's box and its content inset are
+     unchanged; the parchment itself is drawn by ::after (below) so it can sit
+     ABOVE the pole rather than under it. A border-image painted here is part
+     of the element's own background and no child can ever get beneath it. */
+  border-style: solid;
+  border-color: transparent;
+  border-width: var(--sheet-cap) var(--sheet-edge) var(--sheet-cap) 0;
+
+  transition:
+    width 0.32s cubic-bezier(0.4, 0, 0.7, 0.4),
+    transform 0.24s ease-in 0.28s;
+}
+
+/* The parchment. On ::after rather than on the panel itself so it stacks over
+   the pole — the paper reads as unrolling across the roll instead of being
+   pinned behind it. Inset back out to the border box, since an absolutely
+   positioned child measures from the padding box and the scaffolding above
+   insets that by a cap. */
+.statHover::after {
+  content: "";
+  position: absolute;
+  /* Shifted up as well as left — both edges move by the same amount, so the
+     paper travels rather than stretches, and it sits over the seam at the top
+     the way the overlap covers the one down the side. */
+  top: calc(-1 * var(--sheet-cap) - var(--sheet-lift));
+  right: calc(-1 * var(--sheet-edge));
+  bottom: calc(-1 * var(--sheet-cap) + var(--sheet-lift));
+  /* Pushed left over the pole rather than stopping at the panel's edge. The
+     paper is on top now, so overlapping is what closes the join — stopping
+     level with the panel left a hairline of page between the two. This and
+     --sheet-lift are the two numbers to tune if a seam shows. */
+  left: calc(-1 * var(--sheet-overlap));
+  z-index: 3;
+  pointer-events: none;
+
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: transparent;
+  border-width: var(--sheet-cap) var(--sheet-edge) var(--sheet-cap) 0;
+  border-image-source: url('./assets/draftsvgs_v2/container_scroll-sheet.svg');
+  border-image-slice: 6% 7% 6% 0 fill;
+  border-image-width: var(--sheet-cap) var(--sheet-edge) var(--sheet-cap) 0;
+  border-image-repeat: stretch;
+}
+
+/* The rod, drawn separately and never resized: it slides out whole, and only
+   then does the sheet unroll out from behind it.
+
+   It is nine-sliced for the same reason the panels are: stretched as one image
+   the knobs squash with the panel's height. Sliced, they are drawn at a fixed
+   size in the artwork's own ratio and only the straight part of the tube
+   stretches, where stretching cannot be seen. Left and right slices are zero,
+   so nothing is scaled horizontally. */
+.statHover::before {
+  content: "";
+  position: absolute;
+  /* offsets resolve against the padding box, and the sheet's border-image
+     scaffolding insets that by a cap top and bottom — so pulling them back out
+     is what makes the roll as long as the paper rather than 84px shorter. */
+  /* The panel's full height, so the pole's turned ends finish level with the
+     paper's torn ones rather than above and below them. */
+  top: calc(-1 * var(--sheet-cap));
+  bottom: calc(-1 * var(--sheet-cap));
+  left: calc(-1 * var(--scroll-lap));
+  width: var(--scroll-rod);
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: transparent;
+  border-width: var(--rod-cap-top) 0 var(--rod-cap-bottom) 0;
+  border-image-source: url('./assets/draftsvgs_v2/sidebar-scroll-pole.svg');
+  border-image-slice: 12% 0 11% 0 fill;
+  border-image-width: var(--rod-cap-top) 0 var(--rod-cap-bottom) 0;
+  border-image-repeat: stretch;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.statHover.isOpen {
+  width: var(--scroll-open);
+  transform: translateX(var(--scroll-lap));
+  pointer-events: auto;
+  transition:
+    transform 0.24s ease-out,
+    width 0.5s cubic-bezier(0.22, 0.7, 0.3, 1) 0.26s;
+}
+
+.statHoverSheet {
+  /* Above both the pole (2) and the parchment (3). */
+  position: relative;
+  z-index: 4;
+  /* less the torn right edge, the part of the roll that stands over the paper,
+     and a gutter each side */
+  width: calc(var(--scroll-open) - var(--sheet-edge)
+              - (var(--scroll-rod) - var(--scroll-lap)) - 2em);
+  margin-left: calc(var(--scroll-rod) - var(--scroll-lap) + 1em);
+  /* The torn top and bottom edges are 54px of border scaffolding, but the tear
+     itself only occupies the outer part of each — the rest is plain parchment
+     the text can sit on. Reclaiming most of it takes the dead air off the
+     panel without touching the artwork's scale, while leaving the name and the
+     notes line a clear margin off the tear rather than crowding it. */
+  margin-top: -0.5em;
+  margin-bottom: -0.62em;
+  opacity: 0;
+  transition: opacity 0.16s ease-out;
+}
+
+.statHover.isOpen .statHoverSheet {
+  opacity: 1;
+  transition: opacity 0.3s ease-out 0.42s;
+}
+
+/* The close button waits for the scroll to be open before it appears. */
+.statHover .closeStats {
+  opacity: 0;
+  transition: opacity 0.16s ease-out;
+}
+
+.statHover.isOpen .closeStats {
+  opacity: 1;
+  transition: opacity 0.3s ease-out 0.44s;
+}
+
+/* Both are the same scroll, so both take the parchment's ink. */
+.heroStatHover,
+.monsterStatHover {
+  color: #2b1a0c;
+}
+
+/* ---- the stat block's own contents, put on the parchment -------------------
+   Both blocks were themed for their old dark panels: near-black fills behind
+   the ability scores, light ink, a red heading. On the scroll that reads as a
+   set of dark chips glued to a piece of paper, so the fills come off and the
+   ink goes dark. The tints below are the parchment itself, not new colours. */
+.statHover .heroStatHeader,
+.statHover .heroStatACInit,
+.statHover .heroStatAbility,
+.statHover .heroStatPP,
+.statHover .monsterStatName,
+.statHover .monsterStatACHPInit,
+.statHover .heroStatConditions,
+.statHover .monsterStatConditions {
+  background: none;
+}
+
+/* No fills at all now. A statblock is ink on paper: the grouping comes from
+   the rules between sections and from the type, not from tinted boxes. */
+.statHover .heroStatACInit > div,
+.statHover .heroStatACInit > div > div,
+.statHover .heroStatAbility > div,
+.statHover .heroStatAbility > div > div,
+.statHover .heroStatPP span,
+.statHover .monsterStatACHPInit > div,
+.statHover .monsterStatAbility > div,
+.statHover .monsterStatAbility > div > div {
+  background-color: transparent;
+  color: #2b1a0c;
+}
+
+.statHover .heroStatHeaderName,
+.statHover .monsterStatName,
+.statHover .heroStatConditionsName,
+.statHover .monsterStatConditionsName,
+.statHover h2,
+.statHover h3,
+.statHover h4 {
+  color: #2b1a0c;
+}
+
+.statHover .heroStatHeaderPlayer {
+  color: #56391d;
+  filter: none;
+}
+
+.statHover .heroStatHeader,
+.statHover .monsterStatName {
+  padding-bottom: 0;
+}
+
+.statHover a,
+.statHover .monsterStatACHPInit span:nth-of-type(even),
+.statHover .monsterStatAbility > div > div:nth-of-type(even) {
+  color: #7a2f12;
+}
+
+/* The close button is a mark on the paper, not a chip. */
+.statHover .closeStats {
+  background: none !important;
+  color: #7a2f12 !important;
+  font-weight: 700;
+  /* the browser's default button border is still a CSS border */
+  border: none;
+}
+
+/* ---- the sheet laid out as a statblock -------------------------------------
+   It was a stack of tinted boxes: AC and Initiative floating in the middle of
+   a wide bar with the right half empty, six ability tiles two rows deep, then
+   a label at the far left with its value pushed to the far right. On a sheet
+   this wide that reads as a form, and it cost about 140px of height that the
+   scroll then had to be tall enough to hold.
+
+   A Monster Manual statblock is the shape this data actually wants: name, a
+   rule, the defensive line, a rule, all six abilities on ONE row, a rule, then
+   the senses-and-notes lines. Everything is left-aligned to a single margin so
+   the eye has one edge to run down, and label/value pairs sit next to each
+   other instead of at opposite ends of the sheet. */
+.statHover .statHoverSheet {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: baseline;
+  gap: 0 1.15rem;
+  font-family: 'Caudex', Georgia, serif;
+  font-size: 1em;
+  line-height: 1.34;
+  /* Centred on the sheet: the rules run the full width, so hanging the blocks
+     off the left margin left a wedge of empty parchment down the right of
+     every one of them. Centred between the rules it reads as one composition. */
+  justify-content: center;
+  text-align: center;
+}
+
+/* Every section takes its own line, except the defensive figures and the
+   passive score, which share one. That line was half empty, and the passive
+   score had been sitting alone under the abilities with nothing beside it. */
+.statHover .statHoverSheet > * {
+  width: 100%;
+}
+
+.statHover .heroStatACInit,
+.statHover .monsterStatACHPInit {
+  width: auto;
+  flex: 0 0 auto;
+  /* It wraps internally, but `flex: 0 0 auto` sizes it to max-content, so
+     without a cap the monster's longer labels ran off the sheet instead of
+     wrapping. */
+  max-width: 100%;
+}
+
+.statHover .heroStatPP,
+.statHover .monsterStatPP {
+  width: auto;
+  /* not 1 1: a growing item eats the free space, which pinned the defensive
+     figures to one edge and the passive score to the other however the line
+     was justified */
+  flex: 0 1 auto;
+}
+
+/* The passive score is written after the abilities in the markup, so getting
+   it up onto the defensive line is a matter of order, not of moving it. */
+.statHover .heroStatHeader,
+.statHover .monsterStatName        { order: 0; }
+.statHover .monsterStatLink        { order: 1; }
+.statHover .heroStatACInit,
+.statHover .monsterStatACHPInit    { order: 2; }
+.statHover .heroStatPP,
+.statHover .monsterStatPP          { order: 3; }
+.statHover .heroStatAbility,
+.statHover .monsterStatAbility     { order: 4; }
+.statHover .heroStatConditions,
+.statHover .monsterStatConditions  { order: 5; }
+.statHover [class$="-notes"]       { order: 6; }
+
+/* The rules between sections. Drawn with the same pencil strokes as the name
+   underline rather than a CSS border — a different stroke per section, because
+   nobody draws the same line four times. In a flex or grid parent the pseudo
+   would otherwise sit in the row as another item, hence the span/basis. */
+.statHover .heroStatHeader::after,
+.statHover .monsterStatName::after,
+.statHover .monsterStatLink::after,
+.statHover .heroStatAbility::before,
+.statHover .monsterStatAbility::before,
+.statHover .heroStatAbility::after,
+.statHover .monsterStatAbility::after {
+  content: "";
+  display: block;
+  flex-basis: 100%;
+  grid-column: 1 / -1;
+  /* The stroke lives in a 400x20 box and sits in the middle of it. Squash the
+     box much below 1/20th of its width and the wobble flattens out and it
+     reads as a CSS border again, which is the one thing it is here to not be.
+     So the box stays tall and the margins are pulled back in, since most of
+     that height is the transparent air the stroke wanders through. */
+  height: 1.88em;
+  margin: -0.75em 0 -0.62em;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 1;
+}
+
+.statHover .heroStatHeader::after,
+.statHover .monsterStatName::after,
+.statHover .monsterStatLink::after {
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-2.svg');
+  height: 2.13em;
+  margin: -0.88em 0 -0.75em;
+}
+
+/* When the monster has a link to its full block, that line belongs above the
+   rule with the name, so the rule moves down to it. */
+.statHover .monsterStatName:has(+ .monsterStatLink)::after {
+  content: none;
+}
+
+.statHover .heroStatAbility::before,
+.statHover .monsterStatAbility::before {
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-1.svg');
+  /* The tightest gap on the sheet: the ability labels were sitting a few
+     pixels under this stroke. Less of its transparent air is clawed back here
+     than on the other rules, so the defensive line above and the scores below
+     both stand clear of it. */
+  margin: -0.31em 0 -0.06em;
+}
+
+.statHover .heroStatAbility::after,
+.statHover .monsterStatAbility::after {
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-3.svg');
+}
+
+/* -- name -- */
+.statHover .heroStatHeader,
+.statHover .monsterStatName {
+  display: block;
+  margin: 0;
+  text-align: center;
+}
+
+.statHover .heroStatHeaderName,
+.statHover .monsterStatName > h3 {
+  font-size: 1.69em;
+  font-variant: small-caps;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  /* clear of the close button on both sides, so centring stays true */
+  padding: 0 2.2rem;
+}
+
+.statHover .heroStatHeaderPlayer,
+.statHover .monsterStatLink {
+  font-size: 0.91em;
+  font-style: italic;
+  margin-top: 0;
+}
+
+/* -- the defensive line: label and value side by side, not sheet-width apart -- */
+.statHover .heroStatACInit,
+.statHover .monsterStatACHPInit {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0.1em 1.15em;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  font-size: 1em;
+}
+
+.statHover .heroStatACInit > div,
+.statHover .monsterStatACHPInit > div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  text-align: left;
+  padding: 0;
+}
+
+.statHover .heroStatACInit > div div:nth-of-type(odd),
+.statHover .monsterStatACHPInit > div span:nth-of-type(odd) {
+  font-size: 0.88em;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  text-transform: none;
+  font-weight: 700;
+}
+
+.statHover .heroStatACInit > div div:nth-of-type(even),
+.statHover .monsterStatACHPInit > div span:nth-of-type(even) {
+  font-size: 1.31em;
+  font-weight: 700;
+  padding: 0;
+}
+
+/* -- abilities: all six across, score and modifier on one line -- */
+.statHover .heroStatAbility,
+.statHover .monsterStatAbility {
+  display: grid;
+  /* Three equal columns split the whole sheet between them, which pushed the
+     scores out to the edges with a stripe of nothing between each. The columns
+     are content-sized now, with an empty filler track either side to centre
+     them — filler rather than `justify-content`, because the section rules are
+     grid items spanning 1 / -1 and have to keep running the full width of the
+     sheet whatever the scores do. */
+  grid-template-columns: minmax(0, 1fr) repeat(3, max-content) minmax(0, 1fr);
+  gap: 0.12em 1.2em;
+  margin: 0;
+  text-align: center;
+}
+
+/* Auto-placement would run the abilities straight on into the filler tracks and
+   put five on the first row, so each one names its column outright. */
+.statHover .heroStatAbility > div:nth-of-type(3n + 1),
+.statHover .monsterStatAbility > div:nth-of-type(3n + 1) { grid-column: 2; }
+
+.statHover .heroStatAbility > div:nth-of-type(3n + 2),
+.statHover .monsterStatAbility > div:nth-of-type(3n + 2) { grid-column: 3; }
+
+.statHover .heroStatAbility > div:nth-of-type(3n),
+.statHover .monsterStatAbility > div:nth-of-type(3n) { grid-column: 4; }
+
+.statHover .heroStatAbility > div,
+.statHover .monsterStatAbility > div {
+  /* label across the top, then score and modifier side by side under it */
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: center;
+  align-items: baseline;
+  column-gap: 0.22rem;
+  padding: 0;
+  border-radius: 0;
+}
+
+.statHover .heroStatAbility > div > div:nth-of-type(3n + 1),
+.statHover .monsterStatAbility > div > div:nth-of-type(odd) {
+  grid-column: 1 / -1;
+  font-size: 0.84em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  /* a label sitting directly over its number does not need the sheet's
+     reading leading */
+  line-height: 1.1;
+  margin-bottom: 0;
+}
+
+.statHover .heroStatAbility > div > div:nth-of-type(3n + 2) {
+  font-size: 1.5em;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+/* The modifier is the number a DM actually rolls with, so it is not shrunk
+   into a footnote — it just sits in brackets beside the score, as printed. */
+.statHover .heroStatAbility > div > div:nth-of-type(3n) {
+  font-size: 1.03em;
+  margin-top: 0;
+  filter: none;
+}
+
+.statHover .heroStatAbility > div > div:nth-of-type(3n)::before { content: "("; }
+.statHover .heroStatAbility > div > div:nth-of-type(3n)::after  { content: ")"; }
+
+.statHover .monsterStatAbility > div > div:nth-of-type(even) {
+  grid-column: 1 / -1;
+  font-size: 1.25em;
+  font-weight: 700;
+}
+
+/* -- senses, conditions, notes: one margin, label then value -- */
+/* Conditions ran down the panel as one name per line, which on a sheet this
+   wide left the whole right-hand side empty and pushed everything below it
+   out of view. They are the same chips as the tracker's now, flowing inline
+   and wrapping, so the panel and the row read as the same thing. */
+.statHover .heroStatConditions,
+.statHover .monsterStatConditions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.2rem 0.34rem;
+  margin: 0;
+  /* clear of the pencil rule above, which the chips were sitting right on */
+  padding: 0.3em 0 0;
+  font-size: 0.97em;
+  text-align: left;
+}
+
+.statHover .statConditionsLabel {
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  font-weight: 700;
+}
+
+/* The description is on the chip, so it is worth saying it can be pointed at. */
+.statHover .conditionName {
+  /* same reasoning as the tracker's: held at the size they were before the
+     panel's base type went up */
+  font-size: 0.58em;
+  cursor: help;
+}
+
+.statHover .conditionName:focus-visible {
+  outline: 2px solid #7a2f12;
+  outline-offset: 1px;
+}
+
+.statHover .noStatCondition {
+  font-style: italic;
+  opacity: 0.65;
+}
+
+.statHover .heroStatPP,
+.statHover .monsterStatPP {
+  display: flex;
+  align-items: baseline;
+  /* the old panel pushed the label and its value to opposite ends of the
+     sheet with space-between; on one shared line they belong together */
+  justify-content: center;
+  gap: 0.4em;
+  margin: 0;
+  padding: 0;
+  font-size: 0.97em;
+  text-align: left;
+}
+
+.statHover .heroStatPP span:nth-child(odd) {
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  font-weight: 700;
+}
+
+.statHover .heroStatPP span:nth-child(even) {
+  font-size: 0.97em;
+  font-weight: 700;
+  padding: 0 0 0 0.35em;
+  border-radius: 0;
+}
+
+
+
+/* -- notes: the smallest thing on the sheet, and last -- */
+.statHover [class$="-notes"] {
+  margin-top: 0.15em;
+  font-size: 0.88em;
+  line-height: 1.35;
+  opacity: 0.88;
+}
+
+/* Only the alignment differs here; the size comes from --edit-size like
+   everywhere else. */
+.statHover [class$="-notes"] .edit {
+  vertical-align: -0.3em;
+  opacity: 0.9;
+}
+
+.statHover [class$="-notes"] textarea {
+  font-family: inherit;
+  font-size: 0.88em;
+  min-height: 2.4em;
+}
+
+/* -- close button: a small mark in the top corner of the paper -- */
+.statHover .closeStats {
+  /* offsets resolve against the padding box, which the border-image
+     scaffolding already insets by 42px/24px — so these are from the paper's
+     own top-right corner, not the panel's */
+  position: absolute;
+  top: 0;
+  right: 0.12em;
+  z-index: 4;
+  width: 2em;
+  height: 2em;
+  margin: 0;
+  float: none;
+  font-size: 1.13em;
+  line-height: 1;
+}
+
+/* --- the tick, drawn rather than switched on ------------------------------
+   The mark is its own element sitting over the box. It has to be: the reveal
+   is a mask wipe, and masking the input would have wiped the box away with
+   it. The cell carries the variant and the per-instance tilt, so the mark
+   inherits the same values the box uses and lands square inside it.
+
+   The wipe runs left to right, which is roughly the order a tick is drawn —
+   down into the turn, then out along the long stroke — and it is slightly
+   quicker than the underline because a tick is a flick, not a line. */
+#battleTracker td.combatantAction,
+#battleTracker td.combatantBonus,
+#battleTracker td.combatantMove,
+#battleTracker td.combatantReaction {
+  position: relative;
+}
+
+#battleTracker .tickMark,
+#heroAddManage .tickMark,
+#monsterAddManage .tickMark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /* Half again the box, so the stroke runs over the line the way it did when
+     the box was accidentally fixed at 23px — that overshoot is the point. */
+  width: 1.8em;
+  height: 1.8em;
+  pointer-events: none;
+
+  /* The mark is a mask, not a background image, so it can be coloured — a
+     background image can only be tinted by filter, and no filter turns black
+     into a specific green. The wipe that draws it on is a second mask layer
+     intersected with the first, so it still draws itself in stroke-first. */
+  background-color: var(--mark-ink, #3c8a24);
+  -webkit-mask-image: var(--hand-tick), linear-gradient(#000, #000);
+  mask-image: var(--hand-tick), linear-gradient(#000, #000);
+  -webkit-mask-repeat: no-repeat, no-repeat;
+  mask-repeat: no-repeat, no-repeat;
+  -webkit-mask-position: center, left center;
+  mask-position: center, left center;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+
+  /* Same tilt, scale and nudge as the box it sits in. */
+  transform: translate(-50%, -50%) rotate(var(--cb-tilt, 0deg))
+             scale(var(--cb-scale, 1)) translateY(var(--cb-nudge, 0));
+
+  -webkit-mask-size: 100% 100%, 0% 100%;
+  mask-size: 100% 100%, 0% 100%;
+
+  transition:
+    mask-size 0.62s cubic-bezier(0.35, 0.75, 0.45, 1),
+    -webkit-mask-size 0.62s cubic-bezier(0.35, 0.75, 0.45, 1);
+}
+
+#battleTracker input[type="checkbox"]:checked + .tickMark,
+#heroAddManage input[type="checkbox"]:checked + .tickMark,
+#monsterAddManage input[type="checkbox"]:checked + .tickMark {
+  -webkit-mask-size: 100% 100%, 100% 100%;
+  mask-size: 100% 100%, 100% 100%;
+}
+
+/* Unticking takes the mark straight off rather than un-drawing it backwards,
+   which is what rubbing something out looks like. */
+#battleTracker input[type="checkbox"]:not(:checked) + .tickMark,
+#heroAddManage input[type="checkbox"]:not(:checked) + .tickMark,
+#monsterAddManage input[type="checkbox"]:not(:checked) + .tickMark {
+  transition:
+    mask-size 0.1s ease-in,
+    -webkit-mask-size 0.1s ease-in;
+}
+
+#battleTracker input[type="checkbox"]:disabled + .tickMark {
+  opacity: 0.28;
+}
+
+
+/* ==========================================================================
+   HERO MANAGER — brought in line with the tracker and the side-car panels
+
+   The modal still read like the pre-restyle app: 0.74rem stat strips, plain
+   sentence-case column heads, alternating flat bands for rows, ✅/❌ glyphs,
+   and a stock green submit button. Everything below is the same vocabulary
+   the rest of the app now uses — Caudex throughout, small-caps labels over
+   bold values, pencil strokes instead of rules and bands, the drawn checkbox,
+   and a type scale you can read across the table mid-fight.
+   ========================================================================== */
+
+/* The panel was 80vw for a six-column roster that does not need it. 50vw where
+   there is room for it — but with a floor, because below about 1350px 50vw
+   wraps the title, stacks the form and pushes the Ready column off the table.
+   Centred by transform rather than a matching `left`, so the floor and the cap
+   do not each need their own offset. The monster and battle managers keep the
+   wider frame; their tables carry more columns. */
+#heroAddManage {
+  width: min(80vw, max(50vw, 42rem));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#heroAddManage .hero-content,
+#heroAddManage .hero-content h2,
+#heroAddManage .hero-content h3,
+#heroAddManage .hero-content th,
+#heroAddManage .hero-content td,
+#heroAddManage .hero-content button,
+#heroAddManage .hero-content input {
+  font-family: 'Caudex', serif;
+  /* Caudex's bold is heavy, and cream at 700 on the saturated red of the
+     scroll blooms at the edges — it reads as a shadow behind the letters
+     rather than as emphasis. Size and small-caps carry the hierarchy here
+     instead. */
+  font-weight: normal;
+}
+
+#heroAddManage .hero-content {
+  /* One responsive base; everything in the panel is an em of it, so the whole
+     roster scales as one and keeps its proportions at any width. */
+  font-size: clamp(0.95rem, 1.35vw, 1.6rem);
+  line-height: 1.3;
+  padding: 0 0.3rem 0.2rem;
+}
+
+/* -- the title, set like the panels' names -- */
+#heroAddManage .hero-content > h2 {
+  font-size: 1.76em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  line-height: 1.05;
+  margin: 0;
+  padding: 0 2.6rem;
+}
+
+/* A pencil stroke under the title, the way the side-car panels rule their
+   sections — the modal had nothing between the heading and the form. */
+#heroAddManage .hero-content > h2::after {
+  content: "";
+  display: block;
+  height: 30px;
+  margin: -10px 0 -10px;
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-2.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  /* the strokes are black; on the red scroll they take the panel's own ink */
+  filter: invert(1) sepia(0.35) saturate(0.5) brightness(1.25);
+  opacity: 0.65;
+}
+
+/* -- the add form -- */
+/* The four fields sat in one four-across row with the button stranded on a
+   row of its own below, which cost the form a third of its height for nothing.
+   Name and Player take a line, then HP, AC and the button share the next —
+   `display: contents` lets the inner wrapper's inputs lay out as items of the
+   form itself, so this needs no change to the markup. */
+#heroAddManage #addHeroOuter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  padding: 0.4rem 0.55rem 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+#heroAddManage #addHeroOuter h3 {
+  width: 100%;
+  font-size: 1.06em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+#heroAddManage #addHeroInner {
+  display: contents;
+}
+
+#heroAddManage #addHeroName,
+#heroAddManage #addHeroPlayer {
+  flex: 1 1 42%;
+}
+
+#heroAddManage #addHeroHP,
+#heroAddManage #addHeroAC {
+  flex: 1 1 28%;
+}
+
+#heroAddManage .addPresent-div {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+#heroAddManage #addHeroInner input {
+  min-width: 0;
+  width: auto;
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+  padding: 0.28em 0.5em;
+  border: none;
+  border-radius: 3px;
+}
+
+/* -- the roster table -- */
+#heroAddManage .managerTableScroll thead th {
+  /* goldenrod on the red band, the same ink as the tracker's column heads */
+  color: var(--color-header-ink);
+  background-color: var(--panel-head);
+  font-size: 0.88em;
+  font-variant: small-caps;
+  letter-spacing: 0.6px;
+  padding: 0.26rem 0.5rem;
+}
+
+#heroAddManage .managerTableScroll tbody td {
+  padding: 0.2em 0.5em;
+  font-size: 1.06em;
+  vertical-align: middle;
+}
+
+/* The hero's own name carries the weight, as it does in the tracker. */
+#heroAddManage tr.heroManagerHero > td:first-child {
+  font-size: 1.18em;
+}
+
+/* Rows were told apart by alternating flat bands of black at 22%, which on the
+   red scroll read as stripes of a different material. One faint tint and a
+   drawn rule between heroes does the same job without the banding. */
+/* --- one band per hero ---------------------------------------------------
+   Every hero was drawn the same way: a faint row for the name, then a hard
+   `rgba(0,0,0,0.24)` inset for the stat strip, then a ruled gap. Five of those
+   dark stripes down the panel is most of why it was a lot to look at — and
+   because they never alternated, the stripes read as the structure rather than
+   the heroes did.
+
+   Each hero is one continuous band now, alternating so neighbours separate,
+   with air between them. No rules, no dark blocks: the quietest thing that
+   still groups two rows into one hero. Heroes occupy every third row (name,
+   stats, spacer), so alternate pairs are 6n+1 and 6n+2. */
+#heroAddManage .heroTableBody tr.heroManagerHero td,
+#heroAddManage .managerTableScroll .statsRow > td {
+  background-color: rgba(251, 243, 231, 0.05);
+}
+
+#heroAddManage .heroTableBody tr:nth-of-type(6n + 1) td,
+#heroAddManage .heroTableBody tr:nth-of-type(6n + 2) td {
+  background-color: rgba(251, 243, 231, 0.12);
+}
+
+/* Space, not a line — the banding is doing the separating now. */
+#heroAddManage .heroesSpacer {
+  height: 15px;
+  padding: 0;
+  background: none;
+  filter: none;
+}
+
+/* -- the stat strip, set like the side-car panel's ability row -- */
+#heroAddManage .managerTableScroll .statsRow > td {
+  font-size: 1em;
+  padding: 0.12em 0.6em 0.22em;
+}
+
+#heroAddManage .heroStats {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.1rem 0.4rem;
+  justify-items: center;
+}
+
+#heroAddManage .heroStat {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  line-height: 1.15;
+}
+
+#heroAddManage .heroStatLabel {
+  font-size: 0.76em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  opacity: 0.86;
+}
+
+#heroAddManage .heroStat .setEditingField {
+  font-size: 1.12em;
+  padding: 0 0.1em;
+}
+
+/* -- the ready checkbox -- */
+#heroAddManage td.managerCheckCell,
+#monsterAddManage td.managerCheckCell {
+  text-align: center;
+}
+
+#heroAddManage .managerCheck,
+#monsterAddManage .managerCheck {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* The drawn box is dark ink, which is invisible on the RED scroll — the same
+   art inverted reads as chalk on it. The monster panel's parchment is light,
+   so its boxes stay as drawn. */
+#heroAddManage .managerCheck input[type="checkbox"] {
+  filter: invert(1) sepia(0.3) saturate(0.4) brightness(1.3);
+}
+
+/* A ticked box means this hero is in the fight, which is the one thing worth
+   spotting at a glance down the roster — so on the red scroll the mark takes a
+   far brighter green than it needs on the tracker's cream plaques. */
+#heroAddManage .managerCheck .tickMark {
+  --mark-ink: #86e05c;
+}
+
+/* Parchment needs the deeper green, as the tracker's plaques do — the bright
+   one washes out on a light ground. */
+#monsterAddManage .managerCheck .tickMark {
+  --mark-ink: #3c8a24;
+}
+
+/* -- delete -- */
+#heroAddManage .buttonDelete {
+  background: none;
+  border: none;
+  padding: 0.15rem;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.13s ease;
+}
+
+#heroAddManage .buttonDelete:hover,
+#heroAddManage .buttonDelete:focus-visible {
+  opacity: 1;
+  filter: none;
+}
+
+/* -- close mark, as on the side-car panels -- */
+#heroAddManage .saveClose {
+  background: none;
+  border: none;
+  color: var(--panel-ink);
+  font-family: 'Caudex', serif;
+  font-size: 1.06em;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+}
+
+
+/* ==========================================================================
+   AD SLOTS
+
+   House promos for now (see AD_PROVIDER in AdSlot.tsx). The box holds its
+   reserved size whether or not anything fills it, so swapping in a network
+   later cannot shift the tracker; and the whole element is absent for
+   supporters, so they get the space back rather than an empty frame.
+   ========================================================================== */
+.adSlot {
+  /* A fixed reservation, not a flexible one. An `aspect-ratio` box gets
+     squeezed by whatever room the grid has left — the tower came out 107px
+     against the 250px it is meant to hold — and a box that changes size with
+     its surroundings is not reserved space at all. Network creatives are fixed
+     sizes anyway, so the slot is too. */
+  width: min(100%, var(--ad-w));
+  height: var(--ad-h);
+  flex: 0 0 auto;
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.adSlot-banner {
+  grid-area: adbanner;
+  align-self: center;
+  margin-bottom: 0.6rem;
+}
+
+.adSlot-tower {
+  grid-area: adtower;
+  align-self: end;
+  /* The rail is a fixed 100vh column with barely any slack under the patreon
+     block, so this sits close to the bottom edge. */
+  margin-bottom: 0.25rem;
+}
+
+/* The house creative, in the app's own hand rather than looking bolted on. */
+.adHouse {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  width: 100%;
+  height: 100%;
+  padding: 0.6em 1em;
+  box-sizing: border-box;
+
+  border: none;
+  border-radius: 0;
+  background-color: rgba(150, 97, 45, 0.1);
+  color: #5c3a17;
+  font-family: 'Caudex', serif;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.adHouse:hover,
+.adHouse:focus-visible {
+  background-color: rgba(150, 97, 45, 0.2);
+}
+
+.adHouseTitle {
+  font-size: 1.15rem;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+}
+
+.adHouseBody {
+  font-size: 0.92rem;
+  line-height: 1.35;
+  max-width: 34ch;
+  opacity: 0.85;
+}
+
+/* The banner is wide and short, so its promo reads as one line, not a stack. */
+.adSlot-banner .adHouse {
+  flex-direction: row;
+  gap: 0.9em;
+  text-align: left;
+}
+
+.adSlot-banner .adHouseBody {
+  max-width: 52ch;
+}
+
+
+/* ==========================================================================
+   WALLPAPER
+
+   A tiled weapons pattern behind everything. It goes on a fixed pseudo-element
+   rather than on `body` itself for two reasons: a background image cannot be
+   faded on its own, and each of these files is a single flat colour, so they
+   need very different handling per theme. The beige (#ebddcc) sits a shade off
+   the cream page and only needs taking down slightly; the grey (#d7d7d7) is a
+   LIGHT colour that would sit on a near-black page at full strength, so in
+   dark mode it is knocked right back to a faint lift rather than a pattern
+   shouting over the content.
+
+   Fixed, so it behaves like wallpaper and stays put while the page scrolls.
+   z-index -1 puts it above the page's background colour and behind every bit
+   of content. Tile size is the one number to tune if it reads too busy. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-beige.svg');
+  background-repeat: repeat;
+  background-size: 400px 400px;
+  opacity: 0.7;
+}
+
+html[data-theme="dark"] body::before,
+html[style*="color-scheme: dark"] body::before {
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-grey.svg');
+  opacity: 0.07;
+}
+
+/* When the user has never chosen a theme, only the OS preference separates the
+   two — guarded so an explicit light choice still wins. */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) body::before {
+    background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-grey.svg');
+    opacity: 0.07;
+  }
+}
+
+
+/* ==========================================================================
+   MONSTER MANAGER — the same treatment as the Hero Manager
+
+   Everything here mirrors that panel, differing only where the ground does:
+   this is the light parchment scroll, so the ink is dark, the drawn checkbox
+   is not inverted, and the ticked mark takes the deeper green. Sizes are all
+   em of one responsive base, as there.
+   ========================================================================== */
+
+#monsterAddManage {
+  width: min(80vw, max(50vw, 42rem));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#monsterAddManage .monster-content,
+#monsterAddManage .monster-content h2,
+#monsterAddManage .monster-content h3,
+#monsterAddManage .monster-content th,
+#monsterAddManage .monster-content td,
+#monsterAddManage .monster-content button,
+#monsterAddManage .monster-content input {
+  font-family: 'Caudex', serif;
+  /* Matching the Hero Manager: size and small-caps carry the hierarchy, not
+     weight. */
+  font-weight: normal;
+}
+
+#monsterAddManage .monster-content {
+  font-size: clamp(0.95rem, 1.35vw, 1.6rem);
+  line-height: 1.3;
+  padding: 0 0.3rem 0.2rem;
+}
+
+#monsterAddManage .monster-content > h2 {
+  font-size: 1.76em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  line-height: 1.05;
+  margin: 0;
+  padding: 0 2.6rem;
+}
+
+#monsterAddManage .monster-content > h2::after {
+  content: "";
+  display: block;
+  height: 30px;
+  margin: -10px 0;
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-2.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.55;
+}
+
+/* -- the add row -- */
+#monsterAddManage #addMonsterOuter {
+  gap: 0.5rem;
+  padding: 0.3rem 0 0.5rem !important;
+}
+
+#monsterAddManage #addMonsterOuter input {
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+  padding: 0.28em 0.5em;
+  border: none;
+  border-radius: 3px;
+}
+
+/* The pencil belongs to the right of the value it edits and has to stay there:
+   the button is inline by default, so a value near a column edge could wrap and
+   drop its pencil onto the next line. */
+#heroAddManage .setEditingField,
+#monsterAddManage .setEditingField {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+/* -- "Hiding": an eye, open or shut ---------------------------------------
+   Not a checkbox with a mark in it — the state is the shape of the icon. Both
+   files are generated stand-ins (see ART-WANTED.md). */
+#monsterAddManage .hidingToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+#monsterAddManage .hidingToggle input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  border: none;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  background-image: url('./assets/draftsvgs_v2/icon_eye-open.svg');
+
+  font-size: inherit;
+  width: 1.6em;
+  height: 1.6em;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.15s ease;
+}
+
+#monsterAddManage .hidingToggle input[type="checkbox"]:checked {
+  background-image: url('./assets/draftsvgs_v2/icon_eye-shut.svg');
+  /* hidden reads as the more emphatic state, so it is the darker one */
+  opacity: 1;
+}
+
+#monsterAddManage .hidingToggle input[type="checkbox"]:hover,
+#monsterAddManage .hidingToggle input[type="checkbox"]:focus-visible {
+  opacity: 1;
+}
+
+/* -- the roster --
+   Fixed layout with explicit shares: left to size itself the table came out
+   914px in an 834px panel, and the 80px that spilled off the right edge was
+   exactly the column holding the buttons. Now the widths are declared and the
+   name column gives way instead of the actions. */
+#monsterAddManage .managerTableScroll table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#monsterAddManage .managerTableScroll thead th:nth-child(1) { width: 30%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(2) { width: 10%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(3) { width: 10%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(4) { width: 11%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(5) { width: 11%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(6) { width: 28%; }
+
+/* A long monster name is cut rather than allowed to widen the table. */
+#monsterAddManage tr.monsterManagerMonster > td:first-child .setEditingField {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#monsterAddManage .managerTableScroll thead th {
+  color: var(--color-header-ink);
+  background-color: var(--panel-head);
+  font-size: 0.88em;
+  font-variant: small-caps;
+  letter-spacing: 0.6px;
+  padding: 0.26em 0.5em;
+}
+
+#monsterAddManage .managerTableScroll tbody td {
+  padding: 0.2em 0.5em;
+  font-size: 1.06em;
+  vertical-align: middle;
+}
+
+#monsterAddManage tr.monsterManagerMonster > td:first-child {
+  font-size: 1.18em;
+}
+
+/* One band per monster, alternating, exactly as the Hero Manager does it —
+   no dark inset behind the stat strip. Monsters are two rows each (name,
+   stats) with no spacer, so alternate pairs are 4n+1 and 4n+2. */
+#monsterAddManage .monsterTableBody tr.monsterManagerMonster td,
+#monsterAddManage .managerTableScroll .statsRow > td {
+  background-color: rgba(107, 72, 36, 0.07);
+}
+
+#monsterAddManage .monsterTableBody tr:nth-of-type(4n + 1) td,
+#monsterAddManage .monsterTableBody tr:nth-of-type(4n + 2) td {
+  background-color: rgba(107, 72, 36, 0.16);
+}
+
+/* -- the stat strip, as a statblock line -- */
+#monsterAddManage .managerTableScroll .statsRow > td {
+  font-size: 1em;
+  padding: 0.12em 0.6em 0.34em;
+}
+
+#monsterAddManage .heroStats {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.1rem 0.4rem;
+  justify-items: center;
+}
+
+#monsterAddManage .heroStat {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  line-height: 1.15;
+}
+
+#monsterAddManage .heroStatLabel {
+  font-size: 0.76em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  opacity: 0.86;
+}
+
+#monsterAddManage .heroStat .setEditingField {
+  font-size: 1.12em;
+  padding: 0 0.1em;
+}
+
+/* -- actions: the two buttons on one line, sharing a baseline --
+   NOT `display: flex` on the cell. A td that becomes a flex container stops
+   being a table-cell, so it no longer stretches to the row's height — it came
+   out 54px in a 69px row and left an untinted strip along the bottom of the
+   column that read as a white box. Centring the buttons inline keeps the cell
+   a cell. */
+#monsterAddManage .monsterActions {
+  text-align: center;
+  white-space: nowrap;
+}
+
+#monsterAddManage .monsterActions > * {
+  vertical-align: middle;
+}
+
+#monsterAddManage .monsterActions > * + * {
+  margin-left: 0.5em;
+}
+
+/* "Join the Fray" — the same pill shape the conditions editor's Done uses, so
+   the one action in this table looks like the app's other actions. */
+#monsterAddManage .buttonJoinFray {
+  padding: 0.16em 0.8em 0.22em;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(107, 72, 36, 0.9);
+  color: #f6efe3;
+  font-family: 'Caudex', serif;
+  font-size: 0.8em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.13s ease;
+}
+
+#monsterAddManage .buttonJoinFray:hover,
+#monsterAddManage .buttonJoinFray:focus-visible {
+  background-color: rgba(78, 52, 26, 0.95);
+  filter: none;
+}
+
+/* The bin takes the panel's own ink, as the Hero Manager's does, rather than
+   sitting in a filled button of its own. */
+#monsterAddManage .buttonDelete {
+  color: var(--panel-ink);
+  background: none;
+  border: none;
+  padding: 0.15rem;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.13s ease;
+}
+
+#monsterAddManage .buttonDelete:hover,
+#monsterAddManage .buttonDelete:focus-visible {
+  opacity: 1;
+  filter: none;
+}
+
+#monsterAddManage .saveClose {
+  background: none;
+  border: none;
+  color: var(--panel-ink);
+  font-family: 'Caudex', serif;
+  font-size: 1.06em;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+}
+
+/* A label for screen readers only — the actions column has no visible heading,
+   but it still needs a name. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* ==========================================================================
+   OPTIONS — the same treatment as the managers
+
+   It was a plain tinted box with default buttons in it. Now it is the same
+   parchment scroll, on one responsive base with everything in em, Caudex at
+   normal weight, and the settings themselves as the chip vocabulary used
+   everywhere else.
+   ========================================================================== */
+
+#options {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+
+  width: min(88vw, max(34vw, 28rem));
+  max-width: none;
+  max-height: 88vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  box-sizing: border-box;
+  background: none;
+  background-color: transparent;
+  color: var(--panel-ink);
+  color-scheme: light;
+
+  /* the monster manager's frame, sliced the same way */
+  border-style: solid;
+  border-color: transparent;
+  border-width: 30px 53px;
+  border-image-source: url('./assets/draftsvgs_v2/container_monster-manager.svg');
+  border-image-slice: 6% fill;
+  border-image-width: 30px 53px;
+  border-image-repeat: stretch;
+
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.95rem, 1.25vw, 1.5rem);
+  line-height: 1.3;
+  padding: 0.2rem 0.6rem 0.6rem;
+}
+
+#options,
+#options h2,
+#options button {
+  font-weight: normal;
+}
+
+#options h2 {
+  font-size: 1.5em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  text-align: center;
+  margin: 0 0 0.1em;
+}
+
+/* A pencil rule under each heading, as the panels use. */
+#options h2::after {
+  content: "";
+  display: block;
+  height: 26px;
+  margin: -8px 0 -4px;
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-2.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.55;
+}
+
+#options ul {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
+}
+
+#options li {
+  margin: 0;
+  width: 100%;
+  text-align: center;
+}
+
+/* Empty list items were holding space in a flex column. */
+#options li:empty {
+  display: none;
+}
+
+/* Every setting is the same chip: a pill in the panel's own ink. */
+#options li > button {
+  padding: 0.2em 1em 0.26em;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(107, 72, 36, 0.16);
+  color: #5c3a17;
+  font-family: 'Caudex', serif;
+  font-size: 0.95em;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: background-color 0.13s ease;
+}
+
+#options li > button:hover,
+#options li > button:focus-visible {
+  background-color: rgba(107, 72, 36, 0.3);
+  filter: none;
+}
+
+#options #optionsCloseButton {
+  position: absolute;
+  top: 0.1em;
+  right: 0.3em;
+  z-index: 3;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: #7a2f12;
+  font-family: 'Caudex', serif;
+  font-size: 1.1em;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+}
+
+/* -- the rules-version switch ---------------------------------------------
+   Two drawn buttons side by side, 2014 left and 2024 right, each with its own
+   off / on / hover / pressed art. The order below matters: `on` is declared
+   after `:hover` so the chosen side stays lit when you point at it, and
+   `:active` last so a press always shows. */
+#options .versionToggle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* The two halves butt together — they read as one switch, not two
+     buttons, so there is no gap between them. */
+  gap: 0;
+}
+
+#options .versionOption {
+  width: 44%;
+  max-width: 11rem;
+  /* The art's own viewBox, so `contain` fills the box exactly and leaves
+     no unpainted strip beside the drawing. */
+  aspect-ratio: 707 / 248;
+  padding: 0;
+  /* The panel's generic button rule carries a 0.3em margin, which showed up
+     as a 9.6px gap between the two halves even with the flex gap at zero. */
+  margin: 0;
+  border: none;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  cursor: pointer;
+}
+
+#options .versionOption2014 { background-image: url('./assets/draftsvgs_v1/button_2014-off.svg'); }
+#options .versionOption2024 { background-image: url('./assets/draftsvgs_v1/button_2024-off.svg'); }
+
+#options .versionOption2014:hover { background-image: url('./assets/draftsvgs_v1/button_2014-hover.svg'); }
+#options .versionOption2024:hover { background-image: url('./assets/draftsvgs_v1/button_2024-hover.svg'); }
+
+#options .versionOption2014[aria-checked="true"] { background-image: url('./assets/draftsvgs_v1/button_2014-on.svg'); }
+#options .versionOption2024[aria-checked="true"] { background-image: url('./assets/draftsvgs_v1/button_2024-on.svg'); }
+
+#options .versionOption2014:active { background-image: url('./assets/draftsvgs_v1/button_2014-active.svg'); }
+#options .versionOption2024:active { background-image: url('./assets/draftsvgs_v1/button_2024-active.svg'); }

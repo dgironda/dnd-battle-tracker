@@ -1,13 +1,35 @@
 :root {
-    --button-width: 15rem;
+    --button-width: 19rem;
     --button-max-width: 25rem;
-    --button-min-height: 5rem;
+    --button-min-height: 6.2rem;
     --button-max-height: 15rem;
 }
 
+/* The logo is no longer tied to the button width: the buttons grew and the
+   logo came down, so the rail reads as a masthead over a set of controls
+   rather than four things of the same size stacked up. */
 #logo {
-    width: var(--button-width);
-    max-width: var(--max-button-width);
+    width: 15rem;
+    max-width: 100%;
+}
+
+/* The three manager ribbons share a box width but not an aspect ratio: the
+   hero and monster art are 745x292 (2.55:1) and the battle art 739x221
+   (3.34:1). With `contain` in a box of one fixed height, the taller pair were
+   limited by that height and drew only ~252px of the 304px box, while the
+   battle button filled it — so their left and right edges did not line up.
+   Each is sized from the box width in its own ratio instead. */
+#heroManagerButton,
+#monsterManagerButton {
+    aspect-ratio: 745 / 292;
+    min-height: 0;
+    height: auto;
+}
+
+#battleManagerButton {
+    aspect-ratio: 739 / 221;
+    min-height: 0;
+    height: auto;
 }
 
 #heroManagerButton {
@@ -19,7 +41,6 @@
     background-position: center;
     width: var(--button-width);
     max-width: var(--max-button-width);
-    min-height: var(--button-min-height);
     max-height: var(--button-max-height);
 }
 
@@ -31,7 +52,6 @@
     background-position: center;
     width: var(--button-width);
     max-width: var(--max-button-width);
-    min-height: var(--button-min-height);
     max-height: var(--button-max-height);
 }
 
@@ -44,7 +64,6 @@
     background-position: center;
     width: var(--button-width);
     max-width: var(--max-button-width);
-    min-height: var(--button-min-height);
     max-height: var(--button-max-height);
 }
 
@@ -56,7 +75,6 @@
     background-position: center;
     width: var(--button-width);
     max-width: var(--max-button-width);
-    min-height: var(--button-min-height);
     max-height: var(--button-max-height);
 }
 
@@ -69,28 +87,36 @@
     background-position: center;
     width: var(--button-width);
     max-width: var(--max-button-width);
-    min-height: var(--button-min-height);
     max-height: var(--button-max-height);
 }
 
+/* The ribbon is 569x198 (2.87:1). It was pinned to 10rem x 4rem, which is a
+   different ratio and no background-size, so the artwork sat at its own scale
+   inside a box that did not match it. Sized from the width in the artwork's
+   own ratio, and scaled with the viewport like the rest of the top bar. */
 #buttonStartBattle {
     background-image: url('./assets/draftsvgs_v2/button_start-battle.svg');
     background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
     background-color: transparent;
     border: none;
-    width: 10rem !important;
-    height: 4rem !important;
+    width: clamp(11rem, 21.5vw, 26rem) !important;
+    aspect-ratio: 569 / 198;
+    height: auto !important;
 }
 
 #optionsButton {
     background-image: url('./assets//draftsvgs_v2/icon_settings.svg');
     background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
     background-color: transparent;
     border: none;
-    width: var(--button-width);
-    height: var(--button-min-height);
-    align-self: center;
-    margin-left: 65%;
+    /* Its own small square in the corner, not a full-width rail button. */
+    width: 2.6rem;
+    height: 2.6rem;
+    padding: 0;
 }
 
 #aboutButton {
@@ -176,10 +202,11 @@
 }
 
 /* Not !important: BattleTracker sets the HP cell's colour inline, switching
-   between --color-hphealthy and --color-hpbloodied as a combatant is worn
-   down, and an !important here silently overrode both - every HP cell rendered
-   in this one tan, down to 1.3:1 contrast on a wounded row. The ID selectors
-   already out-specify the plain `th` rule in index.css. */
+   to --color-hpbloodied once a combatant is worn down, and an !important here
+   silently overrode it - every HP cell rendered in this one tan, down to 1.3:1
+   contrast on a wounded row. A healthy cell deliberately inherits this colour,
+   which is what keeps it matching initiative. The ID selectors already
+   out-specify the plain `th` rule in index.css. */
 #battleTracker table, #battleTracker th, #battleTracker tr, #battleTracker td {
     color: var(--color-chk2);
 }
@@ -188,48 +215,28 @@
    corners stay drawn, the wobbly edges stretch, and the parchment centre
    fills. That decouples the row height from the art's aspect ratio, which is
    what used to force ~70px rows. Sizing lives in fixes.css. */
-#battleTracker #battleTrackerHeader .thFirst {
-    border-image-source: url('./assets/draftsvgs_v2/table_header-long-left.svg');
-}
-
-.thMiddle {
+/* Every header cell uses the same plaque. The long-left / long-right pair
+   carry decorative end treatments that read as odd bracket shapes once the
+   cell is 9-sliced, so the header runs the plain plaque all the way across. */
+#battleTracker #battleTrackerHeader .thFirst,
+.thMiddle,
+.thLast {
     border-image-source: url('./assets/draftsvgs_v2/table_header-small1.svg');
 }
 
-.thLast {
-    border-image-source: url('./assets/draftsvgs_v2/table_header-long-right.svg');
+/* One plaque per body column; `border-image` in fixes.css slices them so a
+   cell's shape does not have to match the artwork's aspect ratio. */
+.combatantName {
+    border-image-source: url('./assets/draftsvgs_v2/table_item-long-left.svg');
 }
 
-/* Each plaque has a hand-drawn notch in its edge. A 9-slice puts that notch at
-   the same fraction of every cell, so a single source lined every column's
-   notches up in a vertical stripe. BattleTracker hashes each cell to one of
-   these cuts instead (see plaqueVariant), which scatters them.
+.combatantInit, .combatantHP, .combatantAction, .combatantBonus, .combatantMove, .combatantReaction {
+    border-image-source: url('./assets/draftsvgs_v2/table_item-small1-2.svg');
+}
 
-   The `-v` / `-h` / `-hv` files are mirrors of the originals, generated rather
-   than drawn: a vertical mirror swaps a plaque's top and bottom notches while
-   leaving its left and right ends alone, and the long plaques are end-caps, so
-   only their horizontal mirrors may cross columns. */
-
-/* Name column: the plaque's finished end must stay on the outside, so this
-   uses long-left plus long-right mirrored to bring its cap over to the left. */
-.combatantName.namePlaque0 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-left.svg'); }
-.combatantName.namePlaque1 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-left-v.svg'); }
-.combatantName.namePlaque2 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-right-h.svg'); }
-.combatantName.namePlaque3 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-right-hv.svg'); }
-
-/* Six middle columns: three drawn plaques, each also vertically mirrored. */
-.midPlaque0 { border-image-source: url('./assets/draftsvgs_v2/table_item-small1-1.svg'); }
-.midPlaque1 { border-image-source: url('./assets/draftsvgs_v2/table_item-small1-1-v.svg'); }
-.midPlaque2 { border-image-source: url('./assets/draftsvgs_v2/table_item-small1-2.svg'); }
-.midPlaque3 { border-image-source: url('./assets/draftsvgs_v2/table_item-small1-2-v.svg'); }
-.midPlaque4 { border-image-source: url('./assets/draftsvgs_v2/table_item-small2.svg'); }
-.midPlaque5 { border-image-source: url('./assets/draftsvgs_v2/table_item-small2-v.svg'); }
-
-/* Conditions column: mirror of the name column's reasoning. */
-.combatantConditions.condPlaque0 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-right.svg'); }
-.combatantConditions.condPlaque1 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-right-v.svg'); }
-.combatantConditions.condPlaque2 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-left-h.svg'); }
-.combatantConditions.condPlaque3 { border-image-source: url('./assets/draftsvgs_v2/table_item-long-left-hv.svg'); }
+.combatantConditions {
+    border-image-source: url('./assets/draftsvgs_v2/table_item-long-right.svg');
+}
 
 
 /* .twentyFour:hover {

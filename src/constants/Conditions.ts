@@ -8,6 +8,20 @@ const predefinedConditions = [
     'Hexed-Str', 'Hexed-Dex', 'Hexed-Con', 'Hexed-Int', 'Hexed-Wis', 'Hexed-Cha'
   ];
 
+/**
+ * The order the picker offers them in: Concentrating first, because it is the
+ * one a DM sets and clears constantly, then everything else alphabetically.
+ *
+ * `predefinedConditions` keeps its own grouping (core, exhaustion, states,
+ * spells, curses) — anything iterating it for other reasons is unaffected.
+ */
+const conditionOptions = [
+  'Concentrating',
+  ...predefinedConditions
+    .filter((c) => c !== 'Concentrating')
+    .sort((a, b) => a.localeCompare(b)),
+];
+
 const conditionDescriptionsTwentyTwentyFour: Record<string, string> = {
   'Blinded': 'You can’t see and automatically fail any ability check that requires sight.\nAttack rolls against you have Advantage, and your attack rolls have Disadvantage.',
   'Charmed': 'You can’t attack the charmer or target the charmer with damaging abilities or magical effects.\nThe charmer has Advantage on any ability check to interact with you socially.',
@@ -97,4 +111,4 @@ const conditionDescriptionsTwentyFourteen: Record<string, string> = {
   'Hexed-Wis': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack.\nYou have disadvantage on Wisdom ability checks.',
   'Hexed-Cha': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack.\nYou have disadvantage on Charisma ability checks.',
 };
-  export {predefinedConditions, conditionDescriptionsTwentyTwentyFour, conditionDescriptionsTwentyFourteen}
+  export {predefinedConditions, conditionOptions, conditionDescriptionsTwentyTwentyFour, conditionDescriptionsTwentyFourteen}

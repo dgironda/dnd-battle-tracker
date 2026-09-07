@@ -47,10 +47,10 @@ export default function AboutPanel({ onClose }: AboutPanelProps) {
             <img src={KeyD} alt="D key" className="keyShortcut" /> - check/uncheck current player's Movement
           </p>
           <p>
-            <img src={KeyE} alt="E key" className="keyShortcut" /> - open/close Hero Manager
+            <img src={KeyW} alt="W key" className="keyShortcut" /> - open/close Hero Manager
           </p>
           <p>
-            <img src={KeyW} alt="W key" className="keyShortcut" /> - open/close Monster Manager
+            <img src={KeyE} alt="E key" className="keyShortcut" /> - open/close Monster Manager
           </p>
           <p>
             <img src={KeyR} alt="R key" className="keyShortcut" /> - open/close Battle Manager
