@@ -6076,9 +6076,23 @@ html[data-wallpaper="midnight"] body::before {
 @media (orientation: portrait), (max-width: 62.99rem) {
 
   /* ---- one column, and nothing hanging off the side of it --------------- */
-  /* ---- the page, top to bottom ------------------------------------------ */
   #page {
     display: grid;
+    /* `adbanner`, not `banner` — that is the name AdSlot's banner asks for, and
+       the landscape template above uses. With the row named `banner` the slot
+       matched nothing, so `grid-area: adbanner` was read as an unknown line
+       name and grid invented columns for it: the page came out five columns
+       wide, every row was 328px of a 680px window, and the banner itself
+       rendered 0px wide. One wrong word cost the whole layout. */
+    grid-template-areas:
+      "header"
+      "adbanner"
+      "round"
+      "battletracker"
+      "sbbutt"
+      "options"
+      "footer";
+    grid-template-columns: minmax(0, 1fr);
     justify-items: stretch;
     max-width: 100vw;
     /* The landscape page is `height: 100vh` with four fixed rows — it is a
@@ -6090,6 +6104,7 @@ html[data-wallpaper="midnight"] body::before {
     /* clip, not hidden: `hidden` on one axis makes the other a scroll
        container, which would put a scrollbar down a page that fits. */
     overflow-x: clip;
+    row-gap: 0.2rem;
   }
 
   /* Column headings belong to columns. index.css hides them, but only under
@@ -6099,134 +6114,105 @@ html[data-wallpaper="midnight"] body::before {
     display: none;
   }
 
-  /* ---- top down ---------------------------------------------------------
-     Portrait reads as a workflow rather than as a rail folded flat: the three
-     managers first (that is where a fight is assembled), then the round, the
-     timer and Start the Battle, then the roster itself, and the promos and the
-     footer last.
-
-     Getting that order needs the header to stop being a box. Everything above
-     the round — the masthead, all three managers, the Patreon block and the
-     tower promo — are children of #header, so as long as it is one grid item
-     they are one block, in DOM order, wherever that block sits. `display:
-     contents` drops the box and hands its children to #page, which can then
-     place each one on its own row. Nothing else changes: the buttons keep
-     their ids, their art and their panels.
-
-     Six columns so the masthead can be logo + two small controls, and the
-     managers can be halves; every full-width row spans all six. */
+  /* ---- the top bar ------------------------------------------------------
+     The rail becomes a bar. Flex rather than named grid areas because the
+     three manager buttons have to be able to fall onto a second line on a
+     phone and sit on one line on a tablet, and a fixed template cannot do
+     both. */
   #header {
-    display: contents;
+    grid-area: header;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem 0.6rem;
+    padding: 0.5rem 0.6rem 0.2rem;
+    max-width: 100vw;
+    /* The rail's height cap and its scroll are a landscape problem. */
+    height: auto;
+    max-height: none;
+    overflow: visible;
   }
 
-  #page {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-template-areas:
-      "logo     logo     options  about    about    about"
-      "hmbutt   hmbutt   hmbutt   mmbutt   mmbutt   mmbutt"
-      "bmbutt   bmbutt   bmbutt   bmbutt   bmbutt   bmbutt"
-      "adbanner adbanner adbanner adbanner adbanner adbanner"
-      "round    round    round    round    round    round"
-      "sbbutt   sbbutt   sbbutt   sbbutt   sbbutt   sbbutt"
-      "battletracker battletracker battletracker battletracker battletracker battletracker"
-      "patreon  patreon  patreon  patreon  patreon  patreon"
-      "adtower  adtower  adtower  adtower  adtower  adtower"
-      "footer   footer   footer   footer   footer   footer";
-    column-gap: 0.5rem;
-    row-gap: 0.35rem;
-    padding: 0.5rem 0.6rem 0;
-    box-sizing: border-box;
-  }
-
-  /* One row each, in the order above. */
-  #logo               { grid-area: logo; }
-  #optionsButton      { grid-area: options; }
-  #aboutButton        { grid-area: about; }
-  #heroManagerButton  { grid-area: hmbutt; }
-  #monsterManagerButton { grid-area: mmbutt; }
-  #battleManagerButton  { grid-area: bmbutt; }
-  #patreonLink        { grid-area: patreon; }
-
-  /* The masthead is a heading, not a hero image: it shares its line with the
-     two controls rather than taking the top third of the screen to itself. */
-  /* Capped by HEIGHT, not width: it is an image with a near-square aspect, so
-     a width cap of even 11rem came out 180px tall and took the masthead's row
-     down half the screen before a manager was in sight. */
-  #logo {
-    width: auto;
-    max-width: 100%;
-    max-height: 3.6rem;
-    justify-self: start;
-    align-self: center;
+  /* `#header > button { margin-bottom: .75rem }` is the rail's row spacing;
+     the bar uses `gap` instead. */
+  #header > button {
     margin: 0;
+  }
+
+  #logo {
+    order: 1;
+    /* Was tied to the rail's button width, which in portrait resolved to the
+       full 19rem — a 230px logo across the top third of a phone. */
+    width: min(38vw, 10rem);
+    margin: 0 auto 0 0;
   }
 
   #optionsButton {
+    order: 2;
     width: 2.4rem;
     height: 2.4rem;
     margin: 0;
-    justify-self: center;
-    align-self: center;
+    flex: 0 0 auto;
   }
 
-  /* Three columns, because its label is painted into a 741x165 artwork: in one
-     column it was 55px wide and so 12px tall, which is not a button. */
+  /* The label is painted into the artwork (741x165), so the button has no text
+     to be sized by and index.css's `width: fit-content` left it 6px wide — a
+     sliver beside the gear with no way to tell it was the About button. Given
+     a width and the artwork's own ratio, like the manager ribbons. */
   #aboutButton {
-    width: 100%;
-    max-width: 11rem;
+    order: 3;
+    flex: 0 0 auto;
+    width: min(32vw, 9.5rem);
     height: auto;
     aspect-ratio: 741 / 165;
     background-size: contain;
     background-position: center;
     padding: 0;
     margin: 0;
-    justify-self: end;
-    align-self: center;
   }
 
-  /* Hero and Monster share a line; Battle takes the next one at the same
-     width, centred, so the three read as one set of three rather than as a
-     pair and a stray. */
+  /* Its own line under the masthead: it is two lines of prose and would
+     otherwise set the height of the row the logo is in. */
+  #patreonLink {
+    order: 4;
+    flex: 1 1 100%;
+    margin: 0 !important;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
+  /* Three ribbons across, or two and one on a narrow phone. The 9rem basis is
+     what decides that: two of them plus the gap is 300px, so anything from a
+     320px screen up gets at least two on a line and a 768px tablet gets all
+     three. There is a floor rather than an even split because below about 9rem
+     the labels drawn into the artwork stop being readable. */
+  /* The tower promo is `grid-area: adtower` in the rail, which means nothing
+     once the rail is a flex bar — so it defaulted to order 0 and put 120px of
+     promo above the masthead. It goes last, under the managers. */
+  #header .adSlot-tower {
+    order: 6;
+    flex: 1 1 100%;
+    display: flex;
+    justify-content: center;
+    margin: 0.2rem 0 0;
+  }
+
   #heroManagerButton,
   #monsterManagerButton,
   #battleManagerButton {
-    width: 100%;
-    max-width: none;
+    order: 5;
+    flex: 1 1 9rem;
+    width: auto;
     min-width: 0;
+    /* index.css's portrait rules pinned these to `fit-content`, and the label
+       is painted into the artwork rather than set as text — so the content was
+       an empty string and both buttons shrank to 49x19. */
+    max-width: 15rem;
     margin: 0;
-    align-self: center;
   }
 
-  #battleManagerButton {
-    width: 50%;
-    justify-self: center;
-  }
-
-  /* All three on one line once there is room for the drawn labels to be read
-     at a third of the width — about a tablet. */
-  @media (min-width: 34rem) {
-    #page {
-      grid-template-areas:
-        "logo     logo     logo     logo     options  about"
-        "hmbutt   hmbutt   mmbutt   mmbutt   bmbutt   bmbutt"
-        "adbanner adbanner adbanner adbanner adbanner adbanner"
-        "round    round    round    round    round    round"
-        "sbbutt   sbbutt   sbbutt   sbbutt   sbbutt   sbbutt"
-        "battletracker battletracker battletracker battletracker battletracker battletracker"
-        "patreon  patreon  patreon  patreon  patreon  patreon"
-        "adtower  adtower  adtower  adtower  adtower  adtower"
-        "footer   footer   footer   footer   footer   footer";
-    }
-
-    #battleManagerButton {
-      width: 100%;
-      justify-self: stretch;
-    }
-  }
-
-  /* The round, the timer and Edit Battle on one line, and Start the Battle
-     under them — the two together are "the state of the fight", and they sit
-     between the managers that fill it and the roster that shows it. */
+  /* ---- round, timer, Edit Battle ---------------------------------------- */
   #round {
     grid-area: round;
     width: auto;
@@ -6235,49 +6221,17 @@ html[data-wallpaper="midnight"] body::before {
     align-items: center;
     justify-content: center;
     gap: 0.3rem 1.1rem;
-    margin: 0.3rem 0 0.1rem;
+    margin: 0.1rem 0.6rem 0.3rem;
     font-size: clamp(1rem, 3.6vw, 1.45rem);
   }
 
-  #battleControls {
-    grid-area: sbbutt;
-    justify-content: center;
-    margin: 0 0 0.2rem;
-    /* It is in the flow now, above the roster, so it no longer has to push
-       itself down to the bottom of a column. */
-    margin-top: 0;
-  }
-
+  /* ---- the tracker ------------------------------------------------------ */
   #battleTrackerScroll {
     grid-area: battletracker;
     width: 100%;
     box-sizing: border-box;
-    padding: 0;
+    padding: 0 0.5rem;
   }
-
-  #footer {
-    grid-area: footer;
-    margin: 0.6rem 0 1rem;
-    text-align: center;
-    font-size: 0.85rem;
-  }
-
-  /* The promos come after the fight, not before it. */
-  #patreonLink {
-    margin: 0.4rem 0 0 !important;
-    text-align: center;
-    font-size: 0.85rem;
-  }
-
-  #header .adSlot-tower,
-  .adSlot-tower {
-    grid-area: adtower;
-    order: 0;
-    display: flex;
-    justify-content: center;
-    margin: 0.2rem 0 0;
-  }
-
 
   #battleTracker {
     width: 100%;
