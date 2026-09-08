@@ -6411,18 +6411,43 @@ html[data-wallpaper="midnight"] body::before {
      correct that only held at one width: even at 704px, it was 73 against 90 by
      820px. Sized to content, the middle column IS the space between the two,
      so centring in it is even at every width by construction. */
-  @media (min-width: 34rem) {
+  /* Folded, three across: the chip cluster, the ribbon, the battle buttons.
+     Needs room for all three at their own widths — about 588px of viewport —
+     which is why this is 37rem and not the 34rem the expanded layout uses.
+     Below it the middle column cannot shrink (Start the Battle is a fixed
+     176px) and the row would run off the side. */
+  @media (min-width: 37rem) {
     #page:has(#mastheadToggle[aria-expanded="false"]) {
       grid-template-columns: max-content minmax(0, 1fr) max-content;
     }
+  }
 
-    /* Wide enough for two chips beside the corner controls and no wider, so
-       Battle Manager wraps to a line of its own and centres under the pair.
-       Without the cap the column is content-sized, all three fit on one line,
-       and there is no pyramid to speak of. */
-    #page:has(#mastheadToggle[aria-expanded="false"]) #header {
-      max-width: 12.5rem;
+  /* Folded, two across: the cluster beside the ribbon, the battle buttons on
+     the line under them. */
+  @media (min-width: 26rem) and (max-width: 36.99rem) {
+    #page:has(#mastheadToggle[aria-expanded="false"]) {
+      grid-template-areas:
+        "logo     hmbutt"
+        "logo     mmbutt"
+        "bmbutt   about"
+        "patreon  sbbutt"
+        "ractions ractions"
+        "adbanner adbanner"
+        "round    round"
+        "battletracker battletracker"
+        "adtower  adtower"
+        "footer   footer";
+      grid-template-columns: max-content minmax(0, 1fr);
     }
+  }
+
+  /* The cap that makes the pyramid, at every width: wide enough for two chips
+     beside the corner controls and no wider, so Battle Manager wraps to a line
+     of its own and centres under the pair. Content-sized columns would
+     otherwise grow to fit all three on one line and there would be no pyramid
+     — which is exactly what a row of three chips on a phone was. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #header {
+    max-width: 12.5rem;
   }
 
   /* Folded, the masthead becomes the chip cluster: a flex box in the column
@@ -6456,18 +6481,13 @@ html[data-wallpaper="midnight"] body::before {
     overflow: visible;
   }
 
-  /* Folded, on a phone.
-     The upside-down pyramid needs a narrow column to sit in, and a phone does
-     not have one: half of 390px, less the gutter the gear and the fold button
-     occupy, leaves about 119px — under the width of two chips, so they broke
-     into a column of three and the folded top came to 265px, which is most of
-     what folding was meant to give back.
-
-     So the chips take a full-width line of their own here and sit in a row of
-     three, with Start the Battle and the two battle buttons on the line under
-     them. Same pieces, same order, one row deeper — and about 110px instead of
-     265px. Above 34rem the column is wide enough and the pyramid holds. */
-  @media (max-width: 33.99rem) {
+  /* Folded, stacked. Under 26rem there is not enough width to put anything
+     beside the cluster: the cluster is 12.5rem (200px) and Start the Battle is
+     a fixed 176px, so with the gap they need 384px of content box — which a
+     416px viewport just clears and a 400px one does not. So the cluster takes a line
+     of its own — still a pyramid, just full width — and the ribbon and the two
+     battle buttons share the line beneath it. */
+  @media (max-width: 25.99rem) {
     #page:has(#mastheadToggle[aria-expanded="false"]) {
       grid-template-areas:
         "logo     hmbutt"
@@ -6482,11 +6502,7 @@ html[data-wallpaper="midnight"] body::before {
         "footer   footer";
     }
 
-    /* A row, not a block to centre: the gear and the fold button sit in the
-       padding at the left, so centring the three across the whole width would
-       leave the first one under them. */
     #page:has(#mastheadToggle[aria-expanded="false"]) #header {
-      justify-content: flex-start;
       min-height: 0;
     }
 
