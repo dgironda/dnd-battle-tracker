@@ -6892,9 +6892,18 @@ html[data-wallpaper="midnight"] body::before {
     justify-content: center;
   }
 
+  /* Label above value, like the four boxes on the line below it. Inline, the
+     card had two different ways of labelling a cell on the same line — "Init"
+     beside its number, "Action" over its box — and the eye had to switch
+     between them. Stacked, every cell on the card reads the same way down. */
   #battleTracker tbody td.combatantInit {
+    flex-direction: column;
     justify-content: center;
-    gap: 0.25em;
+    gap: 0;
+  }
+
+  #battleTracker tbody td.combatantInit::before {
+    margin-right: 0;
   }
 
   /* ---- the managers, as cards -------------------------------------------
