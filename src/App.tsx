@@ -47,6 +47,11 @@ const PANEL_BUTTONS: {
 
 function App() {
   const [openPanel, setOpenPanel] = useState<PanelName | null>(null);
+  /* Portrait only, and it has no effect anywhere else: the button is
+     `display: none` outside the card layout. The collapse itself is pure CSS —
+     `#page:has(#mastheadToggle[aria-expanded="false"])` — so this state does
+     not have to be threaded up to #page, which is rendered in main.tsx. */
+  const [mastheadOpen, setMastheadOpen] = useState(true);
   const { settings } = useGlobalContext();
   const handleClosePanel = () => setOpenPanel(null);
   const [isPortrait, setIsPortrait] = useState(window.matchMedia("(orientation: portrait)").matches);
@@ -228,6 +233,23 @@ function App() {
 
           <div id="header">
             <img id="logo" src={BTLogo} alt="D&D Battle Tracker" />
+
+            {/* Folds the masthead away — logo, the four managers, the support
+                note, Start the Battle, Edit Battle and the log — so the roster
+                gets the whole screen mid-fight. The round and the timer stay:
+                those are what you are reading while it is folded. */}
+            <button
+              type="button"
+              id="mastheadToggle"
+              aria-expanded={mastheadOpen}
+              aria-label={mastheadOpen ? "Hide the menu" : "Show the menu"}
+              title={mastheadOpen ? "Hide the menu" : "Show the menu"}
+              onClick={() => setMastheadOpen((open) => !open)}
+            >
+              <span aria-hidden="true" />
+              <span aria-hidden="true" />
+              <span aria-hidden="true" />
+            </button>
 
             <Backdrop isOpen={openPanel !== null} onClick={handleClosePanel} />
 

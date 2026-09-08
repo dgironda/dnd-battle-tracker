@@ -6108,7 +6108,8 @@ html[data-wallpaper="midnight"] body::before {
       "logo     hmbutt"
       "logo     mmbutt"
       "bmbutt   about"
-      "patreon  sbbutt"
+      "sbbutt   ractions"
+      "patreon  patreon"
       "adbanner adbanner"
       "round    round"
       "battletracker battletracker"
@@ -6138,7 +6139,7 @@ html[data-wallpaper="midnight"] body::before {
        `dvh`, not `vh`: on a phone `vh` is the viewport with the browser's
        chrome hidden, so a 100vh page is taller than the screen and the bottom
        row sits under the address bar. */
-    grid-template-rows: auto auto auto auto auto auto minmax(0, 1fr) auto auto;
+    grid-template-rows: auto auto auto auto auto auto auto minmax(0, 1fr) auto auto;
     height: 100dvh;
     min-height: 0;
     /* clip, not hidden: `hidden` on one axis makes the other a scroll
@@ -6157,7 +6158,7 @@ html[data-wallpaper="midnight"] body::before {
       grid-template-areas:
         "logo     hmbutt   mmbutt"
         "logo     bmbutt   about"
-        "patreon  sbbutt   sbbutt"
+        "patreon  sbbutt   ractions"
         "adbanner adbanner adbanner"
         "round    round    round"
         "battletracker battletracker battletracker"
@@ -6192,6 +6193,133 @@ html[data-wallpaper="midnight"] body::before {
   #aboutButton          { grid-area: about; }
   #patreonLink          { grid-area: patreon; }
   #header .adSlot-tower { grid-area: adtower; }
+
+  /* ---- the round row splits ---------------------------------------------
+     Edit Battle and the Battle Log are things you do to the battle, not facts
+     about it, so they belong with Start the Battle rather than beside the
+     round number. #round dissolves and its two halves take their own areas:
+     the text stays on its own line under the masthead, the buttons go up. */
+  #round {
+    display: contents;
+  }
+
+  .roundLine {
+    grid-area: round;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.2rem 1.1rem;
+    padding: 0.15rem 0.6rem 0.35rem;
+    font-size: clamp(1rem, 3.6vw, 1.45rem);
+    /* The line that says where the frozen part stops and the roster begins. */
+    border-bottom: 1px solid var(--color-shadow, rgba(0, 0, 0, 0.18));
+  }
+
+  .roundActions {
+    grid-area: ractions;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    margin: 0;
+  }
+
+  #buttonEditBattle,
+  #buttonBattleLog {
+    width: 100%;
+    max-width: 11rem;
+    margin: 0;
+  }
+
+  /* ---- the masthead folds away ------------------------------------------
+     Three pencil strokes, reusing the underline artwork the combatant names
+     are drawn with, so the control is in the same hand as everything else.
+     It sits under the gear in the corner, out of the grid entirely — the
+     masthead it hides would otherwise take its space with it. */
+  #mastheadToggle {
+    position: absolute;
+    top: 2.6rem;
+    left: 0.35rem;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.34rem;
+    width: 2.7rem;
+    height: 2.5rem;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+
+  /* Painted bars, not the pencil-stroke masks this started as. The underline
+     artwork is a thin line drawn inside a tall, mostly empty box, so masking
+     with it produced a hairline whatever height the bar was given — 9.7px of
+     element, about 2px of visible ink. The hand comes from the geometry
+     instead: three bars, each a slightly different length and each set at its
+     own small angle, with round ends like a soft pencil. */
+  #mastheadToggle > span {
+    display: block;
+    width: 100%;
+    height: 0.42rem;
+    border-radius: 0.3rem;
+    background-color: var(--color-ink, #2c2118);
+    opacity: 0.88;
+    transform-origin: left center;
+    transition: transform 0.16s ease-out, opacity 0.16s ease-out;
+  }
+
+  #mastheadToggle > span:nth-child(1) { width: 100%;  transform: rotate(-1.6deg); }
+  #mastheadToggle > span:nth-child(2) { width: 92%;   transform: rotate(0.9deg); }
+  #mastheadToggle > span:nth-child(3) { width: 97%;   transform: rotate(-0.7deg); }
+
+  #mastheadToggle:hover > span {
+    opacity: 1;
+  }
+
+  /* Folded: the middle stroke goes, the outer two close on it. Not a rotation
+     into an X — these are pencil strokes, and a drawn line pretending to be a
+     vector cross is the one thing on this page that would look printed. */
+  #mastheadToggle[aria-expanded="false"] > span:nth-child(2) {
+    opacity: 0;
+  }
+
+  #mastheadToggle[aria-expanded="false"] > span:nth-child(1) {
+    transform: translateY(0.38rem) rotate(-1.6deg);
+  }
+
+  #mastheadToggle[aria-expanded="false"] > span:nth-child(3) {
+    transform: translateY(-0.38rem) rotate(-0.7deg);
+  }
+
+  /* What the fold takes: the identity and the doors out of the tracker. What
+     it keeps: the controls for the fight in front of you — Start the Battle,
+     Edit Battle and the log — plus the round and the timer. Folding is for
+     mid-combat, and those are exactly the things you reach for mid-combat.
+
+     Their rows collapse to nothing when their neighbours go, so Start the
+     Battle and the two buttons rise to the top line of their own accord and
+     sit beside the corner controls. No separate collapsed template. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #logo,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #aboutButton,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #patreonLink,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #header .adSlot-tower {
+    display: none;
+  }
+
+  /* The gear and the fold button are absolute, so they hold no row open. This
+     is the height they need, asked of the thing that is reliably on that line
+     — #battleControls renders for every stage except the empty prompt. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #battleControls {
+    min-height: 4.9rem;
+  }
 
   /* The gear is a corner fitting, not a row. Given a grid cell it either sat
      in the masthead's line and stole width from it, or took a row of its own
@@ -6331,22 +6459,6 @@ html[data-wallpaper="midnight"] body::before {
   }
 
   /* ---- round, timer, Edit Battle, Battle Log ---------------------------- */
-  #round {
-    grid-area: round;
-    width: auto;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem 1.1rem;
-    margin: 0;
-    padding: 0.25rem 0.6rem 0.4rem;
-    font-size: clamp(1rem, 3.6vw, 1.45rem);
-
-    /* The line that says where the frozen part stops and the roster begins. */
-    border-bottom: 1px solid var(--color-shadow, rgba(0, 0, 0, 0.18));
-  }
-
   /* ---- the tracker ------------------------------------------------------ */
   /* The one scrolling thing on the page. */
   #battleTrackerScroll {
@@ -6377,7 +6489,12 @@ html[data-wallpaper="midnight"] body::before {
        166px-wide artwork's ends were squeezed to nothing and the parchment
        centre stopped short of them, leaving a band of bare page down each
        side of every card. */
-    --card-edge: clamp(14px, 4cqw, 30px);
+    /* This is a ring the drawn edge is painted into, and with a 2px border it
+       is painted almost entirely OUTSIDE the card's box — 25px of it, against
+       a 5px gap to the next card, so every card's frame was landing 45px deep
+       into its neighbour. That is the doubled line and the ink blot between
+       rows. Narrower ring, and a real gap under each card to put it in. */
+    --card-edge: clamp(11px, 2.6cqw, 20px);
     --card-font: clamp(0.95rem, 3.3cqw, 1.35rem);
   }
 
@@ -6390,12 +6507,11 @@ html[data-wallpaper="midnight"] body::before {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-template-areas:
       "cName cName cName cName"
-      "cHP   cHP   cInit cInit"
-      "cAct  cBon  cMove cReact"
-      "cCond cCond cCond cCond";
+      "cHP   cInit  cCond cCond"
+      "cAct  cBon   cMove cReact";
     align-items: center;
     row-gap: 0.02rem;
-    margin: 0 0 0.3rem;
+    margin: 0 0 0.75rem;
     padding: 0.15rem 0.2rem;
     font-size: var(--card-font);
 
@@ -6531,10 +6647,38 @@ html[data-wallpaper="midnight"] body::before {
                scale(var(--cb-scale, 1)) translateY(var(--cb-nudge, 0));
   }
 
+  /* ---- the middle line: HP, initiative, conditions -----------------------
+     One line that says where this combatant stands. HP had two of the four
+     columns and its bar stretched the whole card, which read as a progress
+     meter for the card rather than a number for the creature; initiative sat
+     a third of a card away from it; and conditions had a row of their own at
+     the foot, which is a whole line of card for what is usually nothing.
+
+     A column each for HP and initiative, so the two numbers sit together, and
+     the remaining half for the conditions that were costing a row. */
   #battleTracker tbody td.combatantConditions {
-    justify-content: center;
+    justify-content: flex-start;
     flex-wrap: wrap;
-    padding-top: 0.15rem;
+    gap: 0.15rem 0.25rem;
+    padding-top: 0;
+    /* It shares a line now, so a long list scrolls rather than growing the
+       card under the neighbour it sits beside. */
+    max-height: 3.4em;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  /* The bar is the width of its cell, and the cell is now a quarter of the
+     card rather than a half. Nothing else to do — but the label wants to stop
+     shouting now that it is small. */
+  #battleTracker tbody td.combatantHP {
+    justify-content: center;
+  }
+
+  #battleTracker tbody td.combatantInit {
+    justify-content: center;
+    gap: 0.25em;
   }
 
   /* ---- the managers, as cards -------------------------------------------
@@ -7115,6 +7259,26 @@ html[data-wallpaper="midnight"] body::before {
    because it changes the fight, and the log is beige because it only reads it.
    Two green buttons side by side would say they weigh the same.
    ========================================================================== */
+
+/* Both of these are the landscape half of a pair, and they sit AFTER the card
+   block in this file — so they have to be gated rather than left bare, or they
+   would win on order and undo it. This is the exact complement of the card
+   layout's `(orientation: portrait), (max-width: 62.99rem)`. */
+@media (orientation: landscape) and (min-width: 63rem) {
+  /* The wrapper portrait uses to lift .roundActions out of this row. Landscape
+     wants the round, the timer and the buttons on one flex line exactly as
+     before, so here it is not a box at all. */
+  .roundLine {
+    display: contents;
+  }
+
+  /* A card-layout control. In the rail there is room for the masthead and no
+     reason to fold it away — and left visible it would join #header's grid with
+     no area of its own, which is how this layout has broken before. */
+  #mastheadToggle {
+    display: none;
+  }
+}
 
 /* Edit Battle and Battle Log travel together. */
 .roundActions {

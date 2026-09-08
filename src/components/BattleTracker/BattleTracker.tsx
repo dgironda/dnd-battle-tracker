@@ -160,7 +160,7 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
           name="conditionSelect"
           aria-label={`Add a condition to ${combatant.name}`}
         >
-          <option className="addConditionBox" value="">+ Add</option>
+          <option className="addConditionBox" value="">+ Add Condition</option>
           {conditionOptions
             .filter((condition) => !combatant.conditions.includes(condition))
             .map((condition) => (
@@ -800,7 +800,14 @@ const BattleTracker: React.FC = () => {
 
       {battleStage === "running" && (
         <div id="round">
-          <RoundNumberSpan roundNumber={roundNumber} timerRef={timerRef} />
+          {/* Wrapped so portrait can lift .roundActions out of this row and put
+              it up beside Start the Battle. RoundNumberSpan returns a fragment
+              of two elements, so without a box around them there was no single
+              thing to place. In landscape this wrapper is `display: contents`
+              and the row is exactly what it was. */}
+          <div className="roundLine">
+            <RoundNumberSpan roundNumber={roundNumber} timerRef={timerRef} />
+          </div>
           {/* The two wrap as a pair. Loose in the row they broke apart at
               1280 — the round, the timer and Edit Battle held the line and the
               log dropped underneath on its own, which read as a stray. */}

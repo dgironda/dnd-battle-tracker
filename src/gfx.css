@@ -79,15 +79,20 @@
     max-height: var(--button-max-height);
 }
 
+/* Only the artwork changes on hover. It used to restate the whole sizing
+   block as well — repeat, size, position, width, max-width, max-height, all
+   identical to the rule above — which was harmless while the rail was the only
+   place these buttons lived.
+
+   It stopped being harmless in portrait. There they are sized by their grid
+   column (`width: 100%`), and `#heroManagerButton:hover` scores (1,1,0)
+   against that rule's (1,0,0), so hovering handed the button back to
+   `--button-width` — the rail's own measurement, which on a 704px window is
+   8.5rem. The button collapsed from 234x92 to 136x53, 42% narrower, the moment
+   the pointer touched it, and sprang back when it left. */
 #heroManagerButton:hover,
 #heroManagerButton[aria-expanded="true"] {
     background-image: url('./assets/draftsvgs_v2/button_hero-manager-hover.svg');
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
-    width: var(--button-width);
-    max-width: var(--max-button-width);
-    max-height: var(--button-max-height);
 }
 
 #monsterManagerButton {
@@ -102,15 +107,10 @@
     max-height: var(--button-max-height);
 }
 
+/* Same as the hero button above: the image is the only thing that changes. */
 #monsterManagerButton:hover,
 #monsterManagerButton[aria-expanded="true"] {
     background-image: url('./assets/draftsvgs_v2/button_monster-manager-hover.svg');
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
-    width: var(--button-width);
-    max-width: var(--max-button-width);
-    max-height: var(--button-max-height);
 }
 
 #battleManagerButton {
