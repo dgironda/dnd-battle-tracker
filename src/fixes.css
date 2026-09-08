@@ -6340,35 +6340,28 @@ html[data-wallpaper="midnight"] body::before {
   }
 
   /* ---- the managers, folded ----------------------------------------------
-     The ribbons shorten rather than crop. A crop leaves a hard vertical cut
-     where the drawing used to continue; what is wanted is the same ribbon with
-     its middle taken out — its drawn start joined straight to its drawn end.
+     The whole ribbon, not a shortened one. Stacked in a column they have the
+     width for it, it is the drawing people already know, and it brings the
+     hover artwork back — a chip had nowhere to show that.
 
-     This was first attempted in CSS, with two pseudo-elements showing opposite
-     ends of the same file. The geometry was right and it still looked wrong,
-     because the join lands wherever the two boxes meet and the ribbons' edges
-     undulate: the top edge on one side of the seam sat several percent higher
-     than on the other, so the ribbon had a step in it.
+     Sized by WIDTH, because in a column width is what they share; each
+     artwork's own ratio then decides the height (2.55:1 for the two ribbons,
+     3.34:1 for the battle plaque, so that one comes out shorter).
 
-     So the artwork really is spliced now, by tools/splice-button-art.mjs —
-     which wraps each drawing once and draws it twice, clipped to a band at
-     each end, and CROSS-FADES the join rather than butting it. Matching the
-     edges was not enough on its own: the shading runs along the ribbon, so a
-     hard join jumped in tone even where the outline lined up. Nothing was
-     redrawn — the generated files reference the original paths, gradients and
-     images, and the cut points are measured off the rasterised art.
-
-     They read "Hero", "Monst" and "Battle"; the aspect ratios below are the
-     generated viewBoxes, so re-running the script with different cuts means
-     updating these three numbers.
-
-     The aspect ratios below are the generated viewBoxes. Height is the only
-     thing set here; the width follows from the ratio. */
+     tools/splice-button-art.mjs and the three *-short.svg files it generates
+     are left in the tree but nothing references them now, so nothing ships
+     them. Delete both if the short version is not wanted back. */
   #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton,
   #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton,
   #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton {
-    height: 2.6rem;
-    width: auto;
+    /* Held back from filling the column outright. Stacked full-height
+       ribbons are the tallest thing in the folded top, and folding exists to
+       give height to the roster: at 18rem they were 239px wide and the column
+       269px tall, which took the roster down to 511px. At 14rem the column is
+       200px and the roster gets 590. The battle buttons opposite take up the
+       width this leaves. */
+    width: clamp(7rem, 26vw, 14rem);
+    height: auto;
     min-width: 0;
     max-width: none;
     max-height: none;
@@ -6376,78 +6369,78 @@ html[data-wallpaper="midnight"] body::before {
     padding: 0;
     flex: 0 0 auto;
     justify-self: auto;
-    border: none;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
   }
 
-  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton {
-    background-image: url('./assets/draftsvgs_v2/button_hero-manager-short.svg');
-    aspect-ratio: 467.86 / 292;
-  }
+  /* Folded, two across: the chip pyramid, and the three battle buttons stacked
+     beside it.
 
-  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton {
-    background-image: url('./assets/draftsvgs_v2/button_monster-manager-short.svg');
-    aspect-ratio: 434.33 / 292;
-  }
+     Three groups across meant three narrow things — the ribbon came out 96px
+     wide and the two buttons 99px, which is small for a thumb. Stacked, the
+     buttons share one column and can be as wide as it is, which on a phone is
+     most of the screen. It costs one row of height and buys a target you can
+     hit without looking.
 
-  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton {
-    background-image: url('./assets/draftsvgs_v2/button_battle-manager-short.svg');
-    aspect-ratio: 477.39 / 221;
-  }
-
-  /* The gear and the fold button are absolute, so they hold no row open. This
-     is the height they need, asked of the thing that is reliably on that line
-     — #battleControls renders for every stage except the empty prompt. */
-  #page:has(#mastheadToggle[aria-expanded="false"]) #battleControls {
-    min-height: 4.9rem;
-  }
-
-  /* Folded, the three columns fit their contents instead of splitting the page
-     30/35/35. Centred in a third of the page the ribbon sat closer to the chips
-     than to the battle buttons, because the chip cluster does not fill its
-     column and the two battle buttons do fill theirs — and a fixed nudge to
-     correct that only held at one width: even at 704px, it was 73 against 90 by
-     820px. Sized to content, the middle column IS the space between the two,
-     so centring in it is even at every width by construction. */
-  /* Folded, three across: the chip cluster, the ribbon, the battle buttons.
-     Needs room for all three at their own widths — about 588px of viewport —
-     which is why this is 37rem and not the 34rem the expanded layout uses.
-     Below it the middle column cannot shrink (Start the Battle is a fixed
-     176px) and the row would run off the side. */
-  @media (min-width: 37rem) {
-    #page:has(#mastheadToggle[aria-expanded="false"]) {
-      grid-template-columns: max-content minmax(0, 1fr) max-content;
-    }
-  }
-
-  /* Folded, two across: the cluster beside the ribbon, the battle buttons on
-     the line under them. */
-  @media (min-width: 26rem) and (max-width: 36.99rem) {
+     A template of its own rather than the expanded one with columns swapped:
+     folded, every masthead area is either empty or `display: none` (the chips
+     are flex children of #header, not grid items), so only these seven areas
+     have anything in them. */
+  @media (min-width: 23rem) {
     #page:has(#mastheadToggle[aria-expanded="false"]) {
       grid-template-areas:
-        "logo     hmbutt"
-        "logo     mmbutt"
-        "bmbutt   about"
         "patreon  sbbutt"
-        "ractions ractions"
+        "patreon  ractions"
         "adbanner adbanner"
         "round    round"
         "battletracker battletracker"
         "adtower  adtower"
         "footer   footer";
       grid-template-columns: max-content minmax(0, 1fr);
+      grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;
+    }
+
+    /* The buttons FILL their column rather than sitting at a fixed width in
+       the middle of it. Capped at 15rem they left about 130px of bare paper on
+       each side of themselves — the column is `1fr`, so all the width the
+       cluster does not take lands here, and centring a fixed-width button in
+       it just puts the waste on both sides instead of one.
+
+       The cap is now a ceiling for very wide windows, not the usual case, and
+       the manager ribbons opposite grew with them so the two columns share the
+       row instead of leaving a channel of paper down the middle. */
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonStartBattle {
+      width: min(100%, 22rem) !important;
+    }
+
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonEditBattle,
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonBattleLog {
+      width: min(100%, 22rem);
+      max-width: none;
+      font-size: 0.72rem;
+    }
+
+    /* Stacked as one block: the ribbon sits directly over the two buttons
+       rather than each centring in its own row with a gap between. */
+    #page:has(#mastheadToggle[aria-expanded="false"]) #battleControls {
+      align-items: flex-end;
+      padding-bottom: 0.15rem;
+    }
+
+    #page:has(#mastheadToggle[aria-expanded="false"]) .roundActions {
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 0.15rem;
     }
   }
 
-  /* The cap that makes the pyramid, at every width: wide enough for two chips
-     beside the corner controls and no wider, so Battle Manager wraps to a line
-     of its own and centres under the pair. Content-sized columns would
-     otherwise grow to fit all three on one line and there would be no pyramid
-     — which is exactly what a row of three chips on a phone was. */
+  /* ---- the chip size, and the cap derived from it ------------------------
+     The chips take their size from height, so this is the cluster's width
+     too: at the cap, a pair is 134px and the cluster 191px; at the floor,
+     81px and 139px. */
+  /* No width cap any more. It existed to force the wrap that made the
+     pyramid; a column wraps by definition, and the grid column is
+     `max-content`, so the cluster is exactly as wide as its widest chip. */
   #page:has(#mastheadToggle[aria-expanded="false"]) #header {
-    max-width: 12.5rem;
+    max-width: none;
   }
 
   /* Folded, the masthead becomes the chip cluster: a flex box in the column
@@ -6466,11 +6459,12 @@ html[data-wallpaper="midnight"] body::before {
     flex-wrap: wrap;
     align-content: center;
     align-items: center;
-    /* Centred, so the two rosters take the top line and Battle Manager sits
-       under the middle of them rather than under the left-hand one — an
-       upside-down pyramid, not a left-aligned stack. It works out because
-       Battle is the narrower chip of the three; if that ever stops being true
-       the shape inverts. */
+    /* A column of three, matching the battle buttons beside it. The pyramid
+       this used to be was two chips up and one centred below; stacking costs a
+       row of height and buys chips half again as large, which is the trade
+       that was asked for. */
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
     gap: 0.3rem;
     padding: 0.1rem 0 0.1rem 3.6rem;
@@ -6481,25 +6475,37 @@ html[data-wallpaper="midnight"] body::before {
     overflow: visible;
   }
 
-  /* Folded, stacked. Under 26rem there is not enough width to put anything
-     beside the cluster: the cluster is 12.5rem (200px) and Start the Battle is
-     a fixed 176px, so with the gap they need 384px of content box — which a
-     416px viewport just clears and a 400px one does not. So the cluster takes a line
+  /* Folded, one column. Under 23rem the two columns will not sit side by side:
+     at its floor the cluster is 7rem of ribbon plus the 3.6rem corner gutter,
+     about 170px, and the buttons do not go below 9rem — 322px of content box
+     with the gap, which a 368px viewport clears and a 352px one does not. So the cluster takes a line
      of its own — still a pyramid, just full width — and the ribbon and the two
      battle buttons share the line beneath it. */
-  @media (max-width: 25.99rem) {
+  @media (max-width: 22.99rem) {
     #page:has(#mastheadToggle[aria-expanded="false"]) {
       grid-template-areas:
-        "logo     hmbutt"
-        "logo     mmbutt"
-        "bmbutt   about"
         "patreon  patreon"
-        "sbbutt   ractions"
+        "sbbutt   sbbutt"
+        "ractions ractions"
         "adbanner adbanner"
         "round    round"
         "battletracker battletracker"
         "adtower  adtower"
         "footer   footer";
+      grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto auto;
+    }
+
+    /* Nothing shares a line here, so the buttons take the whole width — the
+       biggest targets on the smallest screen, which is where that matters. */
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonStartBattle {
+      width: min(84vw, 15rem) !important;
+    }
+
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonEditBattle,
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonBattleLog {
+      width: min(84vw, 15rem);
+      max-width: none;
+      font-size: 0.72rem;
     }
 
     #page:has(#mastheadToggle[aria-expanded="false"]) #header {
