@@ -15,11 +15,20 @@ import {
 } from "../../utils/LocalStorage";
 import { useReloadRosters } from "../../hooks/rosterContext";
 import { Popup } from '../../utils/Popup';
-import monsterShareURL from '../../utils/monsterShareURL';
+import { shareEncounter } from '../../utils/monsterShareURL';
 import BattlePhotoThumbnail from './BattlePhotoThumbnail';
 import StorageWarning from '../../utils/StorageWarning';
 import { compressImageForUpload } from '../../utils/imageCompression';
+import {
+  putPhoto,
+  getPhoto,
+  deletePhoto,
+  pruneOrphans,
+  dataUrlToBlob,
+  blobToDataUrl,
+} from '../../utils/photoStore';
 import { notify, confirmDialog } from '../../utils/notify';
+import Icon from '../Icon';
 
 interface SavedBattle {
   id: string;
@@ -28,7 +37,14 @@ interface SavedBattle {
   combatants: Combatant[];
   roundNumber: number;
   currentTurnIndex: number;
-  photo?: string; // Base64 encoded image
+  /**
+   * Legacy: the photo as a base64 data URL, inline. Read on load and moved
+   * into IndexedDB — see photoStore for why keeping it here was so expensive.
+   * Never written any more.
+   */
+  photo?: string;
+  /** Key into the IndexedDB photo store. */
+  photoId?: string;
 }
 
 interface ExportedData {
@@ -45,7 +61,18 @@ interface BattleManagerProps {
   onClose: () => void;
 }
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB, to stay inside the localStorage budget
+/**
+ * Ceiling on an imported file.
+ *
+ * This was 5MB "to stay inside the localStorage budget", but the two are not
+ * the same thing and the mismatch was a trap: photos travel in the file as
+ * base64, so an export with a dozen of them came out larger than the app would
+ * accept back — you could produce a backup you could not restore. Photos now
+ * go to IndexedDB on the way in, so the file size no longer bears on the
+ * localStorage budget at all, and this is just a guard against reading
+ * something absurd into memory.
+ */
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 const MAX_ENTRIES = 1000;
 
 const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
@@ -63,22 +90,64 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
   const [battleName, setBattleName] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [selectedBattle, setSelectedBattle] = useState<SavedBattle | null>(null);
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  /* Held as bytes with a preview URL beside them, rather than as a base64
+     string: it is what goes into the store, and it keeps a ~500KB string off
+     the heap for the whole time the dialog is open. */
+  const [selectedPhoto, setSelectedPhoto] = useState<
+    { full: Blob; thumb: Blob; previewUrl: string } | null
+  >(null);
   const [showImportConfirmPopup, setShowImportConfirmPopup] = useState(false);
 
   useEffect(() => {
     loadSavedBattles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadSavedBattles = () => {
+  const loadSavedBattles = async () => {
+    let stored: SavedBattle[] = [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.savedBattles);
-      if (stored) {
-        setSavedBattles(JSON.parse(stored));
-      }
+      const raw = localStorage.getItem(STORAGE_KEYS.savedBattles);
+      if (raw) stored = JSON.parse(raw);
+      if (!Array.isArray(stored)) stored = [];
     } catch (error) {
       console.error('Error loading saved battles:', error);
+      await notify('Your saved battles could not be read, so none are listed.', {
+        title: 'Saved battles unavailable',
+        tone: 'warning',
+      });
+      return;
     }
+
+    /* Move any inline photo into IndexedDB and drop it from localStorage.
+       This is the migration that reclaims the space: a single 1280x720 photo
+       was costing ~488KB of the ~5MB budget, so a user with three of them gets
+       roughly a third of their storage back the first time they open this
+       panel. */
+    let migrated = 0;
+    const cleaned: SavedBattle[] = [];
+    for (const battle of stored) {
+      if (battle.photo && !battle.photoId) {
+        const blob = dataUrlToBlob(battle.photo);
+        if (blob) {
+          // No separate thumbnail exists for legacy photos; the full one
+          // stands in until the battle is saved again.
+          await putPhoto(battle.id, { full: blob, thumb: blob });
+          migrated++;
+        }
+        const { photo: _dropped, ...rest } = battle;
+        void _dropped;
+        cleaned.push({ ...rest, photoId: blob ? battle.id : undefined });
+      } else {
+        cleaned.push(battle);
+      }
+    }
+
+    setSavedBattles(cleaned);
+    if (migrated > 0) {
+      await persistBattles(cleaned);
+    }
+    // Photos whose battle is long gone are just occupying space.
+    void pruneOrphans(cleaned.map((b) => b.photoId).filter((id): id is string => !!id));
   };
 
   /** Persist the battle list, reporting a full quota instead of throwing. */
@@ -106,23 +175,36 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
       return;
     }
 
+    const id = crypto.randomUUID(); // Date.now() collided when two saves landed in the same ms
+
+    // The photo goes to IndexedDB first: if that fails there is simply no
+    // photo, which must not stop the battle being saved.
+    let photoId: string | undefined;
+    if (selectedPhoto) {
+      await putPhoto(id, { full: selectedPhoto.full, thumb: selectedPhoto.thumb });
+      photoId = id;
+    }
+
     const newBattle: SavedBattle = {
-      id: crypto.randomUUID(), // Date.now() collided when two saves landed in the same ms
+      id,
       name: battleName.trim(),
       savedDate: new Date().toISOString(),
       combatants,
       roundNumber,
       currentTurnIndex,
-      photo: selectedPhoto || undefined,
+      photoId,
     };
 
     const updated = [...savedBattles, newBattle];
     // Write first — if the quota is blown, don't claim success.
-    if (!(await persistBattles(updated))) return;
+    if (!(await persistBattles(updated))) {
+      if (photoId) await deletePhoto(photoId);
+      return;
+    }
 
     setSavedBattles(updated);
     setBattleName('');
-    setSelectedPhoto(null);
+    clearSelectedPhoto();
     setShowSaveDialog(false);
     await notify(`"${newBattle.name}" saved.`, { title: 'Battle saved' });
   };
@@ -137,6 +219,8 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
 
     const updated = savedBattles.filter((b) => b.id !== id);
     if (!(await persistBattles(updated))) return;
+    // The photo is the expensive part; it goes with the battle.
+    if (target?.photoId) await deletePhoto(target.photoId);
     setSavedBattles(updated);
     if (selectedBattle?.id === id) {
       setSelectedBattle(null);
@@ -189,9 +273,30 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
     window.URL.revokeObjectURL(url);
   };
 
-  const exportAllToJson = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const exportAllToJson = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const exportDate = new Date().toISOString();
+
+    /* The file is text, so the photos have to come back out of IndexedDB as
+       base64 for the trip. Only the full-size one: a thumbnail is derived, and
+       doubling the file to carry something regenerable is a poor trade. */
+    const battlesWithPhotos: SavedBattle[] = [];
+    for (const battle of savedBattles) {
+      if (!battle.photoId) {
+        battlesWithPhotos.push(battle);
+        continue;
+      }
+      const stored = await getPhoto(battle.photoId);
+      if (!stored) {
+        battlesWithPhotos.push(battle);
+        continue;
+      }
+      try {
+        battlesWithPhotos.push({ ...battle, photo: await blobToDataUrl(stored.full) });
+      } catch {
+        battlesWithPhotos.push(battle);
+      }
+    }
 
     const allData: ExportedData = {
       _header: {
@@ -209,7 +314,7 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
       combatants: getCombatants() ?? [],
       round: getRoundNumber(),
       currentTurnIndex,
-      battles: savedBattles ?? [],
+      battles: battlesWithPhotos,
     };
 
     downloadFile({
@@ -217,6 +322,55 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
       fileName: `BattleTracker-data-${exportDate.replace(/[:.]/g, '-')}.json`,
       fileType: 'application/json',
     });
+  };
+
+  /**
+   * Share what is in the Monster Manager as a named encounter.
+   *
+   * The roster is what a DM preps into, so it is the natural thing to send.
+   * Read at click time rather than held in state — this panel does not
+   * otherwise care about the roster, and a stale copy would share the wrong
+   * monsters.
+   */
+  const shareRoster = async () => {
+    await shareEncounter(getMonsters() ?? []);
+  };
+
+  /**
+   * Share the monsters out of a saved battle.
+   *
+   * The heroes are left behind on purpose: the recipient brings their own
+   * party. The battle's name is offered as the encounter's, since that is
+   * almost always what it should be called.
+   */
+  const shareSavedBattle = async (battle: SavedBattle) => {
+    const monsters = battle.combatants
+      .filter((c) => c.type === 'monster')
+      .map((c) => ({
+        id: c.id,
+        name: c.name,
+        link: c.link ?? '',
+        // Full health, not whatever they were left on: an encounter is the
+        // fight before anyone has rolled.
+        hp: c.maxHp,
+        maxHp: c.maxHp,
+        currHp: c.maxHp,
+        ac: c.ac,
+        str: c.str, dex: c.dex, con: c.con,
+        int: c.int, wis: c.wis, cha: c.cha,
+        pp: c.pp, init: c.init,
+        hidden: false,
+        present: true,
+        conditions: [],
+      }));
+
+    if (monsters.length === 0) {
+      await notify(`"${battle.name}" has no monsters in it to share.`, {
+        title: 'Nothing to share',
+      });
+      return;
+    }
+    await shareEncounter(monsters, { suggestedName: battle.name });
   };
 
   const handleImport = () => {
@@ -316,28 +470,85 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
           return;
         }
 
+        /* The rosters and the saved battles MERGE — that is what the prompt
+           promises and what makes importing safe to do mid-session.
+
+           The battle in progress is the exception, and it used to be replaced
+           without asking. A file exported while no battle was running carries
+           `combatants: []`, so importing a friend's backup could silently
+           clear the fight on the table. It is now only touched when there is
+           something to put there AND the user says so. */
+        const wantsBattle = incomingCombatants.length > 0;
+        let replaceBattle = false;
+        if (wantsBattle) {
+          replaceBattle =
+            combatants.length === 0 ||
+            (await confirmDialog(
+              `That file has a battle in it (${incomingCombatants.length} combatants). ` +
+                `Loading it replaces the one you have in progress. Your heroes, monsters and saved ` +
+                `battles are merged either way.`,
+              {
+                title: 'Replace the battle in progress?',
+                tone: 'warning',
+                confirmLabel: 'Replace battle',
+                cancelLabel: 'Keep mine',
+              }
+            ));
+        }
+
         // Every write goes through the shared key constants. The round used to
         // be written to "roundnumber" here while the app read "roundNumber",
         // so the imported round was silently discarded.
+        /* A file's battles carry their photo inline, which is where they used
+           to live. Move each one into IndexedDB and strip it from the record
+           before any of this reaches localStorage — importing a backup with
+           photos in it would otherwise blow the budget on the spot. */
+        const rehomed: SavedBattle[] = [];
+        for (const battle of mergedBattles) {
+          if (!battle.photo) {
+            rehomed.push(battle);
+            continue;
+          }
+          const blob = dataUrlToBlob(battle.photo);
+          const { photo: _inline, ...rest } = battle;
+          void _inline;
+          if (blob) {
+            await putPhoto(battle.id, { full: blob, thumb: blob });
+            rehomed.push({ ...rest, photoId: battle.id });
+          } else {
+            rehomed.push(rest);
+          }
+        }
+
         storeHeroes(mergedHeroes);
         storeMonsters(mergedMonsters);
-        storeCombatants(incomingCombatants, round);
-        await persistBattles(mergedBattles);
+        await persistBattles(rehomed);
 
         // Push the imported state into the live app instead of reloading.
         reloadRosters();
-        setSavedBattles(mergedBattles);
-        setCombatants(incomingCombatants);
-        setRoundNumber(round);
-        setCurrentTurnIndex(
-          Math.min(
-            Math.max(typeof importedData.currentTurnIndex === 'number' ? importedData.currentTurnIndex : 0, 0),
-            Math.max(incomingCombatants.length - 1, 0)
-          )
-        );
+        setSavedBattles(rehomed);
+
+        if (replaceBattle) {
+          storeCombatants(incomingCombatants, round);
+          setCombatants(incomingCombatants);
+          setRoundNumber(round);
+          setCurrentTurnIndex(
+            Math.min(
+              Math.max(typeof importedData.currentTurnIndex === 'number' ? importedData.currentTurnIndex : 0, 0),
+              Math.max(incomingCombatants.length - 1, 0)
+            )
+          );
+        }
+
+        const battleLine = replaceBattle
+          ? ' The battle in the file is now on the table.'
+          : wantsBattle
+            ? ' The battle in the file was left out; yours is untouched.'
+            : '';
 
         await notify(
-          `Imported ${incomingHeroes.length} heroes, ${incomingMonsters.length} monsters and ${incomingBattles.length} saved battles.`,
+          `Imported ${incomingHeroes.length} heroes, ${incomingMonsters.length} monsters and ` +
+            `${incomingBattles.length} saved battles.${battleLine}`,
           { title: 'Import complete' }
         );
       } catch (error) {
@@ -358,6 +569,14 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
 
     reader.readAsText(file);
   };
+
+  /** Release the preview's object URL — one per pick, or they accumulate. */
+  const clearSelectedPhoto = useCallback(() => {
+    setSelectedPhoto((prev) => {
+      if (prev) URL.revokeObjectURL(prev.previewUrl);
+      return null;
+    });
+  }, []);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -386,7 +605,15 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
         quality: 0.7,
       });
 
-      setSelectedPhoto(compressed.fullScreen);
+      /* Both sizes are kept now. The thumbnail was being generated and thrown
+         away, so every card in the list was decoding the full-size image to
+         draw a 200px box. */
+      const full = dataUrlToBlob(compressed.fullScreen);
+      const thumb = dataUrlToBlob(compressed.thumbnail) ?? full;
+      if (!full || !thumb) throw new Error('Could not read the compressed image');
+
+      clearSelectedPhoto();
+      setSelectedPhoto({ full, thumb, previewUrl: URL.createObjectURL(thumb) });
     } catch (error) {
       console.error('Image compression failed:', error);
       await notify('That image could not be processed. Try a different one.', {
@@ -399,7 +626,7 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
   };
 
   const removePhoto = () => {
-    setSelectedPhoto(null);
+    clearSelectedPhoto();
   };
 
   return (
@@ -413,10 +640,22 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
           <h3>Save Current Battle</h3>
           {combatants.length > 0 ? (
             <div>
+              {/* What is on the table right now, as figures rather than a
+                  sentence - it is the thing being saved. */}
               <p className="battle-info">
-                Current: {combatants.filter(c => c.type === 'hero').length} heroes,
-                {' '}{combatants.filter(c => c.type === 'monster').length} monsters
-                {' '}(Round {roundNumber})
+                {([
+                  ['hero', combatants.filter(c => c.type === 'hero').length, 'Hero'],
+                  ['monster', combatants.filter(c => c.type === 'monster').length, 'Monster'],
+                ] as const).map(([key, count, noun]) => (
+                  <span className="battleFact" key={key}>
+                    <span className="battleFactValue">{count}</span>
+                    <span className="battleFactLabel">{count === 1 ? noun : `${noun}s`}</span>
+                  </span>
+                ))}
+                <span className="battleFact">
+                  <span className="battleFactValue">{roundNumber}</span>
+                  <span className="battleFactLabel">Round</span>
+                </span>
               </p>
 
               {!showSaveDialog ? (
@@ -424,7 +663,7 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
                   className="btn-save-battle"
                   onClick={() => setShowSaveDialog(true)}
                 >
-                  💾 Save Current Battle
+                  Save Current Battle
                 </button>
               ) : (
                 <div className="save-dialog">
@@ -441,7 +680,7 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
                   />
                   <div className="photo-upload-section">
                     <label htmlFor="photo-upload" className="photo-upload-label">
-                      📷 Add Reference Photo (optional)
+                      Reference photo <span className="optionalNote">(optional)</span>
                     </label>
                     <input
                       id="photo-upload"
@@ -455,18 +694,18 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
                       onClick={() => document.getElementById('photo-upload')?.click()}
                       className="btn-upload-photo"
                     >
-                      {selectedPhoto ? '✓ Photo Selected' : '+ Choose Photo'}
+                      {selectedPhoto ? 'Photo attached' : 'Choose photo'}
                     </button>
 
                     {selectedPhoto && (
                       <div className="photo-preview">
-                        <img src={selectedPhoto} alt="Reference photo preview" />
+                        <img src={selectedPhoto.previewUrl} alt="Reference photo preview" />
                         <button
                           type="button"
                           onClick={removePhoto}
                           className="btn-remove-photo"
                         >
-                          ✕ Remove
+                          Remove
                         </button>
                       </div>
                     )}
@@ -476,7 +715,7 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
                     <button onClick={() => {
                       setShowSaveDialog(false);
                       setBattleName('');
-                      setSelectedPhoto(null);
+                      clearSelectedPhoto();
                     }}>Cancel</button>
                   </div>
                 </div>
@@ -489,21 +728,30 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
 
         {/* Export/Import */}
         <div id="exportImportBattles">
-          <p>
+          <h3>Your Data</h3>
+          <div className="dataRow">
             <button id="buttonDownloadData" onClick={exportAllToJson}>
-              Download all your data
+              Download everything
             </button>
-          </p>
-          <p id="uploadData">
-            <button id="inputImportData" onClick={handleImport}>Upload your data</button>
-          </p>
-          <p>
-            <button id='buttonMonsterShareURL' onClick={monsterShareURL.generateMonsterShareURL}>
-              Export Monster Share URL
+            <span className="dataNote">
+              Heroes, monsters, saved battles and the current fight, as one file.
+            </span>
+          </div>
+          <div className="dataRow">
+            <button id="inputImportData" onClick={handleImport}>Upload a file</button>
+            <span className="dataNote">
+              Merges that file into what you already have - it does not replace it.
+            </span>
+          </div>
+          <div className="dataRow">
+            <button id="buttonMonsterShareURL" onClick={shareRoster}>
+              Share encounter
             </button>
-            This will generate a link that will allow someone to import the monsters in your monster
-            manager at the time it is generated.
-          </p>
+            <span className="dataNote">
+              Names your Monster Manager roster and copies a link to it. Whoever opens it gets the
+              monsters — they bring their own heroes.
+            </span>
+          </div>
         </div>
 
         {/* Saved Battles List */}
@@ -527,8 +775,8 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
                       className={`battle-card ${isSelected ? 'selected' : ''}`}
                       onClick={() => setSelectedBattle(isSelected ? null : battle)}
                     >
-                      {battle.photo && (
-                        <BattlePhotoThumbnail photo={battle.photo} name={battle.name} />
+                      {battle.photoId && (
+                        <BattlePhotoThumbnail photoId={battle.photoId} name={battle.name} />
                       )}
 
                       <div className="battle-card-header">
@@ -542,7 +790,18 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
                             }}
                             title="Load this battle"
                           >
-                            ▶️ Load
+                            Load
+                          </button>
+                          <button
+                            className="btn-share"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              shareSavedBattle(battle);
+                            }}
+                            title="Copy a link to this battle's monsters"
+                            aria-label={`Share the monsters from ${battle.name}`}
+                          >
+                            Share
                           </button>
                           <button
                             className="btn-delete"
@@ -553,29 +812,33 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
                             title="Delete this battle"
                             aria-label={`Delete ${battle.name}`}
                           >
-                            🗑️
+                            <Icon name="delete" color="currentColor" size={18} />
                           </button>
                         </div>
                       </div>
 
                       <div className="battle-card-info">
-                        <p className="battle-date">📅 {formatDate(battle.savedDate)}</p>
                         <p className="battle-stats">
-                          👥 {stats.heroes} Heroes | 👹 {stats.monsters} Monsters |
-                          🎲 Round {battle.roundNumber}
+                          <span><b>{stats.heroes}</b> {stats.heroes === 1 ? 'hero' : 'heroes'}</span>
+                          <span><b>{stats.monsters}</b> {stats.monsters === 1 ? 'monster' : 'monsters'}</span>
+                          <span>round <b>{battle.roundNumber}</b></span>
                         </p>
+                        <p className="battle-date">{formatDate(battle.savedDate)}</p>
                       </div>
 
                       {isSelected && (
                         <div className="battle-card-details">
-                          <h5>Combatants:</h5>
+                          <h5>Combatants</h5>
                           <ul>
                             {[...battle.combatants]
                               .sort((a, b) => b.initiative - a.initiative)
                               .map(c => (
-                                <li key={c.id}>
-                                  {c.type === 'hero' ? '👤' : '👹'} {c.name}
-                                  {' '}(Init: {c.initiative}, HP: {c.currHp}/{c.maxHp})
+                                <li key={c.id} className={`rosterLine is-${c.type}`}>
+                                  <span className="rosterInit">{c.initiative}</span>
+                                  <span className="rosterName">{c.name}</span>
+                                  <span className="rosterHp">
+                                    {c.currHp}/{c.maxHp}
+                                  </span>
                                 </li>
                               ))}
                           </ul>
@@ -589,7 +852,7 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
         </div>
 
         <Popup
-          message="Importing merges the file into what you already have. Have you saved your current battle?"
+          message="Your heroes, monsters and saved battles are merged with what the file holds — nothing is overwritten. If the file also contains a battle in progress, you will be asked before it replaces yours."
           isOpen={showImportConfirmPopup}
           onCancel={() => setShowImportConfirmPopup(false)}
           onContinue={handleImportContinue}

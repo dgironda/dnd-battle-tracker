@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Themed replacements for window.alert / window.confirm.
@@ -18,7 +18,10 @@ interface DialogRequest {
   tone: DialogTone;
   confirmLabel: string;
   cancelLabel?: string;
-  resolve: (ok: boolean) => void;
+  /** Present when the dialog is asking for a line of text. */
+  input?: { placeholder?: string; initial?: string; maxLength?: number };
+  /** true/false for notify and confirm; the typed string, or null, for a prompt. */
+  resolve: (value: boolean | string | null) => void;
 }
 
 type Listener = (queue: DialogRequest[]) => void;
@@ -38,7 +41,9 @@ function enqueue(req: Omit<DialogRequest, "id">): void {
   // absent.
   if (!listener) {
     const text = req.title ? `${req.title}\n\n${req.message}` : req.message;
-    if (req.cancelLabel === undefined) {
+    if (req.input) {
+      req.resolve(typeof prompt === "function" ? prompt(text, req.input.initial ?? "") : null);
+    } else if (req.cancelLabel === undefined) {
       if (typeof alert === "function") alert(text);
       req.resolve(true);
     } else {
@@ -63,7 +68,7 @@ export function notify(
       title: options.title,
       tone: options.tone ?? "info",
       confirmLabel: options.confirmLabel ?? "OK",
-      resolve,
+      resolve: resolve as (v: boolean | string | null) => void,
     });
   });
 }
@@ -85,17 +90,57 @@ export function confirmDialog(
       tone: options.tone ?? "warning",
       confirmLabel: options.confirmLabel ?? "Continue",
       cancelLabel: options.cancelLabel ?? "Cancel",
-      resolve,
+      resolve: resolve as (v: boolean | string | null) => void,
     });
   });
 }
 
 /**
- * Renders whatever notify()/confirmDialog() have queued. Mount once, near the
- * root of the tree.
+ * Ask for a line of text. Resolves to the trimmed string, or null if dismissed.
+ *
+ * The third of the set, so naming an encounter does not have to fall back to
+ * window.prompt in an app where nothing else does.
+ */
+export function promptDialog(
+  message: string,
+  options: {
+    title?: string;
+    tone?: DialogTone;
+    confirmLabel?: string;
+    cancelLabel?: string;
+    placeholder?: string;
+    initial?: string;
+    maxLength?: number;
+  } = {}
+): Promise<string | null> {
+  return new Promise((resolve) => {
+    enqueue({
+      message,
+      title: options.title,
+      tone: options.tone ?? "info",
+      confirmLabel: options.confirmLabel ?? "OK",
+      cancelLabel: options.cancelLabel ?? "Cancel",
+      input: {
+        placeholder: options.placeholder,
+        initial: options.initial,
+        maxLength: options.maxLength ?? 80,
+      },
+      resolve: resolve as (v: boolean | string | null) => void,
+    });
+  });
+}
+
+/**
+ * Renders whatever notify()/confirmDialog()/promptDialog() have queued. Mount
+ * once, near the root of the tree.
  */
 export function DialogHost() {
   const [items, setItems] = useState<DialogRequest[]>([]);
+  const [draft, setDraft] = useState("");
+  /* The Enter/Escape handler is bound once per dialog, so it would otherwise
+     close over the draft as it was when the dialog opened — always "". */
+  const draftRef = useRef("");
+  draftRef.current = draft;
 
   useEffect(() => {
     listener = setItems;
@@ -106,13 +151,19 @@ export function DialogHost() {
 
   const current = items[0];
 
+  // Each prompt starts from its own initial value rather than whatever the
+  // previous one was left holding.
+  useEffect(() => {
+    setDraft(current?.input?.initial ?? "");
+  }, [current]);
+
   useEffect(() => {
     if (!current) return;
 
     const settleCurrent = (ok: boolean) => {
       queue = queue.filter((q) => q.id !== current.id);
       publish();
-      current.resolve(ok);
+      current.resolve(current.input ? (ok ? draftRef.current.trim() || null : null) : ok);
     };
 
     const onKey = (e: KeyboardEvent) => {
@@ -133,7 +184,7 @@ export function DialogHost() {
   const settle = (ok: boolean) => {
     queue = queue.filter((q) => q.id !== current.id);
     publish();
-    current.resolve(ok);
+    current.resolve(current.input ? (ok ? draft.trim() || null : null) : ok);
   };
 
   return (
@@ -147,13 +198,30 @@ export function DialogHost() {
       >
         {current.title && <h3 className="appDialogTitle">{current.title}</h3>}
         <p className="appDialogMessage">{current.message}</p>
+        {current.input && (
+          <input
+            type="text"
+            className="appDialogInput"
+            value={draft}
+            placeholder={current.input.placeholder}
+            maxLength={current.input.maxLength}
+            autoFocus
+            onChange={(e) => setDraft(e.target.value)}
+          />
+        )}
         <div className="appDialogButtons">
           {current.cancelLabel !== undefined && (
             <button type="button" className="appDialogCancel" onClick={() => settle(false)}>
               {current.cancelLabel}
             </button>
           )}
-          <button type="button" className="appDialogConfirm" autoFocus onClick={() => settle(true)}>
+          <button
+            type="button"
+            className="appDialogConfirm"
+            autoFocus={!current.input}
+            disabled={!!current.input && draft.trim() === ""}
+            onClick={() => settle(true)}
+          >
             {current.confirmLabel}
           </button>
         </div>

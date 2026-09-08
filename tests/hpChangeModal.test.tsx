@@ -96,7 +96,10 @@ describe('HpChangeModal', () => {
   it('renders combatant name and current HP', () => {
     renderModal({ combatant: makeCombatant({ name: 'Goblin', currHp: 7, maxHp: 12 }) });
     expect(screen.getByRole('heading', { level: 3, name: 'Goblin' })).toBeInTheDocument();
-    expect(screen.getByText(/Current HP: 7 \/ 12/)).toBeInTheDocument();
+    // The readout is a labelled figure now rather than the sentence
+    // "Current HP: 7 / 12", so the label and the number are asserted apart.
+    expect(screen.getByText('Current HP')).toBeInTheDocument();
+    expect(document.querySelector('.hpReadout .hpStatValue')?.textContent).toBe('7/12');
   });
 
   it('shows error when Take Damage is used with empty amount', () => {

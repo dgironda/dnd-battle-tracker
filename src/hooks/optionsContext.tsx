@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
 import { DEVMODE } from "../utils/devmode";
 import { STORAGE_KEYS, writeKey } from "../utils/LocalStorage";
+import { DEFAULT_WALLPAPER, isWallpaperId, type WallpaperId } from "../constants/Wallpapers";
 
 interface Settings {
   version: 'twentyFourteen' | 'twentyTwentyFour';
@@ -9,6 +10,8 @@ interface Settings {
   conditionReminderOn: boolean;
   currentTurnTime: boolean;
   tourReady: boolean;
+  /** Which tile the page is papered with. See constants/Wallpapers.ts. */
+  wallpaper: WallpaperId;
 }
 
 interface GlobalContextType {
@@ -23,6 +26,7 @@ const DEFAULT_SETTINGS: Settings = {
   conditionReminderOn: true,
   currentTurnTime: true,
   tourReady: true,
+  wallpaper: DEFAULT_WALLPAPER,
 };
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -40,7 +44,16 @@ function getSettings(): Settings {
     if (!stored) return { ...DEFAULT_SETTINGS };
     const parsed = JSON.parse(stored);
     if (parsed === null || typeof parsed !== "object") return { ...DEFAULT_SETTINGS };
-    return { ...DEFAULT_SETTINGS, ...parsed };
+    const merged: Settings = { ...DEFAULT_SETTINGS, ...parsed };
+
+    // Settings saved before the wallpaper grid existed only recorded a theme.
+    // Someone who had chosen dark mode should land on the dark paper rather
+    // than being quietly put back on parchment, and an id we no longer ship
+    // falls back to the default instead of leaving the page unpapered.
+    if (!isWallpaperId(merged.wallpaper)) {
+      merged.wallpaper = merged.theme === "dark" ? "midnight" : DEFAULT_WALLPAPER;
+    }
+    return merged;
   } catch (error) {
     console.error("Error loading settings:", error);
     return { ...DEFAULT_SETTINGS };
@@ -57,6 +70,12 @@ export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     document.documentElement.dataset.theme = settings.theme;
     document.documentElement.style.colorScheme = settings.theme;
   }, [settings.theme]);
+
+  // The wallpaper is a separate attribute so the two are independent in CSS:
+  // the theme drives the app's colours, this drives only the paper.
+  useEffect(() => {
+    document.documentElement.dataset.wallpaper = settings.wallpaper;
+  }, [settings.wallpaper]);
 
   const updateSetting = useCallback(<K extends keyof Settings>(key: K, value: Settings[K]) => {
     setSettings((prevSettings: Settings) => {

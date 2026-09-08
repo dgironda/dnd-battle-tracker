@@ -164,7 +164,11 @@ button {
   cursor: pointer;
   background: var(--color-btn2);
   color: var(--color-bg1);
-  font-family: "Germania One", system-ui !important;
+  /* Was !important, which silently beat every other button font-family in the
+     app — the managers, the modals and the panels all ask for Caudex and none
+     of them were getting it. A bare button still falls back to Germania One;
+     one that states its own face now keeps it. */
+  font-family: "Germania One", system-ui;
   font-size: 1.15rem;
   transition: background 0.2s ease;
 }
@@ -370,17 +374,6 @@ sup {
   margin: 1rem 0;
   text-align: center;
 }
-
-#patreonLink>button {
-  background-color: var(--color-patreon);
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  padding: .75rem 1.2rem;
-  cursor: pointer;
-}
-
 #patreonLink>p {
   color: var(--color-greengo);
   font-weight: bold;
@@ -415,25 +408,6 @@ sup {
   display: flex;
   gap: 1rem;
 }
-
-#patreonLogin {
-  background-color: var(--color-patreon);
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  cursor: pointer;
-}
-
-#patreonContinue {
-  background-color: #444;
-  color: white;
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  cursor: pointer;
-}
-
 .editableCellNum {
   width: 60px;
   padding: 2px; 
@@ -610,6 +584,11 @@ sup {
 }
 
 #conditionReminderContent {
+  /* Its overlay is `pointer-events: none` so the tracker stays usable behind
+     it; the card takes its own clicks back so that clicking the reminder
+     dismisses it rather than hitting whatever is underneath. */
+  pointer-events: auto;
+  cursor: pointer;
   background: var(--color-bg2);
   padding: 1rem;
   border-radius: 4px;
@@ -705,49 +684,11 @@ sup {
   margin: .5rem 5%;
   width: 90%;
 }
-
-.hpChangeModalDmgButton {
-  flex: 1;
-  padding: 0.75rem;
-  background-color: var(--color-redwarn);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.hpChangeModalHealButton, .btn-continue {
-  flex: 1;
-  padding: 0.75rem;
-  background-color: var(--color-greengo);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
 .popup-buttons {
   display: flex;
   flex-wrap: wrap;
   justify-items: center;
 }
-
-.hpChangeModalCancelButton, .btn-cancel {
-  width: 75%;
-  margin: 0.5rem 10%;
-  padding: 0.5rem;
-  background-color: var(--color-shadow);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
 #conCheckOuter {
   position: fixed;
   top: 0;
@@ -800,31 +741,6 @@ sup {
   display: flex;
   gap: 1rem;
 }
-
-#conPassButton {
-  flex: 1;
-  padding: .75rem;
-  background-color: var(--color-greengo);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-#conFailButton {
-  flex: 1;
-  padding: .75rem;
-  background-color: var(--color-redwarn);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
 #noCombatants, #noMonsters, #noHeroes {
   text-align: center; 
   color: var(--color-chk1); 
@@ -1111,22 +1027,6 @@ sup {
   font-weight: 500;
   color: var(--color-fg);
 }
-
-.btn-upload-photo {
-  padding: 8px 16px;
-  background: var(--color-photo-upload-bg);
-  color: var(--color-photo-upload-text);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s ease;
-}
-
-.btn-upload-photo:hover {
-  background: var(--color-photo-upload-bg-hover);
-}
-
 .photo-preview {
   margin-top: 10px;
   position: relative;
@@ -1290,12 +1190,17 @@ sup {
 @media (orientation: landscape) {
   #page {
     display: grid;
-    /* The banner takes its own row above the tracker rather than sharing one:
-       its height is reserved whether or not anything fills it, so the tracker
-       never shifts when an ad loads late or fails. */
+    /* The banner sits in the empty space that was already there above the
+       round and the turn timer, rather than in a row of its own between them
+       and the tracker. Its row is `auto` and the round's row took the `.2fr`
+       the pair used to share, so the two rows still add up to what they did:
+       moving the ad up does not push the tracker down.
+
+       Its height is still reserved whether or not anything fills it, so the
+       tracker cannot shift when an ad loads late or fails. */
     grid-template-areas:
+      "header sbbutt adbanner"
       "header sbbutt round"
-      "header adbanner adbanner"
       "header battletracker battletracker"
       "header footer footer";
     /* Was `.24fr .3fr .8fr`. Those do not sum to 1, and once the Start Battle
@@ -1304,10 +1209,34 @@ sup {
        200px. The rail is a proportion with a floor, the controls take what the
        ribbon needs, and the last column absorbs the rest, so the row always
        fills the viewport. */
-    grid-template-columns: minmax(21rem, 18%) auto minmax(0, 1fr);
-    grid-template-rows: .2fr auto 1fr .2fr;
+    /* The 21rem floor is what the rail needs on a roomy screen, and on a
+       1024x768 window it was a third of the page: 336px of rail against 676px
+       of tracker, which is where the action headings and the hit points ran
+       out of column. The floor gives way below about 1245px, where 27vw is the
+       smaller of the two — the rail is artwork and can be read smaller, the
+       table is numbers being read mid-fight and cannot. */
+    grid-template-columns: minmax(min(21rem, 27vw), 18%) auto minmax(0, 1fr);
+    /* The banner's row is `auto`, so with no ad to hold it — a supporter, or a
+       fill that fails — it collapses to nothing and the page closes up rather
+       than opening a band of empty space above the round. `#round` carries its
+       own top margin for the no-ad case (see below). */
+    grid-template-rows: auto .2fr 1fr .2fr;
     max-width: 100vw;
     height: 100vh;
+  }
+
+  /* Only the COLUMNS change when there is a tower promo in the rail: that slot
+     reserves a fixed 300px — a network creative is 300px whatever the column
+     is — so the rail cannot give way below it the way it can when there is
+     nothing but artwork in there. At 1024 the 27vw term left the column 276px
+     and the ad sat clipped and flush against the left edge of the window.
+
+     Everything else stays in the rule above. Splitting the row template out
+     here as well left a supporter's page with no row template at all: the
+     rows fell back to implicit `auto`, the rail's height went into the empty
+     banner row, and a 57px band of nothing opened above the round. */
+  #page:has(.adSlot-tower) {
+    grid-template-columns: minmax(min(21rem, max(27vw, 20.5rem)), 18%) auto minmax(0, 1fr);
   }
   #header {
   grid-area: header;
@@ -1321,6 +1250,14 @@ sup {
   grid-template-rows: auto auto auto auto auto 1fr auto auto auto;
   align-items: start;
   justify-items: center;
+  /* The safety valve. --button-width is sized from the viewport height so this
+     should not engage on any ordinary screen, but under about 700px tall the
+     rail cannot hold the logo, four buttons, the patreon block and a 120px
+     promo at any legible size — so it scrolls rather than overlapping itself
+     or running off the bottom of the page. */
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
   }
   #logo {
     grid-area: logo;
@@ -1333,12 +1270,18 @@ sup {
   #monsterManagerButton {
     grid-area: mmbutt;
     max-height: fit-content;
-    margin-bottom: 2rem;
+    /* Was 2rem, which set the monster scroll apart from the battle sign for no
+       reason — they are siblings in the same list — and cost the rail 20px it
+       does not have on a short screen. */
+    margin-bottom: 0.5rem;
   }
   #buttonStartBattle {
     grid-area: sbbutt;
-    margin-top: auto;
     margin-left: 5vw;
+    /* The ribbon now spans the banner row and the round row, so it centres
+       against both. `margin-top: auto` used to sit here and silently beat
+       align-self — an auto margin absorbs the free space alignment would
+       have used — which pinned it to the bottom of its area. */
     align-self: center;
   }
   #patreonLink {
@@ -1361,7 +1304,26 @@ sup {
   }
   
   #round {
+    /* This was never actually assigned its area — it was auto-placed, and only
+       landed in the right cell because the old template happened to put
+       `round` in the first row. Once the banner took that row, the round and
+       the timer were auto-placed into the banner's cell and rode to the top of
+       the page. Named explicitly now. */
+    grid-area: round;
+    /* A percentage margin resolves against the containing block's WIDTH, not
+       its height, so this is ~10% of the column — the offset that sat the
+       round and the timer level with the Start Battle ribbon before the
+       banner moved above them. With an ad present the row above takes its own
+       height from the `fr` rows, so the round shifts down by the ad and the
+       tracker stays where it is. */
     margin-top: 10%;
+  }
+
+  /* ...and only for that case. When a banner IS above the round it already
+     holds the space, and keeping the margin as well would push the tracker
+     down by the ad's full height instead of the ~20px the row cannot absorb. */
+  #page:has(.adSlot-banner) #round {
+    margin-top: 0;
   }
   #buttonResetCombat {
     justify-self: end;

@@ -16,6 +16,7 @@ import {
   underlineVariant,
 } from "../../utils/handArt";
 import { HpChangeModal } from "../../utils/dmg-heal";
+import { getTurnStart, storeTurnStart } from "../../utils/LocalStorage";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
 import { useCombat } from "./CombatContext";
@@ -26,7 +27,9 @@ import { MonsterStatBlockHover } from "./MonsterStatBlockHover";
 import { useBattleManager } from "../../hooks/useStartBattle";
 import { ConditionReminder } from "./ConditionReminder";
 import SBPopup from "./SBPopup";
+import { EditBattleDialog } from "./EditBattleDialog";
 import HeartIcon from "../../assets/draftsvgs_v2/icon_hp.svg";
+import TempHpIcon from "../../assets/draftsvgs_v2/icon_temphp.svg";
 
 const numericFields: (keyof Combatant)[] = [
   "hp", "currHp", "maxHp", "ac", "str", "dex", "con", "int", "wis", "cha", "pp", "init", "tHp",
@@ -215,15 +218,35 @@ const BattleTracker: React.FC = () => {
 
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingConditions, setEditingConditions] = useState<string | null>(null);
-  const [hpModalCombatant, setHpModalCombatant] = useState<Combatant | null>(null);
+  /* Which combatant the HP window is open on — the ID, not a copy of them.
+     It used to hold a snapshot taken when the window opened, so editing
+     temporary hit points inside it wrote to the real combatant while the
+     window went on showing the stale figure: it looked stuck on 0 until you
+     closed it. Everything the window shows is read live now, which also keeps
+     the death-save tally and the conditions current while it is open. */
+  const [hpModalId, setHpModalId] = useState<string | null>(null);
   const [conditionModalCombatant, setConditionModalCombatant] = useState<Combatant | null>(null);
   const [showConditionModal, setShowConditionModal] = useState(false);
   const [isSBPopupOpen, setIsSBPopupOpen] = useState(false);
-  const [lastRun, setLastRun] = useState<number | null>(null);
+  /* Seeded from storage so the timer survives a reload: the round number and
+     the turn pointer already did, and a timer that alone forgot where it was
+     read as the timer being broken. */
+  const [isEditBattleOpen, setIsEditBattleOpen] = useState(false);
+  const [lastRun, setLastRunState] = useState<number | null>(() => getTurnStart());
+
+  const setLastRun = useCallback((startedAt: number | null) => {
+    setLastRunState(startedAt);
+    storeTurnStart(startedAt);
+  }, []);
 
   const { settings } = useGlobalContext();
   const timerRef = useRef<HTMLSpanElement>(null);
   const processedTurnRef = useRef(-1);
+
+  const hpModalCombatant = useMemo(
+    () => (hpModalId === null ? null : combatants.find((c) => c.id === hpModalId) ?? null),
+    [combatants, hpModalId]
+  );
 
   const sortedCombatants = useMemo(
     () => [...combatants].sort((a, b) => b.initiative - a.initiative),
@@ -349,6 +372,48 @@ const BattleTracker: React.FC = () => {
     handleStartBattle();
   };
 
+  /**
+   * Take someone out of the running battle.
+   *
+   * The turn has to survive it: the index points into the initiative-sorted
+   * list, so removing anyone above the current combatant would otherwise hand
+   * the turn to the wrong person. Whoever is up stays up, tracked by id rather
+   * than by position, and if it is THEM being removed the turn passes to
+   * whoever slides into their slot.
+   */
+  const removeFromBattle = useCallback(
+    (id: string) => {
+      const activeId = sortedCombatants[safeTurnIndex]?.id;
+      const remaining = combatants.filter((c) => c.id !== id);
+      setCombatants(remaining);
+
+      if (remaining.length === 0) {
+        setCurrentTurnIndex(0);
+        return;
+      }
+
+      const nextSorted = [...remaining].sort((a, b) => b.initiative - a.initiative);
+      if (id === activeId) {
+        setCurrentTurnIndex(Math.min(safeTurnIndex, nextSorted.length - 1));
+        return;
+      }
+      const stillAt = nextSorted.findIndex((c) => c.id === activeId);
+      setCurrentTurnIndex(
+        stillAt >= 0 ? stillAt : Math.min(safeTurnIndex, nextSorted.length - 1)
+      );
+    },
+    [combatants, sortedCombatants, safeTurnIndex, setCombatants, setCurrentTurnIndex]
+  );
+
+  /** Everyone out, and the battle back to not having started. */
+  const clearBattle = useCallback(() => {
+    setCombatants([]);
+    setCurrentTurnIndex(0);
+    // 0 is the no-battle round: a battle starts at 1 (see useStartBattle).
+    setRoundNumber(0);
+    setLastRun(null);
+  }, [setCombatants, setCurrentTurnIndex, setRoundNumber, setLastRun]);
+
   const handleNextTurn = useCallback(() => {
     setLastRun(Date.now());
 
@@ -410,7 +475,7 @@ const BattleTracker: React.FC = () => {
 
     setCurrentTurnIndex(nextIndex);
     if (isNewRound) setRoundNumber(roundNumber + 1);
-  }, [sortedCombatants, safeTurnIndex, roundNumber, setCombatants, setCurrentTurnIndex, setRoundNumber]);
+  }, [sortedCombatants, safeTurnIndex, roundNumber, setCombatants, setCurrentTurnIndex, setRoundNumber, setLastRun]);
 
   // Always-current handle on the active combatant, so effects can read it
   // without taking a dependency on every mutation of the object.
@@ -438,7 +503,7 @@ const BattleTracker: React.FC = () => {
     if (processedTurnRef.current === totalTurns) return;
 
     if (activeCombatant.conditions.includes("Death Saves")) {
-      setHpModalCombatant(activeCombatant);
+      setHpModalId(activeCombatant.id);
       processedTurnRef.current = totalTurns;
       if (DEVMODE) console.log(activeCombatant.name, "needs to make a death saving throw.");
     }
@@ -489,6 +554,61 @@ const BattleTracker: React.FC = () => {
     // turn pointer moving.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [combatants]);
+
+  /**
+   * Edits in the Hero Manager reach the hero who is already fighting.
+   *
+   * A combatant is a copy taken when the battle started, so fixing a typo in a
+   * name or correcting an AC mid-session used to change the roster and leave
+   * the tracker showing the old value until the next battle.
+   *
+   * Only what the Hero Manager owns is copied. The fight owns the rest, and
+   * overwriting it here would undo the session: current hit points, temporary
+   * hit points, conditions, death saves, the spent action/bonus/move/reaction
+   * flags, and the rolled initiative all stay exactly as they are.
+   *
+   * Raising a hero's maximum does NOT heal them — a level-up gives you a
+   * bigger pool, not a full one. Lowering it below where they currently are
+   * does pull them down to the new maximum, because 40/20 is not a state the
+   * rest of the app can draw.
+   */
+  useEffect(() => {
+    if (heroes.length === 0) return;
+
+    setCombatants((prev) => {
+      let changed = false;
+
+      const next = prev.map((c) => {
+        if (c.type !== "hero") return c;
+        const hero = heroes.find((h) => h.id === c.id);
+        if (!hero) return c;
+
+        const maxHp = hero.hp ?? c.maxHp;
+        const patch: Partial<typeof c> = {};
+
+        if (hero.name !== c.name) patch.name = hero.name;
+        if (maxHp !== c.maxHp) patch.maxHp = maxHp;
+        // Only ever downwards, and only when they are over the new ceiling.
+        if (c.currHp > maxHp) patch.currHp = maxHp;
+
+        const stats = ["ac", "str", "dex", "con", "int", "wis", "cha", "pp", "init"] as const;
+        for (const key of stats) {
+          const value = hero[key];
+          if (typeof value === "number" && value !== c[key]) patch[key] = value;
+        }
+        const link = hero.link ?? "";
+        if (link !== (c.link ?? "")) patch.link = link;
+
+        if (Object.keys(patch).length === 0) return c;
+        changed = true;
+        return { ...c, ...patch };
+      });
+
+      // Returning the same array when nothing moved keeps this from looping
+      // through the persistence effect and back.
+      return changed ? next : prev;
+    });
+  }, [heroes, setCombatants]);
 
   // Keep the clamped index in sync if the list shrank underneath us.
   useEffect(() => {
@@ -564,6 +684,25 @@ const BattleTracker: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [activeCombatant, updateCombatant]);
 
+  /**
+   * What the right-hand side of the page is for, right now.
+   *
+   *   "prompt"  nothing to fight with yet — say so and show nothing else
+   *   "ready"   both rosters have someone: one very large Start the Battle
+   *   "running" a battle exists: the tracker, as it has always looked
+   *
+   * "running" is tested FIRST and on the combatants, not on the rosters,
+   * because a monster leaves the Monster Manager when it joins the fray — a
+   * DM three rounds into a fight can easily have an empty monster roster, and
+   * must not be told to go and add one.
+   */
+  const battleStage: "prompt" | "ready" | "running" =
+    combatants.length > 0
+      ? "running"
+      : heroes.length > 0 && monsters.length > 0
+        ? "ready"
+        : "prompt";
+
   const actionCells: { key: "action" | "bonus" | "move" | "reaction"; cls: string; label: string }[] = [
     { key: "action", cls: "combatantAction", label: "A" },
     { key: "bonus", cls: "combatantBonus", label: "B" },
@@ -573,31 +712,58 @@ const BattleTracker: React.FC = () => {
 
   return (
     <>
-      <div id="battleControls">
-        <button
-          title="Start a new Battle"
-          id="buttonStartBattle"
-          aria-label="Start the battle"
-          onClick={() => {
-            if (combatants.length > 0) {
-              setIsSBPopupOpen(true);
-            } else {
-              setLastRun(Date.now());
-              handleStartBattle();
-            }
-          }}
-        />
-      </div>
+      {battleStage === "prompt" && (
+        <p id="battlePrompt">
+          {/* Only ask for what is actually missing — telling someone with a
+              full party to add a hero is asking them to do something they
+              have already done.
 
-      {combatants.length > 0 && (
-        <div id="round">
-          <RoundNumberSpan roundNumber={roundNumber} timerRef={timerRef} />
+              No "on the left" either: the managers are a rail down the side of
+              a wide window and a row across the top of a portrait one, so the
+              direction was wrong on a phone. The buttons say what they are. */}
+          {heroes.length === 0 && monsters.length === 0
+            ? "Please add a Hero and a Monster with the Managers."
+            : heroes.length === 0
+              ? "Please add a Hero with the Hero Manager."
+              : "Please add a Monster with the Monster Manager."}
+        </p>
+      )}
+
+      {battleStage !== "prompt" && (
+        <div id="battleControls" className={battleStage === "ready" ? "isSolo" : undefined}>
+          <button
+            title="Start a new Battle"
+            id="buttonStartBattle"
+            aria-label="Start the battle"
+            onClick={() => {
+              if (combatants.length > 0) {
+                setIsSBPopupOpen(true);
+              } else {
+                setLastRun(Date.now());
+                handleStartBattle();
+              }
+            }}
+          />
         </div>
       )}
 
-      {sortedCombatants.length === 0 ? (
-        <p id="noCombatants">No combatants in battle. Start a battle to see combatants here.</p>
-      ) : (
+      {battleStage === "running" && (
+        <div id="round">
+          <RoundNumberSpan roundNumber={roundNumber} timerRef={timerRef} />
+          <button
+            type="button"
+            id="buttonEditBattle"
+            title="Remove combatants from this battle"
+            onClick={() => setIsEditBattleOpen(true)}
+          >
+            Edit Battle
+          </button>
+        </div>
+      )}
+
+      {/* No empty-state line here any more: with nothing to fight the page is
+          at the prompt, and with rosters ready it is the one big ribbon. */}
+      {battleStage === "running" && (
         <div id="battleTrackerScroll">
           <table id="battleTracker" role="table">
             <thead id="battleTrackerHeader" role="rowgroup">
@@ -635,7 +801,7 @@ const BattleTracker: React.FC = () => {
                         // HeroStatBlockHover handles that and falls back to the
                         // combatant's own data.
                         <HeroStatBlockHover hero={hero} combatant={combatant}>
-                          <span className={`combatantNameText${isDead ? " strike" : ""}`}>{combatant.name}</span>
+                          <span className={`combatantNameText${isDead ? " strike" : ""}`} title={combatant.name}>{combatant.name}</span>
                         </HeroStatBlockHover>
                       ) : combatant.type === "monster" ? (
                         <MonsterStatBlockHover
@@ -643,10 +809,10 @@ const BattleTracker: React.FC = () => {
                           currentHp={combatant.currHp}
                           updateCombatant={updateCombatant}
                         >
-                          <span className={`combatantNameText${isDead ? " strike" : ""}`}>{combatant.name}</span>
+                          <span className={`combatantNameText${isDead ? " strike" : ""}`} title={combatant.name}>{combatant.name}</span>
                         </MonsterStatBlockHover>
                       ) : (
-                        <span className="combatantNameText">{combatant.name}</span>
+                        <span className="combatantNameText" title={combatant.name}>{combatant.name}</span>
                       )}
                     </td>
 
@@ -688,10 +854,17 @@ const BattleTracker: React.FC = () => {
                       <button
                         type="button"
                         className="setEditingField hpButton"
-                        onClick={() => setHpModalCombatant(combatant)}
+                        onClick={() => setHpModalId(combatant.id)}
                         title="Click to change HP"
                       >
-                        {combatant.tHp > 0 && <span className="thp">🛡️({combatant.tHp})</span>}
+                        {combatant.tHp > 0 && (
+                          <span className="thp">
+                            {/* The same drawn shield the HP window uses — this
+                                was the only emoji left in the tracker. */}
+                            <img src={TempHpIcon} alt="" aria-hidden="true" className="thpIcon" />
+                            {combatant.tHp}
+                          </span>
+                        )}
                         <span className="hpValue">
                           {combatant.currHp} / {combatant.maxHp}
                         </span>
@@ -779,7 +952,7 @@ const BattleTracker: React.FC = () => {
                 )
                 .sort((a, b) => b.initiative - a.initiative)
             );
-            setHpModalCombatant(null);
+            setHpModalId(null);
           }}
           onUpdateDeathSaves={(saves) => {
             setCombatants((prev) =>
@@ -787,7 +960,7 @@ const BattleTracker: React.FC = () => {
                 .map((c) => (c.id === hpModalCombatant.id ? { ...c, deathsaves: saves } : c))
                 .sort((a, b) => b.initiative - a.initiative)
             );
-            setHpModalCombatant((prev) => (prev ? { ...prev, deathsaves: saves } : prev));
+
           }}
           onClose={() => {
             // If this modal was opened automatically for a death save, spend the
@@ -802,8 +975,19 @@ const BattleTracker: React.FC = () => {
               );
               handleNextTurn();
             }
-            setHpModalCombatant(null);
+            setHpModalId(null);
           }}
+        />
+      )}
+
+      {isEditBattleOpen && (
+        <EditBattleDialog
+          combatants={sortedCombatants}
+          activeId={activeCombatant?.id}
+          onRemove={removeFromBattle}
+          onClear={clearBattle}
+          updateCombatant={updateCombatant}
+          onClose={() => setIsEditBattleOpen(false)}
         />
       )}
 

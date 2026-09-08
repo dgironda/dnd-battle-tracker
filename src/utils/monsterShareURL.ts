@@ -1,184 +1,143 @@
 import { getMonsters, storeMonsters } from "./LocalStorage";
-import { notify } from "./notify";
+import { notify, confirmDialog, promptDialog } from "./notify";
+import {
+  ENCOUNTER_PARAM,
+  LEGACY_MONSTERS_PARAM,
+  MAX_ENCOUNTER_NAME,
+  buildEncounterUrl,
+  parseEncounterParam,
+  parseLegacyMonstersParam,
+  type Encounter,
+} from "./encounterShare";
 import type { Monster } from "../types";
 
-const MAX_SHARED_MONSTERS = 1000;
+const MAX_STORED_MONSTERS = 1000;
 
 /**
- * Base64 for a URL parameter, via UTF-8 bytes.
+ * Sharing an encounter, and receiving one.
  *
- * Plain btoa() throws on anything outside Latin-1, so a monster named with a
- * curly apostrophe or an accent used to break sharing outright.
+ * See encounterShare.ts for what an encounter is and why it carries only
+ * monsters. This file is the part that talks to the user: naming the thing,
+ * putting the link on the clipboard, and asking before dropping a stranger's
+ * monsters into their roster.
  */
-function encodePayload(value: string): string {
-  const bytes = new TextEncoder().encode(value);
-  let binary = "";
-  bytes.forEach((b) => {
-    binary += String.fromCharCode(b);
-  });
-  // URL-safe so the value survives a query string intact.
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-
-function decodePayload(value: string): string {
-  const padded = value.replace(/-/g, "+").replace(/_/g, "/");
-  const binary = atob(padded);
-  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
-
-/** Only http(s) links are safe to put in an href we render. */
-function safeLink(link: unknown): string {
-  if (typeof link !== "string" || link === "") return "";
-  try {
-    const url = new URL(link, window.location.origin);
-    return url.protocol === "https:" || url.protocol === "http:" ? url.href : "";
-  } catch {
-    return "";
-  }
-}
-
-const num = (value: unknown, fallback: number): number => {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : fallback;
-};
 
 /**
- * Rebuild a monster from untrusted input, keeping only known fields.
+ * Copy a link for a set of monsters, after asking what to call it.
  *
- * The old version called this "sanitize" but was really just a deep clone
- * (JSON.parse(JSON.stringify(x))), so anything in the URL landed in storage
- * unchecked — including a javascript: link that would then be rendered as an
- * anchor in the stat block.
+ * The name rides in the payload so the other end can say "Goblin Ambush —
+ * 6 monsters" rather than "someone sent you 6 monsters", and so the sender has
+ * something to write in the hyperlink text.
  */
-function sanitizeMonster(raw: unknown): Monster | null {
-  if (raw === null || typeof raw !== "object") return null;
-  const m = raw as Record<string, unknown>;
-  if (typeof m.name !== "string" || m.name.trim() === "") return null;
-
-  const hp = num(m.hp ?? m.maxHp, 1);
-
-  return {
-    id: typeof m.id === "string" && m.id ? m.id : crypto.randomUUID(),
-    name: m.name.slice(0, 100),
-    link: safeLink(m.link),
-    hp,
-    maxHp: num(m.maxHp, hp),
-    currHp: num(m.currHp, hp),
-    ac: num(m.ac, 10),
-    str: num(m.str, 10),
-    dex: num(m.dex, 10),
-    con: num(m.con, 10),
-    int: num(m.int, 10),
-    wis: num(m.wis, 10),
-    cha: num(m.cha, 10),
-    pp: num(m.pp, 0),
-    init: num(m.init, 0),
-    hidden: Boolean(m.hidden),
-    present: Boolean(m.present),
-    conditions: Array.isArray(m.conditions)
-      ? m.conditions.filter((c): c is string => typeof c === "string")
-      : [],
-  };
-}
-
-const generateMonsterShareURL = async () => {
-  const monsters = getMonsters();
-
+export async function shareEncounter(
+  monsters: Monster[],
+  options: { suggestedName?: string } = {},
+): Promise<string | null> {
   if (!monsters || monsters.length === 0) {
-    await notify("Add some monsters to the Monster Manager first.", { title: "Nothing to share" });
-    return;
+    await notify("There are no monsters to share.", { title: "Nothing to share" });
+    return null;
   }
 
-  const baseURL = window.location.origin + window.location.pathname;
-  const params = new URLSearchParams();
-  params.append("monsters", encodePayload(JSON.stringify(monsters)));
+  const name = await promptDialog("What do you want to call this encounter?", {
+    title: "Share encounter",
+    placeholder: "Goblin Ambush",
+    initial: options.suggestedName ?? "",
+    maxLength: MAX_ENCOUNTER_NAME,
+    confirmLabel: "Copy link",
+  });
+  if (name === null) return null; // dismissed
 
-  const shareableURL = `${baseURL}?${params.toString()}`;
+  const encounter: Encounter = { name, monsters };
+  const base = window.location.origin + window.location.pathname;
+  const { url, tooLong, length } = buildEncounterUrl(encounter, base);
 
-  // Browsers start refusing very long URLs somewhere around 32k characters.
-  if (shareableURL.length > 30000) {
+  if (tooLong) {
     await notify(
-      `That is too many monsters for one link (${monsters.length}). Share a smaller set, or use Download all your data in the Battle Manager.`,
-      { title: "Link too long", tone: "warning" }
+      `"${name}" is too big for one link — ${monsters.length} monsters comes to ${length.toLocaleString()} characters. ` +
+        `Share fewer at a time, or send a file with Download everything.`,
+      { title: "Link too long", tone: "warning" },
     );
-    return;
+    return null;
   }
 
   try {
-    await navigator.clipboard.writeText(shareableURL);
-    await notify("Share link copied to your clipboard.", { title: "Link ready" });
+    await navigator.clipboard.writeText(url);
+    await notify(
+      `A link to "${name}" (${monsters.length} monster${monsters.length === 1 ? "" : "s"}) is on your clipboard. ` +
+        `Paste it anywhere — put it behind the words "${name}" if you want it tidy.`,
+      { title: "Link copied" },
+    );
   } catch {
-    await notify("Couldn't reach the clipboard. Copy the link from the address bar instead.", {
-      title: "Copy failed",
-      tone: "warning",
-    });
+    await notify(
+      "Couldn't reach the clipboard, so the link is in the address bar instead — copy it from there.",
+      { title: "Copy failed", tone: "warning" },
+    );
+    window.history.replaceState({}, document.title, url);
   }
 
-  return shareableURL;
-};
+  return url;
+}
 
-const loadMonstersFromURL = async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const monstersParam = urlParams.get("monsters");
+/**
+ * On load, take an encounter out of the URL and offer it.
+ *
+ * Asks first. An encounter arrives from someone else's link, and dropping a
+ * stranger's monsters into the roster unannounced is not a thing to do quietly
+ * — especially as the roster is what the Monster Manager shows and what the
+ * next battle draws from.
+ */
+export async function loadEncounterFromURL(): Promise<void> {
+  const params = new URLSearchParams(window.location.search);
+  const encoded = params.get(ENCOUNTER_PARAM);
+  const legacy = params.get(LEGACY_MONSTERS_PARAM);
+  if (!encoded && !legacy) return;
 
-  if (!monstersParam) return;
-
-  // Clear the parameter up front so a bad payload can't be re-run on reload.
+  // Cleared up front so a bad payload cannot be re-run by reloading.
   window.history.replaceState({}, document.title, window.location.pathname);
 
-  try {
-    const decoded = JSON.parse(decodePayload(monstersParam));
+  const encounter = encoded
+    ? parseEncounterParam(encoded)
+    : parseLegacyMonstersParam(legacy as string);
 
-    if (!Array.isArray(decoded)) {
-      await notify("That share link didn't contain a monster list.", {
-        title: "Invalid link", tone: "warning",
-      });
-      return;
-    }
-
-    const incoming = decoded
-      .map(sanitizeMonster)
-      .filter((m): m is Monster => m !== null);
-
-    if (incoming.length === 0) {
-      await notify("That share link didn't contain any usable monsters.", {
-        title: "Nothing imported", tone: "warning",
-      });
-      return;
-    }
-
-    const existingMonsters = getMonsters() ?? [];
-    // Compare against what is already stored. The old version built this set
-    // from the incoming list, so it re-issued an id for every monster and never
-    // actually detected a collision.
-    const existingIds = new Set(existingMonsters.map((m) => m.id));
-    const processed = incoming.map((monster) =>
-      existingIds.has(monster.id) ? { ...monster, id: crypto.randomUUID() } : monster
-    );
-
-    const merged = [...existingMonsters, ...processed];
-
-    if (merged.length > MAX_SHARED_MONSTERS) {
-      await notify(`That would leave you with more than ${MAX_SHARED_MONSTERS} monsters.`, {
-        title: "Too many monsters", tone: "warning",
-      });
-      return;
-    }
-
-    storeMonsters(merged);
-
-    await notify(`${processed.length} monster(s) added to your Monster Manager.`, {
-      title: "Monsters imported",
-    });
-
-    // The roster reads from storage on load, so a reload is the simplest way to
-    // surface them. Done after the dialog so the message is actually seen.
-    window.location.reload();
-  } catch (error) {
-    console.error("Error loading monsters from URL:", error);
+  if (!encounter) {
     await notify("That share link couldn't be read.", { title: "Invalid link", tone: "warning" });
+    return;
   }
-};
 
-export default { loadMonstersFromURL, generateMonsterShareURL };
+  const count = encounter.monsters.length;
+  const label = encounter.name ? `"${encounter.name}"` : "This encounter";
+  const ok = await confirmDialog(
+    `${label} has ${count} monster${count === 1 ? "" : "s"}. Add ${count === 1 ? "it" : "them"} to your Monster Manager?`,
+    { title: "Encounter shared with you", tone: "info", confirmLabel: "Add to roster" },
+  );
+  if (!ok) return;
+
+  const existing = getMonsters() ?? [];
+  // Ids are minted fresh on the way in (see encounterShare), so there is
+  // nothing to collide with — but the roster still has a ceiling.
+  const merged = [...existing, ...encounter.monsters];
+  if (merged.length > MAX_STORED_MONSTERS) {
+    await notify(`That would leave you with more than ${MAX_STORED_MONSTERS} monsters.`, {
+      title: "Too many monsters",
+      tone: "warning",
+    });
+    return;
+  }
+
+  storeMonsters(merged);
+  await notify(
+    `${count} monster${count === 1 ? "" : "s"} added to your Monster Manager.`,
+    { title: encounter.name || "Encounter added" },
+  );
+
+  // The roster reads from storage on load, so a reload is the simplest way to
+  // surface them. Done after the dialog so the message is actually seen.
+  window.location.reload();
+}
+
+export default {
+  shareEncounter,
+  loadEncounterFromURL,
+  /** Old name, still called from App.tsx's mount effect. */
+  loadMonstersFromURL: loadEncounterFromURL,
+};

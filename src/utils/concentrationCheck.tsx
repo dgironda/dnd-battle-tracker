@@ -15,9 +15,7 @@ export function ConcentrationCheckModal({
   return (
     <div id="conCheckOuter">
       <div id="conCheckInner">
-        <h3>
-          ⚠️ Concentration Check
-        </h3>
+        <h3>Concentration Check</h3>
         
         <div id="conCheckMessage">
           <strong>{combatantName}</strong> must make a<br/>
@@ -36,13 +34,13 @@ export function ConcentrationCheckModal({
             id="conPassButton"
             onClick={onPass}
           >
-            ✓ Yes - Maintained
+            Held it
           </button>
           <button
             id="conFailButton"
             onClick={onFail}
           >
-            ✗ No - Lost Concentration
+            Lost it
           </button>
         </div>
       </div>

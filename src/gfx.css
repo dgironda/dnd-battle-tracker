@@ -1,5 +1,24 @@
 :root {
-    --button-width: 19rem;
+    /* The rail is a fixed 100vh column, and everything in it is drawn art with
+       a fixed aspect — so on a short screen the stack simply does not fit. It
+       used to be a flat 19rem, and at 1366x768 with the tower ad present the
+       three manager rows were compressed to 38px each while the buttons kept
+       drawing at their aspect height: they overlapped each other by ~80px.
+
+       So the rail's one width is capped by the height available to it. The
+       middle term is fitted, not derived: the largest width that leaves the
+       rail scrolling nothing was measured at 720, 768 and 1080px tall, and the
+       stack is close enough to linear in the button width between them. Under
+       about 700px the floor takes over and the rail scrolls — there is no
+       legible size that fits there. This is the roomy case — no tower ad, i.e. a supporter; the ad
+       costs 124px of rail and #page:has() below tightens it when one is
+       there. */
+    /* Also capped by the width, not only the height. On a 1024x768 window the
+       height term alone gave the rail 216px and left the tracker 676px for
+       eight columns — the action headings and the hit points did not fit. The
+       rail is art with nothing to read in it at a glance, so it is what gives
+       way when the window is narrow. */
+    --button-width: clamp(8.5rem, min(calc(43.3vh - 116px), 17vw), 19rem);
     --button-max-width: 25rem;
     --button-min-height: 6.2rem;
     --button-max-height: 15rem;
@@ -8,8 +27,17 @@
 /* The logo is no longer tied to the button width: the buttons grew and the
    logo came down, so the rail reads as a masthead over a set of controls
    rather than four things of the same size stacked up. */
+/* A non-supporter also carries the 300x120 tower promo at the foot of the
+   rail, which is 124px the buttons no longer have. The slot renders nothing at
+   all for supporters (AdSlot returns null), so its presence is the test. */
+#page:has(.adSlot-tower) {
+    --button-width: clamp(8.5rem, min(calc(43.3vh - 172px), 17vw), 19rem);
+}
+
 #logo {
-    width: 15rem;
+    /* Tied to the rail's width so the masthead shrinks with the controls
+       instead of keeping 15rem while they give way around it. */
+    width: min(15rem, calc(var(--button-width) * 0.79));
     max-width: 100%;
 }
 
@@ -19,16 +47,23 @@
    limited by that height and drew only ~252px of the 304px box, while the
    battle button filled it — so their left and right edges did not line up.
    Each is sized from the box width in its own ratio instead. */
+/* `min-height: 0` used to sit here to stop --button-min-height fighting the
+   aspect ratio. It also switched off the automatic minimum size these have as
+   grid items, which is what let the rail's rows collapse under them: on a
+   short screen the three rows were squeezed to 38px while the buttons kept
+   drawing at their aspect height, so they overlapped each other. `auto` puts
+   the content-based minimum back, so a rail that genuinely cannot fit
+   overflows and scrolls (see #header) instead of stacking on itself. */
 #heroManagerButton,
 #monsterManagerButton {
     aspect-ratio: 745 / 292;
-    min-height: 0;
+    min-height: auto;
     height: auto;
 }
 
 #battleManagerButton {
     aspect-ratio: 739 / 221;
-    min-height: 0;
+    min-height: auto;
     height: auto;
 }
 

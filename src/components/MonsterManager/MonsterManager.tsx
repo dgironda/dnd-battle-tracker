@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useMonsters } from "../../hooks/useMonsters";
 import { Monster } from "../../types/Monster";
 import { createUpdateMonster, createDeleteMonster, EditableCell } from "../../utils/Utils";
+import { rankByName } from "../../utils/searchRank";
+import { planMonsterNames } from "../../utils/monsterNaming";
 import { useGlobalContext } from "../../hooks/optionsContext";
 import { useCombat } from "../BattleTracker/CombatContext";
 import Icon from "../Icon";
@@ -109,14 +111,15 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
       return;
     }
 
-    const needle = value.toLowerCase();
-    const matches: string[] = [];
-    for (const m of monstersData) {
-      if (m.name.toLowerCase().includes(needle)) {
-        matches.push(m.name);
-        if (matches.length >= MAX_SUGGESTIONS) break;
-      }
-    }
+    // Ranked, not just filtered — see searchRank.ts. Typing "skeleton" used to
+    // put Skeleton ninth because the list was in file order and cut off at the
+    // first 20 hits.
+    const matches = rankByName(
+      monstersData,
+      value,
+      (m) => m.name,
+      MAX_SUGGESTIONS,
+    ).map((m) => m.name);
 
     setFilteredSuggestions(matches);
     setShowSuggestions(matches.length > 0);
@@ -140,27 +143,25 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
     if (!baseName) return;
 
     const howMany = Math.min(Math.max(count, 1), MAX_DUPLICATES);
-    const newMonsters: Monster[] = [];
-    const existingNames = new Set(monsters.map((m) => m.name));
 
-    /* A batch is numbered from 1, so five goblins read "Goblin 1".."Goblin 5".
-       Previously the first copy took the bare name and only the rest were
-       numbered, which gave "Goblin" and "Goblin 1" — a set where the first one
-       is the odd one out. A single monster still gets its plain name.
+    // See monsterNaming.ts: adding a second Goblin renumbers the first one, so
+    // the pair reads "Goblin 1" and "Goblin 2".
+    const plan = planMonsterNames(monsters.map((m) => m.name), baseName, howMany);
 
-       The counter carries between iterations rather than restarting the scan,
-       and the loop still steps past any name already on the roster. */
-    let next = 1;
-    for (let i = 0; i < howMany; i++) {
-      let uniqueName = howMany === 1 ? baseName : `${baseName} ${next++}`;
-      while (existingNames.has(uniqueName)) {
-        uniqueName = `${baseName} ${next++}`;
-      }
-      newMonsters.push({ ...newMonster, id: crypto.randomUUID(), name: uniqueName });
-      existingNames.add(uniqueName);
-    }
+    const newMonsters: Monster[] = plan.newNames.map((name) => ({
+      ...newMonster,
+      id: crypto.randomUUID(),
+      name,
+    }));
 
-    setMonsters((prev) => [...prev, ...newMonsters]);
+    setMonsters((prev) => [
+      ...prev.map((m) =>
+        plan.renameFrom !== null && m.name === plan.renameFrom
+          ? { ...m, name: plan.renameTo as string }
+          : m,
+      ),
+      ...newMonsters,
+    ]);
     setNewMonster(blankMonster);
     setFilteredSuggestions([]);
     setShowSuggestions(false);
@@ -223,13 +224,24 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
         )}
       </div>
 
-      <div>
-        <button id="addNewMonsterButton" onClick={() => addMonsters(1)}>Add Monster</button>
-      </div>
-
-      <div>
-        <input type="number" min="1" max={MAX_DUPLICATES} value={duplicateCount} onChange={handleDuplicateCountChange} aria-label="How many copies to add" />
-        <button onClick={() => addMonsters(duplicateCount)}>Add Monsters</button>
+      {/* One button, and a count beside it reading "Add Monster x 3". There
+          used to be a second "Add Monsters" button here doing the same job
+          with a different number, which is two controls for one decision. */}
+      <div className="addMonsterRow">
+        <button id="addNewMonsterButton" onClick={() => addMonsters(duplicateCount)}>
+          Add Monster
+        </button>
+        <label className="addMonsterCount">
+          <span className="addMonsterTimes" aria-hidden="true">&times;</span>
+          <input
+            type="number"
+            min="1"
+            max={MAX_DUPLICATES}
+            value={duplicateCount}
+            onChange={handleDuplicateCountChange}
+            aria-label="How many to add"
+          />
+        </label>
       </div>
     </div>
     
@@ -320,7 +332,7 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
             </React.Fragment>
           ))}
           {monsters.length === 0 && (
-            <tr>
+            <tr className="monsterRosterEmpty">
               <td colSpan={6}>No monsters yet, try adding one.</td>
             </tr>
           )}

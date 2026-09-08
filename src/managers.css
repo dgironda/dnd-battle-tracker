@@ -429,25 +429,6 @@
   padding: 0.8rem;
   text-align: center;
 }
-
-.btn-save-battle {
-  background: var(--color-hl2);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  transition: background 0.2s ease;
-  font-family: 'Caudex', serif;
-}
-
-.btn-save-battle:hover {
-  background: var(--color-hl3);
-  transform: translateY(-1px);
-}
-
 .save-dialog {
   margin-top: 1rem;
 }
@@ -474,76 +455,8 @@
   display: flex;
   gap: 0.75rem;
 }
-
-.save-dialog-buttons button {
-  flex: 1;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 1em;
-  font-family: 'Caudex', serif;
-  transition: all 0.2s ease;
-}
-
-.save-dialog-buttons button:first-child {
-  background: var(--color-hl2);
-  color: white;
-}
-
-.save-dialog-buttons button:first-child:hover {
-  background: var(--color-hl3);
-  transform: translateY(-1px);
-}
-
-.save-dialog-buttons button:last-child {
-  background: #ddd;
-  color: #333;
-}
-
-.save-dialog-buttons button:last-child:hover {
-  background: #ccc;
-}
-
 /* 463x120 artwork; an 18rem x 11rem box letterboxed it and left a large
    empty band under each button. */
-#buttonDownloadData {
-  background-image: url('./assets/draftsvgs_v2/button_cutout-green-med.svg');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
-  border: none;
-  background-color: transparent;
-  width: 13rem !important;
-  height: auto;
-  aspect-ratio: 463 / 120;
-}
-
-#buttonMonsterShareURL {
-  background-image: url('./assets/draftsvgs_v2/button_cutout-green-med.svg');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
-  border: none;
-  background-color: transparent;
-  width: 13rem !important;
-  height: auto;
-  aspect-ratio: 463 / 120;
-}
-
-#inputImportData {
-  background-image: url('./assets/draftsvgs_v2/button_cutout-green-small.svg');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
-  background-color: transparent;
-  border: none;
-  width: 7rem !important;
-  height: auto;
-  aspect-ratio: 172 / 120;
-}
-
 .empty-state {
   color: var(--panel-ink-soft);
   text-align: center;
@@ -591,39 +504,6 @@
   display: flex;
   gap: 0.5rem;
 }
-
-.btn-load,
-.btn-delete {
-  padding: 0.4rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9em;
-  font-weight: bold;
-  font-family: 'Caudex', serif;
-  transition: all 0.2s ease;
-}
-
-.btn-load {
-  background: var(--color-hl2);
-  color: white;
-}
-
-.btn-load:hover {
-  background: var(--color-hl3);
-  transform: translateY(-1px);
-}
-
-.btn-delete {
-  background: #dc3545;
-  color: white;
-}
-
-.btn-delete:hover {
-  background: #c82333;
-  transform: translateY(-1px);
-}
-
 .battle-card-info {
   font-size: 0.92em;
   color: var(--panel-ink-soft);

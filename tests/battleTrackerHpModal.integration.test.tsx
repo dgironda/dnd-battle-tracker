@@ -115,7 +115,11 @@ describe('BattleTracker + HpChangeModal (integration)', () => {
     });
     const modal = getOpenHpModal();
     expect(modal.getByRole('heading', { level: 3, name: 'Grick' })).toBeInTheDocument();
-    expect(modal.getByText(/Current HP: 24 \/ 30/)).toBeInTheDocument();
+    // See hpChangeModal.test.tsx: the readout is a label plus a figure now.
+    expect(modal.getByText('Current HP')).toBeInTheDocument();
+    expect(
+      document.querySelector('.hpChangeModalInner .hpReadout .hpStatValue')?.textContent,
+    ).toBe('24/30');
 
     fireEvent.change(modal.getByPlaceholderText('Enter amount'), { target: { value: '4' } });
     fireEvent.click(modal.getByRole('button', { name: 'Take Damage' }));

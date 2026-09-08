@@ -20,7 +20,10 @@ const HAND_BOXES = 8;
 export const MARK_KINDS = ["Check", "Cross", "Fill"] as const;
 export type MarkKind = (typeof MARK_KINDS)[number];
 
-const MARK_COUNTS: Record<MarkKind, number> = { Check: 6, Cross: 4, Fill: 4 };
+/* Fill is 8 because each of the four scribbles exists both ways up: 1-4 comb
+   across the box, 5-8 are the same four turned a quarter turn. With only the
+   horizontal set every filled box on the page combed the same way. */
+const MARK_COUNTS: Record<MarkKind, number> = { Check: 6, Cross: 4, Fill: 8 };
 
 export function hash32(key: string): number {
   let h = 0x811c9dc5;

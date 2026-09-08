@@ -5,6 +5,7 @@ import { ConcentrationCheckModal } from './concentrationCheck';
 import { useGlobalContext } from '../hooks/optionsContext';
 import { notify } from './notify';
 import { resolveDamage } from './damage';
+import TempHpIcon from '../assets/draftsvgs_v2/icon_temphp.svg';
 
 interface HpChangeModalProps {
   combatant: Combatant;
@@ -227,6 +228,8 @@ export function HpChangeModal({
                       key={index}
                       className={`deathSaveMark ${save ? 'success' : 'failure'} ${isLast ? 'removable' : ''}`}
                       onClick={() => removeLastDeathSave(index)}
+                      role="img"
+                      aria-label={save ? 'Success' : 'Failure'}
                       title={
                         isLast
                           ? `Click to remove this ${save ? 'success' : 'failure'}`
@@ -234,9 +237,7 @@ export function HpChangeModal({
                             ? 'Success'
                             : 'Failure'
                       }
-                    >
-                      {save ? '✅' : '❌'}
-                    </span>
+                    />
                   );
                 })
               )}
@@ -267,22 +268,36 @@ export function HpChangeModal({
         )}
 
         {/* hp, dmg, heal */}
-        <div className="hpChangeModalCurrent">
-          Current HP: {currentHp} / {maxHp}
-        </div>
-        <div>
-          <span title="Temp HP, click to edit">Temporary HP🛡️:</span>
-          <EditableCell
-            entity={combatant}
-            field="tHp"
-            type="number"
-            editingField={editingField}
-            setEditingField={setEditingField}
-            updateEntity={updateCombatant}
-          />
+        <div className="hpReadout">
+          <div className="hpStat">
+            <span className="hpStatLabel">Current HP</span>
+            <span className="hpStatValue">
+              {currentHp}<span className="hpStatOf">/{maxHp}</span>
+            </span>
+          </div>
+          <div className="hpStat hpStatTemp">
+            <span className="hpStatLabel">
+              <img src={TempHpIcon} alt="" className="hpTempIcon" />
+              Temporary
+            </span>
+            <span className="hpStatValue" title="Temp HP, click to edit">
+              <EditableCell
+                entity={combatant}
+                field="tHp"
+                type="number"
+                editingField={editingField}
+                setEditingField={setEditingField}
+                updateEntity={updateCombatant}
+              />
+            </span>
+          </div>
         </div>
 
+        <label className="hpAmountLabel" htmlFor="hpAmount">
+          How much?
+        </label>
         <input
+          id="hpAmount"
           className="hpChangeModalInput"
           type="number"
           value={amount}

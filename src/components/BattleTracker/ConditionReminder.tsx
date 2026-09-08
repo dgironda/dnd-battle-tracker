@@ -65,7 +65,21 @@ export const ConditionReminder: React.FC<ConditionReminderProps> = ({
 
   return (
     <div id='conditionReminderOverlay'>
-      <div id="conditionReminderContent">
+      {/* The overlay is `pointer-events: none` so the page underneath stays
+          usable while this is up, and a click anywhere dismisses it through
+          the window listener above. The card itself has to take its own
+          clicks back, though: without this a click ON the reminder fell
+          straight through to whatever was behind it — usually a combatant's
+          action checkbox — so the one place you would naturally click to get
+          rid of it also ticked a box. */}
+      <div
+        id="conditionReminderContent"
+        role="button"
+        tabIndex={0}
+        title="Dismiss"
+        onClick={onClose}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClose(); }}
+      >
         <h2>{combatant.name}</h2><span>has the following conditions:</span>
         <div>
           {combatant.conditions.map((conditionName) => (

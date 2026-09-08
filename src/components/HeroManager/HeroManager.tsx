@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import type { Hero } from "../../types/Hero";
 import AddHero from "../HeroManager/AddHero";
 import { createAddHero, createUpdateHero, createDeleteHero } from "../../utils/Utils";
@@ -6,6 +6,7 @@ import { EditableCell } from "../../utils/Utils";
 import { useHeroes } from "../../hooks/useHeroes";
 import Icon from "../Icon";
 import { checkboxStyle, checkboxVariant } from "../../utils/handArt";
+import { useCombat } from "../BattleTracker/CombatContext";
 
 interface HeroManagerProps {
   onClose: () => void;
@@ -20,6 +21,9 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
   const addHero = createAddHero(setHeroes);
   const updateHero = createUpdateHero(setHeroes);
   const deleteHero = createDeleteHero(heroes, setHeroes);
+  const { addHeroToCombat, combatants } = useCombat();
+  /* Who is already fighting, so the button can say so. */
+  const inBattle = useMemo(() => new Set(combatants.map((c) => c.id)), [combatants]);
 
   return (
     <div id="heroAddManage">
@@ -99,13 +103,29 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
                     <span className="tickMark" aria-hidden="true" />
                   </label>
                 </td>
-                <td>
-                  <button className="buttonDelete" onClick={() => deleteHero(hero.id)}>
-                    <Icon
-                      name="delete"
-                      color="var(--color-bg1)"
-                      size={24}
-                      />
+                <td className="heroActions">
+                  {/* The same control the Monster Manager has. A hero stays on
+                      the roster afterwards — the party is a standing list —
+                      so this reads "already in" once they are in the fight
+                      rather than offering to add them twice. */}
+                  <button
+                    className="buttonJoinFray"
+                    disabled={inBattle.has(hero.id)}
+                    title={
+                      inBattle.has(hero.id)
+                        ? `${hero.name} is already in the battle`
+                        : `Add ${hero.name} to the battle`
+                    }
+                    onClick={() => addHeroToCombat(hero)}
+                  >
+                    {inBattle.has(hero.id) ? "In the Fray" : "Join the Fray"}
+                  </button>
+                  <button
+                    className="buttonDelete"
+                    onClick={() => deleteHero(hero.id)}
+                    aria-label={`Delete ${hero.name}`}
+                  >
+                    <Icon name="delete" color="currentColor" size={24} />
                   </button>
                 </td>
               </tr>

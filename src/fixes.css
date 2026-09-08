@@ -17,7 +17,13 @@
    so a cell's shape no longer has to match the artwork's aspect ratio. Sizing
    is all in `cqw`, measured against the table's own width, so the tracker
    holds one set of proportions at every viewport. */
-@media (orientation: landscape) {
+/* ...and wide enough to hold it. The threshold is measured, not guessed: with
+   the longest realistic content in every column, the table is clean at 1008px
+   and starts clipping headings and hit points by 2px at 992. Under 63rem the
+   cards at the foot of this file take over instead, in either orientation —
+   which is also what saves a phone turned sideways (812x375), where the table
+   lost the first digit of every hit-point figure. */
+@media (orientation: landscape) and (min-width: 63rem) {
   #battleTracker,
   #battleTracker thead,
   #battleTracker tbody {
@@ -37,9 +43,15 @@
        its old proportion rather than scaled with the type: a taller row spaces
        the whole thing out again, and the point of the larger type was that the
        row reads cleaner, not looser. */
-    --row-h: clamp(2.85rem, 5cqw, 6.1rem);
+    /* The floors are what a narrow landscape window runs into: at 1024x768
+       the rail leaves the table 676px, 1.92cqw is 13px, and the old 1.16rem
+       floor held the type at 18.6px — so "Action Ⓐ" needed 63px of a 55px
+       column and the hit points lost their first digit off the left edge. Both
+       floors come down enough for that width to fit; above about 1200px the
+       middle term is in charge and nothing here changes. */
+    --row-h: clamp(2.4rem, 5cqw, 6.1rem);
     --row-gap: clamp(0.16rem, 0.26cqw, 0.42rem);
-    --tbl-font: clamp(1.16rem, 1.92cqw, 2.3rem);
+    --tbl-font: clamp(1rem, 1.92cqw, 2.3rem);
     --plaque-edge: clamp(7px, 1.1cqw, 24px);
   }
 
@@ -50,9 +62,15 @@
        HP carries the most text of any narrow column ("100 / 100" plus its
        heart) so it gets the extra; the four action columns hold a single
        checkbox each and need almost nothing. */
+    /* HP went 13 -> 15 and Conditions 20 -> 18. A combatant with temporary hit
+       points reads "[shield]12 300/312 [heart]", which is the longest thing in
+       any narrow column, and on a 1024px window it was running 9px past the
+       plaque. The conditions cell gives that up: its chips already wrap onto a
+       second line when there are three of them, so it loses a little room and
+       nothing else does. */
     grid-template-columns:
-      minmax(0, 24fr) minmax(0, 9fr) minmax(0, 13fr)
-      repeat(4, minmax(0, 8fr)) minmax(0, 20fr);
+      minmax(0, 24fr) minmax(0, 9fr) minmax(0, 15fr)
+      repeat(4, minmax(0, 8fr)) minmax(0, 18fr);
     /* No gap: the cells butt together so a row reads as one continuous strip
        rather than eight separate plaques. */
     column-gap: 0;
@@ -99,8 +117,13 @@
     margin-bottom: var(--row-gap);
     min-height: calc(var(--row-h) * 0.82);
     /* Column labels, not data: a touch smaller than the values they head, which
-       also keeps "Reaction" inside its column now the body type is larger. */
-    font-size: calc(var(--tbl-font) * 0.88);
+       also keeps "Reaction" inside its column now the body type is larger.
+       Its own clamp rather than a fraction of --tbl-font: the two tracked at
+       0.88 in the middle of the range, but the headings need to keep shrinking
+       after the body type has hit its floor — they are the first thing that
+       will not fit, and a heading set smaller than the numbers under it is
+       normal where one clipped mid-word is not. */
+    font-size: clamp(0.82rem, 1.69cqw, 2.02rem);
   }
 
   /* ---- the plaques ------------------------------------------------------ */
@@ -181,7 +204,13 @@
   }
   #battleTracker thead th {
     height: auto;
-    padding: 0 0.7cqw;
+    /* A fraction of the body cells' inset. A heading is one word and a keycap
+       with nothing else to separate it from — the columns butt together, so
+       there is no gutter for this padding to draw — and on a narrow window it
+       was the difference between "Reaction" and "Reactio". The last 2px of it
+       is what a 1024px window with a tower ad in the rail needs: the ad floors
+       the rail at 328px and leaves the table 684. */
+    padding: 0 0.2cqw;
     /* Goldenrod on the red header plaques. The body cells' tan
        (--color-chk2) is too dark against that red to read. */
     color: var(--color-header-ink);
@@ -198,8 +227,12 @@
   display: flex !important;
   align-items: center;
   justify-content: center;
-  /* Room on the left for the turn marker. */
-  padding-left: 1.4cqw !important;
+  /* Room on the left for the turn marker. This was 1.4cqw — about 22px, when
+     the hand is 128px wide and reaches ~116px into the cell — so it reserved
+     roughly a fifth of what it needed and a centred long name still ran under
+     the fist. Derived from the marker's own geometry now, so the two cannot
+     disagree at any row height. */
+  padding-left: var(--turn-marker-gutter) !important;
   padding-right: 0.7cqw !important;
   min-width: 0;
   /* The turn circle is drawn around the name and deliberately overruns it on
@@ -231,32 +264,85 @@
   padding-top: 0.6em;
   padding-bottom: 0.6em;
   vertical-align: middle;
+  /* Was nowrap, which forced every name onto one line and left the long ones
+     to be cut. The box is inline-block, so shrink-to-fit still sizes it to the
+     name when the name is short — the underline keeps matching its width — and
+     only a name that cannot fit takes the full column and wraps. */
+  white-space: normal;
 }
 
-/* Long names are cut here rather than on the boxes around them, so the marks
-   that hang off those boxes survive. */
+/* A name gets two lines before it is cut. The name column is the widest in the
+   tracker and still only about 220px of usable text once the turn marker's
+   gutter is taken off, which is 21 characters at the table's type size: the
+   common long ones ("Adult Amethyst Dragon") fit on two lines and read in
+   full, where on one line they lost their last four letters.
+
+   Two, not unlimited: a row that grew to four lines would tower over the ones
+   either side of it. Past two the name is cut, with the whole thing on the
+   element's title and on the stat panel. */
 #battleTracker .combatantName .combatantNameText {
-  display: inline-block;
+  /* -webkit-box is what -webkit-line-clamp needs; it is a block box, so it
+     fills the shrink-wrapped parent above rather than sizing itself. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: break-word;
+  /* Tight, because two of these lines have to sit inside a row built for one
+     and the row should not lurch taller than its neighbours if it can help
+     it — but not tighter than the face's own descent. At 1.06 the line box was
+     shorter than the tail of a "g", and `overflow: hidden` (which the line
+     clamp needs) cut it off: "another g" and "Gerwin Hugo" both lost the
+     bottom of the letter. 1.2 clears Caudex's descender. */
+  line-height: 1.2;
+  /* The clamp needs `overflow: hidden`, which clips at the PADDING box — and
+     the line box still ends a pixel or so above the bottom of a descender, so
+     a "g" lost its tail. The padding moves the clip edge down; the matching
+     negative margin takes the space back out of the layout, so the row height
+     and the pencil underline below it do not move. */
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
   vertical-align: bottom;
 }
 
 /* The turn marker sits in the row's left margin, so it must not eat into the
    space the name has to work with. The green ▶ glyph is now the drawn
    gauntlet, sized in the artwork's own 222:89 ratio. */
+/* The pointing hand's geometry, in one place.
+
+   It used to claim it sat "in the row's left margin, so a long name has the
+   whole column to itself". There is no such margin: the table starts 7-12px
+   from the rail at every width tested, so the hand reaches 64-116px INTO the
+   name cell and a centred name ran underneath it — "Adult Gold Dragon" lost
+   its first two letters to a fist.
+
+   Since it cannot move out, its footprint is reserved instead. The gutter
+   below is derived from these three values rather than guessed, so the space
+   and the hand cannot drift apart at any row height: the art is 222:89, so the
+   hand is 2.494 times as wide as it is tall, and --turn-marker-out is how far
+   of that hangs off the cell's left edge. */
+#battleTracker {
+  /* 0.66 of the row made a 128px-wide hand whose reserved gutter ate a third
+     of the name column, and "Adult Gold Dragon" then missed fitting by 0.29px
+     — enough for text-overflow to eat the last four characters. Each step down
+     helps twice over: the gutter shrinks by the full amount while the centred
+     name's left edge only moves half as far, so the gap between the hand and
+     the name grows. 0.57 leaves that name whole with ~5px to spare and a
+     visible gap, and the hand still reads at 110x44 on a 78px row. */
+  --turn-marker-h: calc(var(--row-h) * 0.57);
+  --turn-marker-w: calc(var(--turn-marker-h) * 222 / 89);
+  --turn-marker-out: 0.7rem;
+  --turn-marker-gutter: calc(var(--turn-marker-w) - var(--turn-marker-out));
+}
+
 .currentTurnIndicator {
   position: absolute;
-  /* Out past the cell's own padding, into the row's left margin, so a long
-     name has the whole column to itself. The name cell is `overflow: visible`
-     for the turn circle, so this is free to sit outside it. */
-  left: -0.7rem;
-  /* Sized off the row rather than the table's width, so it stays in scale with
-     the row it is pointing at. The art is 222:89, so asking for most of the
-     row's height makes it a wide, flat gauntlet — which is what it is. */
-  height: calc(var(--row-h) * 0.66);
+  left: calc(-1 * var(--turn-marker-out));
+  height: var(--turn-marker-h);
   aspect-ratio: 222 / 89;
   background-image: url('./assets/draftsvgs_v2/pointer_gauntlet.svg');
   background-repeat: no-repeat;
@@ -401,9 +487,25 @@
 }
 
 #battleTracker .combatantHP .thp {
-  display: block;
-  margin: 0;
-  font-size: 0.62em;
+  /* Sits beside the hit points, not under them: `.hpButton` is a nowrap flex
+     row, so the old `display: block` here never did anything and this has
+     always been an inline pair. Flex only so the drawn shield and its number
+     share a baseline. */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.12em;
+  flex: 0 0 auto;
+  margin: 0 0.18em 0 0;
+  font-size: 0.56em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Was the 🛡️ emoji, the last one left in the tracker; this is the same file
+   the HP window uses so the two read as the same object. */
+#battleTracker .combatantHP .thpIcon {
+  height: 1.15em;
+  width: auto;
+  flex: 0 0 auto;
 }
 
 #battleTracker .combatantHP .hpHeart {
@@ -835,23 +937,6 @@
   gap: 0.75rem;
   margin-top: 1rem;
 }
-
-#initiativeDialogInner #submitInit,
-#initiativeDialogInner #randomInit {
-  flex: 1;
-  padding: 0.6rem 0.75rem;
-  border-radius: 3px;
-  background-color: var(--color-btn2);
-  color: var(--color-bg1);
-  font-family: 'Caudex', serif;
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-}
-
 #initiativeDialogInner #randomInit img {
   height: 1.9rem;
   width: auto;
@@ -916,25 +1001,6 @@
   gap: 0.6rem;
   margin-top: 1.25rem;
 }
-
-.appDialogButtons button {
-  padding: 0.45rem 1.1rem;
-  border-radius: 3px;
-  font-family: 'Caudex', serif;
-  font-size: 0.95rem;
-  cursor: pointer;
-}
-
-.appDialogConfirm {
-  background-color: var(--color-btn2);
-  color: var(--color-bg1);
-}
-
-.appDialogCancel {
-  background-color: transparent;
-  color: var(--color-fg);
-}
-
 /* --- B10: storage warning, themed instead of a hardcoded light palette --- */
 .storage-warning-container {
   padding: 0.75rem 0;
@@ -1047,6 +1113,18 @@
   margin-left: 0.15em;
   /* sup already shrinks it; this keeps the drawn key legible */
   font-size: 0.62em;
+
+  /* The column headings are flex containers, so this is a flex ITEM and its
+     1.5em was only a basis to shrink from. Each heading is the same width but
+     its label is not — Action 48px, Bonus 45px, Move 40px — so each key was
+     squeezed by a different amount and the three drawn caps came out visibly
+     different sizes. The artwork is identical in all of them: 97-98% of a
+     219x180 box in every file.
+
+     The key holds its size; the label is what gives way if a column ever gets
+     tight, which is the right way round — a keycap that is not the size of the
+     other keycaps reads as a mistake, a heading that wraps does not. */
+  flex: 0 0 auto;
 }
 
 [data-key="a"] { --key-art: url('./assets/draftsvgs_v1/key_a.svg'); }
@@ -1059,21 +1137,42 @@
 
 .panelButtonKey {
   position: absolute;
-  /* Bottom-right, clear of the ribbon's tapered tail where a bare letter is
-     unreadable against the page. */
-  bottom: 0.15rem;
-  right: 0.35rem;
   /* no tinted pill behind the art */
   padding: 0;
   border-radius: 0;
   background-color: transparent;
-  width: 2.5rem;
+  /* A proportion of the button, not a fixed 2.5rem: the rail buttons scale
+     with the column, and a badge that does not scale with them crowds the art
+     as soon as the window narrows. */
+  width: clamp(1.4rem, 10.5%, 2.1rem);
   aspect-ratio: 219 / 180;
   font-size: 0.7rem;
   line-height: 1.35;
   /* Full strength. It was faded to 0.6 when it was a typeset letter in a
      tinted pill; the drawn keycap is meant to read as a key, not a hint. */
   pointer-events: none;
+}
+
+/* Where the badge sits.
+
+   It used to be 0.35rem from the right and 0.15rem from the bottom of every
+   one of them, which is what made them look cramped: the ink of all three runs
+   to within 3-9px of the box, so the keycap was pressed onto the ribbon's own
+   outline with no margin at all. There is no room to simply move it inwards —
+   the labels are part of the artwork and run to within ~12px of the right edge
+   on the monster scroll and the battle sign — so it keeps the corner and takes
+   a real margin there instead, at a size that leaves one.
+
+   Percentages, not rem, because the rail buttons scale with their column. */
+.panelButtonKey {
+  right: 5%;
+  bottom: 11%;
+}
+
+/* The scroll's lower edge curves up under its right-hand rod, so this one
+   needs a little more clearance than the ribbon and the sign. */
+#monsterManagerButton .panelButtonKey {
+  bottom: 17%;
 }
 
 /* --- the name's pencil underline ------------------------------------------
@@ -1288,15 +1387,34 @@
 .handMarkCheck5 { --hand-tick: url('./assets/draftsvgs_v2/check_hand-5.svg'); }
 .handMarkCheck6 { --hand-tick: url('./assets/draftsvgs_v2/check_hand-6.svg'); }
 
-.handMarkCross1 { --hand-tick: url('./assets/draftsvgs_v2/cross_hand-1.svg'); }
-.handMarkCross2 { --hand-tick: url('./assets/draftsvgs_v2/cross_hand-2.svg'); }
-.handMarkCross3 { --hand-tick: url('./assets/draftsvgs_v2/cross_hand-3.svg'); }
-.handMarkCross4 { --hand-tick: url('./assets/draftsvgs_v2/cross_hand-4.svg'); }
+/* A cross names its two strokes as well as the pair, because it is drawn one
+   stroke at a time — see the .handMarkCross rules further down. */
+.handMarkCross1 { --hand-tick: url('./assets/draftsvgs_v2/cross_hand-1.svg'); --cross-a: url('./assets/draftsvgs_v2/cross_hand-1-a.svg'); --cross-b: url('./assets/draftsvgs_v2/cross_hand-1-b.svg'); }
+.handMarkCross2 { --hand-tick: url('./assets/draftsvgs_v2/cross_hand-2.svg'); --cross-a: url('./assets/draftsvgs_v2/cross_hand-2-a.svg'); --cross-b: url('./assets/draftsvgs_v2/cross_hand-2-b.svg'); }
+.handMarkCross3 { --hand-tick: url('./assets/draftsvgs_v2/cross_hand-3.svg'); --cross-a: url('./assets/draftsvgs_v2/cross_hand-3-a.svg'); --cross-b: url('./assets/draftsvgs_v2/cross_hand-3-b.svg'); }
+.handMarkCross4 { --hand-tick: url('./assets/draftsvgs_v2/cross_hand-4.svg'); --cross-a: url('./assets/draftsvgs_v2/cross_hand-4-a.svg'); --cross-b: url('./assets/draftsvgs_v2/cross_hand-4-b.svg'); }
 
-.handMarkFill1 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-1.svg'); }
-.handMarkFill2 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-2.svg'); }
-.handMarkFill3 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-3.svg'); }
-.handMarkFill4 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-4.svg'); }
+/* A scribble fills the box in the direction its passes stack, so the reveal
+   goes that way too: the horizontal ones comb across and stack downwards, so
+   they are uncovered top to bottom, and the turned ones left to right. Wiped
+   the other way it reads as a card being slid out from behind something
+   rather than as somebody colouring a box in. */
+/* Colouring a box in takes longer than flicking a tick: a scribble is a dozen
+   passes of the pencil and at the tick's own speed it read as a wipe rather
+   than as someone filling the box. All eight share it. */
+[class*="handMarkFill"] { --mark-wipe-dur: 1.15s; }
+
+.handMarkFill1 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-1.svg'); --mark-wipe-from: 100% 0%; --mark-wipe-pos: center top; }
+.handMarkFill2 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-2.svg'); --mark-wipe-from: 100% 0%; --mark-wipe-pos: center top; }
+.handMarkFill3 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-3.svg'); --mark-wipe-from: 100% 0%; --mark-wipe-pos: center top; }
+.handMarkFill4 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-4.svg'); --mark-wipe-from: 100% 0%; --mark-wipe-pos: center top; }
+
+/* The same four, a quarter turn over — their passes run down the box and
+   stack across it, so these uncover left to right. */
+.handMarkFill5 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-1v.svg'); }
+.handMarkFill6 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-2v.svg'); }
+.handMarkFill7 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-3v.svg'); }
+.handMarkFill8 { --hand-tick: url('./assets/draftsvgs_v2/fill_hand-4v.svg'); }
 
 /* --- modal windows on the managers' scrolls --------------------------------
    Every modal is framed with the same container artwork the managers use, so
@@ -1333,21 +1451,27 @@
   color: var(--panel-ink);
 }
 
-/* ---- parchment: everything that is not mid-fight ---- */
+/* ---- parchment: the windows you read and fill in ----
+   The HP window and the shared confirm popup moved here from the red banner.
+   Both carry decisions with a colour to them — take damage / heal, continue /
+   cancel — and the drawn buttons are red and green: on the banner's own red
+   the damage button vanished into its ground. The banner is kept for the one
+   window that is a single dramatic prompt rather than a form. */
 #initiativeDialogInner,
 #conditionReminderContent,
-.appDialogInner {
+.appDialogInner,
+.hpChangeModalInner,
+.popup-container {
   border-image-source: url('./assets/draftsvgs_v2/container_monster-manager.svg');
   --panel-ink: #2b1a0c;
   --panel-ink-soft: #56391d;
   --panel-rule: rgba(43, 26, 12, 0.30);
+  --panel-inset: rgba(107, 72, 36, 0.15);
   --panel-field: rgba(255, 253, 248, 0.80);
   --panel-field-ink: #2b1a0c;
 }
 
-/* ---- the red banner: start a battle, take damage, hold concentration ---- */
-.hpChangeModalInner,
-.popup-container,
+/* ---- the red banner: hold your concentration ---- */
 #conCheckInner {
   border-image-source: url('./assets/draftsvgs_v2/container_hero-manager.svg');
   --panel-ink: #fbf3e7;
@@ -2139,8 +2263,8 @@
   mask-image: var(--hand-tick), linear-gradient(#000, #000);
   -webkit-mask-repeat: no-repeat, no-repeat;
   mask-repeat: no-repeat, no-repeat;
-  -webkit-mask-position: center, left center;
-  mask-position: center, left center;
+  -webkit-mask-position: center, var(--mark-wipe-pos, left center);
+  mask-position: center, var(--mark-wipe-pos, left center);
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
 
@@ -2148,12 +2272,14 @@
   transform: translate(-50%, -50%) rotate(var(--cb-tilt, 0deg))
              scale(var(--cb-scale, 1)) translateY(var(--cb-nudge, 0));
 
-  -webkit-mask-size: 100% 100%, 0% 100%;
-  mask-size: 100% 100%, 0% 100%;
+  /* The reveal runs along the stroke rather than always left to right — each
+     mark class says which way it was drawn (--mark-wipe-from / -pos). */
+  -webkit-mask-size: 100% 100%, var(--mark-wipe-from, 0% 100%);
+  mask-size: 100% 100%, var(--mark-wipe-from, 0% 100%);
 
   transition:
-    mask-size 0.62s cubic-bezier(0.35, 0.75, 0.45, 1),
-    -webkit-mask-size 0.62s cubic-bezier(0.35, 0.75, 0.45, 1);
+    mask-size var(--mark-wipe-dur, 0.62s) cubic-bezier(0.35, 0.75, 0.45, 1),
+    -webkit-mask-size var(--mark-wipe-dur, 0.62s) cubic-bezier(0.35, 0.75, 0.45, 1);
 }
 
 #battleTracker input[type="checkbox"]:checked + .tickMark,
@@ -2313,7 +2439,12 @@
 }
 
 #heroAddManage .managerTableScroll tbody td {
-  padding: 0.2em 0.5em;
+  /* 0.5em each side is 10.9px, and six columns of it is 131px of a 632px
+     table on a 1366px screen — a fifth of the roster spent on gaps, which is
+     what left "Bartholomew" and "Christopher" each a few pixels short of
+     fitting and broke them mid-word. The rows are told apart by their tint,
+     not by their gutters, so this can be tight. */
+  padding: 0.2em 0.28em;
   font-size: 1.06em;
   vertical-align: middle;
 }
@@ -2477,8 +2608,11 @@
 
 .adSlot-banner {
   grid-area: adbanner;
-  align-self: center;
-  margin-bottom: 0.6rem;
+  /* It sits in the band above the round and the timer, so it hangs from the
+     top of that band and leaves its breathing room underneath. */
+  align-self: start;
+  justify-self: center;
+  margin: 0.5rem 0 0.35rem;
 }
 
 .adSlot-tower {
@@ -2517,6 +2651,23 @@
   background-color: rgba(150, 97, 45, 0.2);
 }
 
+/* The house creative is the one piece of the page that is neither drawn art
+   nor inside a panel, so it is the only thing here that has to follow the
+   theme: on the dark page its brown ink on a brown wash came out at about
+   1.5:1 and the promos were effectively invisible. */
+html[data-theme="dark"] .adHouse,
+html[style*="color-scheme: dark"] .adHouse {
+  background-color: rgba(226, 185, 100, 0.09);
+  color: #e6d5b8;
+}
+
+html[data-theme="dark"] .adHouse:hover,
+html[data-theme="dark"] .adHouse:focus-visible,
+html[style*="color-scheme: dark"] .adHouse:hover,
+html[style*="color-scheme: dark"] .adHouse:focus-visible {
+  background-color: rgba(226, 185, 100, 0.17);
+}
+
 .adHouseTitle {
   font-size: 1.15rem;
   font-variant: small-caps;
@@ -2531,6 +2682,10 @@
 }
 
 /* The banner is wide and short, so its promo reads as one line, not a stack. */
+.adSlot-banner {
+  container-type: inline-size;
+}
+
 .adSlot-banner .adHouse {
   flex-direction: row;
   gap: 0.9em;
@@ -2541,6 +2696,30 @@
   max-width: 52ch;
 }
 
+/* The slot sits in the column beside the Start Battle ribbon, and that column
+   is narrower than the 728px reservation below about 1400px — at 1024 it is
+   ~417px. The house creative is fluid, so it goes back to a stack rather than
+   squeezing the one-line version into a third of its width. A network creative
+   could not do this: see the note on SLOTS in AdSlot.tsx. */
+@container (max-width: 34rem) {
+  .adSlot-banner .adHouse {
+    flex-direction: column;
+    gap: 0.15em;
+    text-align: center;
+    padding: 0.4em 0.8em;
+  }
+
+  .adSlot-banner .adHouseTitle {
+    font-size: 1rem;
+  }
+
+  .adSlot-banner .adHouseBody {
+    font-size: 0.82rem;
+    line-height: 1.25;
+    max-width: none;
+  }
+}
+
 
 /* ==========================================================================
    WALLPAPER
@@ -2548,11 +2727,10 @@
    A tiled weapons pattern behind everything. It goes on a fixed pseudo-element
    rather than on `body` itself for two reasons: a background image cannot be
    faded on its own, and each of these files is a single flat colour, so they
-   need very different handling per theme. The beige (#ebddcc) sits a shade off
-   the cream page and only needs taking down slightly; the grey (#d7d7d7) is a
-   LIGHT colour that would sit on a near-black page at full strength, so in
-   dark mode it is knocked right back to a faint lift rather than a pattern
-   shouting over the content.
+   need very different handling per theme. The beige tile paints its own
+   ground, a shade off the cream page, and only needs taking down slightly.
+   Dark mode uses a tile with the ground removed entirely, so the page colour
+   shows through and the opacity carries only the drawn motifs.
 
    Fixed, so it behaves like wallpaper and stays put while the page scrolls.
    z-index -1 puts it above the page's background colour and behind every bit
@@ -2566,22 +2744,24 @@ body::before {
 
   background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-beige.svg');
   background-repeat: repeat;
-  background-size: 400px 400px;
+  /* The tile is the artwork's own 482x466 bitmap now (see the note in the
+     SVG), so this is that ratio, scaled to the size the padded 501-unit tile
+     used to render at. */
+  background-size: 385px 372px;
   opacity: 0.7;
 }
 
-html[data-theme="dark"] body::before,
-html[style*="color-scheme: dark"] body::before {
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-grey.svg');
-  opacity: 0.07;
-}
+/* Which tile and how strongly is `data-wallpaper`'s job now — see the
+   wallpaper choices further down. What stays here is everything the papers
+   share: the fixed pseudo-element, the repeat, and the tile size. */
 
-/* When the user has never chosen a theme, only the OS preference separates the
-   two — guarded so an explicit light choice still wins. */
+/* Before React mounts, nothing has stamped `data-wallpaper` yet, so a dark-OS
+   visitor would get a flash of the cream paper on a dark page. This covers
+   that one frame and is overridden the moment the attribute lands. */
 @media (prefers-color-scheme: dark) {
-  html:not([data-theme="light"]) body::before {
-    background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-grey.svg');
-    opacity: 0.07;
+  html:not([data-theme="light"]):not([data-wallpaper]) body::before {
+    background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-dark.svg');
+    opacity: 0.2;
   }
 }
 
@@ -2596,7 +2776,10 @@ html[style*="color-scheme: dark"] body::before {
    ========================================================================== */
 
 #monsterAddManage {
-  width: min(80vw, max(50vw, 42rem));
+  /* Wider than it was (50vw / 42rem): the roster carries eight stat columns
+     under every name plus a two-button actions column, and all of it was
+     working to the millimetre. */
+  width: min(88vw, max(56vw, 46rem));
   left: 50%;
   transform: translateX(-50%);
 }
@@ -2644,6 +2827,40 @@ html[style*="color-scheme: dark"] body::before {
 #monsterAddManage #addMonsterOuter {
   gap: 0.5rem;
   padding: 0.3rem 0 0.5rem !important;
+}
+
+/* -- add monster x N ------------------------------------------------------
+   One button and a multiplier, rather than "Add Monster" beside a second
+   "Add Monsters" doing the same job with a different number. The drawn button
+   carries its label in the artwork, so the count has to read as part of the
+   same control without being able to sit inside it. */
+#monsterAddManage .addMonsterRow {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+#monsterAddManage .addMonsterCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: text;
+}
+
+#monsterAddManage .addMonsterTimes {
+  font-family: 'Caudex', serif;
+  font-size: 1.15em;
+  line-height: 1;
+  color: var(--panel-ink-soft);
+}
+
+/* Scoped through #addMonsterOuter so it outranks that block's own input rule,
+   which is two ids deep and was leaving this at the browser's default width. */
+#monsterAddManage #addMonsterOuter .addMonsterCount input {
+  /* Two digits plus the browser's spinner. */
+  width: 3.6em;
+  min-width: 0;
+  text-align: center;
 }
 
 #monsterAddManage #addMonsterOuter input {
@@ -2714,12 +2931,16 @@ html[style*="color-scheme: dark"] body::before {
   width: 100%;
 }
 
-#monsterAddManage .managerTableScroll thead th:nth-child(1) { width: 30%; }
+/* The actions column was 28%, which at this panel's width is ~178px — the
+   pill, the gap, the bin and the cell's own padding come to ~209, so the bin
+   hung 26px past the end of its own cell and against the roster's edge. The
+   name column gives way; it still holds the longest stock monster name. */
+#monsterAddManage .managerTableScroll thead th:nth-child(1) { width: 29%; }
 #monsterAddManage .managerTableScroll thead th:nth-child(2) { width: 10%; }
 #monsterAddManage .managerTableScroll thead th:nth-child(3) { width: 10%; }
 #monsterAddManage .managerTableScroll thead th:nth-child(4) { width: 11%; }
 #monsterAddManage .managerTableScroll thead th:nth-child(5) { width: 11%; }
-#monsterAddManage .managerTableScroll thead th:nth-child(6) { width: 28%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(6) { width: 29%; }
 
 /* A long monster name is cut rather than allowed to widen the table. */
 #monsterAddManage tr.monsterManagerMonster > td:first-child .setEditingField {
@@ -2798,17 +3019,31 @@ html[style*="color-scheme: dark"] body::before {
    out 54px in a 69px row and left an untinted strip along the bottom of the
    column that read as a white box. Centring the buttons inline keeps the cell
    a cell. */
-#monsterAddManage .monsterActions {
-  text-align: center;
+/* The pair was centred in its column, which left the bin hard against the
+   roster's scrollbar with the pill crowding it from the other side. Anchored
+   to the right instead, so the bin keeps a margin from the edge and the pill
+   is pulled off it. */
+/* Specific enough to beat `.managerTableScroll tbody td`, which sets the
+   padding for every cell in the roster and was quietly winning here. */
+#monsterAddManage .managerTableScroll tbody td.monsterActions {
+  text-align: right;
   white-space: nowrap;
+  /* The pair is anchored right, so the usual 0.5em on the left is space the
+     column does not need. */
+  padding-left: 0;
+  padding-right: 0.7em;
 }
 
 #monsterAddManage .monsterActions > * {
   vertical-align: middle;
+  /* `button { margin: .3rem }` was adding 4.8px on every side of both of
+     these, so the gap was not the one declared below and the pair ran 8px
+     past the end of its own cell. */
+  margin: 0;
 }
 
 #monsterAddManage .monsterActions > * + * {
-  margin-left: 0.5em;
+  margin-left: 0.8em;
 }
 
 /* "Join the Fray" — the same pill shape the conditions editor's Done uses, so
@@ -2984,7 +3219,10 @@ html[style*="color-scheme: dark"] body::before {
 }
 
 #options li > button:hover,
-#options li > button:focus-visible {
+#options li > button:focus-visible,
+.editBattleDone:focus-visible,
+.editBattleClear:focus-visible,
+#buttonEditBattle:focus-visible {
   background-color: rgba(107, 72, 36, 0.3);
   filter: none;
 }
@@ -3038,6 +3276,13 @@ html[style*="color-scheme: dark"] body::before {
   cursor: pointer;
 }
 
+/* The two pieces of art each carry a 1-unit transparent margin at the seam
+   (measured off the alpha channel: 2 units of 707, a 0.5px hairline at the
+   rendered size), so boxes that touch still leave a visible light line. This
+   pulls the right half over that margin — both shapes are solid fills with
+   their own outline, so they merge into one shared divider. */
+#options .versionOption2024 { margin-inline-start: -0.06rem; }
+
 #options .versionOption2014 { background-image: url('./assets/draftsvgs_v1/button_2014-off.svg'); }
 #options .versionOption2024 { background-image: url('./assets/draftsvgs_v1/button_2024-off.svg'); }
 
@@ -3049,3 +3294,3443 @@ html[style*="color-scheme: dark"] body::before {
 
 #options .versionOption2014:active { background-image: url('./assets/draftsvgs_v1/button_2014-active.svg'); }
 #options .versionOption2024:active { background-image: url('./assets/draftsvgs_v1/button_2024-active.svg'); }
+
+
+/* ==========================================================================
+   DRAWN BUTTONS
+
+   Emily's button art, in two shapes (rounded / cutout) and three colours
+   (red / green / beige). Each file is 9-sliced with `border-image` rather than
+   stretched with `background-size`, so ONE file covers any label length: the
+   drawn corners are placed untouched and only the straight edges and the flat
+   middle stretch. That is why the -med files are used for everything and the
+   -small ones are not needed here.
+
+   Three things make this work, and all three are easy to get wrong:
+
+   1. `border-width` stays 0 so the artwork takes no layout space at all;
+      `border-image-width` paints the corners out over the padding instead.
+      The padding therefore has to be wide enough to clear the corner, which
+      is what --btn-pad-x is for.
+   2. The corners only keep their shape if the painted edge is in the
+      artwork's own ratio — a percentage border-image-width ties the corner to
+      the *button's* aspect and squashes it. So both edges are derived from
+      --btn-h (the button's nominal height) using the same proportion the
+      slice has in the file.
+   3. The slice itself must be a percentage: these SVGs are sized
+      width="100%" height="100%", and a unitless border-image-slice does not
+      resolve against them.
+
+   Measured off the alpha channel of the -med art (463x120): the rounded
+   corner runs 52x48, the cutout's notch 36x30. Fills are flat — red #9E0000
+   (cream ink, 7.7:1), green #A2DB3B and beige #FBF4EB (both dark ink, 8.6:1
+   and 13:1) — so the ink colour is fixed per colour rather than per surface.
+   ========================================================================== */
+
+.drawnBtn,
+/* the HP window */
+.hpChangeModalDmgButton,
+.hpChangeModalHealButton,
+.hpChangeModalCancelButton,
+/* the shared confirm popup */
+.btn-continue,
+.btn-cancel,
+/* the battle manager */
+.btn-save-battle,
+.save-dialog-buttons button,
+.btn-load,
+.btn-share,
+.btn-delete,
+.btn-upload-photo,
+#buttonDownloadData,
+#inputImportData,
+#buttonMonsterShareURL,
+/* the options panel's settings */
+#options li > button,
+/* the edit-battle window, and the button that opens it */
+.editBattleDone,
+.editBattleClear,
+#buttonEditBattle {
+  /* the nominal height the corners are scaled from */
+  --btn-h: 2.5em;
+  --btn-pad-x: 1.15em;
+  /* rounded is the default shape; .isCutout below swaps in the other numbers */
+  --btn-slice-x: 11.23%;
+  --btn-slice-y: 40%;
+  --btn-edge-x: calc(var(--btn-h) * 52 / 120);
+  --btn-edge-y: calc(var(--btn-h) * 48 / 120);
+  /* beige is the default colour */
+  --btn-art: url('./assets/draftsvgs_v2/button_rounded-beige-med.svg');
+  --btn-ink: #3a2a18;
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  min-height: var(--btn-h);
+  padding: 0.15em var(--btn-pad-x);
+  margin: 0.2em;
+
+  border-style: solid;
+  border-color: transparent;
+  border-width: 0;
+  border-image-source: var(--btn-art);
+  border-image-slice: var(--btn-slice-y) var(--btn-slice-x) fill;
+  border-image-width: var(--btn-edge-y) var(--btn-edge-x);
+  border-image-repeat: stretch;
+  border-radius: 0;
+
+  background: none;
+  background-color: transparent;
+  box-shadow: none;
+  color: var(--btn-ink);
+
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  line-height: 1.1;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.12s ease, transform 0.06s ease;
+}
+
+/* The concave-cornered variant. Its notch is shallower than the rounded
+   corner, so it needs both a different slice and less padding to clear it. */
+.drawnBtn.isCutout,
+#buttonDownloadData,
+#inputImportData,
+#buttonMonsterShareURL,
+#buttonEditBattle {
+  --btn-pad-x: 0.9em;
+  --btn-slice-x: 7.78%;
+  --btn-slice-y: 25%;
+  --btn-edge-x: calc(var(--btn-h) * 36 / 120);
+  --btn-edge-y: calc(var(--btn-h) * 30 / 120);
+}
+
+.drawnBtn.isRed,
+.hpChangeModalDmgButton,
+.btn-delete,
+.editBattleClear {
+  --btn-art: url('./assets/draftsvgs_v2/button_rounded-red-med.svg');
+  --btn-ink: #fbf3e7;
+}
+
+.drawnBtn.isGreen,
+.hpChangeModalHealButton,
+.btn-continue,
+.btn-save-battle,
+.save-dialog-buttons button:first-child,
+.btn-load,
+#buttonEditBattle {
+  --btn-art: url('./assets/draftsvgs_v2/button_rounded-green-med.svg');
+  --btn-ink: #23301a;
+}
+
+/* The cutout art is a separate set of files, so a cutout button has to name
+   its colour again rather than inheriting the rounded one. */
+.drawnBtn.isCutout.isRed { --btn-art: url('./assets/draftsvgs_v2/button_cutout-red-med.svg'); }
+.drawnBtn.isCutout.isGreen,
+#buttonDownloadData,
+#buttonEditBattle { --btn-art: url('./assets/draftsvgs_v2/button_cutout-green-med.svg'); }
+.drawnBtn.isCutout.isBeige,
+#inputImportData,
+#buttonMonsterShareURL { --btn-art: url('./assets/draftsvgs_v2/button_cutout-beige-med.svg'); }
+
+/* `button:hover { filter: brightness(130%) }` in index.css washes the drawn
+   art out — the red goes pink and the beige goes white — so the hover is a
+   small lift instead, and the press actually presses. */
+.drawnBtn:hover,
+.hpChangeModalDmgButton:hover,
+.hpChangeModalHealButton:hover,
+.hpChangeModalCancelButton:hover,
+.btn-continue:hover,
+.btn-cancel:hover,
+.btn-save-battle:hover,
+.save-dialog-buttons button:hover,
+.btn-load:hover,
+.btn-share:hover,
+.btn-delete:hover,
+.btn-upload-photo:hover,
+#buttonDownloadData:hover,
+#inputImportData:hover,
+#buttonMonsterShareURL:hover,
+#options li > button:hover,
+.editBattleDone:hover,
+.editBattleClear:hover,
+#buttonEditBattle:hover {
+  filter: brightness(1.07) saturate(1.05);
+  transform: translateY(-1px);
+  background: none;
+  background-color: transparent;
+}
+
+.drawnBtn:active,
+.hpChangeModalDmgButton:active,
+.hpChangeModalHealButton:active,
+.hpChangeModalCancelButton:active,
+.btn-continue:active,
+.btn-cancel:active,
+.btn-save-battle:active,
+.save-dialog-buttons button:active,
+.btn-load:active,
+.btn-share:active,
+.btn-delete:active,
+.btn-upload-photo:active,
+#buttonDownloadData:active,
+#inputImportData:active,
+#buttonMonsterShareURL:active,
+#options li > button:active,
+.editBattleDone:active,
+.editBattleClear:active,
+#buttonEditBattle:active {
+  filter: brightness(0.94);
+  transform: translateY(1px);
+}
+
+.drawnBtn:focus-visible,
+.hpChangeModalDmgButton:focus-visible,
+.hpChangeModalHealButton:focus-visible,
+.hpChangeModalCancelButton:focus-visible,
+.btn-continue:focus-visible,
+.btn-cancel:focus-visible,
+.btn-save-battle:focus-visible,
+.save-dialog-buttons button:focus-visible,
+.btn-load:focus-visible,
+.btn-share:focus-visible,
+.btn-delete:focus-visible,
+.btn-upload-photo:focus-visible,
+#buttonDownloadData:focus-visible,
+#inputImportData:focus-visible,
+#buttonMonsterShareURL:focus-visible,
+#options li > button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  filter: brightness(1.07) saturate(1.05);
+}
+
+.drawnBtn:disabled,
+.drawnBtn[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawnBtn,
+  .hpChangeModalDmgButton,
+  .hpChangeModalHealButton,
+  .hpChangeModalCancelButton,
+  .btn-continue,
+  .btn-cancel,
+  .btn-save-battle,
+  .save-dialog-buttons button,
+  .btn-load,
+  .btn-share,
+  .btn-delete,
+  .btn-upload-photo,
+  #buttonDownloadData,
+  #inputImportData,
+  #buttonMonsterShareURL,
+  #options li > button,
+  .editBattleDone,
+  .editBattleClear,
+  #buttonEditBattle {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+
+/* ==========================================================================
+   ABOUT — the same parchment as the managers
+
+   It was a plain tinted box: default type, `overflow-x: scroll`, and the
+   keyboard shortcuts as seven paragraphs with the key run into the sentence.
+   Now it is the monster-manager scroll, on one responsive base with everything
+   inside it in `em`, and the three things it holds — what the app does, what
+   the keys do, and who built it — each get their own section instead of
+   sharing one column.
+   ========================================================================== */
+
+#about {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+
+  /* Two columns want more room than Options' single one, but the panel still
+     has to fit a laptop: the vw term takes over below ~1100px. */
+  width: min(94vw, 62rem);
+  max-width: none;
+  max-height: 88vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  box-sizing: border-box;
+  background: none;
+  background-color: transparent;
+  color: var(--panel-ink);
+  color-scheme: light;
+
+  border-style: solid;
+  border-color: transparent;
+  border-width: 30px 53px;
+  border-image-source: url('./assets/draftsvgs_v2/container_monster-manager.svg');
+  border-image-slice: 6% fill;
+  border-image-width: 30px 53px;
+  border-image-repeat: stretch;
+
+  --panel-ink: #2b1a0c;
+  --panel-ink-soft: #56391d;
+  --panel-rule: rgba(43, 26, 12, 0.30);
+
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.92rem, 1.02vw, 1.28rem);
+  line-height: 1.42;
+  padding: 0.2rem 0.7rem 0.7rem;
+}
+
+#about,
+#about h2,
+#about h3,
+#about p,
+#about li {
+  font-weight: normal;
+}
+
+#about h2 {
+  font-size: 1.75em;
+  font-variant: small-caps;
+  letter-spacing: 0.6px;
+  text-align: center;
+  margin: 0 0 0.15em;
+  color: var(--panel-ink);
+  filter: none;
+}
+
+/* A drawn rule rather than a border, as the panels use. The stroke art is
+   400x20, so the box needs roughly a twentieth of its width in height or the
+   pencil line squashes flat and reads as a CSS border again; the negative
+   margins claw that height back out of the flow. */
+#about h2::after {
+  content: "";
+  display: block;
+  height: 26px;
+  margin: -9px auto -6px;
+  width: 62%;
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-2.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.55;
+}
+
+#about h3 {
+  font-size: 1.16em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.15em;
+  color: var(--panel-ink);
+  width: auto;
+  filter: none;
+}
+
+#about h3::after {
+  content: "";
+  display: block;
+  height: 22px;
+  margin: -8px 0 0;
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-6.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.5;
+}
+
+/* Instructions and shortcuts side by side; the list is the wider of the two
+   because its lines are sentences and the shortcuts' are fragments. */
+#aboutGrid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 0.5em 1.6em;
+  align-items: start;
+  margin-top: 0.3em;
+}
+
+#about section {
+  min-width: 0;
+}
+
+#about #instructions {
+  overflow: visible;
+}
+
+#about ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#about #instructions li {
+  position: relative;
+  margin: 0 0 0.5em;
+  padding-left: 1.1em;
+  list-style: none;
+}
+
+/* An en-dash in the panel's own ink instead of a browser bullet. */
+#about #instructions li::before {
+  content: "–";
+  position: absolute;
+  left: 0.15em;
+  top: 0;
+  color: var(--panel-ink-soft);
+}
+
+/* -- keyboard shortcuts ---------------------------------------------------
+   A real key/meaning list. The <dl> is a grid of two-cell rows so every
+   description starts on the same line whatever the key art's width. */
+#about dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.24em;
+}
+
+#about .shortcutRow {
+  display: grid;
+  grid-template-columns: 2.6em 1fr;
+  align-items: center;
+  gap: 0.7em;
+}
+
+#about .shortcutRow dt,
+#about .shortcutRow dd {
+  margin: 0;
+}
+
+#about .keyShortcut {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+}
+
+#about .shortcutRow dd {
+  color: var(--panel-ink-soft);
+}
+
+/* -- credits --------------------------------------------------------------
+   Role and name in two columns so the names line up, rather than five
+   sentences each starting with a different word. */
+#credits {
+  margin-top: 0.5em;
+}
+
+#about #credits ul {
+  display: grid;
+  /* 15rem fitted three columns into the panel and left the names ~160px, so
+     every multi-name credit wrapped to three lines. Two columns give the name
+     column room to hold its line. */
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: 0.1em 1.8em;
+  align-items: baseline;
+}
+
+#about #credits li {
+  display: grid;
+  grid-template-columns: 8.5em 1fr;
+  gap: 0.6em;
+  margin: 0;
+  padding: 0.1em 0;
+}
+
+#about .creditRole {
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  color: var(--panel-ink-soft);
+}
+
+#about a {
+  color: #7a2f12;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+#about #aboutCloseButton {
+  position: absolute;
+  top: 0.1em;
+  right: 0.3em;
+  z-index: 3;
+  float: none;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: #7a2f12;
+  font-family: 'Caudex', serif;
+  font-size: 1.15em;
+  width: 2em;
+  height: 2em;
+  aspect-ratio: auto !important;
+  cursor: pointer;
+}
+
+#about #aboutCloseButton:hover {
+  filter: none;
+  color: #a63c17;
+}
+
+/* One column once the two would be too narrow to read. This is a container
+   width, not a device width — the panel is 94vw at small sizes. */
+@media (max-width: 60rem) {
+  #aboutGrid {
+    grid-template-columns: 1fr;
+    gap: 0.6em;
+  }
+}
+
+
+/* ==========================================================================
+   THE HP WINDOW
+
+   It was a stack of full-width coloured slabs: a `border-radius: 8px` card, a
+   grey "Current HP" sentence, an emoji shield, an emoji tally for the death
+   saves, and three flat buttons. The frame and the buttons come from the same
+   artwork as everything else now; what is left here is the information design.
+
+   The two figures that matter — what is left, and any temporary hit points —
+   read as a pair of numbers rather than a sentence, because that is what a DM
+   is glancing at mid-turn.
+   ========================================================================== */
+
+.hpChangeModalInner {
+  min-width: min(26rem, 92vw);
+  max-width: min(34rem, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.2rem 0.9rem 0.9rem;
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.95rem, 1.05vw, 1.3rem);
+  text-align: center;
+}
+
+/* The combatant's name is the window's title. */
+.hpChangeModalInner > h3 {
+  font-size: 1.6em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.6px;
+  margin: 0 0 0.1em;
+}
+
+.hpChangeModalInner > h3::after {
+  content: "";
+  display: block;
+  height: 24px;
+  width: 70%;
+  margin: -9px auto -2px;
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-3.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.5;
+}
+
+/* -- the two figures ------------------------------------------------------ */
+.hpReadout {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0.9em;
+  margin: 0.5em 0 0.7em;
+}
+
+.hpStat {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1em;
+  padding: 0.35em 0.5em 0.45em;
+  background-color: var(--panel-inset, rgba(107, 72, 36, 0.15));
+}
+
+.hpStatLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  font-size: 0.88em;
+  color: var(--panel-ink-soft);
+}
+
+.hpTempIcon {
+  width: 1.15em;
+  height: 1.15em;
+  object-fit: contain;
+}
+
+.hpStatValue {
+  font-size: 1.85em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--panel-ink);
+}
+
+.hpStatOf {
+  font-size: 0.58em;
+  opacity: 0.7;
+  margin-left: 0.1em;
+}
+
+/* The temp-HP figure is an EditableCell, so it renders as text until clicked
+   and as a number input after. Both have to sit at the figure's size. */
+.hpStatTemp .hpStatValue > * {
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.hpStatTemp .editableCellNum {
+  width: 3.2em;
+  text-align: center;
+  font-size: inherit;
+  font-family: inherit;
+  background-color: var(--panel-field);
+  color: var(--panel-field-ink);
+  border-radius: 2px;
+}
+
+/* -- the amount ----------------------------------------------------------- */
+.hpAmountLabel {
+  display: block;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  font-size: 0.9em;
+  color: var(--panel-ink-soft);
+  margin-bottom: 0.15em;
+}
+
+.hpChangeModalInner .hpChangeModalInput {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 0.2em;
+  padding: 0.4em 0.6em;
+  font-family: 'Caudex', serif;
+  font-size: 1.15em;
+  text-align: center;
+  background-color: var(--panel-field);
+  color: var(--panel-field-ink);
+  border: none;
+  border-radius: 2px;
+}
+
+.hpChangeModalInner .hpChangeModalInput:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 1px;
+}
+
+.hpChangeModalInner .errorMsg {
+  margin: 0.2em 0 0;
+  color: #9e0000;
+  font-size: 0.92em;
+}
+
+/* -- the actions ---------------------------------------------------------- */
+.hpChangeModalInner .hpChangeModalButtonBox {
+  display: flex;
+  gap: 0.6em;
+  width: 100%;
+  margin: 0.6em 0 0;
+}
+
+.hpChangeModalInner .hpChangeModalButtonBox > button {
+  flex: 1 1 0;
+  margin: 0;
+}
+
+.hpChangeModalInner .hpChangeModalCancelButton {
+  width: auto;
+  min-width: 9em;
+  margin: 0.5em auto 0;
+  display: inline-flex;
+}
+
+/* -- death saves ---------------------------------------------------------- */
+/* A section of the window, not a window of its own: a tint of the parchment
+   and the panel's own rule, rather than a white slab with its own radius. */
+.hpChangeModalInner #deathSavesBox {
+  background-color: var(--panel-inset, rgba(107, 72, 36, 0.15));
+  border-radius: 0;
+  margin: 0 0 0.7em;
+  padding: 0.4em 0.6em 0.6em;
+}
+
+.hpChangeModalInner #deathSavesBox > h2 {
+  font-size: 1.05em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.35em;
+  color: var(--panel-ink);
+}
+
+.hpChangeModalInner #deathSavesBoxInner {
+  background: rgba(255, 253, 248, 0.55);
+  border-radius: 0;
+  min-height: 2.6em;
+  margin: 0 0 0.55em;
+  padding: 0.3em 0.5em;
+  gap: 0.35em;
+  justify-content: center;
+}
+
+.hpChangeModalInner #deathSavesNull {
+  font-size: 0.9em;
+  font-style: italic;
+  color: var(--panel-ink-soft);
+  opacity: 0.75;
+}
+
+/* The tally is drawn marks, the same hand as the tracker's ticks and crosses.
+   They are masks rather than images because a background image can only be
+   tinted by filter, and no filter gives you a chosen colour. */
+.deathSaveMark {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.deathSaveMark.success {
+  color: #2f6b1f;
+  -webkit-mask-image: url('./assets/draftsvgs_v2/check_hand-2.svg');
+  mask-image: url('./assets/draftsvgs_v2/check_hand-2.svg');
+}
+
+.deathSaveMark.failure {
+  color: #9e0000;
+  -webkit-mask-image: url('./assets/draftsvgs_v2/cross_hand-2.svg');
+  mask-image: url('./assets/draftsvgs_v2/cross_hand-2.svg');
+}
+
+/* Only the last mark can be taken back, so only it offers to be clicked. */
+.deathSaveMark.removable {
+  cursor: pointer;
+}
+
+.deathSaveMark.removable:hover {
+  opacity: 0.55;
+}
+
+.hpChangeModalInner .deathSavesButtons {
+  gap: 0.6em;
+}
+
+.hpChangeModalInner .deathSavesButtons > div {
+  display: flex;
+  gap: 0.6em;
+  width: 100%;
+}
+
+.hpChangeModalInner .deathSavesButtons button {
+  flex: 1 1 0;
+  margin: 0;
+}
+
+
+/* ==========================================================================
+   BATTLE MANAGER — the last panel still wearing the first draft
+
+   It kept the shape it was built in: flat #dc3545 and #ddd buttons with 4px
+   radii, an emoji for every noun, "Current: 3 heroes, 2 monsters (Round 1)"
+   as a sentence, a translateY(-1px) hover, and one long column of full-width
+   cards. The frame was already the monster scroll; everything inside it now
+   speaks the same language as the other two managers — Caudex, small-caps
+   headings on a drawn rule, sizes in em of one responsive base, and the
+   drawn buttons.
+   ========================================================================== */
+
+#battleAddManage {
+  width: min(84vw, max(56vw, 48rem));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#battleAddManage .battle-content,
+#battleAddManage .battle-content h2,
+#battleAddManage .battle-content h3,
+#battleAddManage .battle-content h4,
+#battleAddManage .battle-content h5,
+#battleAddManage .battle-content p,
+#battleAddManage .battle-content button,
+#battleAddManage .battle-content input,
+#battleAddManage .battle-content label {
+  font-family: 'Caudex', serif;
+  font-weight: normal;
+}
+
+#battleAddManage .battle-content {
+  font-size: clamp(0.92rem, 1.15vw, 1.4rem);
+  line-height: 1.32;
+  padding: 0 0.4rem 0.3rem;
+}
+
+/* The X was still the app's default button: a solid red block in the corner
+   of the scroll. It takes the panel's own ink, as the other two do. */
+#battleAddManage .saveClose {
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: var(--panel-ink);
+  font-family: 'Caudex', serif;
+  font-size: 1.06em;
+  width: 2em;
+  height: 2em;
+  padding: 0;
+  cursor: pointer;
+}
+
+#battleAddManage .saveClose:hover {
+  color: #9e0000;
+  filter: none;
+}
+
+#battleAddManage .battle-content > h2 {
+  font-size: 1.76em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  line-height: 1.05;
+  margin: 0;
+  padding: 0 2.6rem;
+  text-align: center;
+}
+
+#battleAddManage .battle-content > h2::after {
+  content: "";
+  display: block;
+  height: 30px;
+  margin: -10px 0;
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-2.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.55;
+}
+
+/* -- the three sections --------------------------------------------------- */
+#battleAddManage #saveBattleOuter,
+#battleAddManage #exportImportBattles,
+#battleAddManage #savedBattlesOuter {
+  margin-bottom: 0.7em;
+  padding: 0.5em 0.7em 0.6em;
+  background-color: var(--panel-inset);
+}
+
+#battleAddManage #saveBattleOuter h3,
+#battleAddManage #exportImportBattles h3,
+#battleAddManage #savedBattlesOuter h3 {
+  font-size: 1.12em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.1em;
+}
+
+#battleAddManage #saveBattleOuter h3::after,
+#battleAddManage #exportImportBattles h3::after,
+#battleAddManage #savedBattlesOuter h3::after {
+  content: "";
+  display: block;
+  height: 20px;
+  margin: -7px 0 0;
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-7.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.4;
+}
+
+/* -- what is on the table now --------------------------------------------- */
+#battleAddManage .battle-info {
+  display: flex;
+  gap: 1.4em;
+  align-items: baseline;
+  margin: 0.35em 0 0.5em;
+  padding: 0;
+  background: none;
+}
+
+.battleFact {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35em;
+}
+
+.battleFactValue {
+  font-size: 1.5em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--panel-ink);
+}
+
+.battleFactLabel {
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  color: var(--panel-ink-soft);
+}
+
+#battleAddManage .no-battle-warning {
+  margin: 0.3em 0 0;
+  padding: 0.5em;
+  font-style: italic;
+  color: var(--panel-ink-soft);
+}
+
+/* -- the save dialog ------------------------------------------------------ */
+#battleAddManage .save-dialog {
+  margin-top: 0.5em;
+}
+
+#battleAddManage .save-dialog input[type="text"] {
+  padding: 0.35em 0.6em;
+  border: none;
+  border-radius: 3px;
+  font-size: 1em;
+}
+
+#battleAddManage .photo-upload-section {
+  margin: 0.5em 0;
+  padding: 0.5em 0.6em;
+  border-radius: 0;
+  background-color: rgba(107, 72, 36, 0.1);
+}
+
+#battleAddManage .photo-upload-label {
+  display: block;
+  margin-bottom: 0.3em;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  color: var(--panel-ink);
+}
+
+.optionalNote {
+  font-variant: normal;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+#battleAddManage .photo-preview img {
+  border-radius: 2px;
+}
+
+/* Small, round, and sitting on the photo — a drawn button is the wrong object
+   here, so it just takes the panel's red. */
+#battleAddManage .btn-remove-photo {
+  width: 1.6em;
+  height: 1.6em;
+  font-size: 0.8em;
+  font-family: 'Caudex', serif;
+  background: #9e0000;
+  color: #fbf3e7;
+  border-radius: 50%;
+  padding: 0;
+}
+
+#battleAddManage .btn-remove-photo:hover {
+  background: #7a0000;
+  filter: none;
+}
+
+#battleAddManage .save-dialog-buttons {
+  gap: 0.6em;
+  margin-top: 0.5em;
+}
+
+#battleAddManage .save-dialog-buttons button {
+  flex: 0 0 auto;
+  min-width: 8em;
+}
+
+/* -- export / import ------------------------------------------------------
+   A button and what it does, on one row each, instead of a button with a
+   paragraph trailing off the end of it. */
+.dataRow {
+  display: grid;
+  grid-template-columns: minmax(9em, 12em) 1fr;
+  align-items: center;
+  gap: 0.3em 1em;
+  padding: 0.22em 0;
+}
+
+.dataRow > button {
+  width: 100%;
+  margin: 0;
+}
+
+.dataNote {
+  color: var(--panel-ink-soft);
+  font-size: 0.92em;
+  line-height: 1.3;
+}
+
+/* Under about 34rem the button takes 9em of the row and leaves the sentence
+   beside it about 140px — a column of single words down the side of the
+   window. Below that width the note goes under its button instead. */
+@media (max-width: 34rem) {
+  .dataRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15em;
+    padding: 0.45em 0;
+  }
+
+  .dataRow > button {
+    max-width: 18em;
+    justify-self: center;
+  }
+
+  .dataNote {
+    text-align: center;
+    text-wrap: pretty;
+  }
+}
+
+/* -- saved battles -------------------------------------------------------- */
+#battleAddManage .empty-state {
+  margin: 0.3em 0 0;
+  padding: 0.6em;
+  font-style: italic;
+  color: var(--panel-ink-soft);
+}
+
+/* Cards were a single stacked column, so four saves meant scrolling past four
+   full-width slabs. They are summaries — they tile. */
+#battleAddManage .battles-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 0.6em;
+  margin-top: 0.4em;
+}
+
+#battleAddManage .battle-card {
+  border-radius: 0;
+  padding: 0.5em 0.6em 0.55em;
+  background: var(--panel-row);
+  /* The selected card opens a roster under it, so it spans the row rather
+     than stretching every other card to match its height. */
+  align-self: start;
+}
+
+#battleAddManage .battle-card.selected {
+  grid-column: 1 / -1;
+  background: var(--panel-row-alt);
+}
+
+#battleAddManage .battle-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6em;
+  margin-bottom: 0.3em;
+}
+
+#battleAddManage .battle-card-header h4 {
+  margin: 0;
+  min-width: 0;
+  font-size: 1.08em;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  overflow-wrap: anywhere;
+}
+
+#battleAddManage .battle-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  flex: 0 0 auto;
+}
+
+#battleAddManage .btn-load {
+  --btn-h: 2em;
+  font-size: 0.85em;
+  margin: 0;
+}
+
+/* The bin is an icon, not a labelled button, so it keeps the panel's ink the
+   way the other two managers' delete buttons do rather than becoming a red
+   block in the corner of every card. */
+#battleAddManage .btn-delete {
+  border-image-source: none;
+  background: none;
+  padding: 0.15em;
+  min-height: 0;
+  margin: 0;
+  color: var(--panel-ink);
+  opacity: 0.75;
+  transition: opacity 0.13s ease, color 0.13s ease;
+}
+
+#battleAddManage .btn-delete:hover,
+#battleAddManage .btn-delete:focus-visible {
+  opacity: 1;
+  color: #9e0000;
+  filter: none;
+  transform: none;
+}
+
+#battleAddManage .battle-card-info {
+  font-size: 0.9em;
+  color: var(--panel-ink-soft);
+}
+
+#battleAddManage .battle-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.1em 0.9em;
+  margin: 0;
+  font-weight: normal;
+  color: var(--panel-ink-soft);
+}
+
+#battleAddManage .battle-stats b {
+  font-weight: normal;
+  font-size: 1.15em;
+  font-variant-numeric: tabular-nums;
+  color: var(--panel-ink);
+}
+
+#battleAddManage .battle-date {
+  margin: 0.15em 0 0;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+/* -- the roster inside an opened card ------------------------------------- */
+#battleAddManage .battle-card-details {
+  margin-top: 0.5em;
+  padding-top: 0.4em;
+  border-top: 1px solid var(--panel-rule-soft);
+}
+
+#battleAddManage .battle-card-details h5 {
+  margin: 0 0 0.25em;
+  font-size: 1em;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  color: var(--panel-ink);
+}
+
+#battleAddManage .battle-card-details ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.05em 1.2em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Initiative, name, hit points — the same three columns the tracker shows,
+   in the same order, so the card reads as a snapshot of that table. */
+.rosterLine {
+  display: grid;
+  grid-template-columns: 2.2em 1fr auto;
+  align-items: baseline;
+  gap: 0.5em;
+  padding: 0.08em 0;
+  font-size: 0.92em;
+}
+
+.rosterInit {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--panel-ink-soft);
+}
+
+.rosterName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Monsters were marked with an emoji; a name in the softer ink says the same
+   thing without putting a picture in a list of words. */
+.rosterLine.is-monster .rosterName {
+  font-style: italic;
+  color: var(--panel-ink-soft);
+}
+
+.rosterHp {
+  font-variant-numeric: tabular-nums;
+  color: var(--panel-ink-soft);
+}
+
+
+/* ==========================================================================
+   THE REST OF THE BUTTONS
+
+   Everything below was still a flat fill with a 3-8px radius: the initiative
+   prompt, the concentration check, the alert/confirm replacements, the Patreon
+   calls to action. They join the drawn set.
+
+   These are listed separately from the block above only because they arrived
+   later; the vocabulary is the same. Green is the affirmative action, beige
+   the neutral one, red the destructive or the headline call to action.
+   ========================================================================== */
+
+#initiativeDialogInner #submitInit,
+#initiativeDialogInner #randomInit,
+#conCheckInner #conPassButton,
+#conCheckInner #conFailButton,
+.appDialogConfirm,
+.appDialogCancel,
+#patreonLogin,
+#patreonContinue,
+#patreonLink > button {
+  --btn-h: 2.5em;
+  --btn-pad-x: 1.15em;
+  --btn-slice-x: 11.23%;
+  --btn-slice-y: 40%;
+  --btn-edge-x: calc(var(--btn-h) * 52 / 120);
+  --btn-edge-y: calc(var(--btn-h) * 48 / 120);
+  --btn-art: url('./assets/draftsvgs_v2/button_rounded-beige-med.svg');
+  --btn-ink: #3a2a18;
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  min-height: var(--btn-h);
+  padding: 0.15em var(--btn-pad-x);
+  margin: 0.2em;
+
+  border-style: solid;
+  border-color: transparent;
+  border-width: 0;
+  border-image-source: var(--btn-art);
+  border-image-slice: var(--btn-slice-y) var(--btn-slice-x) fill;
+  border-image-width: var(--btn-edge-y) var(--btn-edge-x);
+  border-image-repeat: stretch;
+  border-radius: 0;
+
+  background: none;
+  background-color: transparent;
+  box-shadow: none;
+  color: var(--btn-ink);
+
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  line-height: 1.1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.12s ease, transform 0.06s ease;
+}
+
+#initiativeDialogInner #submitInit,
+#conCheckInner #conPassButton,
+.appDialogConfirm {
+  --btn-art: url('./assets/draftsvgs_v2/button_rounded-green-med.svg');
+  --btn-ink: #23301a;
+}
+
+/* The Patreon calls to action are the loudest thing the page asks for, so they
+   take the red. The brand's own coral would be the fourth flat fill in a page
+   with no flat fills left in it; the label still says whose button it is. */
+#patreonLogin,
+#patreonLink > button {
+  --btn-art: url('./assets/draftsvgs_v2/button_rounded-red-med.svg');
+  --btn-ink: #fbf3e7;
+}
+
+/* "Lost it" is the destructive half of the concentration check, but that
+   window sits on the red banner — a red button on it disappears. Beige with
+   the panel's red ink says the same thing and stays readable. */
+#conCheckInner #conFailButton {
+  --btn-ink: #7a1414;
+}
+
+#initiativeDialogInner #submitInit,
+#initiativeDialogInner #randomInit,
+#conCheckInner #conPassButton,
+#conCheckInner #conFailButton {
+  flex: 1 1 0;
+  margin: 0;
+}
+
+#initiativeDialogInner #submitInit:hover,
+#initiativeDialogInner #randomInit:hover,
+#conCheckInner #conPassButton:hover,
+#conCheckInner #conFailButton:hover,
+.appDialogConfirm:hover,
+.appDialogCancel:hover,
+#patreonLogin:hover,
+#patreonContinue:hover,
+#patreonLink > button:hover {
+  filter: brightness(1.07) saturate(1.05);
+  transform: translateY(-1px);
+  background: none;
+  background-color: transparent;
+}
+
+#initiativeDialogInner #submitInit:active,
+#initiativeDialogInner #randomInit:active,
+#conCheckInner #conPassButton:active,
+#conCheckInner #conFailButton:active,
+.appDialogConfirm:active,
+.appDialogCancel:active,
+#patreonLogin:active,
+#patreonContinue:active,
+#patreonLink > button:active {
+  filter: brightness(0.94);
+  transform: translateY(1px);
+}
+
+#initiativeDialogInner #submitInit:focus-visible,
+#initiativeDialogInner #randomInit:focus-visible,
+#conCheckInner #conPassButton:focus-visible,
+#conCheckInner #conFailButton:focus-visible,
+.appDialogConfirm:focus-visible,
+.appDialogCancel:focus-visible,
+#patreonLogin:focus-visible,
+#patreonContinue:focus-visible,
+#patreonLink > button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  filter: brightness(1.07) saturate(1.05);
+}
+
+/* The d20 that rides in the Roll button. */
+#initiativeDialogInner #randomInit img {
+  height: 1.5em;
+  width: auto;
+}
+
+/* -- the concentration check ---------------------------------------------- */
+/* It said "check Yes - Maintained" and "cross No - Lost Concentration" with
+   the tick and cross as typed glyphs. The marks are the drawn ones now, and
+   the labels are the two things a DM actually says out loud. */
+#conCheckInner #conPassButton::before,
+#conCheckInner #conFailButton::before {
+  content: "";
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+#conCheckInner #conPassButton::before {
+  -webkit-mask-image: url('./assets/draftsvgs_v2/check_hand-4.svg');
+  mask-image: url('./assets/draftsvgs_v2/check_hand-4.svg');
+}
+
+#conCheckInner #conFailButton::before {
+  -webkit-mask-image: url('./assets/draftsvgs_v2/cross_hand-3.svg');
+  mask-image: url('./assets/draftsvgs_v2/cross_hand-3.svg');
+}
+
+#conCheckInner h3 {
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+}
+
+/* Both of these were set when this window was a light card. On the red banner
+   the DC came out at 2.1:1 against its own ground and the question at 1.7:1 —
+   the two things the window exists to say were the two hardest to read.
+   Measured against the banner's mid red (#8a1414): gold 6.7:1, soft ink 6.9:1. */
+#conCheckInner #conCheckDC {
+  color: #f6d47a;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+}
+
+#conCheckInner #passConCheck {
+  color: var(--panel-ink-soft);
+}
+
+/* -- the alert / confirm replacements ------------------------------------- */
+.appDialogButtons {
+  align-items: center;
+}
+
+.appDialogConfirm,
+.appDialogCancel {
+  font-size: 0.95em;
+  margin: 0;
+}
+
+/* -- the initiative prompt ------------------------------------------------ */
+/* "Cancel battle" stays a plain underlined link: it is the way out, not one of
+   the two things the window is for, and a third drawn button would read as a
+   third equal choice. */
+#initiativeDialogInner #cancelInit {
+  border-image-source: none;
+}
+
+/* -- the Patreon overlay -------------------------------------------------- */
+#patreonOverlayDiv > div {
+  gap: 0.8rem;
+  align-items: center;
+}
+
+#patreonLink > button {
+  font-size: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #initiativeDialogInner #submitInit,
+  #initiativeDialogInner #randomInit,
+  #conCheckInner #conPassButton,
+  #conCheckInner #conFailButton,
+  .appDialogConfirm,
+  .appDialogCancel,
+  #patreonLogin,
+  #patreonContinue,
+  #patreonLink > button {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+
+/* ==========================================================================
+   CONFIRM BATTLE START
+
+   This window moved from the red banner to the parchment with the rest of the
+   forms, and its roster tables were tinted for the banner — black at 34% for
+   the headings, cream at 6% for the rows. On parchment those read as grey
+   slabs, so the tints are restated in the parchment's own ink, matching the
+   monster manager's roster.
+   ========================================================================== */
+
+.popup-container {
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.92rem, 1.05vw, 1.3rem);
+  line-height: 1.35;
+}
+
+.popup-container .popup-title {
+  margin: 0 0 0.15em;
+  font-size: 1.5em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.popup-container .popup-title::after {
+  content: "";
+  display: block;
+  height: 24px;
+  width: 60%;
+  margin: -9px auto -2px;
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-4.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.5;
+}
+
+.popup-container .popup-message {
+  margin: 0 0 0.35em;
+  font-size: 1em;
+  color: var(--panel-ink-soft);
+  text-align: center;
+}
+
+.popup-container th {
+  background-color: rgba(107, 72, 36, 0.22);
+  color: var(--panel-ink);
+  border: none;
+  border-bottom: 1px solid var(--panel-rule);
+  padding: 0.3em 0.6em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+}
+
+/* The two section headings (Heroes / Monsters) span the table and want to read
+   as headings rather than as another column row. */
+.popup-container th[colspan] {
+  background-color: rgba(107, 72, 36, 0.34);
+  font-size: 1.1em;
+}
+
+.popup-container td {
+  background-color: rgba(255, 250, 240, 0.34);
+  color: var(--panel-ink);
+  border: none;
+  border-bottom: 1px solid var(--panel-rule-soft, rgba(43, 26, 12, 0.15));
+  padding: 0.28em 0.6em;
+}
+
+.popup-container tr:nth-of-type(even) td {
+  background-color: rgba(107, 72, 36, 0.12);
+}
+
+.popup-container .setEditingField:hover {
+  background-color: rgba(107, 72, 36, 0.16);
+}
+
+/* -- ready for battle -----------------------------------------------------
+   Was a tick or cross emoji. Drawn marks, painted as masks so they can take a
+   colour — the same pair the death-save tally and the concentration check use. */
+.readyMark {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  cursor: pointer;
+}
+
+.readyMark.is-yes {
+  color: #2f6b1f;
+  -webkit-mask-image: url('./assets/draftsvgs_v2/check_hand-1.svg');
+  mask-image: url('./assets/draftsvgs_v2/check_hand-1.svg');
+}
+
+.readyMark.is-no {
+  color: #9e0000;
+  -webkit-mask-image: url('./assets/draftsvgs_v2/cross_hand-1.svg');
+  mask-image: url('./assets/draftsvgs_v2/cross_hand-1.svg');
+}
+
+.readyMark:hover {
+  opacity: 0.65;
+}
+
+.readyMark:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 2px;
+}
+
+.popup-container .popup-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.7em;
+  margin-top: 0.7em;
+}
+
+.popup-container .popup-buttons button {
+  min-width: 8em;
+  margin: 0;
+}
+
+
+/* ==========================================================================
+   LONG NAMES IN THE MANAGERS
+
+   "Adult Amethyst Dragon" wants 317px of the monster roster's 208px name
+   column, and "Ancient Sapphire Greatwyrm" wants 376 — so an ellipsis hides
+   40-50% of the name, which is exactly the half that tells two dragons apart.
+   The Hero Manager had it worse: its table was `auto`, so one long name pushed
+   the whole thing 248px past the panel and the Ready box and the bin went off
+   the right-hand edge.
+
+   Both now do the same thing: the table's widths are declared, and the name
+   WRAPS rather than truncating. A monster is already a two-row block (name,
+   then the stat strip) and a hero likewise, so a name taking a second line
+   costs a few pixels of row height and nothing else — every other cell in the
+   row is vertically centred and stays where it is.
+   ========================================================================== */
+
+/* Wider, like the Monster Manager: the roster carries a name, a player, two
+   figures, a Ready box and now two action controls, and every one of them was
+   working to the millimetre at the old width. */
+#heroAddManage {
+  width: min(84vw, max(56vw, 48rem));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* -- the roster tables ---------------------------------------------------- */
+#heroAddManage .managerTableScroll table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Measured at 1366x768, where the roster table is 632px: the name column was
+   135px of it and "Bartholomew" — one word, 95px — did not fit, so it broke
+   mid-word and the hero's name came out as six lines of fragments. Meanwhile
+   the actions column was 190px holding 141px of button and bin. The player's
+   name pays the same way — "Christopher" is another single word that has to
+   fit — so both take their share out of the actions column, which is the only
+   one here with room to give: Ready looks roomy at 64px but its own heading
+   needs every pixel of that. */
+#heroAddManage .managerTableScroll thead th:nth-child(1) { width: 27%; }
+#heroAddManage .managerTableScroll thead th:nth-child(2) { width: 22%; }
+#heroAddManage .managerTableScroll thead th:nth-child(3) { width: 9%; }
+#heroAddManage .managerTableScroll thead th:nth-child(4) { width: 9%; }
+/* Ready? stays at 9: its own heading is 64px and it has exactly that. */
+#heroAddManage .managerTableScroll thead th:nth-child(5) { width: 9%; }
+#heroAddManage .managerTableScroll thead th:nth-child(6) { width: 24%; }
+
+/* The monster roster's shares, rebalanced: the two icon columns were 11% each
+   for a 24px eye and a 24px tick, and the name needed it more. */
+#monsterAddManage .managerTableScroll thead th:nth-child(1) { width: 35%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(2) { width: 10%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(3) { width: 10%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(4) { width: 8%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(5) { width: 8%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(6) { width: 29%; }
+
+/* -- the name itself ------------------------------------------------------ */
+#monsterAddManage tr.monsterManagerMonster > td:first-child,
+#heroAddManage tr.heroManagerHero > td:first-child,
+#heroAddManage tr.heroManagerHero > td:nth-child(2) {
+  white-space: normal;
+}
+
+#monsterAddManage tr.monsterManagerMonster > td:first-child .setEditingField,
+#heroAddManage tr.heroManagerHero > td:first-child .setEditingField,
+#heroAddManage tr.heroManagerHero > td:nth-child(2) .setEditingField {
+  display: inline;
+  max-width: 100%;
+  /* Was `overflow: hidden; text-overflow: ellipsis`, which needs one line to
+     work on and so cut the name off. */
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  /* Break inside a word only when a single word is itself too long — normal
+     names still break at their spaces. */
+  overflow-wrap: break-word;
+  line-height: 1.15;
+}
+
+/* The pencil must stay on the last line of the name rather than being pushed
+   onto a line of its own: the button is inline-flex with nowrap, which makes
+   it an unbreakable box, so the name is the part that wraps. */
+#monsterAddManage tr.monsterManagerMonster > td:first-child .setEditingField .edit,
+#heroAddManage tr.heroManagerHero > td:first-child .setEditingField .edit,
+#heroAddManage tr.heroManagerHero > td:nth-child(2) .setEditingField .edit {
+  vertical-align: baseline;
+}
+
+/* No line cap: EditableCell renders the value as a bare text node beside the
+   pencil <img>, with no element to clamp. Names wrap as far as they need and
+   the row grows, which for a two-row block is a few pixels. */
+
+/* Editing a long name needs the whole column, not the width the text had. */
+#monsterAddManage tr.monsterManagerMonster > td:first-child input[type="text"],
+#heroAddManage tr.heroManagerHero > td:first-child input[type="text"],
+#heroAddManage tr.heroManagerHero > td:nth-child(2) input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* ==========================================================================
+   WALLPAPER CHOICES
+
+   Seven papers, keyed off `data-wallpaper` on the root (stamped by
+   optionsContext). The theme attribute still drives the app's colours; this
+   drives only the paper, so the two are independent in CSS even though the
+   picker sets them together.
+
+   Every light tile runs at the same 0.7 the cream one always did. That is not
+   a legibility ceiling — measured against the body ink, even the strongest of
+   these grounds stays above 9.5:1 at FULL opacity — it is just where the
+   colour reads as a tint of the page rather than as a slab of paint.
+
+   Midnight is the odd one: its tile has no ground at all, so its opacity
+   carries only the drawn motifs (see the note in that file).
+   ========================================================================== */
+
+html[data-wallpaper="parchment"] body::before {
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-beige.svg');
+  opacity: 0.7;
+}
+
+html[data-wallpaper="moss"] body::before {
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-green.svg');
+  opacity: 0.7;
+}
+
+html[data-wallpaper="ember"] body::before {
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-orange.svg');
+  opacity: 0.7;
+}
+
+html[data-wallpaper="rose"] body::before {
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-pink.svg');
+  opacity: 0.7;
+}
+
+html[data-wallpaper="amethyst"] body::before {
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-purple.svg');
+  opacity: 0.7;
+}
+
+html[data-wallpaper="slate"] body::before {
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-grey.svg');
+  opacity: 0.7;
+}
+
+html[data-wallpaper="midnight"] body::before {
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-dark.svg');
+  opacity: 0.2;
+}
+
+
+/* ==========================================================================
+   THE PAPER PICKER
+
+   This replaced the "Switch to Dark Mode" button. A row of swatches says what
+   the choice actually is — the colour of the page — where the button only
+   named the two ends of it, and the tile is painted on each one so the
+   pattern is part of what you are picking rather than a surprise afterwards.
+   ========================================================================== */
+
+/* `#colorMode` is a flex ROW in index.css — it was laid out for the page's
+   own light/dark control, and this list item borrows the id. Left as a row the
+   heading sat beside the swatches instead of over them. */
+#options li#colorMode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+#options #wallpaperHeading {
+  font-size: 1.05em;
+  margin-top: 0.35em;
+}
+
+#options #wallpaperHeading::after {
+  height: 20px;
+  margin: -7px auto -2px;
+  width: 46%;
+}
+
+#options .wallpaperGrid {
+  /* Flex, not grid: `repeat(auto-fit, minmax(2.6em, max-content))` is not a
+     valid auto-repeat track — max-content cannot size one — so the whole
+     template was dropped and the seven swatches stacked into a single column.
+     A wrapping flex row is what this actually wants anyway. */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45em;
+  margin-top: 0.15em;
+}
+
+#options .wallpaperSwatch {
+  flex: 0 0 auto;
+}
+
+#options .wallpaperSwatch {
+  width: 2.7em;
+  height: 2.7em;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+
+  /* The tile itself, at a size that fits a motif or two into the square. */
+  background-repeat: repeat;
+  background-size: 2.2em 2.13em;
+  background-position: center;
+
+  /* A drawn edge rather than a CSS one would be better, but there is no art
+     for a swatch — this is the panel's own ink at low alpha, which reads as a
+     pencil box rather than a UI border. */
+  box-shadow: inset 0 0 0 1px rgba(43, 26, 12, 0.45);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+#options .wallpaperSwatch:hover {
+  transform: translateY(-2px);
+  filter: none;
+  box-shadow: inset 0 0 0 1px rgba(43, 26, 12, 0.7);
+}
+
+#options .wallpaperSwatch:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 2px;
+}
+
+/* The chosen one is ringed, not merely darkened: on seven colours a brightness
+   change is not a state anyone can read. */
+#options .wallpaperSwatch.isChosen {
+  box-shadow:
+    inset 0 0 0 1px rgba(43, 26, 12, 0.55),
+    0 0 0 2px #7a2f12;
+  transform: none;
+}
+
+#options .wallpaperSwatch.is-parchment {
+  background-color: #ebddcc;
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-beige.svg');
+}
+
+#options .wallpaperSwatch.is-moss {
+  background-color: #b0d883;
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-green.svg');
+}
+
+#options .wallpaperSwatch.is-ember {
+  background-color: #f8be87;
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-orange.svg');
+}
+
+#options .wallpaperSwatch.is-rose {
+  background-color: #f1aebc;
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-pink.svg');
+}
+
+#options .wallpaperSwatch.is-amethyst {
+  background-color: #e0d3ee;
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-purple.svg');
+}
+
+#options .wallpaperSwatch.is-slate {
+  background-color: #d7d7d7;
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-grey.svg');
+}
+
+/* Midnight's tile is motifs on transparency, so the swatch supplies the dark
+   ground the page would. */
+#options .wallpaperSwatch.is-midnight {
+  background-color: #1d1f21;
+  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-dark.svg');
+  box-shadow: inset 0 0 0 1px rgba(251, 243, 231, 0.45);
+}
+
+#options .wallpaperSwatch.is-midnight:hover {
+  box-shadow: inset 0 0 0 1px rgba(251, 243, 231, 0.75);
+}
+
+#options .wallpaperSwatch.is-midnight.isChosen {
+  box-shadow:
+    inset 0 0 0 1px rgba(251, 243, 231, 0.55),
+    0 0 0 2px #7a2f12;
+}
+
+/* -- locked papers --------------------------------------------------------
+   Shown, not hidden: a locked colour is still a colour you can see you could
+   have, and a grid of two would not say that. The swatch keeps its colour and
+   takes a lock over it; clicking raises the Patreon prompt rather than
+   silently doing nothing. */
+#options .wallpaperSwatch.isLocked {
+  position: relative;
+}
+
+/* The lock needs a ground of its own to read against seven different colours,
+   so it sits in a disc rather than straight on the paper. */
+#options .wallpaperLock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fbf3e7;
+  pointer-events: none;
+}
+
+#options .wallpaperLock::before {
+  content: "";
+  position: absolute;
+  width: 1.55em;
+  height: 1.55em;
+  border-radius: 50%;
+  background-color: rgba(43, 26, 12, 0.62);
+}
+
+#options .wallpaperLock .icon {
+  position: relative;
+  width: 1em;
+  height: 1em;
+}
+
+#options .wallpaperSwatch.isLocked:hover .wallpaperLock::before {
+  background-color: rgba(43, 26, 12, 0.78);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #options .wallpaperSwatch {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+
+/* ==========================================================================
+   MONSTER MANAGER — a floor under the panel
+
+   With an empty roster the panel shrank to the height of its add row, which
+   left the search field and the Add Monster button looking like a stray
+   toolbar floating in the middle of the screen rather than a manager with
+   nothing in it yet. The floor is a proportion of the viewport, capped so it
+   cannot outgrow the panel's own max-height on a short screen.
+   ========================================================================== */
+#monsterAddManage {
+  min-height: min(26rem, 60vh);
+}
+
+/* The empty-roster line then has somewhere to sit rather than being pinned
+   under the add row. */
+#monsterAddManage .managerTableScroll {
+  min-height: 0;
+}
+
+/* Tall enough to take up the slack the floor above creates, so the line sits
+   in the middle of an empty manager rather than tucked under the headings. */
+#monsterAddManage .monsterRosterEmpty td {
+  height: 9em;
+  vertical-align: middle;
+  padding: 1em 0.5em;
+  text-align: center;
+  font-style: italic;
+  color: var(--panel-ink-soft);
+  background: none;
+}
+
+
+/* ==========================================================================
+   HERO MANAGER — Join the Fray
+
+   The same control the Monster Manager has, in the same place, styled the same
+   way. The one difference is what happens after: a monster leaves the manager
+   when it joins a fight, a hero does not, so this button has a spent state
+   rather than disappearing with the row.
+   ========================================================================== */
+
+#heroAddManage .managerTableScroll tbody td.heroActions {
+  text-align: right;
+  white-space: nowrap;
+  padding-left: 0;
+  padding-right: 0.7em;
+}
+
+#heroAddManage .heroActions > * {
+  vertical-align: middle;
+  /* `button { margin: .3rem }` otherwise sets the gap, not the rule below. */
+  margin: 0;
+}
+
+#heroAddManage .heroActions > * + * {
+  margin-left: 0.8em;
+}
+
+/* The hero scroll is the red banner, so the chip takes the light ink it uses
+   everywhere else on that ground rather than the monster panel's brown. */
+#heroAddManage .buttonJoinFray {
+  padding: 0.16em 0.8em 0.22em;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(251, 243, 231, 0.9);
+  color: #5c1a1a;
+  font-family: 'Caudex', serif;
+  font-size: 0.8em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.13s ease;
+}
+
+#heroAddManage .buttonJoinFray:hover,
+#heroAddManage .buttonJoinFray:focus-visible {
+  background-color: #fff;
+  filter: none;
+}
+
+/* Already fighting: still legible, plainly not a button any more. */
+#heroAddManage .buttonJoinFray:disabled {
+  background-color: rgba(251, 243, 231, 0.16);
+  color: var(--panel-ink-soft);
+  cursor: default;
+}
+
+#heroAddManage .buttonJoinFray:disabled:hover {
+  background-color: rgba(251, 243, 231, 0.16);
+}
+
+
+/* ==========================================================================
+   EDIT BATTLE
+
+   A button at the end of the round line, and a list you can take people out
+   of. Adding stays with the two managers — this is only for the roster
+   changing mid-fight, which is a once-a-session thing and does not earn a
+   delete control on every row of the tracker.
+   ========================================================================== */
+
+#round {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1.4em;
+  flex-wrap: wrap;
+}
+
+/* The round and the timer keep the middle; this sits out at the end of the
+   line so it reads as a tool rather than as part of the readout.
+
+   It takes the CUTOUT art rather than the rounded one every other button in
+   the app uses: it is the only drawn button that sits on the bare page instead
+   of inside a panel, and the notched shape tells it apart. The art carries its
+   own ground, so it reads on the dark paper as well as the light ones with
+   nothing theme-specific here. */
+#buttonEditBattle {
+  --btn-h: 2em;
+  font-size: 0.72em;
+  margin: 0;
+}
+
+/* -- the window ----------------------------------------------------------- */
+.editBattleOuter {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.editBattleInner {
+  box-sizing: border-box;
+  width: min(30rem, 92vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.2rem 0.9rem 0.9rem;
+
+  background: none;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 20px 35px;
+  border-image-source: url('./assets/draftsvgs_v2/container_monster-manager.svg');
+  border-image-slice: 6% fill;
+  border-image-width: 20px 35px;
+  border-image-repeat: stretch;
+
+  color-scheme: light;
+  color: var(--panel-ink);
+  --panel-ink: #2b1a0c;
+  --panel-ink-soft: #56391d;
+  --panel-rule: rgba(43, 26, 12, 0.30);
+  --panel-inset: rgba(107, 72, 36, 0.15);
+
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.92rem, 1.05vw, 1.3rem);
+  line-height: 1.35;
+  text-align: center;
+}
+
+.editBattleInner h3 {
+  font-size: 1.5em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.1em;
+  color: var(--panel-ink);
+}
+
+.editBattleInner h3::after {
+  content: "";
+  display: block;
+  height: 24px;
+  width: 62%;
+  margin: -9px auto -2px;
+  background-image: url('./assets/draftsvgs_v2/underline_pencil-5.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.5;
+}
+
+.editBattleNote {
+  margin: 0.2em 0 0.6em;
+  font-size: 0.92em;
+  color: var(--panel-ink-soft);
+}
+
+.editBattleEmpty {
+  margin: 1.2em 0;
+  font-style: italic;
+  color: var(--panel-ink-soft);
+}
+
+.editBattleList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  text-align: left;
+}
+
+/* Initiative, name, hit points, and the way out — the tracker's own columns in
+   the tracker's own order, so the list reads as that table. */
+.editBattleRow {
+  display: grid;
+  grid-template-columns: 2.4em 1fr auto auto;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.28em 0.5em;
+  background-color: var(--panel-inset);
+}
+
+.editBattleInit {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--panel-ink-soft);
+}
+
+/* The name wraps rather than being cut. This is the window you open to tell
+   two goblins apart, so "Adult Amethy..." is the one thing it must not do —
+   and the rows are short enough that a name taking a second line costs
+   nothing. The other three columns are a number, a number and a bin, so the
+   name is the only thing here that can be long. */
+.editBattleName {
+  min-width: 0;
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/* The rename box takes the column it is in rather than the browser's default
+   twenty-character width, which on a narrow window cut the name it was
+   supposed to be showing you. */
+.editBattleName .editableCellTxt,
+.editBattleName input[type="text"] {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Monsters in the softer ink, as the Battle Manager's saved rosters do it. */
+.editBattleRow.is-monster .editBattleName {
+  font-style: italic;
+  color: var(--panel-ink-soft);
+}
+
+.editBattleTurn {
+  font-style: italic;
+  font-size: 0.85em;
+  color: #7a2f12;
+}
+
+.editBattleHp {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9em;
+  color: var(--panel-ink-soft);
+}
+
+/* A bin, as in both managers — a labelled button on every row made the list
+   read as a column of buttons rather than as the battle. */
+.editBattleRemove {
+  margin: 0;
+  padding: 0.15rem;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--panel-ink);
+  cursor: pointer;
+  opacity: 0.75;
+  display: inline-flex;
+  align-items: center;
+  transition: opacity 0.13s ease, color 0.13s ease;
+}
+
+.editBattleRemove:hover,
+.editBattleRemove:focus-visible {
+  opacity: 1;
+  color: #9e0000;
+  filter: none;
+}
+
+.editBattleActions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7em;
+  margin-top: 0.8em;
+}
+
+.editBattleDone,
+.editBattleClear {
+  margin: 0;
+  min-width: 8em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editBattleRemove {
+    transition: none;
+  }
+}
+
+
+/* ==========================================================================
+   THE BATTLE SIDE, IN THREE STAGES
+
+   The right of the page has three jobs depending on how far along you are, and
+   only one of them at a time:
+
+     prompt   nothing to fight with — one line saying so
+     ready    both rosters have someone — one very large Start the Battle
+     running  the tracker, exactly as it has always looked
+
+   These two states take the same slot: rows 2-3, columns 2-3, which is the
+   round row plus the tracker row. Written as line numbers rather than a named
+   area because there is no name for "the whole battle side" in the template —
+   adding one would mean re-cutting the grid, and the banner row above has to
+   stay where it is.
+
+   BattleTracker renders exactly one of the three, so no wrapper element was
+   needed: it already owns all three pieces.
+   ========================================================================== */
+
+#battlePrompt,
+#battleControls.isSolo {
+  grid-area: 2 / 2 / 4 / 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 2rem;
+}
+
+#battlePrompt {
+  /* The two rows this sits in are `fr` rows in a column whose first row is
+     `auto`, and the rail spans all four — so the `auto` row absorbs the rail's
+     whole height and the `fr` rows collapse to whatever is left. With the
+     tracker there that is most of the page; with only this sentence there it
+     was 38px, and the prompt ended up sitting on the footer at the very bottom
+     of the window. The Start ribbon in the next stage is what holds those rows
+     open for itself, so this claims the same. */
+  min-height: 42vh;
+  align-self: stretch;
+  max-width: 22ch;
+  margin: 0 auto;
+  font-family: 'Caudex', serif;
+  font-size: clamp(1.1rem, 1.9vw, 2rem);
+  line-height: 1.4;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--color-fg);
+  opacity: 0.8;
+}
+
+/* The one thing on the page at this point, so it is sized like it. */
+#battleControls.isSolo #buttonStartBattle {
+  /* gfx.css sets the width with !important, so this has to as well. */
+  width: min(58vw, 54rem) !important;
+  max-width: 100%;
+  /* The nudge that tucks it beside the round number is wrong when it is the
+     only thing here. */
+  position: static;
+  left: auto;
+  top: auto;
+  margin: 0;
+}
+
+#battleControls.isSolo {
+  margin: 0;
+  align-self: stretch;
+  /* The same floor as the prompt, so the ribbon lands where the sentence it
+     replaces was rather than jumping up the page when a hero is added. */
+  min-height: 42vh;
+}
+
+
+/* ==========================================================================
+   EDIT BATTLE — the app's own vocabulary
+
+   Was a plain list with two pill buttons. The window is the parchment frame
+   the other dialogs use, the actions are the drawn buttons, and a monster's
+   name is editable here: adding two Goblins by hand leaves two rows called
+   "Goblin", and this is where you tell them apart.
+   ========================================================================== */
+
+/* -- editing a name in place ---------------------------------------------- */
+/* The same EditableCell the tracker and the managers use, so the pencil and
+   the click-to-edit behave the way they do everywhere else. */
+/* It was an inline-flex row that would not break, so "Ancient Deep Crow
+   Matriarch of the Underdark" ran straight over the hit points and the bin
+   beside it — 151px past the end of the row on a phone. A <button> cannot be
+   display:inline (the browser normalises that back to inline-block, which is
+   just as unbreakable), so it is a block that fills its column and wraps its
+   words inside itself, with the pencil flowing after the last one — and onto a
+   line of its own when the last word ends flush against the edge. */
+.editBattleName .setEditingField {
+  font: inherit;
+  color: inherit;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.05em 0.25em;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/* Inline with the words rather than a flex item, so it rides the last line. */
+.editBattleName .setEditingField .edit {
+  display: inline;
+  vertical-align: -0.12em;
+  margin-left: 0.2em;
+}
+
+.editBattleName .setEditingField:hover,
+.editBattleName .setEditingField:focus-visible {
+  background-color: rgba(107, 72, 36, 0.16);
+}
+
+.editBattleName input {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+  padding: 0.1em 0.35em;
+  border: none;
+  border-radius: 2px;
+  background-color: var(--panel-field, rgba(255, 253, 248, 0.85));
+  color: var(--panel-field-ink, #2b1a0c);
+}
+
+/* A hero's name is not editable here — heroes are a standing roster and their
+   names belong to the Hero Manager. The line still reads the same. */
+.editBattleRow.is-hero .editBattleName {
+  padding: 0.05em 0.25em;
+}
+
+
+/* ==========================================================================
+   ROOM FOR THE POINTING HAND
+
+   The body cells reserve the marker's width up in the .combatantName rule —
+   on EVERY row, not just the current one, because padding only the row being
+   pointed at makes every name in the table jump sideways each time the turn
+   advances, which is worse than the problem being fixed.
+
+   This is the heading, which takes the same gutter so the column still reads
+   as one column: "Name" over the names rather than over the hand.
+   ========================================================================== */
+#battleTracker thead th.thFirst {
+  padding-left: var(--turn-marker-gutter);
+}
+
+
+/* The prompt dialog's text field — same parchment field as the managers use. */
+.appDialogInner .appDialogInput {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0.6em 0 0;
+  padding: 0.35em 0.6em;
+  border: none;
+  border-radius: 2px;
+  background-color: var(--panel-field);
+  color: var(--panel-field-ink);
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+}
+
+.appDialogInner .appDialogInput:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 1px;
+}
+
+.appDialogConfirm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+
+/* The saved-battle card's Share button, beside the green Load. Beige: sending
+   the encounter is the neutral action, loading it is the one that changes what
+   is on your table. */
+#battleAddManage .btn-share {
+  --btn-h: 2em;
+  font-size: 0.85em;
+  margin: 0;
+}
+
+
+/* ==========================================================================
+   SAVED BATTLE PHOTOS
+
+   Two things were wrong with the thumbnail once the cards started tiling.
+
+   The image was a 60px `float: left` inside a card that is now ~180px wide, so
+   the header beside it had about 110px for a name and two buttons — and with
+   `overflow-wrap: anywhere` on the name, "Old Battle 1" broke one letter per
+   line. It is a banner across the top of the card instead: a tile is not a
+   row, and there is no room beside anything in one.
+
+   And `.battle-photo-overlay` — the "Click to enlarge" label — was
+   `position: fixed` with `inset: 0` at z-index 9998. Not a label on the
+   thumbnail: a full-viewport sheet, present whenever a saved battle had a
+   photo, painting its text across the middle of the panel and taking every
+   click on the page with it. It belongs to the thumbnail.
+   ========================================================================== */
+
+#battleAddManage .battle-photo-thumbnail {
+  position: relative;
+  float: none;
+  display: block;
+  width: 100%;
+  height: 4.5em;
+  margin: 0 0 0.45em;
+  overflow: hidden;
+}
+
+#battleAddManage .battle-photo-thumbnail > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+#battleAddManage .battle-photo-thumbnail .battle-photo-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15em 0;
+  background-color: rgba(43, 26, 12, 0.62);
+  color: #fbf3e7;
+  font-family: 'Caudex', serif;
+  font-size: 0.72em;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  /* The thumbnail itself is the click target. */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.13s ease;
+}
+
+#battleAddManage .battle-photo-thumbnail:hover .battle-photo-overlay,
+#battleAddManage .battle-photo-thumbnail:focus-visible .battle-photo-overlay {
+  opacity: 1;
+}
+
+#battleAddManage .battle-photo-thumbnail:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 2px;
+}
+
+/* The header holds a name and now three controls — Load, Share and the bin —
+   in a ~270px tile. As one nowrap row the name was squeezed to 38px and broke
+   a letter per line, because `min-width: 0` lets a flex item shrink below its
+   content. It wraps instead: the name keeps a floor of 8em and takes its own
+   line when the controls will not fit beside it. */
+#battleAddManage .battle-card-header {
+  flex-wrap: wrap;
+  row-gap: 0.35em;
+}
+
+#battleAddManage .battle-card-header h4 {
+  flex: 1 1 8em;
+  overflow-wrap: break-word;
+}
+
+#battleAddManage .battle-card-actions {
+  margin-left: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #battleAddManage .battle-photo-thumbnail .battle-photo-overlay {
+    transition: none;
+  }
+}
+
+
+/* ==========================================================================
+   AN X IS TWO STROKES
+
+   Every other mark is one continuous movement, so a single wipe along its
+   length reads as somebody drawing it. A cross is not: it is one stroke, then
+   another across it. Revealed as one shape it looked like a stamp sliding out
+   from behind a curtain, whichever way the curtain went.
+
+   So the cross paints as two layers on the mark's own pseudo-elements — the
+   generator writes each stroke on its own (cross_hand-N-a/-b) under the same
+   filter and seed — and the second one starts after the first has finished.
+   The element's own mask is dropped, because it would paint the whole X
+   underneath the pair.
+   ========================================================================== */
+
+#battleTracker [class*="handMarkCross"] .tickMark,
+#heroAddManage [class*="handMarkCross"] .tickMark,
+#monsterAddManage [class*="handMarkCross"] .tickMark {
+  /* The strokes carry the ink; this element is only their box. */
+  background-color: transparent;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+#battleTracker [class*="handMarkCross"] .tickMark::before,
+#battleTracker [class*="handMarkCross"] .tickMark::after,
+#heroAddManage [class*="handMarkCross"] .tickMark::before,
+#heroAddManage [class*="handMarkCross"] .tickMark::after,
+#monsterAddManage [class*="handMarkCross"] .tickMark::before,
+#monsterAddManage [class*="handMarkCross"] .tickMark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--mark-ink, #3c8a24);
+
+  -webkit-mask-repeat: no-repeat, no-repeat;
+  mask-repeat: no-repeat, no-repeat;
+  -webkit-mask-position: center, left center;
+  mask-position: center, left center;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  -webkit-mask-size: 100% 100%, 0% 100%;
+  mask-size: 100% 100%, 0% 100%;
+}
+
+#battleTracker [class*="handMarkCross"] .tickMark::before,
+#heroAddManage [class*="handMarkCross"] .tickMark::before,
+#monsterAddManage [class*="handMarkCross"] .tickMark::before {
+  -webkit-mask-image: var(--cross-a), linear-gradient(#000, #000);
+  mask-image: var(--cross-a), linear-gradient(#000, #000);
+  transition:
+    mask-size 0.3s cubic-bezier(0.4, 0.7, 0.5, 1),
+    -webkit-mask-size 0.3s cubic-bezier(0.4, 0.7, 0.5, 1);
+}
+
+/* The second stroke waits for the first, with the smallest pause in between —
+   the hand lifting and coming back down. */
+#battleTracker [class*="handMarkCross"] .tickMark::after,
+#heroAddManage [class*="handMarkCross"] .tickMark::after,
+#monsterAddManage [class*="handMarkCross"] .tickMark::after {
+  -webkit-mask-image: var(--cross-b), linear-gradient(#000, #000);
+  mask-image: var(--cross-b), linear-gradient(#000, #000);
+  transition:
+    mask-size 0.3s cubic-bezier(0.4, 0.7, 0.5, 1) 0.34s,
+    -webkit-mask-size 0.3s cubic-bezier(0.4, 0.7, 0.5, 1) 0.34s;
+}
+
+#battleTracker [class*="handMarkCross"] input[type="checkbox"]:checked + .tickMark::before,
+#battleTracker [class*="handMarkCross"] input[type="checkbox"]:checked + .tickMark::after,
+#heroAddManage [class*="handMarkCross"] input[type="checkbox"]:checked + .tickMark::before,
+#heroAddManage [class*="handMarkCross"] input[type="checkbox"]:checked + .tickMark::after,
+#monsterAddManage [class*="handMarkCross"] input[type="checkbox"]:checked + .tickMark::before,
+#monsterAddManage [class*="handMarkCross"] input[type="checkbox"]:checked + .tickMark::after {
+  -webkit-mask-size: 100% 100%, 100% 100%;
+  mask-size: 100% 100%, 100% 100%;
+}
+
+/* Rubbing out takes both strokes off together, as the other marks do. */
+#battleTracker [class*="handMarkCross"] input[type="checkbox"]:not(:checked) + .tickMark::before,
+#battleTracker [class*="handMarkCross"] input[type="checkbox"]:not(:checked) + .tickMark::after,
+#heroAddManage [class*="handMarkCross"] input[type="checkbox"]:not(:checked) + .tickMark::before,
+#heroAddManage [class*="handMarkCross"] input[type="checkbox"]:not(:checked) + .tickMark::after,
+#monsterAddManage [class*="handMarkCross"] input[type="checkbox"]:not(:checked) + .tickMark::before,
+#monsterAddManage [class*="handMarkCross"] input[type="checkbox"]:not(:checked) + .tickMark::after {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #battleTracker [class*="handMarkCross"] .tickMark::before,
+  #battleTracker [class*="handMarkCross"] .tickMark::after,
+  #heroAddManage [class*="handMarkCross"] .tickMark::before,
+  #heroAddManage [class*="handMarkCross"] .tickMark::after,
+  #monsterAddManage [class*="handMarkCross"] .tickMark::before,
+  #monsterAddManage [class*="handMarkCross"] .tickMark::after {
+    transition: none;
+  }
+}
+
+
+/* ==========================================================================
+   THE SIDE-CAR, WITH A LONG NAME IN IT
+
+   Three things went wrong once a monster was called something like "Adult Gold
+   Dragon" rather than "Goblin".
+
+   The sheet sat 1em clear of the roll and left another 1em gutter at the far
+   side, so the text began well inside the paper and there was a band of blank
+   parchment where the scroll starts. Those gutters are trimmed, which both
+   moves the text left and gives the line more to work with.
+
+   The name did not wrap, so it ran 36px off the paper.
+
+   And the notes line — an EditableCell, so a button with the text and the
+   pencil inside it — is `inline-flex ... nowrap` for the managers' table
+   cells, where the pencil must never leave its value's side. On a paragraph of
+   notes that meant one unbreakable 400px line hanging 86px off the edge with
+   the pencil out in the page. Here it flows as inline content instead: the
+   text wraps, and the pencil follows the last word onto whatever line it ends
+   on — including a line of its own when the word before it just fits.
+   ========================================================================== */
+
+.statHoverSheet {
+  /* Was `- 2em` (a 1em gutter each side) and `+ 1em` off the roll. */
+  width: calc(var(--scroll-open) - var(--sheet-edge)
+              - (var(--scroll-rod) - var(--scroll-lap)) - 1.1em);
+  margin-left: calc(var(--scroll-rod) - var(--scroll-lap) + 0.35em);
+}
+
+/* Nothing in the panel may push the paper wider than it is. */
+.statHover .statHoverSheet > * {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.statHover .monsterStatName h3,
+.statHover .heroStatName h3,
+.statHover .monsterStatName,
+.statHover .heroStatName {
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+  line-height: 1.1;
+}
+
+/* The notes line, and any editable value inside the panel that can run long.
+   These are <button>s, and a button cannot be display:inline — the browser
+   blockifies it back to inline-block. So the words inside it wrap, but the
+   button itself is one unbreakable box on whatever line it starts on. */
+.statHover .setEditingField {
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  text-align: left;
+}
+
+/* Which is why the notes button gets its own line under the "Notes:" label
+   rather than starting after it. Sharing the line cost the label's width off
+   the right-hand edge — the button's 100% is 100% of the paper, measured from
+   a start point already pushed in by "Notes:", so it hung 52px past the edge.
+   On its own line it starts at the margin and the words fill the full width,
+   with the pencil riding after the last one (and dropping to a line of its own
+   when that last word ends flush). */
+.statHover [class$="-notes"] .setEditingField {
+  display: block;
+  /* border-box, because .setEditingField carries 2px/4px of padding and a
+     content-box 100% would lay that 4px outside the paper. */
+  box-sizing: border-box;
+  width: 100%;
+  padding-left: 0;
+  /* index.css gives every button `margin: .3rem`. Four and a bit pixels of it
+     on the left is enough to push a 100%-wide box off the paper. */
+  margin: 0;
+}
+
+.statHover .setEditingField .edit {
+  /* Inline with the words rather than a flex item, so it rides the last line. */
+  display: inline;
+  vertical-align: -0.15em;
+  margin-left: 0.15em;
+}
+
+/* The notes textarea, once it is being edited, gets the same width as the
+   line it replaces rather than the browser's default columns. */
+.statHover .editableCellTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+}
+
+/* ==========================================================================
+   PORTRAIT
+   ==========================================================================
+
+   Everything above this point assumes a wide window: the managers are a rail
+   down the left, the tracker is an eight-column table, and the stat panel
+   slides in from the side. None of that survives a rotation, and until now
+   portrait simply got whatever fell out of the base stylesheet — a 230px logo,
+   manager buttons collapsed to 49x19, and the tracker's cells stacked with no
+   plaques and no headings.
+
+   The one structural idea here: in portrait a combatant is a CARD, not a row.
+   The eight columns fold into four lines on one plaque —
+
+       name
+       hit points          initiative
+       action  bonus  move  reaction
+       conditions
+
+   — which is the same information in the same reading order, only turned
+   through ninety degrees. The column headings go away with the columns; each
+   value carries its own label instead.
+
+   The trigger is portrait OR too narrow for the table (63rem — see the note on
+   the landscape block), so the two together cover every window with no gap and
+   no overlap: a phone held sideways is 812x375, which is landscape and has
+   nowhere near the width for eight columns, and gets the cards. A wide-but-
+   short window still gets the table it has room for.
+
+   Portrait stays in the trigger even above 63rem because index.css splits the
+   PAGE grid on orientation alone: a tall portrait monitor gets its stacked
+   page from there whatever its width, and a table styled for a rail beside it
+   would have nowhere to sit. */
+@media (orientation: portrait), (max-width: 62.99rem) {
+
+  /* ---- one column, and nothing hanging off the side of it --------------- */
+  #page {
+    display: grid;
+    grid-template-areas:
+      "header"
+      "banner"
+      "round"
+      "battletracker"
+      "sbbutt"
+      "options"
+      "footer";
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+    max-width: 100vw;
+    /* The landscape page is `height: 100vh` with four fixed rows — it is a
+       screenful with a scrolling roster inside it. A stack of cards is a page
+       that grows, so the height becomes a floor and the rows are content. */
+    grid-template-rows: none;
+    height: auto;
+    min-height: 100vh;
+    /* clip, not hidden: `hidden` on one axis makes the other a scroll
+       container, which would put a scrollbar down a page that fits. */
+    overflow-x: clip;
+    row-gap: 0.2rem;
+  }
+
+  /* Column headings belong to columns. index.css hides them, but only under
+     `orientation: portrait` — so a phone held sideways kept a row of headings
+     over a stack of cards. */
+  #battleTrackerHeader {
+    display: none;
+  }
+
+  /* ---- the top bar ------------------------------------------------------
+     The rail becomes a bar. Flex rather than named grid areas because the
+     three manager buttons have to be able to fall onto a second line on a
+     phone and sit on one line on a tablet, and a fixed template cannot do
+     both. */
+  #header {
+    grid-area: header;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem 0.6rem;
+    padding: 0.5rem 0.6rem 0.2rem;
+    max-width: 100vw;
+    /* The rail's height cap and its scroll are a landscape problem. */
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  /* `#header > button { margin-bottom: .75rem }` is the rail's row spacing;
+     the bar uses `gap` instead. */
+  #header > button {
+    margin: 0;
+  }
+
+  #logo {
+    order: 1;
+    /* Was tied to the rail's button width, which in portrait resolved to the
+       full 19rem — a 230px logo across the top third of a phone. */
+    width: min(38vw, 10rem);
+    margin: 0 auto 0 0;
+  }
+
+  #optionsButton {
+    order: 2;
+    width: 2.4rem;
+    height: 2.4rem;
+    margin: 0;
+    flex: 0 0 auto;
+  }
+
+  /* The label is painted into the artwork (741x165), so the button has no text
+     to be sized by and index.css's `width: fit-content` left it 6px wide — a
+     sliver beside the gear with no way to tell it was the About button. Given
+     a width and the artwork's own ratio, like the manager ribbons. */
+  #aboutButton {
+    order: 3;
+    flex: 0 0 auto;
+    width: min(32vw, 9.5rem);
+    height: auto;
+    aspect-ratio: 741 / 165;
+    background-size: contain;
+    background-position: center;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Its own line under the masthead: it is two lines of prose and would
+     otherwise set the height of the row the logo is in. */
+  #patreonLink {
+    order: 4;
+    flex: 1 1 100%;
+    margin: 0 !important;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
+  /* Three ribbons across, or two and one on a narrow phone. The 9rem basis is
+     what decides that: two of them plus the gap is 300px, so anything from a
+     320px screen up gets at least two on a line and a 768px tablet gets all
+     three. There is a floor rather than an even split because below about 9rem
+     the labels drawn into the artwork stop being readable. */
+  #heroManagerButton,
+  #monsterManagerButton,
+  #battleManagerButton {
+    order: 5;
+    flex: 1 1 9rem;
+    width: auto;
+    min-width: 0;
+    /* index.css's portrait rules pinned these to `fit-content`, and the label
+       is painted into the artwork rather than set as text — so the content was
+       an empty string and both buttons shrank to 49x19. */
+    max-width: 15rem;
+    margin: 0;
+  }
+
+  /* ---- round, timer, Edit Battle ---------------------------------------- */
+  #round {
+    grid-area: round;
+    width: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem 1.1rem;
+    margin: 0.1rem 0.6rem 0.3rem;
+    font-size: clamp(1rem, 3.6vw, 1.45rem);
+  }
+
+  /* ---- the tracker ------------------------------------------------------ */
+  #battleTrackerScroll {
+    grid-area: battletracker;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 0.5rem;
+  }
+
+  #battleTracker {
+    width: 100%;
+    /* The cards size themselves against their own width, the same way the
+       table's rows do in landscape, so one set of proportions holds from a
+       320px phone to a 900px tablet. */
+    container-type: inline-size;
+    /* The ring the plaque's drawn edge is painted into. It has to be wide
+       enough to hold the slice at something near its own scale: at 19px the
+       166px-wide artwork's ends were squeezed to nothing and the parchment
+       centre stopped short of them, leaving a band of bare page down each
+       side of every card. */
+    --card-edge: clamp(14px, 4cqw, 30px);
+    --card-font: clamp(0.95rem, 3.3cqw, 1.35rem);
+  }
+
+  /* A card is one plaque, not eight. The per-cell artwork in gfx.css only
+     paints where a border-style is set, and that is set inside the landscape
+     block — so in portrait those sources sit unused and the row carries the
+     plain middle plaque around the whole card. */
+  #battleTracker tbody tr {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-areas:
+      "cName cName cName cName"
+      "cHP   cHP   cInit cInit"
+      "cAct  cBon  cMove cReact"
+      "cCond cCond cCond cCond";
+    align-items: center;
+    row-gap: 0.1rem;
+    margin: 0 0 0.5rem;
+    padding: 0.35rem 0.2rem;
+    font-size: var(--card-font);
+
+    border-style: solid;
+    border-color: transparent;
+    border-width: 2px;
+    border-image-source: url('./assets/draftsvgs_v2/table_item-small1-2.svg');
+    /* Same reasoning as the landscape plaques: the slice is per axis, and a
+       card is far wider than the artwork is, so the horizontal figure has to
+       be small enough that it does not squash the drawn ends. */
+    border-image-slice: 24% 20% fill;
+    border-image-repeat: stretch;
+    border-image-width: var(--card-edge);
+  }
+
+  #battleTracker tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0.1rem 0.25rem;
+    background: none;
+    border: none;
+  }
+
+  /* The name gets the whole first line, so it has four times the room it had
+     in the table and rarely needs to wrap at all. */
+  #battleTracker tbody td.combatantName {
+    grid-area: cName;
+    justify-content: center;
+    /* No turn-marker gutter: the marker points along a row, and there is no
+       row for it to point at. */
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    font-size: 1.08em;
+  }
+
+  #battleTracker tbody td.combatantHP    { grid-area: cHP; }
+  #battleTracker tbody td.combatantInit  { grid-area: cInit; }
+  #battleTracker tbody td.combatantAction   { grid-area: cAct; }
+  #battleTracker tbody td.combatantBonus    { grid-area: cBon; }
+  #battleTracker tbody td.combatantMove     { grid-area: cMove; }
+  #battleTracker tbody td.combatantReaction { grid-area: cReact; }
+  #battleTracker tbody td.combatantConditions { grid-area: cCond; }
+
+  /* Each value says what it is, now that there is no column heading over it.
+     Small caps and faded, so the card still reads as its numbers first. */
+  #battleTracker tbody td.combatantInit::before,
+  #battleTracker tbody td.combatantAction::before,
+  #battleTracker tbody td.combatantBonus::before,
+  #battleTracker tbody td.combatantMove::before,
+  #battleTracker tbody td.combatantReaction::before {
+    font-variant: small-caps;
+    /* 0.66em came out at 10px, which is small even for a label. */
+    font-size: 0.74em;
+    letter-spacing: 0.3px;
+    line-height: 1;
+    /* Not the row's tan at 72% — that is 2.8:1 on the plaque's parchment at
+       10px, which is below AA and looked it. This is the same family two steps
+       darker at full strength: 5.0:1, still clearly a label rather than a
+       value. The plaque artwork is light in both themes, so it is a literal
+       rather than a theme token. */
+    color: #8a6030;
+  }
+
+  #battleTracker tbody td.combatantInit::before { content: "Init"; margin-right: 0.4em; }
+
+  /* The four spent-this-turn boxes are a label over a checkbox, because four
+     words across a phone will not sit beside their boxes. */
+  #battleTracker tbody td.combatantAction,
+  #battleTracker tbody td.combatantBonus,
+  #battleTracker tbody td.combatantMove,
+  #battleTracker tbody td.combatantReaction {
+    flex-direction: column;
+    gap: 0.1rem;
+    position: relative;
+  }
+
+  #battleTracker tbody td.combatantAction::before   { content: "Action"; }
+  #battleTracker tbody td.combatantBonus::before    { content: "Bonus"; }
+  #battleTracker tbody td.combatantMove::before     { content: "Move"; }
+  #battleTracker tbody td.combatantReaction::before { content: "Reaction"; }
+
+  /* The A/S/D/R hints are for a keyboard, and a portrait window is being
+     touched. The word above the box is the label now. */
+  #battleTracker .checkOverlay {
+    display: none;
+  }
+
+  #battleTracker tbody td.combatantConditions {
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-top: 0.15rem;
+  }
+
+  /* ---- the managers, as cards -------------------------------------------
+     Same move as the tracker. A hero row is six columns wide — name, player,
+     HP, AC, ready, and the join/delete pair — which on a phone leaves each of
+     them about fifty pixels: "Gerwin the Bold" came out as three stacked
+     words and the delete button fell off the side of the drawn frame.
+
+     So the row folds the same way a combatant does: the name takes a line to
+     itself, the numbers share the next, and the two buttons get the last. The
+     column headings are already hidden in portrait, so each value states what
+     it is. */
+  #heroAddManage,
+  #monsterAddManage,
+  #battleAddManage {
+    width: min(95vw, 42rem);
+    max-width: 95vw;
+    max-height: 92vh;
+    box-sizing: border-box;
+  }
+
+  /* The rows below are grids, and a grid `tr` inside a real table is still
+     laid out by the table algorithm — it shrink-wraps to its widest cell and
+     the card ends up 90px wide in a 600px panel. Taking the table parts out of
+     table layout is what lets the rows have the panel's width, exactly as the
+     landscape block does for the tracker. */
+  #heroAddManage table,
+  #monsterAddManage table,
+  #heroAddManage thead,
+  #monsterAddManage thead,
+  #heroAddManage tbody,
+  #monsterAddManage tbody,
+  .statsRow,
+  .heroesSpacer {
+    display: block;
+    width: 100%;
+  }
+
+  .heroManagerHero,
+  .monsterManagerMonster {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: center;
+    row-gap: 0.2rem;
+    column-gap: 0.35rem;
+  }
+
+  .heroManagerHero {
+    grid-template-areas:
+      "nm  nm  nm  nm"
+      "pl  hp  ac  rd"
+      "act act act act";
+  }
+
+  .monsterManagerMonster {
+    grid-template-areas:
+      "nm  nm  nm  nm"
+      "hp  ac  hd  rd"
+      "act act act act";
+  }
+
+  .heroManagerHero > td:nth-child(1),
+  .monsterManagerMonster > td:nth-child(1) { grid-area: nm; }
+  .heroManagerHero > td:nth-child(2) { grid-area: pl; }
+  .heroManagerHero > td:nth-child(3) { grid-area: hp; }
+  .heroManagerHero > td:nth-child(4) { grid-area: ac; }
+  .heroManagerHero > td:nth-child(5) { grid-area: rd; }
+  .heroManagerHero > td:nth-child(6) { grid-area: act; }
+  .monsterManagerMonster > td:nth-child(2) { grid-area: hp; }
+  .monsterManagerMonster > td:nth-child(3) { grid-area: ac; }
+  .monsterManagerMonster > td:nth-child(4) { grid-area: hd; }
+  .monsterManagerMonster > td:nth-child(5) { grid-area: rd; }
+  .monsterManagerMonster > td:nth-child(6) { grid-area: act; }
+
+  /* Every value cell is a label over its value. */
+  .heroManagerHero > td:nth-child(n+2):nth-child(-n+5),
+  .monsterManagerMonster > td:nth-child(n+2):nth-child(-n+5) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.05rem;
+    min-width: 0;
+    padding: 0.1rem 0;
+  }
+
+  .heroManagerHero > td:nth-child(n+2):nth-child(-n+5)::before,
+  .monsterManagerMonster > td:nth-child(n+2):nth-child(-n+5)::before {
+    font-variant: small-caps;
+    font-size: 0.72em;
+    letter-spacing: 0.3px;
+    line-height: 1;
+    /* The panel's own softer ink rather than its main ink faded — both panels
+       already carry a pair that reads on their ground, and fading the main one
+       lands wherever it lands. */
+    color: var(--panel-ink-soft, inherit);
+  }
+
+  .heroManagerHero > td:nth-child(2)::before { content: "Player"; }
+  .heroManagerHero > td:nth-child(3)::before { content: "HP"; }
+  .heroManagerHero > td:nth-child(4)::before { content: "AC"; }
+  .heroManagerHero > td:nth-child(5)::before { content: "Ready"; }
+  .monsterManagerMonster > td:nth-child(2)::before { content: "HP"; }
+  .monsterManagerMonster > td:nth-child(3)::before { content: "AC"; }
+  .monsterManagerMonster > td:nth-child(4)::before { content: "Hiding"; }
+  .monsterManagerMonster > td:nth-child(5)::before { content: "Ready"; }
+
+  /* The name has the line to itself, so it reads as the heading of the card
+     rather than as the first of six columns. */
+  .heroManagerHero > td:nth-child(1),
+  .monsterManagerMonster > td:nth-child(1) {
+    display: block;
+    text-align: left;
+    font-size: 1.12em;
+    padding: 0.1rem 0.2rem 0.15rem;
+    min-width: 0;
+  }
+
+  .heroManagerHero > td:nth-child(1) .setEditingField,
+  .monsterManagerMonster > td:nth-child(1) .setEditingField {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  /* Join/delete get their own line and sit at opposite ends of it, which is
+     the one arrangement that cannot put a destructive button under a thumb
+     aiming for the harmless one. */
+  .heroManagerHero > td.heroActions,
+  .monsterManagerMonster > td.monsterActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.15rem 0.2rem 0.1rem;
+    min-width: 0;
+  }
+
+  .heroManagerHero > td.heroActions .buttonJoinFray,
+  .monsterManagerMonster > td.monsterActions .buttonJoinFray {
+    /* Takes what is left after the delete button, so a long label wraps
+       inside the button instead of pushing the bin off the card. */
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 16rem;
+    margin: 0;
+  }
+
+  .heroManagerHero > td.heroActions .buttonDelete,
+  .monsterManagerMonster > td.monsterActions .buttonDelete {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  /* The eight ability scores wrap rather than insisting on one line. */
+  .statsRow > td {
+    display: block;
+    padding: 0 0.2rem 0.2rem;
+  }
+
+  .heroStats,
+  .monsterStats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.15rem 0.5rem;
+  }
+
+  /* ---- modals in general ------------------------------------------------
+     Every window is at most a phone wide and at most a phone tall, and
+     scrolls inside its own frame rather than running off the bottom of the
+     screen. The frame is the border, so it stays put while the content
+     moves. */
+  .hpChangeModalInner,
+  .appDialogInner,
+  .popup-container,
+  #initiativeDialogInner,
+  #conditionReminderContent,
+  #conCheckInner,
+  .editBattleDialog {
+    width: min(95vw, 34rem);
+    max-width: 95vw;
+    max-height: 90vh;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* The condition reminder's overlay is pinned to the top-left quadrant of
+     the window — `left: 10vw; right: 50vw; bottom: 50vh` — which on a phone is
+     a 150px slot, so "Prone: Your only movement options are..." came out one
+     word per line and ran off the top of the screen. It gets the width of the
+     page and sits under the top edge instead. */
+  #conditionReminderOverlay {
+    left: 0;
+    right: 0;
+    top: 0.6rem;
+    bottom: auto;
+    align-items: flex-start;
+    padding: 0 0.6rem;
+    box-sizing: border-box;
+  }
+
+  #conditionReminderContent {
+    margin: 0;
+    max-height: 46vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* ---- the stat panel ---------------------------------------------------
+     In landscape it slides in from the left edge and sits beside the row it
+     belongs to. There is no beside in portrait: it becomes a sheet in the
+     middle of the screen. */
+  .statHover {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    /* The drawn scroll is wider than this element: the roll hangs --scroll-lap
+       past the left edge and the paper --sheet-edge past the right. Centring
+       the BOX therefore hangs the roll's turned ends off the side of a phone,
+       which is what cut the knobs in half. The box is the artwork's width less
+       those two overhangs, and the whole thing is nudged by half their
+       difference so the drawing is what ends up centred. */
+    width: calc(min(92vw, 26rem) - var(--scroll-lap) - var(--sheet-edge));
+    /* NOT overflow: auto. The parchment and the roll are drawn by ::after and
+       ::before at negative offsets — outside this element's box — so a scroll
+       container here clips both of them away and leaves a plain tan rectangle
+       with the top of the name cut off. The scroll goes on the sheet inside
+       instead, where there is nothing hanging over the edge. */
+    overflow: visible;
+    z-index: 30;
+
+    /* Closed, it is gone. In landscape the shut panel is a rod parked against
+       the row it belongs to, which is where the unrolling starts from; here
+       there is no row to park against, and left as-is a rolled-up scroll sat
+       in the middle of the screen over whatever was behind it. */
+    opacity: 0;
+    visibility: hidden;
+    transform:
+      translate(calc(-50% + (var(--scroll-lap) - var(--sheet-edge)) / 2), -50%)
+      scale(0.96);
+    transition:
+      opacity 0.18s ease-out,
+      transform 0.18s ease-out,
+      visibility 0s linear 0.18s;
+  }
+
+  .statHover.isOpen {
+    width: calc(min(92vw, 26rem) - var(--scroll-lap) - var(--sheet-edge));
+    opacity: 1;
+    visibility: visible;
+    transform:
+      translate(calc(-50% + (var(--scroll-lap) - var(--sheet-edge)) / 2), -50%)
+      scale(1);
+    pointer-events: auto;
+    transition:
+      opacity 0.18s ease-out,
+      transform 0.18s ease-out;
+  }
+
+  .statHover .statHoverSheet {
+    /* The width and offset it has in landscape are the scroll's rod-and-lap
+       geometry, which only means anything beside the table. */
+    width: auto;
+    margin-left: calc(var(--scroll-rod) - var(--scroll-lap));
+    margin-right: 0.4em;
+    /* A long stat block scrolls within the paper rather than growing the paper
+       past the bottom of the screen. */
+    max-height: 74vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  /* ---- the footer and the start button ---------------------------------- */
+  #battleControls {
+    grid-area: sbbutt;
+    justify-content: center;
+    margin: 0.4rem 0 0.2rem;
+  }
+
+  #footer {
+    grid-area: footer;
+    margin: 0.5rem 1rem 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
+  /* The drawn frames are a flat 30px top and bottom and 53px each side. That
+     is a reasonable margin on a 900px window and 106px of a 375px phone —
+     nearly a third of the screen spent on the edge of the paper, which is what
+     squeezed the monster roster into 241px and pushed half of each ability row
+     out of sight. Scaled with the viewport instead, so a phone still gets a
+     frame and still gets its content. */
+  #about,
+  #options,
+  #heroAddManage,
+  #monsterAddManage,
+  #battleAddManage,
+  .hpChangeModalInner,
+  .appDialogInner,
+  .popup-container,
+  #initiativeDialogInner,
+  #conditionReminderContent,
+  #conCheckInner {
+    --frame-y: clamp(13px, 3.4vw, 30px);
+    --frame-x: clamp(17px, 6vw, 53px);
+    border-width: var(--frame-y) var(--frame-x);
+    border-image-width: var(--frame-y) var(--frame-x);
+  }
+
+  /* The close mark sits in the corner of the sheet, and every window's title
+     is centred across the full width — which is fine while the title is short
+     of that corner and, at portrait widths, is not: "About the Tracker" ran
+     its last letter straight under the X. The heading keeps clear of the
+     corner instead. */
+  #about > h2:first-of-type,
+  #options > h2:first-of-type {
+    padding-right: 1.8em;
+  }
+
+  /* The eight ability scores are an eight-column grid everywhere else, which
+     needs about 420px to stay legible. Below that they wrap. */
+  #heroAddManage .heroStats,
+  #monsterAddManage .heroStats,
+  #heroAddManage .monsterStats,
+  #monsterAddManage .monsterStats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.1rem 0.45rem;
+  }
+
+  #heroAddManage .heroStat,
+  #monsterAddManage .heroStat {
+    /* Four across on a phone, all eight on a tablet — a whole number either
+       way, so the labels stay in columns rather than staggering. */
+    flex: 0 0 calc(25% - 0.35rem);
+    min-width: 0;
+  }
+
+  /* Nested, not a container query: the managers are not container roots and
+     the thing that decides here is how wide the window is. */
+  @media (min-width: 30rem) {
+    #heroAddManage .heroStat,
+    #monsterAddManage .heroStat {
+      flex: 0 0 calc(12.5% - 0.4rem);
+    }
+  }
+
+  /* Nothing in a manager may scroll sideways: the roster is the width of the
+     panel and wraps inside it. */
+  #heroAddManage .managerTableScroll,
+  #monsterAddManage .managerTableScroll {
+    overflow-x: hidden;
+    max-height: none;
+  }
+
+  /* ---- Edit Battle ------------------------------------------------------
+     Four things across one line leaves the name about 90px on a phone, which
+     is the one column here that can be long — and telling two goblins apart is
+     the whole reason this window exists. Initiative and the bin keep the
+     outside edges and stay vertically centred; the name and the hit points
+     stack up the middle. */
+  .editBattleRow {
+    grid-template-columns: 2.2em minmax(0, 1fr) auto;
+    grid-template-areas:
+      "init name del"
+      "init hp   del";
+    column-gap: 0.5em;
+    row-gap: 0.05em;
+  }
+
+  .editBattleInit   { grid-area: init; }
+  .editBattleName   { grid-area: name; }
+  .editBattleHp     { grid-area: hp; }
+  .editBattleRemove { grid-area: del; }
+
+  /* Big enough to hit with a thumb without being able to miss the name and
+     delete somebody by accident. */
+  .editBattleRemove {
+    padding: 0.4rem;
+  }
+
+  .editBattleActions {
+    flex-wrap: wrap;
+    gap: 0.5em;
+  }
+
+  /* ---- the start-of-battle banner --------------------------------------- */
+  #buttonStartBattle {
+    max-width: 90vw;
+  }
+
+  /* ---- the two states before the fight ----------------------------------
+     Both are placed by line number into the landscape grid — rows 2-3,
+     columns 2-3, "the whole battle side". A portrait page has one column, so
+     asking for column 2 conjured a second one: the header, the managers and
+     the footer were squeezed into a 185px strip down the left with the Start
+     banner alone in the space beside them. They take the tracker's own slot
+     here. */
+  #battlePrompt,
+  #battleControls.isSolo {
+    grid-area: sbbutt;
+    padding: 1.5rem 1rem;
+    min-height: 38vh;
+  }
+
+  #battleControls.isSolo #buttonStartBattle {
+    /* gfx.css sets the width with !important, so this has to as well. */
+    width: min(86vw, 30rem) !important;
+  }
+
+  #battlePrompt {
+    max-width: 26ch;
+    font-size: clamp(1.05rem, 4.4vw, 1.6rem);
+  }
+
+  /* ---- short screens ----------------------------------------------------
+     A phone held sideways is 812x375. The bar as laid out above — a 10rem
+     logo on one line, the support note on the next, three ribbons on the
+     third — comes to about 370px, which is the whole screen: the round, the
+     cards and the Start button were all below the fold before anything had
+     happened. Everything in the bar comes down a size and the support note
+     joins the masthead's line instead of taking one of its own, which brings
+     the whole thing to roughly 170px. */
+  @media (max-height: 34rem) {
+    #header {
+      gap: 0.3rem 0.55rem;
+      padding: 0.3rem 0.6rem 0.1rem;
+    }
+
+    #logo {
+      width: min(16vw, 6rem);
+    }
+
+    #optionsButton {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    #aboutButton {
+      width: min(24vw, 7.5rem);
+    }
+
+    #patreonLink {
+      /* No longer a line of its own. */
+      flex: 1 1 auto;
+      font-size: 0.78rem;
+    }
+
+    #heroManagerButton,
+    #monsterManagerButton,
+    #battleManagerButton {
+      flex: 1 1 6rem;
+      max-width: 10rem;
+    }
+
+    #round {
+      margin: 0 0.6rem 0.2rem;
+      font-size: clamp(0.95rem, 2.4vw, 1.3rem);
+    }
+  }
+}

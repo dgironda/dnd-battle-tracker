@@ -14,6 +14,7 @@ export const STORAGE_KEYS = {
   combatants: "storedCombatants",
   round: "roundNumber",
   turnIndex: "currentTurnIndex",
+  turnStart: "turnStartedAt",
   settings: "appSettings",
   savedBattles: "savedBattles",
 } as const;
@@ -155,10 +156,32 @@ function getTurnIndex(): number {
   return parsed >= 0 ? parsed : 0;
 }
 
+/**
+ * When the current turn began, as an epoch millisecond stamp.
+ *
+ * The round number and the turn pointer were already persisted but this was
+ * not, so reloading mid-fight put the turn timer back to "Advance the turn to
+ * start the timer" while the rest of the battle carried on where it left off.
+ */
+function storeTurnStart(startedAt: number | null): void {
+  if (startedAt === null) {
+    removeKey(STORAGE_KEYS.turnStart);
+    return;
+  }
+  writeKey(STORAGE_KEYS.turnStart, startedAt.toString());
+}
+
+function getTurnStart(): number | null {
+  const parsed = readInt(STORAGE_KEYS.turnStart, 0);
+  // A stamp in the future is a clock change, not a turn — start again.
+  return parsed > 0 && parsed <= Date.now() ? parsed : null;
+}
+
 function clearCombatants(): void {
   removeKey(STORAGE_KEYS.combatants);
   removeKey(STORAGE_KEYS.round);
   removeKey(STORAGE_KEYS.turnIndex);
+  removeKey(STORAGE_KEYS.turnStart);
 }
 
 function hasStoredCombatants(): boolean {
@@ -180,6 +203,8 @@ export {
   storeRoundNumber,
   getTurnIndex,
   storeTurnIndex,
+  getTurnStart,
+  storeTurnStart,
   clearCombatants,
   hasStoredCombatants,
 };

@@ -58,8 +58,20 @@ const SBPopup: React.FC<PopupProps> = ({
                     {hero.name}
                   </td>
                   <td>
-                    <span onClick={() => updateHero(hero.id, "present", !hero.present)}
-                      className="pointer">{hero.present ? "✅" : "❌"}</span>
+                    <span
+                      onClick={() => updateHero(hero.id, "present", !hero.present)}
+                      className={`pointer readyMark ${hero.present ? "is-yes" : "is-no"}`}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          updateHero(hero.id, "present", !hero.present);
+                        }
+                      }}
+                      aria-pressed={hero.present}
+                      aria-label={`${hero.name} is ${hero.present ? "ready" : "not ready"}`}
+                    />
                   </td>
                   <td>
                     <EditableCell
@@ -94,8 +106,20 @@ const SBPopup: React.FC<PopupProps> = ({
                     {monster.name}
                   </td>
                   <td>
-                    <span onClick={() => updateMonster(monster.id, "present", !monster.present)}
-                      className="pointer">{monster.present ? "✅" : "❌"}</span>
+                    <span
+                      onClick={() => updateMonster(monster.id, "present", !monster.present)}
+                      className={`pointer readyMark ${monster.present ? "is-yes" : "is-no"}`}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          updateMonster(monster.id, "present", !monster.present);
+                        }
+                      }}
+                      aria-pressed={monster.present}
+                      aria-label={`${monster.name} is ${monster.present ? "ready" : "not ready"}`}
+                    />
                   </td>
                   <td>
                     <EditableCell

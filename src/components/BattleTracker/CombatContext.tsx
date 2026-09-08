@@ -18,6 +18,7 @@ interface CombatContextType {
   roundNumber: number;
   setRoundNumber: (r: number) => void;
   addMonsterToCombat: (monster: Monster) => Promise<void>;
+  addHeroToCombat: (hero: Hero) => Promise<void>;
   currentCombatant: Hero | Monster | null;
   /** Prompt for one combatant's initiative. Rejects if the user cancels. */
   askForInitiative: (entity: Hero | Monster) => Promise<number>;
@@ -44,11 +45,16 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
   // chain in useBattleManager instead of leaving it hanging forever.
   const initiativeRejecter = useRef<((reason: unknown) => void) | null>(null);
 
-  // Persist on change. This used to be guarded by `combatants.length > 0`,
-  // which meant ending a battle left the previous one in storage to be
-  // resurrected on the next load.
+  // Persist on change.
+  //
+  // The `combatants.length === 0` guard that used to sit here was described in
+  // this comment as already removed, but was still in the code — so ending a
+  // battle wrote nothing, and the old one came back on the next load. Clearing
+  // a battle looked like it worked right up until you refreshed.
+  //
+  // Nothing needs the guard: `combatants` is seeded FROM storage, so the first
+  // run after mount writes back exactly what it read either way.
   useEffect(() => {
-    if (combatants.length === 0) return;
     storeTurnIndex(currentTurnIndex);
     storeCombatants(combatants, roundNumber);
   }, [combatants, currentTurnIndex, roundNumber]);
@@ -118,6 +124,58 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
     setMonsters((prev) => prev.filter((m) => m.id !== monster.id));
   }, [askForInitiative, setMonsters]);
 
+  /**
+   * Adds a hero into an *existing combat*, with the initiative dialog.
+   *
+   * Unlike a monster, a hero is NOT taken off the roster afterwards: the party
+   * is a standing list that outlives any one fight, where a monster in the
+   * manager is stock waiting to be spent. The guard below is what replaces
+   * that removal — a hero already in the fight cannot join it twice.
+   */
+  const addHeroToCombat = useCallback(async (hero: Hero) => {
+    if (!hero) return;
+    if (combatants.some((c) => c.id === hero.id)) return;
+
+    let initiative: number;
+    try {
+      initiative = await askForInitiative(hero);
+    } catch {
+      return; // cancelled
+    }
+
+    const newCombatant: Combatant = {
+      id: hero.id,
+      name: hero.name,
+      link: hero.link,
+      type: 'hero',
+      currHp: hero.currHp ?? hero.hp,
+      maxHp: hero.maxHp ?? hero.hp,
+      tHp: hero.tHp ?? 0,
+      initiative,
+      action: false,
+      bonus: false,
+      move: false,
+      reaction: false,
+      conditions: hero.conditions ?? [],
+      init: hero.init,
+      deathsaves: [],
+      ac: hero.ac,
+      str: hero.str,
+      dex: hero.dex,
+      con: hero.con,
+      int: hero.int,
+      wis: hero.wis,
+      cha: hero.cha,
+      pp: hero.pp,
+    };
+
+    setCombatants((prev) =>
+      prev.some((c) => c.id === hero.id)
+        ? prev
+        : [...prev, newCombatant].sort((a, b) => b.initiative - a.initiative)
+    );
+  }, [askForInitiative, combatants]);
+
   const value = useMemo(
     () => ({
       combatants,
@@ -127,6 +185,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       roundNumber,
       setRoundNumber,
       addMonsterToCombat,
+      addHeroToCombat,
       currentCombatant,
       askForInitiative,
       cancelInitiative,
@@ -136,6 +195,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       currentTurnIndex,
       roundNumber,
       addMonsterToCombat,
+      addHeroToCombat,
       currentCombatant,
       askForInitiative,
       cancelInitiative,

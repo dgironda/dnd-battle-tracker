@@ -131,6 +131,10 @@ function App() {
 
   const [overlayVisible, setOverlayVisible] = useState(true);
   const [battleOverlayVisible, setBattleOverlayVisible] = useState(false);
+  /* Raised by the Options panel when a locked wallpaper is picked. Its own
+     state rather than the battle one, because dismissing it should leave
+     Options open — the battle prompt closes the panel behind it. */
+  const [lockedOverlayVisible, setLockedOverlayVisible] = useState(false);
 
   useEffect(() => {
     if (!ENABLE_PATREON) {
@@ -164,7 +168,13 @@ function App() {
     hero: <HeroManager onClose={handleClosePanel} />,
     monster: <MonsterManager onClose={handleClosePanel} />,
     battle: <BattleManager onClose={handleClosePanel} />,
-    options: <OptionsPanel onClose={handleClosePanel} isSupporter={isSupporter} />,
+    options: (
+      <OptionsPanel
+        onClose={handleClosePanel}
+        isSupporter={isSupporter}
+        onLockedPick={() => setLockedOverlayVisible(true)}
+      />
+    ),
   };
 
   return (
@@ -210,6 +220,10 @@ function App() {
                 setOpenPanel(null);
               }}
             />
+          )}
+
+          {lockedOverlayVisible && (
+            <PatreonOverlay onClose={() => setLockedOverlayVisible(false)} />
           )}
 
           <div id="header">
