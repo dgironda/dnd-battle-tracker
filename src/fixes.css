@@ -6090,24 +6090,46 @@ html[data-wallpaper="midnight"] body::before {
        name and grid invented columns for it: the page came out five columns
        wide, every row was 328px of a 680px window, and the banner itself
        rendered 0px wide. One wrong word cost the whole layout. */
-    /* No `options` row: the gear moved inside the masthead grid, and the row
-       it used to occupy was still being reserved here. */
+    /* ---- top down ---------------------------------------------------------
+       The masthead is not a box any more. Everything the DM reaches for lives
+       in #header — logo, three managers, About, the Patreon block — but Start
+       the Battle does not: it is #battleControls, a sibling. As long as
+       #header is one grid item those two can never share a band, which is why
+       Start the Battle kept ending up under the roster instead of beside the
+       thing that starts.
+
+       `display: contents` drops the header's box and hands its children
+       straight to #page, so one template can place all of them. Nothing else
+       changes — the buttons keep their ids, their art and their panels.
+
+       Reading order is the order of a fight: the managers that fill it, then
+       Start the Battle, then the round and the timer, then the roster. */
     grid-template-areas:
-      "header"
-      "adbanner"
-      "round"
-      "battletracker"
-      "sbbutt"
-      "footer";
-    grid-template-columns: minmax(0, 1fr);
+      "logo     hmbutt"
+      "logo     mmbutt"
+      "bmbutt   about"
+      "patreon  sbbutt"
+      "adbanner adbanner"
+      "round    round"
+      "battletracker battletracker"
+      "adtower  adtower"
+      "footer   footer";
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     justify-items: stretch;
+    align-items: center;
     max-width: 100vw;
+    column-gap: 0.5rem;
+    row-gap: 0.3rem;
+    padding: 0.35rem 0.6rem 0;
+    box-sizing: border-box;
+    /* The gear is placed against this. */
+    position: relative;
     /* ---- the frozen top --------------------------------------------------
        The page is exactly one screen and the ROSTER is the only thing that
-       scrolls. Everything above it — the masthead, the managers, the round,
-       the timer, Edit Battle, Battle Log — stays where the DM left it, which
-       is the whole point: mid-fight those are the controls, and hunting for
-       them up a scrolled page is the thing this fixes.
+       scrolls. Everything above it — the masthead, the managers, Start the
+       Battle, the round, the timer, Edit Battle, Battle Log — stays where the
+       DM left it, which is the whole point: mid-fight those are the controls,
+       and hunting for them up a scrolled page is the thing this fixes.
 
        Done with a fixed-height page rather than sticky positioning because
        sticky would need the round row to know the masthead's height, and that
@@ -6116,13 +6138,34 @@ html[data-wallpaper="midnight"] body::before {
        `dvh`, not `vh`: on a phone `vh` is the viewport with the browser's
        chrome hidden, so a 100vh page is taller than the screen and the bottom
        row sits under the address bar. */
-    grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+    grid-template-rows: auto auto auto auto auto auto minmax(0, 1fr) auto auto;
     height: 100dvh;
     min-height: 0;
     /* clip, not hidden: `hidden` on one axis makes the other a scroll
        container, which would put a scrollbar down a page that fits. */
     overflow-x: clip;
-    row-gap: 0.2rem;
+  }
+
+  /* Two columns is a phone. Once there is room for the drawn labels to be read
+     at a third of the width, the two rosters share the top line and the logo
+     gets the height the artwork was drawn for. This is the arrangement in the
+     reference: gear in the corner, a tall masthead on the left, the four
+     things you press stacked two-by-two beside it, then Start the Battle out
+     to the right of the support note. */
+  @media (min-width: 34rem) {
+    #page {
+      grid-template-areas:
+        "logo     hmbutt   mmbutt"
+        "logo     bmbutt   about"
+        "patreon  sbbutt   sbbutt"
+        "adbanner adbanner adbanner"
+        "round    round    round"
+        "battletracker battletracker battletracker"
+        "adtower  adtower  adtower"
+        "footer   footer   footer";
+      grid-template-columns: minmax(0, 30fr) minmax(0, 35fr) minmax(0, 35fr);
+      grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto auto;
+    }
   }
 
   /* Column headings belong to columns. index.css hides them, but only under
@@ -6132,53 +6175,39 @@ html[data-wallpaper="midnight"] body::before {
     display: none;
   }
 
-  /* ---- the top bar ------------------------------------------------------
-     The rail becomes a masthead with the four things you press next to it:
-     the two rosters on one line, the Battle Manager and About on the next.
-     A named grid rather than a wrapping flex row, because flex was arriving at
-     roughly this shape by accident — the arrangement changed with the length
-     of a label and could not be relied on.
-
-     Every child gets an area. An unplaced grid item lands in an implicit row
-     and drags the whole template sideways, which is exactly how this layout
-     broke the last time. */
+  /* ---- the masthead -----------------------------------------------------
+     No box: its children are #page's grid items now (see the template above).
+     The rail's height cap, its scroll and its own grid all belong to
+     landscape and have to be switched off explicitly, or `display: contents`
+     silently keeps none of them and all of them at once — the box is gone but
+     the declarations still resolve against a phantom. */
   #header {
-    grid-area: header;
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-areas:
-      "options hmbutt  mmbutt"
-      "logo    bmbutt  about"
-      "patreon patreon patreon"
-      "adtower adtower adtower";
-    align-items: center;
-    justify-items: center;
-    gap: 0.4rem 0.6rem;
-    padding: 0.5rem 0.6rem 0.3rem;
-    max-width: 100vw;
-    box-sizing: border-box;
-    /* The rail's height cap and its scroll are a landscape problem. */
-    height: auto;
-    max-height: none;
-    overflow: visible;
-
-    /* Frozen by the page below, not by `position: sticky`. Two sticky
-       siblings cannot stack themselves — the round would have to be told how
-       tall this is, and that changes with the buttons wrapping, the Patreon
-       block and whether a promo is in here. Measuring it needs a
-       ResizeObserver, and layout that silently stops working when an observer
-       does not fire is not worth the trade: the page gives the roster a
-       fixed-height scroll box instead and everything else simply stays put. */
+    display: contents;
   }
 
-  #optionsButton  { grid-area: options; }
-  #logo           { grid-area: logo; }
+  #logo                 { grid-area: logo; }
   #heroManagerButton    { grid-area: hmbutt; }
   #monsterManagerButton { grid-area: mmbutt; }
   #battleManagerButton  { grid-area: bmbutt; }
-  #aboutButton    { grid-area: about; }
-  #patreonLink    { grid-area: patreon; }
+  #aboutButton          { grid-area: about; }
+  #patreonLink          { grid-area: patreon; }
   #header .adSlot-tower { grid-area: adtower; }
+
+  /* The gear is a corner fitting, not a row. Given a grid cell it either sat
+     in the masthead's line and stole width from it, or took a row of its own
+     and cost the roster ~40px of frozen page for a 2rem icon. Absolute in the
+     page's top-left corner costs nothing and is where the reference has it —
+     the masthead's own top-left is whitespace, so the two do not collide. */
+  #optionsButton {
+    position: absolute;
+    top: 0.2rem;
+    left: 0.35rem;
+    z-index: 3;
+    width: 2.1rem;
+    height: 2.1rem;
+    margin: 0;
+    padding: 0;
+  }
 
   /* `#header > button { margin-bottom: .75rem }` is the rail's row spacing;
      the bar uses `gap` instead. */
@@ -6186,30 +6215,23 @@ html[data-wallpaper="midnight"] body::before {
     margin: 0;
   }
 
-  /* Capped by HEIGHT, not width. It is a near-square image, so a width cap of
-     10rem still came out ~250px tall — and now that the top is frozen, every
-     pixel of masthead is a pixel the roster never gets back. This is the one
-     lever worth pulling: --masthead-logo is the number to change if it wants
-     to be grander or quieter. */
+  /* The masthead is the page's title and it is allowed to look like one: the
+     reference has it roughly 200x180, spanning both manager rows, with the
+     About button's baseline sitting above its foot.
+
+     Two caps, and which one binds depends on the screen. `max-width: 100%`
+     is the column — that is what holds it on a phone, where the column is
+     narrow and the height cap never engages. `max-height` is viewport height
+     — that is what holds it on a wide but short window, where the column
+     would otherwise let it run down a third of the page. Height is the
+     scarcer of the two now that the top is frozen. */
   #logo {
-    /* Sized against viewport HEIGHT, because height is what is scarce: the
-       masthead is frozen, so on a short phone the logo is the row's tallest
-       thing and every pixel of it comes out of the roster. A tall tablet can
-       afford a bigger one. */
-    --masthead-logo: clamp(3.4rem, 9vh, 7.5rem);
     width: auto;
     max-width: 100%;
-    max-height: var(--masthead-logo);
+    max-height: clamp(5.5rem, 25vh, 13rem);
     margin: 0;
     justify-self: center;
-  }
-
-  #optionsButton {
-    order: 2;
-    width: 2.4rem;
-    height: 2.4rem;
-    margin: 0;
-    flex: 0 0 auto;
+    align-self: center;
   }
 
   /* The label is painted into the artwork (741x165), so the button has no text
@@ -6217,13 +6239,15 @@ html[data-wallpaper="midnight"] body::before {
      sliver beside the gear with no way to tell it was the About button. Given
      a width and the artwork's own ratio, like the manager ribbons. */
   #aboutButton {
-    width: min(32vw, 9.5rem);
+    width: 100%;
+    max-width: 15rem;
     height: auto;
     aspect-ratio: 741 / 165;
     background-size: contain;
     background-position: center;
     padding: 0;
     margin: 0;
+    justify-self: center;
   }
 
   /* Its own line under the masthead: it is two lines of prose and would
@@ -6286,17 +6310,18 @@ html[data-wallpaper="midnight"] body::before {
   #heroManagerButton,
   #monsterManagerButton,
   #battleManagerButton {
+    /* index.css's portrait rules pinned these to `fit-content`, and the label
+       is painted into the artwork rather than set as text — so the content was
+       an empty string and both buttons shrank to 49x19. They take their
+       column, and the artwork's own ratio takes it from there.
+
+       No height cap: the reference draws them at ~250x90, and a cap of 4.4rem
+       was cutting that to 70 and squeezing the drawn label with it. What
+       stops them growing is the column, which is a third of the page. */
     width: 100%;
     justify-self: stretch;
     min-width: 0;
-    /* The art is 2.55:1, so a full-width button on a wide-ish narrow window is
-       tall. Capped so four of them plus the masthead cannot eat the screen. */
-    max-height: 4.4rem;
-    object-fit: contain;
-    /* index.css's portrait rules pinned these to `fit-content`, and the label
-       is painted into the artwork rather than set as text — so the content was
-       an empty string and both buttons shrank to 49x19. */
-    max-width: 15rem;
+    max-width: none;
     margin: 0;
   }
 
@@ -6321,6 +6346,11 @@ html[data-wallpaper="midnight"] body::before {
   /* The one scrolling thing on the page. */
   #battleTrackerScroll {
     grid-area: battletracker;
+    /* #page centres its items so the short ones sit on the line with the tall
+       ones in the masthead rows. This is the one item that must not be
+       centred: centring stops it stretching, so it sized itself to all 1024px
+       of roster inside a 351px row and hung off both ends of the page. */
+    align-self: stretch;
     width: 100%;
     box-sizing: border-box;
     padding: 0 0.5rem;
@@ -6735,10 +6765,63 @@ html[data-wallpaper="midnight"] body::before {
   }
 
   /* ---- the footer and the start button ---------------------------------- */
+  /* Beside the support note rather than under the roster. It is the control
+     that begins the thing the page is for, so it sits with the managers that
+     filled it — not below 800px of combatants where it had to be scrolled to.
+     In the flow now, so it no longer pushes itself to the foot of a column. */
   #battleControls {
     grid-area: sbbutt;
+    display: flex;
     justify-content: center;
-    margin: 0.4rem 0 0.2rem;
+    align-items: center;
+    margin: 0;
+  }
+
+  /* The ribbon is nudged `left: -50px; top: 12px` in landscape, where it hangs
+     off the corner of the round row on purpose. In a column half a phone wide
+     that nudge walked it 47px out of its own cell and printed the artwork over
+     the Discord line. The offset is landscape's, so it stops here. */
+  #battleControls #buttonStartBattle {
+    left: 0;
+    top: 0;
+  }
+
+  /* ---- when freezing costs more than it buys -----------------------------
+     The frozen top is worth about 340px. On a 568px screen that leaves 156px
+     of roster — less than one combatant card — and a control bar you cannot
+     scroll away from is worse than one you can, because there is nothing left
+     to read underneath it.
+
+     So under 40rem tall the page goes back to being a page: it scrolls as a
+     whole, the roster stops being its own scroll box, and the masthead leaves
+     with everything else. Everything above still reads top-down, which was the
+     other half of the point.
+
+     Measured at 320x568: 156px of roster frozen, the full 825px unfrozen. */
+  @media (max-height: 39.99rem) {
+    #page {
+      height: auto;
+      min-height: 100dvh;
+      grid-template-rows: none;
+      grid-auto-rows: auto;
+    }
+
+    #battleTrackerScroll {
+      overflow-y: visible;
+      min-height: 0;
+    }
+  }
+
+  /* The gear sits over the masthead's top-left, which is whitespace on a wide
+     window but is the face of the "D" once the logo fills a phone's column.
+     Inset by the gear's own width, so the two never share a pixel. Only below
+     34rem: above it the logo is held by the height cap and clears the corner
+     on its own. */
+  @media (max-width: 33.99rem) {
+    #logo {
+      box-sizing: border-box;
+      padding-left: 2.4rem;
+    }
   }
 
   /* The legal line is two sentences of boilerplate, and with a frozen top it
@@ -6872,16 +6955,32 @@ html[data-wallpaper="midnight"] body::before {
      the footer were squeezed into a 185px strip down the left with the Start
      banner alone in the space beside them. They take the tracker's own slot
      here. */
-  #battlePrompt,
+  /* Both of these were written when `sbbutt` was a full-width row under the
+     roster, where a 38vh minimum read as "there is nothing here yet, here is
+     the one thing to do". `sbbutt` is a cell in the masthead band now, so that
+     minimum prised the band open to 320px and crushed the roster to 75.
+
+     They split instead, by what each one actually is. The prompt appears only
+     when there is nothing to track at all, so it takes the roster's own space
+     — it is what you would be reading there. Start the Battle keeps its place
+     beside the managers and just stops demanding a third of the screen. */
+  #battlePrompt {
+    grid-area: battletracker;
+    align-self: center;
+    padding: 1.5rem 1rem;
+    min-height: 0;
+  }
+
   #battleControls.isSolo {
     grid-area: sbbutt;
-    padding: 1.5rem 1rem;
-    min-height: 38vh;
+    padding: 0;
+    min-height: 0;
   }
 
   #battleControls.isSolo #buttonStartBattle {
     /* gfx.css sets the width with !important, so this has to as well. */
-    width: min(86vw, 30rem) !important;
+    width: 100% !important;
+    max-width: 20rem;
   }
 
   #battlePrompt {
