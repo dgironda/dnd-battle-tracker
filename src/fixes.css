@@ -6397,30 +6397,32 @@ html[data-wallpaper="midnight"] body::before {
     aspect-ratio: 477.39 / 221;
   }
 
-  /* Folded, the two columns are the chips and Start the Battle; the two battle
-     buttons take the line under them. Without this the chips would land in the
-     column Start the Battle is already in. */
-  @media (max-width: 33.99rem) {
-    #page:has(#mastheadToggle[aria-expanded="false"]) {
-      grid-template-areas:
-        "logo     hmbutt"
-        "logo     mmbutt"
-        "bmbutt   about"
-        "patreon  sbbutt"
-        "ractions ractions"
-        "adbanner adbanner"
-        "round    round"
-        "battletracker battletracker"
-        "adtower  adtower"
-        "footer   footer";
-    }
-  }
-
   /* The gear and the fold button are absolute, so they hold no row open. This
      is the height they need, asked of the thing that is reliably on that line
      — #battleControls renders for every stage except the empty prompt. */
   #page:has(#mastheadToggle[aria-expanded="false"]) #battleControls {
     min-height: 4.9rem;
+  }
+
+  /* Folded, the three columns fit their contents instead of splitting the page
+     30/35/35. Centred in a third of the page the ribbon sat closer to the chips
+     than to the battle buttons, because the chip cluster does not fill its
+     column and the two battle buttons do fill theirs — and a fixed nudge to
+     correct that only held at one width: even at 704px, it was 73 against 90 by
+     820px. Sized to content, the middle column IS the space between the two,
+     so centring in it is even at every width by construction. */
+  @media (min-width: 34rem) {
+    #page:has(#mastheadToggle[aria-expanded="false"]) {
+      grid-template-columns: max-content minmax(0, 1fr) max-content;
+    }
+
+    /* Wide enough for two chips beside the corner controls and no wider, so
+       Battle Manager wraps to a line of its own and centres under the pair.
+       Without the cap the column is content-sized, all three fit on one line,
+       and there is no pyramid to speak of. */
+    #page:has(#mastheadToggle[aria-expanded="false"]) #header {
+      max-width: 12.5rem;
+    }
   }
 
   /* Folded, the masthead becomes the chip cluster: a flex box in the column
@@ -6439,6 +6441,12 @@ html[data-wallpaper="midnight"] body::before {
     flex-wrap: wrap;
     align-content: center;
     align-items: center;
+    /* Centred, so the two rosters take the top line and Battle Manager sits
+       under the middle of them rather than under the left-hand one — an
+       upside-down pyramid, not a left-aligned stack. It works out because
+       Battle is the narrower chip of the three; if that ever stops being true
+       the shape inverts. */
+    justify-content: center;
     gap: 0.3rem;
     padding: 0.1rem 0 0.1rem 3.6rem;
     box-sizing: border-box;
@@ -6446,6 +6454,45 @@ html[data-wallpaper="midnight"] body::before {
     max-height: none;
     min-height: 5.4rem;
     overflow: visible;
+  }
+
+  /* Folded, on a phone.
+     The upside-down pyramid needs a narrow column to sit in, and a phone does
+     not have one: half of 390px, less the gutter the gear and the fold button
+     occupy, leaves about 119px — under the width of two chips, so they broke
+     into a column of three and the folded top came to 265px, which is most of
+     what folding was meant to give back.
+
+     So the chips take a full-width line of their own here and sit in a row of
+     three, with Start the Battle and the two battle buttons on the line under
+     them. Same pieces, same order, one row deeper — and about 110px instead of
+     265px. Above 34rem the column is wide enough and the pyramid holds. */
+  @media (max-width: 33.99rem) {
+    #page:has(#mastheadToggle[aria-expanded="false"]) {
+      grid-template-areas:
+        "logo     hmbutt"
+        "logo     mmbutt"
+        "bmbutt   about"
+        "patreon  patreon"
+        "sbbutt   ractions"
+        "adbanner adbanner"
+        "round    round"
+        "battletracker battletracker"
+        "adtower  adtower"
+        "footer   footer";
+    }
+
+    /* A row, not a block to centre: the gear and the fold button sit in the
+       padding at the left, so centring the three across the whole width would
+       leave the first one under them. */
+    #page:has(#mastheadToggle[aria-expanded="false"]) #header {
+      justify-content: flex-start;
+      min-height: 0;
+    }
+
+    #page:has(#mastheadToggle[aria-expanded="false"]) #battleControls {
+      min-height: 0;
+    }
   }
 
   /* The gear is a corner fitting, not a row. Given a grid cell it either sat
