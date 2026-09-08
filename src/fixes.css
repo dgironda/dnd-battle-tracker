@@ -6341,28 +6341,28 @@ html[data-wallpaper="midnight"] body::before {
 
   /* ---- the managers, folded ----------------------------------------------
      The ribbons shorten rather than crop. A crop leaves a hard vertical cut
-     where the drawing used to continue, which reads as a rendering fault; what
-     is wanted is the same ribbon, shorter — its drawn start joined straight to
-     its drawn end, with the middle taken out.
+     where the drawing used to continue; what is wanted is the same ribbon with
+     its middle taken out — its drawn start joined straight to its drawn end.
 
-     Done with the artwork as it ships, not a second set of files. The button
-     draws nothing itself; its two pseudo-elements each show the same drawing
-     at the same scale — `background-size: auto 100%` sizes by height alone, so
-     the drawing runs off whichever side its `background-position` does not
-     pin. ::before pins LEFT and so keeps the start; ::after pins RIGHT and so
-     keeps the end. Side by side in one box, the join is the splice.
+     This was first attempted in CSS, with two pseudo-elements showing opposite
+     ends of the same file. The geometry was right and it still looked wrong,
+     because the join lands wherever the two boxes meet and the ribbons' edges
+     undulate: the top edge on one side of the seam sat several percent higher
+     than on the other, so the ribbon had a step in it.
 
-     Two numbers per button: --chip-l is how much of the start to keep,
-     --chip-r how much of the end. Both are lengths at the chip's own height,
-     so the seam stays put at any size. The hover artwork is deliberately not
-     wired up here — a chip this size has nowhere to show it. */
+     So the artwork really is spliced now, by tools/splice-button-art.mjs —
+     which wraps each drawing once and draws it twice, clipped to a band at
+     each end, with the cut points measured off the rasterised art so the
+     edges meet. Nothing was redrawn: the generated files reference the
+     original paths, gradients and images.
+
+     The aspect ratios below are the generated viewBoxes. Height is the only
+     thing set here; the width follows from the ratio. */
   #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton,
   #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton,
   #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton {
-    --chip-h: 2.5rem;
-    position: relative;
-    height: var(--chip-h);
-    width: calc(var(--chip-l) + var(--chip-r));
+    height: 2.6rem;
+    width: auto;
     min-width: 0;
     max-width: none;
     max-height: none;
@@ -6370,61 +6370,25 @@ html[data-wallpaper="midnight"] body::before {
     padding: 0;
     flex: 0 0 auto;
     justify-self: auto;
-    /* The ends draw it. */
-    background-image: none;
     border: none;
-  }
-
-  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton::before,
-  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton::after,
-  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton::before,
-  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton::after,
-  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton::before,
-  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    background-image: var(--chip-art);
-    background-size: auto 100%;
     background-repeat: no-repeat;
-    pointer-events: none;
-  }
-
-  /* The start of the drawing. */
-  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton::before,
-  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton::before,
-  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton::before {
-    left: 0;
-    width: var(--chip-l);
-    background-position: left center;
-  }
-
-  /* The end of it, butted straight onto the start. */
-  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton::after,
-  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton::after,
-  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton::after {
-    right: 0;
-    width: var(--chip-r);
-    background-position: right center;
+    background-position: center;
+    background-size: contain;
   }
 
   #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton {
-    --chip-art: url('./assets/draftsvgs_v2/button_hero-manager.svg');
-    --chip-l: 3.05rem;
-    --chip-r: 1.15rem;
+    background-image: url('./assets/draftsvgs_v2/button_hero-manager-short.svg');
+    aspect-ratio: 486.11 / 292;
   }
 
   #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton {
-    --chip-art: url('./assets/draftsvgs_v2/button_monster-manager.svg');
-    --chip-l: 3.3rem;
-    --chip-r: 0.95rem;
+    background-image: url('./assets/draftsvgs_v2/button_monster-manager-short.svg');
+    aspect-ratio: 442.6 / 292;
   }
 
   #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton {
-    --chip-art: url('./assets/draftsvgs_v2/button_battle-manager.svg');
-    --chip-l: 3.35rem;
-    --chip-r: 1rem;
+    background-image: url('./assets/draftsvgs_v2/button_battle-manager-short.svg');
+    aspect-ratio: 469.27 / 221;
   }
 
   /* Folded, the two columns are the chips and Start the Battle; the two battle
