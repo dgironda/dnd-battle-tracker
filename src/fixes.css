@@ -6358,6 +6358,17 @@ html[data-wallpaper="midnight"] body::before {
     display: none;
   }
 
+  /* Except the support button, which stays. It is a corner fitting like the
+     gear and the fold control — absolutely placed in the gutter, costing the
+     folded layout no width and no height — so there is nothing to gain by
+     taking it away, and folding is exactly when a page is being used for a
+     while. The thank-you line a supporter gets is prose, not a control, and
+     is still hidden by the rule above: `:has(> button)` is what tells them
+     apart. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #patreonLink:has(> button) {
+    display: block;
+  }
+
   /* ---- the managers, folded ----------------------------------------------
      The whole ribbon, not a shortened one. Stacked in a column they have the
      width for it, it is the drawing people already know, and it brings the
@@ -6539,6 +6550,58 @@ html[data-wallpaper="midnight"] body::before {
     #page:has(#mastheadToggle[aria-expanded="false"]) #battleControls {
       min-height: 0;
     }
+  }
+
+  /* ---- the support button, on its side in the corner ---------------------
+     The masthead's left edge is a gutter: the gear and the fold button sit in
+     it and the logo is inset past it, so below them it is bare paper the full
+     height of the masthead. The support button goes there, turned on its side,
+     which costs the layout nothing and stops it taking a row of its own.
+
+     `:has(> button)` is what scopes this to a non-supporter. The same element
+     holds the thank-you line for a supporter, and that is prose — it belongs
+     across the page, not on its side in a 34px column.
+
+     Rotation does not change the box a layout sees, so the two have to be
+     described separately: the BUTTON is sized normally and then turned, and
+     its container is given the footprint that turning it produces — width and
+     height swapped. `rotate(90deg) translateY(-100%)` about the top-left
+     corner is what lands the turned button back inside that footprint;
+     rotation alone would swing it out to the left of its own box. */
+  #patreonLink:has(> button) {
+    position: absolute;
+    /* Out of the grid entirely. An absolutely positioned GRID CHILD that still
+       names an area is positioned against that AREA rather than against the
+       grid's padding box — so `top: 5rem` was measuring 5rem down from the
+       patreon row, which sits below the house promo, and put the button over
+       the first combatant. */
+    grid-area: auto;
+    /* Clear of the gear and the fold button above it. */
+    top: 5rem;
+    left: 0.35rem;
+    z-index: 3;
+    /* The artwork is 136x52, so on its side it is 2.615 corner-widths long.
+       One variable, used both ways round: the container is corner-wide and
+       strip-long, the button inside it is strip-long and corner-wide. */
+    --patreon-strip: calc(var(--corner-control) * 2.615);
+    width: var(--corner-control);
+    height: var(--patreon-strip);
+    margin: 0 !important;
+    padding: 0;
+  }
+
+  #patreonLink:has(> button) > button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* Laid out flat first: as long as the strip, as thick as the gutter. */
+    width: var(--patreon-strip);
+    height: var(--corner-control);
+    min-width: 0;
+    max-width: none;
+    aspect-ratio: auto;
+    transform-origin: top left;
+    transform: rotate(90deg) translateY(-100%);
   }
 
   /* The gear is a corner fitting, not a row. Given a grid cell it either sat
