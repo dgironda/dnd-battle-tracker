@@ -6109,8 +6109,8 @@ html[data-wallpaper="midnight"] body::before {
       "logo     mmbutt"
       "bmbutt   about"
       "sbbutt   ractions"
-      "patreon  patreon"
       "adbanner adbanner"
+      "patreon  patreon"
       "round    round"
       "battletracker battletracker"
       "adtower  adtower"
@@ -6160,14 +6160,15 @@ html[data-wallpaper="midnight"] body::before {
       grid-template-areas:
         "logo     hmbutt   mmbutt"
         "logo     bmbutt   about"
-        "patreon  sbbutt   ractions"
+        ".        sbbutt   ractions"
         "adbanner adbanner adbanner"
+        "patreon  patreon  patreon"
         "round    round    round"
         "battletracker battletracker battletracker"
         "adtower  adtower  adtower"
         "footer   footer   footer";
       grid-template-columns: minmax(0, 30fr) minmax(0, 35fr) minmax(0, 35fr);
-      grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto auto;
+      grid-template-rows: auto auto auto auto auto auto minmax(0, 1fr) auto auto;
     }
   }
 
@@ -6592,9 +6593,17 @@ html[data-wallpaper="midnight"] body::before {
 
   /* Its own line under the masthead: it is two lines of prose and would
      otherwise set the height of the row the logo is in. */
-  /* Spans all three columns, so it should use them. Centred inside its own
-     209px it was wrapping to four lines of a frozen header; across the full
-     width it is two. */
+  /* Under the house promo, not up in the masthead.
+
+     For a non-supporter these are two asks for the same thing on one screen —
+     the promo says "Back us on Patreon to turn these off" and the button says
+     "Support us on Patreon" — with the tracker's own controls in between them.
+     Together they read as one block: the promo makes the case and the branded
+     button is what you press. For a supporter this is the thank-you line and
+     the promo is not rendered at all, so it simply sits lower.
+
+     Spans its row, so it should use it. Centred inside its own 209px it was
+     wrapping to four lines; across the full width it is two. */
   #patreonLink {
     justify-self: stretch;
     margin: 0 !important;
