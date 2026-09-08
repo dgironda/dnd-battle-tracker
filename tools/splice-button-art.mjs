@@ -1,24 +1,23 @@
 /**
  * Shorten a drawn button by taking its middle out.
  *
- * The buttons are wide ribbons with a drawn start and a drawn end, and the
- * folded masthead needs the same ribbon at a third of the length. Cropping
- * leaves a hard vertical cut where the drawing used to continue; what is
- * wanted is the start joined to the end.
+ * The folded masthead needs each manager ribbon at about half its length,
+ * reading "Hero", "Monst", "Battle". Cropping leaves a hard vertical cut where
+ * the drawing used to continue; butting two slices leaves a seam, because the
+ * ribbons' edges undulate and their shading runs along the length, so the join
+ * shows as both a step and a tonal jump.
  *
- * The artwork is an Affinity export — nested transform groups, gradients,
- * embedded images — so the drawing itself is not touched. It is wrapped once
- * as <g id="src"> and then drawn twice: once clipped to a band at the left,
- * once clipped to a band at the right and translated so that band lands
- * directly against the first. Element ids are document-global in SVG, so
- * gradients and images inside the wrapper still resolve for both copies.
+ * So the join is FEATHERED. The two pieces overlap by `feather`, and the right
+ * piece fades in across that overlap with a gradient mask while the left piece
+ * continues underneath. A step of a few units disappears into the fade, and
+ * the shading crosses over instead of jumping.
+ *
+ * The drawing itself is never touched: each file is wrapped once as
+ * <g id="spliceSrc"> and drawn twice, clipped and translated. Element ids are
+ * document-global in SVG, so gradients and embedded images inside the wrapper
+ * resolve for both copies.
  *
  *   node tools/splice-button-art.mjs
- *
- * Cut points are below, as fractions of the artwork's own width. They are
- * chosen by eye against the drawing, not calculated: the ribbons' top and
- * bottom edges undulate, so a seam only disappears where the two edges happen
- * to be at the same height. Re-run after changing them.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -26,29 +25,46 @@ import { join } from "node:path";
 const ART = "src/assets/draftsvgs_v2";
 
 /*
- * These were measured, not guessed. The ribbons' top and bottom edges
- * undulate, so butting two slices together only looks like one ribbon where
- * both edges happen to be at the same height on each side of the join — and a
- * few percent either way is the difference between a shortened ribbon and a
- * ribbon with a step in it.
+ * All fractions of the artwork's own width.
  *
- * Found by rasterising each drawing 1200px wide, walking every column for the
- * first and last opaque pixel inside the body band (so a flourish hanging over
- * the edge does not decide the cut), and taking the pair of cut points with
- * the smallest combined edge mismatch. The search was bounded so the left
- * piece keeps the first word and the right piece starts AFTER the label ends —
- * otherwise the best-matching cut keeps half a letter.
+ *   keepLeft   how much of the start to keep. Lands on clean ribbon just past
+ *              the word being kept, never inside a letter.
+ *   rightStart where the kept end begins. Small — the reference keeps a tail
+ *              or a rod, not half the banner.
+ *   feather    the overlap the two pieces cross-fade across.
  *
- * Residual mismatch at 1200px wide: monster 0px, battle 20px, hero 28px. At
- * the size these are actually drawn — about 40px tall — that is under 3px.
+ * Word extents, measured off the rendered artwork, for choosing keepLeft:
+ *   hero     "Hero" 28-46%, "Manager" 49-76%
+ *   monster  "Monster" 20-48% ("Monst" ends ~40%), "Manager" 52-82%
+ *   battle   "Battle" 22-48%, "Manager" 52-78%
  */
 const JOBS = [
-  { file: "button_hero-manager",    keepLeft: 0.4592, keepRight: 0.1933 },
-  { file: "button_monster-manager", keepLeft: 0.4458, keepRight: 0.1483 },
-  { file: "button_battle-manager",  keepLeft: 0.4400, keepRight: 0.1950 },
+  /* The left piece is clipped at keepLeft + feather, not at keepLeft, so that
+     it has something to show underneath the fade. Both numbers therefore have
+     to clear the NEXT word, or its first letter turns up as a ghost behind the
+     join — which is where the stray "M" and the "Mger" came from.
+
+     "Hero" and "Battle" have a clean gap of ribbon before "Manager" begins, so
+     they take a wide fade. "Monst" is a cut through the middle of "Monster",
+     which leaves no gap at all, so its fade is narrow enough to take only the
+     right-hand edge of the t. */
+  { file: "button_hero-manager",    keepLeft: 0.460, rightStart: 0.860, feather: 0.028 },
+  { file: "button_monster-manager", keepLeft: 0.430, rightStart: 0.855, feather: 0.008 },
+  { file: "button_battle-manager",  keepLeft: 0.418, rightStart: 0.800, feather: 0.028 },
 ];
 
-for (const { file, keepLeft, keepRight } of JOBS) {
+/*
+ * Where the ink actually is, measured rather than eyeballed: each drawing
+ * rasterised 1000px wide, dark pixels counted per column inside the body band,
+ * and the columns grouped into runs. Guessing these from a screenshot is what
+ * produced "Battle Mger" — the battle label ends at 41.7% and "Manager" starts
+ * at 45.8%, not the 48/52 it looks like by eye.
+ *
+ *   battle   bow 0-17.6% | "Battle" 21.8-41.7% | "Manager" 45.8-76.7% | flourish 79.8-97.4%
+ *   monster  edge 0-13.3% | "Monster" 19.9-50.6% | "Manager" 52.5-84.7% | rod 91.7%+
+ */
+
+for (const { file, keepLeft, rightStart, feather } of JOBS) {
   const src = readFileSync(join(ART, `${file}.svg`), "utf8");
 
   const open = src.match(/<svg\b[^>]*>/i);
@@ -57,31 +73,36 @@ for (const { file, keepLeft, keepRight } of JOBS) {
   if (!vb) throw new Error(`${file}: no viewBox`);
   const [, , W, H] = vb[1].trim().split(/[\s,]+/).map(Number);
 
-  const body = src
-    .slice(open.index + open[0].length, src.lastIndexOf("</svg>"))
-    .trim();
+  const body = src.slice(open.index + open[0].length, src.lastIndexOf("</svg>")).trim();
 
-  const L = +(W * keepLeft).toFixed(2);      // width of the kept start
-  const R = +(W * keepRight).toFixed(2);     // width of the kept end
-  const RX = +(W - R).toFixed(2);            // where the kept end begins
-  const TX = +(L - RX).toFixed(2);           // shift that butts it onto the start
-  const NEW_W = +(L + R).toFixed(2);
+  const n = (v) => +v.toFixed(2);
+  const L = n(W * keepLeft);        // the start, kept whole
+  const R = n(W * rightStart);      // where the kept end begins
+  const F = n(W * feather);         // overlap the two cross-fade across
+  const dx = n(L - (R - F));        // shift that lands the end against the start
+  const NEW_W = n(W + dx);
 
   const out = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Generated by tools/splice-button-art.mjs from ${file}.svg -->
-<!-- Keeps the first ${(keepLeft * 100).toFixed(0)}% and the last ${(keepRight * 100).toFixed(0)}% of the drawing, joined. -->
+<!-- GENERATED by tools/splice-button-art.mjs from ${file}.svg - do not edit by hand. -->
+<!-- Keeps 0-${(keepLeft * 100).toFixed(1)}% and ${(rightStart * 100).toFixed(1)}-100% of the drawing, cross-faded over ${(feather * 100).toFixed(1)}%. -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${NEW_W} ${H}" preserveAspectRatio="xMidYMid meet">
 <defs>
-<clipPath id="spliceStart"><rect x="0" y="0" width="${L}" height="${H}"/></clipPath>
-<clipPath id="spliceEnd"><rect x="${RX}" y="0" width="${R}" height="${H}"/></clipPath>
+<clipPath id="spliceStart"><rect x="0" y="0" width="${n(L + F)}" height="${H}"/></clipPath>
+<clipPath id="spliceEnd"><rect x="${n(R - F)}" y="0" width="${n(W - R + F)}" height="${H}"/></clipPath>
+<linearGradient id="spliceFade" gradientUnits="userSpaceOnUse" x1="${n(R - F)}" y1="0" x2="${R}" y2="0">
+<stop offset="0" stop-color="#000000"/>
+<stop offset="1" stop-color="#ffffff"/>
+</linearGradient>
+<mask id="spliceMask" maskUnits="userSpaceOnUse" x="${n(R - F)}" y="0" width="${n(W - R + F)}" height="${H}">
+<rect x="${n(R - F)}" y="0" width="${n(W - R + F)}" height="${H}" fill="url(#spliceFade)"/>
+</mask>
 <g id="spliceSrc">${body}</g>
 </defs>
 <g clip-path="url(#spliceStart)"><use xlink:href="#spliceSrc"/></g>
-<g transform="translate(${TX},0)"><g clip-path="url(#spliceEnd)"><use xlink:href="#spliceSrc"/></g></g>
+<g transform="translate(${dx},0)"><g clip-path="url(#spliceEnd)" mask="url(#spliceMask)"><use xlink:href="#spliceSrc"/></g></g>
 </svg>
 `;
 
-  const dest = join(ART, `${file}-short.svg`);
-  writeFileSync(dest, out);
-  console.log(`${dest}  ${W}x${H} -> ${NEW_W}x${H}  (${(keepLeft*100).toFixed(0)}% + ${(keepRight*100).toFixed(0)}%)`);
+  writeFileSync(join(ART, `${file}-short.svg`), out);
+  console.log(`${file}-short.svg  ${W}x${H} -> ${NEW_W}x${H}  ratio ${(NEW_W / H).toFixed(2)}`);
 }

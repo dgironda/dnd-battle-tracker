@@ -6352,9 +6352,15 @@ html[data-wallpaper="midnight"] body::before {
 
      So the artwork really is spliced now, by tools/splice-button-art.mjs —
      which wraps each drawing once and draws it twice, clipped to a band at
-     each end, with the cut points measured off the rasterised art so the
-     edges meet. Nothing was redrawn: the generated files reference the
-     original paths, gradients and images.
+     each end, and CROSS-FADES the join rather than butting it. Matching the
+     edges was not enough on its own: the shading runs along the ribbon, so a
+     hard join jumped in tone even where the outline lined up. Nothing was
+     redrawn — the generated files reference the original paths, gradients and
+     images, and the cut points are measured off the rasterised art.
+
+     They read "Hero", "Monst" and "Battle"; the aspect ratios below are the
+     generated viewBoxes, so re-running the script with different cuts means
+     updating these three numbers.
 
      The aspect ratios below are the generated viewBoxes. Height is the only
      thing set here; the width follows from the ratio. */
@@ -6378,17 +6384,17 @@ html[data-wallpaper="midnight"] body::before {
 
   #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton {
     background-image: url('./assets/draftsvgs_v2/button_hero-manager-short.svg');
-    aspect-ratio: 486.11 / 292;
+    aspect-ratio: 467.86 / 292;
   }
 
   #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton {
     background-image: url('./assets/draftsvgs_v2/button_monster-manager-short.svg');
-    aspect-ratio: 442.6 / 292;
+    aspect-ratio: 434.33 / 292;
   }
 
   #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton {
     background-image: url('./assets/draftsvgs_v2/button_battle-manager-short.svg');
-    aspect-ratio: 469.27 / 221;
+    aspect-ratio: 477.39 / 221;
   }
 
   /* Folded, the two columns are the chips and Start the Battle; the two battle
