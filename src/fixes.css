@@ -6227,10 +6227,15 @@ html[data-wallpaper="midnight"] body::before {
      scarcer of the two now that the top is frozen. */
   #logo {
     width: auto;
+    /* Inset by the gear's width at every portrait size, not just on a phone.
+       The gear is in the corner and the masthead is the widest thing near it,
+       so without this the two are always negotiating for the same pixels. */
+    box-sizing: border-box;
+    padding-left: 2.5rem;
     max-width: 100%;
-    max-height: clamp(5.5rem, 25vh, 13rem);
+    max-height: clamp(3.8rem, 15vh, 8.5rem);
     margin: 0;
-    justify-self: center;
+    justify-self: start;
     align-self: center;
   }
 
@@ -6389,9 +6394,9 @@ html[data-wallpaper="midnight"] body::before {
       "cAct  cBon  cMove cReact"
       "cCond cCond cCond cCond";
     align-items: center;
-    row-gap: 0.1rem;
-    margin: 0 0 0.5rem;
-    padding: 0.35rem 0.2rem;
+    row-gap: 0.02rem;
+    margin: 0 0 0.3rem;
+    padding: 0.15rem 0.2rem;
     font-size: var(--card-font);
 
     border-style: solid;
@@ -6411,9 +6416,13 @@ html[data-wallpaper="midnight"] body::before {
     align-items: center;
     justify-content: center;
     min-width: 0;
-    padding: 0.1rem 0.25rem;
+    /* Vertical padding on eight cells is eight times whatever it is. The card
+       has a row-gap and a drawn frame doing the same job; this only has to stop
+       the type touching. */
+    padding: 0.02rem 0.25rem;
     background: none;
     border: none;
+    line-height: 1.15;
   }
 
   /* The name gets the whole first line, so it has four times the room it had
@@ -6426,6 +6435,20 @@ html[data-wallpaper="midnight"] body::before {
     padding-left: 0.25rem !important;
     padding-right: 0.25rem !important;
     font-size: 1.08em;
+    /* It is the biggest type on the card, so its leading is the single largest
+       piece of vertical space in it. 1.2 was set for names that wrap to two
+       lines; most do not. */
+    line-height: 1.1;
+  }
+
+  /* 0.6em top and bottom is what gives the name its row height in the table,
+     where the name shares a line with everything else. On a card the name has
+     a line to itself, so that padding is 28px of nothing — the largest single
+     piece of dead space in the card. Enough is kept for the drawn underline to
+     sit under the word and for the turn-circle to clear it. */
+  #battleTracker .combatantName > div,
+  #battleTracker .combatantName > span:not(.currentTurnIndicator) {
+    padding: 0.25em 0;
   }
 
   #battleTracker tbody td.combatantHP    { grid-area: cHP; }
@@ -6465,7 +6488,7 @@ html[data-wallpaper="midnight"] body::before {
   #battleTracker tbody td.combatantMove,
   #battleTracker tbody td.combatantReaction {
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 0;
     position: relative;
   }
 
@@ -6478,6 +6501,34 @@ html[data-wallpaper="midnight"] body::before {
      touched. The word above the box is the label now. */
   #battleTracker .checkOverlay {
     display: none;
+  }
+
+  /* The mark is centred on its CELL, which is right in the table — there the
+     cell holds nothing but the box. Here the cell is a column with the label
+     above the box, so the cell's middle is about 8px above the box's middle
+     and the mark floated off the top of it.
+
+     Anchored to the bottom instead: the box is the last thing in the column,
+     so its centre is half a box up from the cell's bottom edge. `1.2em` is the
+     box (see the checkbox rule), hence `0.6em`. Padding-bottom goes to zero so
+     that is the whole distance — the card's own row-gap already separates the
+     cells. The tilt, scale and nudge stay exactly as the box has them, so mark
+     and box keep sitting crooked together. */
+  #battleTracker tbody td.combatantAction,
+  #battleTracker tbody td.combatantBonus,
+  #battleTracker tbody td.combatantMove,
+  #battleTracker tbody td.combatantReaction {
+    padding-bottom: 0;
+  }
+
+  #battleTracker tbody td.combatantAction .tickMark,
+  #battleTracker tbody td.combatantBonus .tickMark,
+  #battleTracker tbody td.combatantMove .tickMark,
+  #battleTracker tbody td.combatantReaction .tickMark {
+    top: auto;
+    bottom: 0.6em;
+    transform: translate(-50%, 50%) rotate(var(--cb-tilt, 0deg))
+               scale(var(--cb-scale, 1)) translateY(var(--cb-nudge, 0));
   }
 
   #battleTracker tbody td.combatantConditions {
@@ -6817,13 +6868,6 @@ html[data-wallpaper="midnight"] body::before {
      Inset by the gear's own width, so the two never share a pixel. Only below
      34rem: above it the logo is held by the height cap and clears the corner
      on its own. */
-  @media (max-width: 33.99rem) {
-    #logo {
-      box-sizing: border-box;
-      padding-left: 2.4rem;
-    }
-  }
-
   /* The legal line is two sentences of boilerplate, and with a frozen top it
      is permanently on screen — so it gets out of the way. Every pixel here is
      a pixel the roster does not get. Kept in full: it is a copyright notice,
