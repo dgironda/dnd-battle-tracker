@@ -1,7 +1,6 @@
 import { Fragment, lazy, Suspense, useState, useEffect, type ReactNode } from "react";
 import BattleTracker from "./components/BattleTracker/BattleTracker";
 import { CombatProvider } from "./components/BattleTracker/CombatContext";
-import { PlayerLinkProvider } from "./hooks/PlayerLinkContext";
 import { RosterProvider } from "./hooks/rosterContext";
 import PatreonOverlay from "./components/PatreonOverlay";
 import { DEVMODE, TOUR_ENABLED } from "./utils/devmode";
@@ -206,7 +205,6 @@ function App() {
       </Helmet>
       <RosterProvider>
         <CombatProvider>
-        <PlayerLinkProvider>
           {overlayVisible && (
             <PatreonOverlay
               onClose={() => {
@@ -314,7 +312,6 @@ function App() {
           </div>
 
           <DialogHost />
-        </PlayerLinkProvider>
         </CombatProvider>
       </RosterProvider>
     </>

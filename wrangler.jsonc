@@ -9,24 +9,7 @@
 	"pages_build_output_dir": "./dist",
 	"observability": {
 		"enabled": true
-	},
-	/**
-	 * Shared battles for the player link. Bound straight into Pages Functions —
-	 * a Durable Object class cannot be defined inside a Pages project, so that
-	 * route would cost a second Worker to deploy and a third process to run
-	 * locally. See server/roomStore.ts for the seam if that changes.
-	 *
-	 * `database_id` is a placeholder until `wrangler d1 create battle-rooms` is
-	 * run against the account; local development does not read it.
-	 */
-	"d1_databases": [
-		{
-			"binding": "BATTLE_ROOMS",
-			"database_name": "battle-rooms",
-			"database_id": "local-only-not-yet-created",
-			"migrations_dir": "migrations"
-		}
-	]
+	}
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

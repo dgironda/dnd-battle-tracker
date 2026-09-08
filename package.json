@@ -5,8 +5,6 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-    "dev:cf": "wrangler pages dev --proxy 5173 --ip 0.0.0.0",
-    "db:local": "wrangler d1 migrations apply battle-rooms --local",
 		"build": "tsc -b && vite build",
 		"lint": "eslint .",
 		"preview": "npm run build && vite preview",

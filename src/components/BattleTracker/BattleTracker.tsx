@@ -30,8 +30,6 @@ import { ConditionReminder } from "./ConditionReminder";
 import SBPopup from "./SBPopup";
 import { EditBattleDialog } from "./EditBattleDialog";
 import { BattleLogDialog } from "./BattleLogDialog";
-import { usePlayerLinkContext } from "../../hooks/usePlayerLink";
-import { toPlayerView } from "../../utils/playerView";
 import HeartIcon from "../../assets/draftsvgs_v2/icon_hp.svg";
 import TempHpIcon from "../../assets/draftsvgs_v2/icon_temphp.svg";
 
@@ -222,7 +220,6 @@ const BattleTracker: React.FC = () => {
     logEvent,
     clearBattleLog,
   } = useCombat();
-  const { room: playerRoom, publish: publishToPlayers } = usePlayerLinkContext();
 
   const [isBattleLogOpen, setIsBattleLogOpen] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -533,21 +530,6 @@ const BattleTracker: React.FC = () => {
 
   // Always-current handle on the active combatant, so effects can read it
   // without taking a dependency on every mutation of the object.
-  /**
-   * Keep the players' page in step with the fight.
-   *
-   * Only ever sends `toPlayerView(...)` — a projection with no hit-point
-   * numbers, no armour class, no notes and no hidden monsters in it. The
-   * tracker's own combatants never leave this component.
-   *
-   * Fires on every change and is coalesced by the hook, so a burst of edits
-   * costs one write rather than six.
-   */
-  useEffect(() => {
-    if (!playerRoom) return;
-    publishToPlayers(toPlayerView(combatants, roundNumber, activeCombatant?.id ?? null));
-  }, [playerRoom, publishToPlayers, combatants, roundNumber, activeCombatant]);
-
   const activeCombatantRef = useRef(activeCombatant);
   activeCombatantRef.current = activeCombatant;
 

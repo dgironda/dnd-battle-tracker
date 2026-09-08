@@ -28,8 +28,6 @@ import {
   blobToDataUrl,
 } from '../../utils/photoStore';
 import { notify, confirmDialog } from '../../utils/notify';
-import { usePlayerLinkContext } from '../../hooks/usePlayerLink';
-import { linkFor } from '../../utils/playerRoom';
 import Icon from '../Icon';
 
 interface SavedBattle {
@@ -86,7 +84,6 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
     currentTurnIndex,
     setCurrentTurnIndex,
   } = useCombat();
-  const playerLink = usePlayerLinkContext();
   const reloadRosters = useReloadRosters();
 
   const [savedBattles, setSavedBattles] = useState<SavedBattle[]>([]);
@@ -337,42 +334,6 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
    */
   const shareRoster = async () => {
     await shareEncounter(getMonsters() ?? []);
-  };
-
-  /**
-   * Open the players' page, or copy the link to the one already open.
-   *
-   * Creating and copying are the same button because they are the same
-   * intention — "let my table see this". A DM who has not shared yet does not
-   * want a room, they want a link in their hand.
-   */
-  const handlePlayerLink = async () => {
-    const room = playerLink.room ?? playerLink.start();
-    const url = linkFor(room.code);
-
-    try {
-      await navigator.clipboard.writeText(url);
-      await notify(
-        `The link is on your clipboard. Anyone who opens it sees the turn order, ` +
-          `conditions and roughly how hurt everyone is — never the numbers, and never a ` +
-          `monster carrying Invisible. It updates as you run the fight.`,
-        { title: "Player link copied" },
-      );
-    } catch {
-      await notify(
-        `Couldn't reach the clipboard. The link is: ${url}`,
-        { title: "Copy failed", tone: "warning" },
-      );
-    }
-  };
-
-  /** Take the page down. The link stops working for everyone holding it. */
-  const handleStopSharing = async () => {
-    const ok = await confirmDialog(
-      "Stop sharing? The link goes dead for anyone holding it, and sharing again gives out a new one.",
-      { title: "Stop sharing", tone: "danger", confirmLabel: "Stop sharing" },
-    );
-    if (ok) await playerLink.stop();
   };
 
   /**
@@ -780,37 +741,6 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
             <button id="inputImportData" onClick={handleImport}>Upload a file</button>
             <span className="dataNote">
               Merges that file into what you already have - it does not replace it.
-            </span>
-          </div>
-          {/* Sharing the LIVE fight, as opposed to the encounter link below,
-              which sends a set of monsters for somebody else to run. */}
-          <div className="dataRow">
-            <button id="buttonPlayerLink" onClick={handlePlayerLink}>
-              {playerLink.room ? "Copy player link" : "Share with players"}
-            </button>
-            <span className="dataNote">
-              {playerLink.room ? (
-                <>
-                  Your players are watching this battle.{" "}
-                  <a
-                    className="playerLinkUrl"
-                    href={playerLink.url ?? "#"}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="Open the players' page yourself"
-                  >
-                    {playerLink.url}
-                  </a>{" "}
-                  <button type="button" className="playerLinkStop" onClick={handleStopSharing}>
-                    Stop sharing
-                  </button>
-                </>
-              ) : (
-                <>
-                  Opens a page your table can keep open: turn order, conditions and how hurt
-                  everyone looks — never hit point numbers, and never a monster you have hidden.
-                </>
-              )}
             </span>
           </div>
           <div className="dataRow">
