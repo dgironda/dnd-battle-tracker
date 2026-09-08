@@ -6354,13 +6354,13 @@ html[data-wallpaper="midnight"] body::before {
   #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton,
   #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton,
   #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton {
-    /* Held back from filling the column outright. Stacked full-height
-       ribbons are the tallest thing in the folded top, and folding exists to
-       give height to the roster: at 18rem they were 239px wide and the column
-       269px tall, which took the roster down to 511px. At 14rem the column is
-       200px and the roster gets 590. The battle buttons opposite take up the
-       width this leaves. */
-    width: clamp(7rem, 26vw, 14rem);
+    /* Three stacked ribbons are the tallest thing in the folded top, so their
+       width is also what sets the band's height — 2.55:1 for the two scrolls
+       means every pixel of width costs 0.39 of height, three times over. This
+       is the knob for the whole balance: 14rem gave a 200px column and 572px
+       of roster, 15rem gives 239px and about 545. Start the Battle came down
+       to make room for it. */
+    width: clamp(7rem, 30vw, 15rem);
     height: auto;
     min-width: 0;
     max-width: none;
@@ -6407,13 +6407,18 @@ html[data-wallpaper="midnight"] body::before {
        The cap is now a ceiling for very wide windows, not the usual case, and
        the manager ribbons opposite grew with them so the two columns share the
        row instead of leaving a channel of paper down the middle. */
+    /* The ribbon is capped tighter than the two buttons under it. It is 2.87:1,
+       so at the buttons' width it came out 122px tall and was the loudest
+       thing on a folded page — louder than the roster it is meant to be making
+       room for. Narrower than its neighbours is fine: it is a different shape,
+       and it stays centred over them. */
     #page:has(#mastheadToggle[aria-expanded="false"]) #buttonStartBattle {
-      width: min(100%, 22rem) !important;
+      width: min(100%, 17rem) !important;
     }
 
     #page:has(#mastheadToggle[aria-expanded="false"]) #buttonEditBattle,
     #page:has(#mastheadToggle[aria-expanded="false"]) #buttonBattleLog {
-      width: min(100%, 22rem);
+      width: min(100%, 21rem);
       max-width: none;
       font-size: 0.72rem;
     }
