@@ -6090,23 +6090,35 @@ html[data-wallpaper="midnight"] body::before {
        name and grid invented columns for it: the page came out five columns
        wide, every row was 328px of a 680px window, and the banner itself
        rendered 0px wide. One wrong word cost the whole layout. */
+    /* No `options` row: the gear moved inside the masthead grid, and the row
+       it used to occupy was still being reserved here. */
     grid-template-areas:
       "header"
       "adbanner"
       "round"
       "battletracker"
       "sbbutt"
-      "options"
       "footer";
     grid-template-columns: minmax(0, 1fr);
     justify-items: stretch;
     max-width: 100vw;
-    /* The landscape page is `height: 100vh` with four fixed rows — it is a
-       screenful with a scrolling roster inside it. A stack of cards is a page
-       that grows, so the height becomes a floor and the rows are content. */
-    grid-template-rows: none;
-    height: auto;
-    min-height: 100vh;
+    /* ---- the frozen top --------------------------------------------------
+       The page is exactly one screen and the ROSTER is the only thing that
+       scrolls. Everything above it — the masthead, the managers, the round,
+       the timer, Edit Battle, Battle Log — stays where the DM left it, which
+       is the whole point: mid-fight those are the controls, and hunting for
+       them up a scrolled page is the thing this fixes.
+
+       Done with a fixed-height page rather than sticky positioning because
+       sticky would need the round row to know the masthead's height, and that
+       is only knowable by measuring it at runtime.
+
+       `dvh`, not `vh`: on a phone `vh` is the viewport with the browser's
+       chrome hidden, so a 100vh page is taller than the screen and the bottom
+       row sits under the address bar. */
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+    height: 100dvh;
+    min-height: 0;
     /* clip, not hidden: `hidden` on one axis makes the other a scroll
        container, which would put a scrollbar down a page that fits. */
     overflow-x: clip;
@@ -6121,24 +6133,52 @@ html[data-wallpaper="midnight"] body::before {
   }
 
   /* ---- the top bar ------------------------------------------------------
-     The rail becomes a bar. Flex rather than named grid areas because the
-     three manager buttons have to be able to fall onto a second line on a
-     phone and sit on one line on a tablet, and a fixed template cannot do
-     both. */
+     The rail becomes a masthead with the four things you press next to it:
+     the two rosters on one line, the Battle Manager and About on the next.
+     A named grid rather than a wrapping flex row, because flex was arriving at
+     roughly this shape by accident — the arrangement changed with the length
+     of a label and could not be relied on.
+
+     Every child gets an area. An unplaced grid item lands in an implicit row
+     and drags the whole template sideways, which is exactly how this layout
+     broke the last time. */
   #header {
     grid-area: header;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "options hmbutt  mmbutt"
+      "logo    bmbutt  about"
+      "patreon patreon patreon"
+      "adtower adtower adtower";
     align-items: center;
-    justify-content: center;
-    gap: 0.45rem 0.6rem;
-    padding: 0.5rem 0.6rem 0.2rem;
+    justify-items: center;
+    gap: 0.4rem 0.6rem;
+    padding: 0.5rem 0.6rem 0.3rem;
     max-width: 100vw;
+    box-sizing: border-box;
     /* The rail's height cap and its scroll are a landscape problem. */
     height: auto;
     max-height: none;
     overflow: visible;
+
+    /* Frozen by the page below, not by `position: sticky`. Two sticky
+       siblings cannot stack themselves — the round would have to be told how
+       tall this is, and that changes with the buttons wrapping, the Patreon
+       block and whether a promo is in here. Measuring it needs a
+       ResizeObserver, and layout that silently stops working when an observer
+       does not fire is not worth the trade: the page gives the roster a
+       fixed-height scroll box instead and everything else simply stays put. */
   }
+
+  #optionsButton  { grid-area: options; }
+  #logo           { grid-area: logo; }
+  #heroManagerButton    { grid-area: hmbutt; }
+  #monsterManagerButton { grid-area: mmbutt; }
+  #battleManagerButton  { grid-area: bmbutt; }
+  #aboutButton    { grid-area: about; }
+  #patreonLink    { grid-area: patreon; }
+  #header .adSlot-tower { grid-area: adtower; }
 
   /* `#header > button { margin-bottom: .75rem }` is the rail's row spacing;
      the bar uses `gap` instead. */
@@ -6146,12 +6186,22 @@ html[data-wallpaper="midnight"] body::before {
     margin: 0;
   }
 
+  /* Capped by HEIGHT, not width. It is a near-square image, so a width cap of
+     10rem still came out ~250px tall — and now that the top is frozen, every
+     pixel of masthead is a pixel the roster never gets back. This is the one
+     lever worth pulling: --masthead-logo is the number to change if it wants
+     to be grander or quieter. */
   #logo {
-    order: 1;
-    /* Was tied to the rail's button width, which in portrait resolved to the
-       full 19rem — a 230px logo across the top third of a phone. */
-    width: min(38vw, 10rem);
-    margin: 0 auto 0 0;
+    /* Sized against viewport HEIGHT, because height is what is scarce: the
+       masthead is frozen, so on a short phone the logo is the row's tallest
+       thing and every pixel of it comes out of the roster. A tall tablet can
+       afford a bigger one. */
+    --masthead-logo: clamp(3.4rem, 9vh, 7.5rem);
+    width: auto;
+    max-width: 100%;
+    max-height: var(--masthead-logo);
+    margin: 0;
+    justify-self: center;
   }
 
   #optionsButton {
@@ -6167,8 +6217,6 @@ html[data-wallpaper="midnight"] body::before {
      sliver beside the gear with no way to tell it was the About button. Given
      a width and the artwork's own ratio, like the manager ribbons. */
   #aboutButton {
-    order: 3;
-    flex: 0 0 auto;
     width: min(32vw, 9.5rem);
     height: auto;
     aspect-ratio: 741 / 165;
@@ -6180,37 +6228,71 @@ html[data-wallpaper="midnight"] body::before {
 
   /* Its own line under the masthead: it is two lines of prose and would
      otherwise set the height of the row the logo is in. */
+  /* Spans all three columns, so it should use them. Centred inside its own
+     209px it was wrapping to four lines of a frozen header; across the full
+     width it is two. */
   #patreonLink {
-    order: 4;
-    flex: 1 1 100%;
+    justify-self: stretch;
     margin: 0 !important;
     text-align: center;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
+    line-height: 1.35;
   }
 
-  /* Three ribbons across, or two and one on a narrow phone. The 9rem basis is
-     what decides that: two of them plus the gap is 300px, so anything from a
-     320px screen up gets at least two on a line and a 768px tablet gets all
-     three. There is a floor rather than an even split because below about 9rem
-     the labels drawn into the artwork stop being readable. */
-  /* The tower promo is `grid-area: adtower` in the rail, which means nothing
-     once the rail is a flex bar — so it defaulted to order 0 and put 120px of
-     promo above the masthead. It goes last, under the managers. */
+  /* Two paragraphs, each carrying a 1em margin, in a header that no longer
+     scrolls away. The words are worth their two lines; the 37px of margin
+     around them is not. */
+  #patreonLink p {
+    margin: 0;
+  }
+
+  #patreonLink p + p {
+    margin-top: 0.2rem;
+  }
+
+  /* The drawn W / E / R keycaps come off on a phone. Not for space — because
+     there is no W key. They were also the reason the manager labels looked
+     clipped: the label is painted into the artwork and runs to within ~12px of
+     the right edge, so at a phone's button width the cap sat on its last
+     letter. */
+  .panelButtonKey {
+    display: none;
+  }
+
+  /* ---- the rail promo comes off the phone -------------------------------
+     REVERSIBLE IN ONE LINE: delete this rule to put it back.
+
+     The tower is a 300x120 house promo that exists because the landscape rail
+     is a tall column with slack under the patreon block. In portrait there is
+     no rail, and now that the top is frozen it is not a promo you scroll past
+     — it is 139px of an 844px phone, permanently, in the band the DM needs for
+     controls. Measured on a 390x844 phone as a non-supporter: with it, the
+     frozen top is 511px and the roster gets 203px, which is less than one
+     combatant card. Without it, 346px frozen and 368px of roster.
+
+     The leaderboard banner still serves on phones, so the placement is not
+     lost — this drops the second impression per mobile screen, which is the
+     usual arrangement on a phone anyway. Yours to reverse if the numbers say
+     otherwise. */
   #header .adSlot-tower {
-    order: 6;
-    flex: 1 1 100%;
-    display: flex;
-    justify-content: center;
-    margin: 0.2rem 0 0;
+    display: none;
   }
 
+  /* In the grid these need a real width: the label is painted into the
+     artwork, so `width: auto` sizes them to their only DOM content — the
+     little keycap badge — and all three collapse to ~50px slivers. That is
+     also why `flex: 1 1 9rem` was doing the work before, and why removing the
+     flex container took it away. */
   #heroManagerButton,
   #monsterManagerButton,
   #battleManagerButton {
-    order: 5;
-    flex: 1 1 9rem;
-    width: auto;
+    width: 100%;
+    justify-self: stretch;
     min-width: 0;
+    /* The art is 2.55:1, so a full-width button on a wide-ish narrow window is
+       tall. Capped so four of them plus the masthead cannot eat the screen. */
+    max-height: 4.4rem;
+    object-fit: contain;
     /* index.css's portrait rules pinned these to `fit-content`, and the label
        is painted into the artwork rather than set as text — so the content was
        an empty string and both buttons shrank to 49x19. */
@@ -6218,7 +6300,7 @@ html[data-wallpaper="midnight"] body::before {
     margin: 0;
   }
 
-  /* ---- round, timer, Edit Battle ---------------------------------------- */
+  /* ---- round, timer, Edit Battle, Battle Log ---------------------------- */
   #round {
     grid-area: round;
     width: auto;
@@ -6227,16 +6309,26 @@ html[data-wallpaper="midnight"] body::before {
     align-items: center;
     justify-content: center;
     gap: 0.3rem 1.1rem;
-    margin: 0.1rem 0.6rem 0.3rem;
+    margin: 0;
+    padding: 0.25rem 0.6rem 0.4rem;
     font-size: clamp(1rem, 3.6vw, 1.45rem);
+
+    /* The line that says where the frozen part stops and the roster begins. */
+    border-bottom: 1px solid var(--color-shadow, rgba(0, 0, 0, 0.18));
   }
 
   /* ---- the tracker ------------------------------------------------------ */
+  /* The one scrolling thing on the page. */
   #battleTrackerScroll {
     grid-area: battletracker;
     width: 100%;
     box-sizing: border-box;
     padding: 0 0.5rem;
+    overflow-y: auto;
+    /* Without this a grid item refuses to shrink below its content and the
+       1fr row grows to fit every card, taking the page with it. */
+    min-height: 0;
+    overscroll-behavior: contain;
   }
 
   #battleTracker {
@@ -6649,11 +6741,22 @@ html[data-wallpaper="midnight"] body::before {
     margin: 0.4rem 0 0.2rem;
   }
 
+  /* The legal line is two sentences of boilerplate, and with a frozen top it
+     is permanently on screen — so it gets out of the way. Every pixel here is
+     a pixel the roster does not get. Kept in full: it is a copyright notice,
+     and it is the only place on the site that carries one. */
   #footer {
     grid-area: footer;
-    margin: 0.5rem 1rem 1rem;
+    margin: 0.25rem 0.7rem 0.4rem;
     text-align: center;
-    font-size: 0.85rem;
+    font-size: 0.62rem;
+    line-height: 1.25;
+  }
+
+  /* The Discord line is its own paragraph; its default margin was costing more
+     height than the words in it. */
+  #footer p {
+    margin: 0.15rem 0 0;
   }
 
   /* The drawn frames are a flat 30px top and bottom and 53px each side. That
