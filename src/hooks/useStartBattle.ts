@@ -1,6 +1,8 @@
-import { useCallback } from 'react';
-import { Hero, Monster, Combatant } from '../types/index';
-import { notify } from '../utils/notify';
+import { useCallback } from "react";
+import { Hero, Monster, Combatant } from "../types/index";
+import { confirmDialog, notify } from "../utils/notify";
+import { ASK_FOR_GROUP_INITIATIVE } from "../utils/experiments";
+import { baseMonsterName, groupByKind } from "../utils/monsterNaming";
 
 interface UseBattleManagerProps {
   setRoundNumber: (round: number) => void;
@@ -26,14 +28,17 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
   } = props;
 
   const handleStartBattle = useCallback(async () => {
-    const presentHeroes = getHeroes().filter(h => h.present);
-    const presentMonsters = getMonsters().filter(m => m.present);
+    const presentHeroes = getHeroes().filter((h) => h.present);
+    const presentMonsters = getMonsters().filter((m) => m.present);
 
     if (presentHeroes.length === 0) {
-      await notify("Mark at least one hero as ready for battle, then try again.", {
-        title: "No heroes ready",
-        tone: "warning",
-      });
+      await notify(
+        "Mark at least one hero as ready for battle, then try again.",
+        {
+          title: "No heroes ready",
+          tone: "warning",
+        },
+      );
       return;
     }
 
@@ -46,7 +51,7 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
         newCombatants.push({
           id: hero.id,
           name: hero.name,
-          type: 'hero',
+          type: "hero",
           currHp: hero.hp,
           maxHp: hero.hp,
           tHp: 0,
@@ -66,39 +71,77 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
           wis: hero.wis ?? 10,
           cha: hero.cha ?? 10,
           pp: hero.pp ?? 0,
-          link: hero.link ?? ""
+          link: hero.link ?? "",
         });
       }
 
-      for (const monster of presentMonsters) {
-        const initiative = await askForInitiative(monster);
+      /* ---------------------------------------------------------------
+         EXPERIMENT: group initiative (see utils/experiments.ts)
 
-        newCombatants.push({
-          id: monster.id,
-          name: monster.name,
-          link: monster.link,
-          type: 'monster',
-          currHp: monster.hp,
-          maxHp: monster.hp,
-          tHp: 0,
-          initiative,
-          action: false,
-          bonus: false,
-          move: false,
-          reaction: false,
-          conditions: monster.conditions ?? [],
-          init: monster.init,
-          deathsaves: [],
-          ac: monster.ac,
-          str: monster.str,
-          dex: monster.dex,
-          con: monster.con,
-          int: monster.int,
-          wis: monster.wis,
-          cha: monster.cha,
-          pp: monster.pp,
-        });
+         Eight goblins used to mean eight prompts before anyone rolled a
+         die. Monsters of the same kind are offered one roll for the lot.
+
+         To remove: delete from here to the matching marker below and put
+         back the plain loop:
+
+             for (const monster of presentMonsters) {
+               const initiative = await askForInitiative(monster);
+               newCombatants.push({ ...as below... });
+             }
+         --------------------------------------------------------------- */
+      const monsterGroups = ASK_FOR_GROUP_INITIATIVE
+        ? groupByKind(presentMonsters)
+        : presentMonsters.map((m) => [m]);
+
+      for (const group of monsterGroups) {
+        /* One shared roll, if the DM wants one. Asked rather than assumed:
+           plenty of tables roll each monster separately on purpose, and a
+           tracker that quietly merged them would be taking a decision that
+           is not its to take. */
+        let shared: number | null = null;
+        if (group.length > 1) {
+          const together = await confirmDialog(
+            `Roll one initiative for all ${group.length} ${baseMonsterName(group[0].name)}s, or one each?`,
+            {
+              title: "Group initiative",
+              confirmLabel: "One roll for all",
+              cancelLabel: "One each",
+            },
+          );
+          if (together) shared = await askForInitiative(group[0]);
+        }
+
+        for (const monster of group) {
+          const initiative = shared ?? (await askForInitiative(monster));
+
+          newCombatants.push({
+            id: monster.id,
+            name: monster.name,
+            link: monster.link,
+            type: "monster",
+            currHp: monster.hp,
+            maxHp: monster.hp,
+            tHp: 0,
+            initiative,
+            action: false,
+            bonus: false,
+            move: false,
+            reaction: false,
+            conditions: monster.conditions ?? [],
+            init: monster.init,
+            deathsaves: [],
+            ac: monster.ac,
+            str: monster.str,
+            dex: monster.dex,
+            con: monster.con,
+            int: monster.int,
+            wis: monster.wis,
+            cha: monster.cha,
+            pp: monster.pp,
+          });
+        }
       }
+      /* --- EXPERIMENT: group initiative ends here --------------------- */
     } catch {
       // Cancelled part-way through. Nothing has been committed yet, so the
       // roster and the previous battle are both left exactly as they were.
@@ -107,7 +150,7 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
 
     // Only now is the battle real: pull the used monsters out of the manager
     // and swap in the new combatants.
-    removeMonstersFromRoster(presentMonsters.map(m => m.id));
+    removeMonstersFromRoster(presentMonsters.map((m) => m.id));
     setRoundNumber(1);
     setCombatants(newCombatants.sort((a, b) => b.initiative - a.initiative));
     setCurrentTurnIndex(0);

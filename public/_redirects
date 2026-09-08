@@ -1,0 +1,12 @@
+# The player page is a client-side route in a single-page app with no router,
+# so the server has to hand /play/<code> the same index.html and let the app
+# read the path.
+#
+# Scoped to /play/* rather than a blanket /* fallback: everything else should
+# still be able to 404 honestly, and /api/* is served by Functions, which run
+# before this file is consulted.
+#
+# The destination is "/" and not "/index.html": Pages strips `/index` and
+# `.html` from paths, so a rule pointing at /index.html is detected as an
+# infinite loop and silently dropped. Root serves the same document.
+/play/* / 200

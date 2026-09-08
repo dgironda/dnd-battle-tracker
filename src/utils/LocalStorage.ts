@@ -1,4 +1,5 @@
 import { Hero, Monster, Combatant } from '../types/index';
+import type { LogEntry } from "./battleLog";
 
 /**
  * Single source of truth for every localStorage key the app uses.
@@ -17,6 +18,7 @@ export const STORAGE_KEYS = {
   turnStart: "turnStartedAt",
   settings: "appSettings",
   savedBattles: "savedBattles",
+  battleLog: "battleLog",
 } as const;
 
 /** Raised when a write fails because the origin's storage quota is full. */
@@ -177,11 +179,31 @@ function getTurnStart(): number | null {
   return parsed > 0 && parsed <= Date.now() ? parsed : null;
 }
 
+/* ---------------------------------------------------------------- the log */
+
+/**
+ * What happened during this battle.
+ *
+ * Stored beside the combatants rather than inside them: it belongs to the
+ * fight, not to any one person in it, and a combatant who leaves should not
+ * take the record of what they did with them.
+ */
+function storeBattleLog(log: LogEntry[]): void {
+  writeKey(STORAGE_KEYS.battleLog, JSON.stringify(log ?? []));
+}
+
+function getBattleLog(): LogEntry[] {
+  return readJSON<LogEntry[]>(STORAGE_KEYS.battleLog, []);
+}
+
 function clearCombatants(): void {
   removeKey(STORAGE_KEYS.combatants);
   removeKey(STORAGE_KEYS.round);
   removeKey(STORAGE_KEYS.turnIndex);
   removeKey(STORAGE_KEYS.turnStart);
+  /* The log goes with the battle. Keeping it would put the last fight's
+     history behind the next fight's button. */
+  removeKey(STORAGE_KEYS.battleLog);
 }
 
 function hasStoredCombatants(): boolean {
@@ -199,6 +221,8 @@ export {
   hasStoredMonsters,
   storeCombatants,
   getCombatants,
+  storeBattleLog,
+  getBattleLog,
   getRoundNumber,
   storeRoundNumber,
   getTurnIndex,

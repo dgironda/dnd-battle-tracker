@@ -16,6 +16,7 @@ import {
   underlineVariant,
 } from "../../utils/handArt";
 import { HpChangeModal } from "../../utils/dmg-heal";
+import { CROSS_OUT_SLAIN_MONSTERS } from "../../utils/experiments";
 import { getTurnStart, storeTurnStart } from "../../utils/LocalStorage";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
@@ -28,6 +29,9 @@ import { useBattleManager } from "../../hooks/useStartBattle";
 import { ConditionReminder } from "./ConditionReminder";
 import SBPopup from "./SBPopup";
 import { EditBattleDialog } from "./EditBattleDialog";
+import { BattleLogDialog } from "./BattleLogDialog";
+import { usePlayerLinkContext } from "../../hooks/usePlayerLink";
+import { toPlayerView } from "../../utils/playerView";
 import HeartIcon from "../../assets/draftsvgs_v2/icon_hp.svg";
 import TempHpIcon from "../../assets/draftsvgs_v2/icon_temphp.svg";
 
@@ -214,8 +218,13 @@ const BattleTracker: React.FC = () => {
     roundNumber,
     setRoundNumber,
     askForInitiative,
+    battleLog,
+    logEvent,
+    clearBattleLog,
   } = useCombat();
+  const { room: playerRoom, publish: publishToPlayers } = usePlayerLinkContext();
 
+  const [isBattleLogOpen, setIsBattleLogOpen] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingConditions, setEditingConditions] = useState<string | null>(null);
   /* Which combatant the HP window is open on — the ID, not a copy of them.
@@ -292,25 +301,64 @@ const BattleTracker: React.FC = () => {
     );
   }, [setCombatants]);
 
+  /**
+   * Turn one hit-point edit into however many things actually happened.
+   *
+   * The HP window applies damage, healing and temporary hit points through the
+   * same two callbacks, so what changed has to be worked out by comparing —
+   * and one press can genuinely be two events, since damage that takes someone
+   * to zero both hurt them and put them down.
+   */
+  const logHpChange = useCallback(
+    (before: Combatant, newHp: number, newtHp: number) => {
+      if (newHp < before.currHp) {
+        logEvent("damage", before.name, {
+          amount: before.currHp - newHp,
+          from: before.currHp,
+          to: newHp,
+        });
+      } else if (newHp > before.currHp) {
+        logEvent("heal", before.name, {
+          amount: newHp - before.currHp,
+          from: before.currHp,
+          to: newHp,
+        });
+      }
+
+      if (newtHp !== before.tHp) {
+        logEvent("temp-hp", before.name, { amount: newtHp });
+      }
+
+      /* Crossing zero is the thing a DM scans the log for, so it gets a line
+         of its own rather than being left implicit in "took 12". */
+      if (before.currHp > 0 && newHp <= 0) logEvent("down", before.name);
+      else if (before.currHp <= 0 && newHp > 0) logEvent("revived", before.name);
+    },
+    [logEvent]
+  );
+
   const addCondition = useCallback((combatantId: string, condition: string) => {
     setCombatants((prev) =>
-      prev.map((c) =>
-        c.id === combatantId && !c.conditions.includes(condition)
-          ? { ...c, conditions: [...c.conditions, condition] }
-          : c
-      )
+      prev.map((c) => {
+        if (c.id !== combatantId || c.conditions.includes(condition)) return c;
+        /* Logged from inside the updater so it only fires when the condition
+           actually goes on — clicking a condition already present is not an
+           event and should not read as one. */
+        logEvent("condition-on", c.name, { detail: condition });
+        return { ...c, conditions: [...c.conditions, condition] };
+      })
     );
-  }, [setCombatants]);
+  }, [setCombatants, logEvent]);
 
   const removeCondition = useCallback((combatantId: string, conditionToRemove: string) => {
     setCombatants((prev) =>
-      prev.map((c) =>
-        c.id === combatantId
-          ? { ...c, conditions: c.conditions.filter((x) => x !== conditionToRemove) }
-          : c
-      )
+      prev.map((c) => {
+        if (c.id !== combatantId || !c.conditions.includes(conditionToRemove)) return c;
+        logEvent("condition-off", c.name, { detail: conditionToRemove });
+        return { ...c, conditions: c.conditions.filter((x) => x !== conditionToRemove) };
+      })
     );
-  }, [setCombatants]);
+  }, [setCombatants, logEvent]);
 
   const getHpColor = (currHp: number, maxHp: number): string => {
     // At full health the plaque shows through untouched. Painting parchment
@@ -384,7 +432,9 @@ const BattleTracker: React.FC = () => {
   const removeFromBattle = useCallback(
     (id: string) => {
       const activeId = sortedCombatants[safeTurnIndex]?.id;
+      const leaving = combatants.find((c) => c.id === id);
       const remaining = combatants.filter((c) => c.id !== id);
+      if (leaving) logEvent("left", leaving.name);
       setCombatants(remaining);
 
       if (remaining.length === 0) {
@@ -402,7 +452,7 @@ const BattleTracker: React.FC = () => {
         stillAt >= 0 ? stillAt : Math.min(safeTurnIndex, nextSorted.length - 1)
       );
     },
-    [combatants, sortedCombatants, safeTurnIndex, setCombatants, setCurrentTurnIndex]
+    [combatants, sortedCombatants, safeTurnIndex, setCombatants, setCurrentTurnIndex, logEvent]
   );
 
   /** Everyone out, and the battle back to not having started. */
@@ -412,7 +462,11 @@ const BattleTracker: React.FC = () => {
     // 0 is the no-battle round: a battle starts at 1 (see useStartBattle).
     setRoundNumber(0);
     setLastRun(null);
-  }, [setCombatants, setCurrentTurnIndex, setRoundNumber, setLastRun]);
+    /* The log has to be cleared through state, not just storage:
+       clearCombatants() removes the key, but the log's own persistence effect
+       would write the still-live React state straight back over it. */
+    clearBattleLog();
+  }, [setCombatants, setCurrentTurnIndex, setRoundNumber, setLastRun, clearBattleLog]);
 
   const handleNextTurn = useCallback(() => {
     setLastRun(Date.now());
@@ -479,6 +533,21 @@ const BattleTracker: React.FC = () => {
 
   // Always-current handle on the active combatant, so effects can read it
   // without taking a dependency on every mutation of the object.
+  /**
+   * Keep the players' page in step with the fight.
+   *
+   * Only ever sends `toPlayerView(...)` — a projection with no hit-point
+   * numbers, no armour class, no notes and no hidden monsters in it. The
+   * tracker's own combatants never leave this component.
+   *
+   * Fires on every change and is coalesced by the hook, so a burst of edits
+   * costs one write rather than six.
+   */
+  useEffect(() => {
+    if (!playerRoom) return;
+    publishToPlayers(toPlayerView(combatants, roundNumber, activeCombatant?.id ?? null));
+  }, [playerRoom, publishToPlayers, combatants, roundNumber, activeCombatant]);
+
   const activeCombatantRef = useRef(activeCombatant);
   activeCombatantRef.current = activeCombatant;
 
@@ -750,14 +819,27 @@ const BattleTracker: React.FC = () => {
       {battleStage === "running" && (
         <div id="round">
           <RoundNumberSpan roundNumber={roundNumber} timerRef={timerRef} />
-          <button
-            type="button"
-            id="buttonEditBattle"
-            title="Remove combatants from this battle"
-            onClick={() => setIsEditBattleOpen(true)}
-          >
-            Edit Battle
-          </button>
+          {/* The two wrap as a pair. Loose in the row they broke apart at
+              1280 — the round, the timer and Edit Battle held the line and the
+              log dropped underneath on its own, which read as a stray. */}
+          <div className="roundActions">
+            <button
+              type="button"
+              id="buttonEditBattle"
+              title="Remove combatants from this battle"
+              onClick={() => setIsEditBattleOpen(true)}
+            >
+              Edit Battle
+            </button>
+            <button
+              type="button"
+              id="buttonBattleLog"
+              title="What has happened so far in this battle"
+              onClick={() => setIsBattleLogOpen(true)}
+            >
+              Battle Log
+            </button>
+          </div>
         </div>
       )}
 
@@ -783,6 +865,17 @@ const BattleTracker: React.FC = () => {
                 const isCurrent = index === safeTurnIndex;
                 const isDead = combatant.conditions.includes("Dead");
                 const isDying = combatant.conditions.includes("Death Saves");
+
+                /* EXPERIMENT: cross out the slain (see utils/experiments.ts).
+                   Monsters only — a hero on 0 is unconscious and rolling death
+                   saves, and crossing them off would say they are gone when the
+                   party can still reach them. Delete this const and the
+                   `slainClass` below to remove. */
+                const isSlain =
+                  CROSS_OUT_SLAIN_MONSTERS &&
+                  combatant.type === "monster" &&
+                  (isDead || combatant.currHp <= 0);
+                const slainClass = isSlain ? " isSlain" : "";
                 const hero = combatant.type === "hero"
                   ? heroes.find((h) => h.id === combatant.id)
                   : undefined;
@@ -791,7 +884,7 @@ const BattleTracker: React.FC = () => {
                   <tr
                     key={combatant.id}
                     role="row"
-                    className={`combatantInfo${isCurrent ? ` isCurrentTurn ${turnCircleVariant(combatant.id)}` : ""}`}
+                    className={`combatantInfo${isCurrent ? ` isCurrentTurn ${turnCircleVariant(combatant.id)}` : ""}${slainClass}`}
                   >
                     <td role="cell" className={`combatantName ${underlineVariant(combatant.id)}`} style={underlineStyle(combatant.id)}>
                       {isCurrent && <span className="currentTurnIndicator" aria-hidden="true" />}
@@ -804,13 +897,24 @@ const BattleTracker: React.FC = () => {
                           <span className={`combatantNameText${isDead ? " strike" : ""}`} title={combatant.name}>{combatant.name}</span>
                         </HeroStatBlockHover>
                       ) : combatant.type === "monster" ? (
-                        <MonsterStatBlockHover
-                          monster={combatantToMonster(combatant)}
-                          currentHp={combatant.currHp}
-                          updateCombatant={updateCombatant}
-                        >
-                          <span className={`combatantNameText${isDead ? " strike" : ""}`} title={combatant.name}>{combatant.name}</span>
-                        </MonsterStatBlockHover>
+                        /* EXPERIMENT: a slain monster has no stat panel. There
+                           is nothing left to look up, and the panel is a large
+                           sheet that slides over the rows still fighting — so
+                           the one row you no longer care about was the easiest
+                           one to open by accident. The name stays clickable-
+                           looking nowhere: no trigger, no underline, no
+                           pointer. */
+                        isSlain ? (
+                          <span className="combatantNameText strike" title={combatant.name}>{combatant.name}</span>
+                        ) : (
+                          <MonsterStatBlockHover
+                            monster={combatantToMonster(combatant)}
+                            currentHp={combatant.currHp}
+                            updateCombatant={updateCombatant}
+                          >
+                            <span className={`combatantNameText${isDead ? " strike" : ""}`} title={combatant.name}>{combatant.name}</span>
+                          </MonsterStatBlockHover>
+                        )
                       ) : (
                         <span className="combatantNameText" title={combatant.name}>{combatant.name}</span>
                       )}
@@ -936,6 +1040,7 @@ const BattleTracker: React.FC = () => {
           deathsaves={hpModalCombatant.deathsaves || []}
           updateCombatant={updateCombatant}
           onSubmit={(newHp, newtHp) => {
+            logHpChange(hpModalCombatant, newHp, newtHp);
             setCombatants((prev) =>
               prev
                 .map((c) => (c.id === hpModalCombatant.id ? { ...c, currHp: newHp, tHp: newtHp } : c))
@@ -943,6 +1048,7 @@ const BattleTracker: React.FC = () => {
             );
           }}
           onUpdateBoth={(newHp, newtHp, newConditions) => {
+            logHpChange(hpModalCombatant, newHp, newtHp);
             setCombatants((prev) =>
               prev
                 .map((c) =>
@@ -989,6 +1095,10 @@ const BattleTracker: React.FC = () => {
           updateCombatant={updateCombatant}
           onClose={() => setIsEditBattleOpen(false)}
         />
+      )}
+
+      {isBattleLogOpen && (
+        <BattleLogDialog log={battleLog} onClose={() => setIsBattleLogOpen(false)} />
       )}
 
       <SBPopup

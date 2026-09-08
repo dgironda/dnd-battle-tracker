@@ -53,3 +53,39 @@ export function planMonsterNames(
     newNames,
   };
 }
+
+/* ---------------------------------------------------------------------------
+   EXPERIMENT: group initiative (see utils/experiments.ts)
+   Delete this section with the flag.
+   ------------------------------------------------------------------------ */
+
+/**
+ * "Goblin 2" -> "Goblin". The number this strips is the one planMonsterNames
+ * put there, so the two functions have to agree about the shape: a space and
+ * digits at the very end, nothing else.
+ *
+ * A name that is only digits keeps its name — "12" is a strange thing to call
+ * a monster but it is not a numbered second copy of anything.
+ */
+export function baseMonsterName(name: string): string {
+  const stripped = name.replace(/\s+\d+$/, "").trim();
+  return stripped.length > 0 ? stripped : name;
+}
+
+/**
+ * Group things by what kind of monster they are, keeping the order they came
+ * in — the roster's order is the DM's order and reshuffling it here would
+ * change which monster gets asked about first.
+ */
+export function groupByKind<T extends { name: string }>(items: readonly T[]): T[][] {
+  const groups = new Map<string, T[]>();
+
+  for (const item of items) {
+    const kind = baseMonsterName(item.name);
+    const existing = groups.get(kind);
+    if (existing) existing.push(item);
+    else groups.set(kind, [item]);
+  }
+
+  return [...groups.values()];
+}

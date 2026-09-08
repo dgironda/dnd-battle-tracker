@@ -7,7 +7,10 @@ import {
   getTurnIndex,
   storeCombatants,
   storeTurnIndex,
+  getBattleLog,
+  storeBattleLog,
 } from '../../utils/LocalStorage';
+import { appendEntry, makeEntry, type LogEntry, type LogKind } from '../../utils/battleLog';
 import { useMonsters } from "../../hooks/useMonsters";
 
 interface CombatContextType {
@@ -24,6 +27,24 @@ interface CombatContextType {
   askForInitiative: (entity: Hero | Monster) => Promise<number>;
   /** Abort a pending initiative prompt, rejecting whoever is awaiting it. */
   cancelInitiative: () => void;
+
+  /** What has happened this battle, oldest first. */
+  battleLog: LogEntry[];
+  /**
+   * Record something. Called at the point the thing happens rather than
+   * inferred from a state diff — see utils/battleLog.ts for why.
+   */
+  logEvent: (
+    kind: LogKind,
+    who: string,
+    extra?: Partial<Pick<LogEntry, "amount" | "from" | "to" | "detail">>,
+  ) => void;
+  /**
+   * Wipe the log. Called when the battle is cleared — the record belongs to
+   * the fight, and leaving it would put the last battle's history behind the
+   * next battle's button.
+   */
+  clearBattleLog: () => void;
   /** Clear the battle and wipe the saved copy. */
 }
 
@@ -40,10 +61,46 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
   const [roundNumber, setRoundNumber] = useState(() => getRoundNumber());
   const [currentCombatant, setCurrentCombatant] = useState<Hero | Monster | null>(null);
   const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
+  const [battleLog, setBattleLog] = useState<LogEntry[]>(() => getBattleLog());
+
+  /* The round is read through a ref rather than taken as a dependency: every
+     log call would otherwise rebuild `logEvent`, and every consumer of the
+     context with it, on each turn. */
+  const roundRef = useRef(0);
 
   // Rejecter paired with the current prompt, so cancelling unwinds the await
   // chain in useBattleManager instead of leaving it hanging forever.
   const initiativeRejecter = useRef<((reason: unknown) => void) | null>(null);
+
+  /* Kept current every render, so logEvent can stamp the round without taking
+     it as a dependency. */
+  roundRef.current = roundNumber;
+
+  const logEvent = useCallback<CombatContextType["logEvent"]>((kind, who, extra) => {
+    setBattleLog((prev) => appendEntry(prev, makeEntry(kind, who, roundRef.current, extra)));
+  }, []);
+
+  const clearBattleLog = useCallback(() => setBattleLog([]), []);
+
+  useEffect(() => {
+    storeBattleLog(battleLog);
+  }, [battleLog]);
+
+  /* A heading whenever the round turns over.
+     `lastLoggedRound` starts at whatever was restored, so reloading mid-fight
+     does not stamp the round you are already in a second time. Round 0 is the
+     no-battle state and is never a heading. */
+  const lastLoggedRound = useRef<number | null>(null);
+  useEffect(() => {
+    if (lastLoggedRound.current === null) {
+      lastLoggedRound.current = roundNumber;
+      return;
+    }
+    if (roundNumber > lastLoggedRound.current && roundNumber > 0) {
+      logEvent("round", "");
+    }
+    lastLoggedRound.current = roundNumber;
+  }, [roundNumber, logEvent]);
 
   // Persist on change.
   //
@@ -114,6 +171,8 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       pp: monster.pp,
     };
 
+    logEvent("joined", newCombatant.name);
+
     setCombatants((prev) =>
       [...prev, newCombatant].sort((a, b) => b.initiative - a.initiative)
     );
@@ -122,7 +181,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
     // updates too. This used to write localStorage directly, leaving every
     // mounted copy of the monster list stale.
     setMonsters((prev) => prev.filter((m) => m.id !== monster.id));
-  }, [askForInitiative, setMonsters]);
+  }, [askForInitiative, setMonsters, logEvent]);
 
   /**
    * Adds a hero into an *existing combat*, with the initiative dialog.
@@ -169,12 +228,14 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       pp: hero.pp,
     };
 
+    logEvent("joined", newCombatant.name);
+
     setCombatants((prev) =>
       prev.some((c) => c.id === hero.id)
         ? prev
         : [...prev, newCombatant].sort((a, b) => b.initiative - a.initiative)
     );
-  }, [askForInitiative, combatants]);
+  }, [askForInitiative, combatants, logEvent]);
 
   const value = useMemo(
     () => ({
@@ -189,11 +250,17 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       currentCombatant,
       askForInitiative,
       cancelInitiative,
+      battleLog,
+      logEvent,
+      clearBattleLog,
     }),
     [
       combatants,
       currentTurnIndex,
       roundNumber,
+      battleLog,
+      logEvent,
+      clearBattleLog,
       addMonsterToCombat,
       addHeroToCombat,
       currentCombatant,

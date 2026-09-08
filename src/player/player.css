@@ -1,0 +1,226 @@
+/* ==========================================================================
+   THE PLAYER PAGE
+
+   Its own stylesheet, loaded only by the player route. It shares no selectors
+   with the tracker: the DM gets a notebook full of controls, the table gets a
+   card with nothing to press. Keeping them apart means a change to one cannot
+   quietly reshape the other.
+
+   Designed for the worst case it will actually meet — a phone, held at arm's
+   length, in a dim room, by somebody also holding dice.
+   ========================================================================== */
+
+.pPage {
+  --paper: #efe6d3;
+  --ink: #241f18;
+  --ink-soft: #6b6252;
+  --rule: rgba(36, 31, 24, 0.16);
+  --turn: #f6efdc;
+  --turn-edge: #9a6b1f;
+
+  /* The five bands. Not a rainbow: three steps of one warm ramp toward red,
+     so "worse" reads as a direction rather than as a set of categories. */
+  --band-unharmed: #4f7a3a;
+  --band-hurt: #8a8226;
+  --band-bloodied: #b06a1c;
+  --band-critical: #9e3418;
+  --band-down: #6b6252;
+
+  min-height: 100vh;
+  margin: 0;
+  padding: clamp(0.9rem, 3vw, 2rem) clamp(0.7rem, 3vw, 2rem) 3rem;
+  box-sizing: border-box;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Caudex", Georgia, serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pPage {
+    --paper: #1a1c1e;
+    --ink: #ece4d3;
+    --ink-soft: #9a9284;
+    --rule: rgba(236, 228, 211, 0.16);
+    --turn: #2a2b25;
+    --turn-edge: #c79a3f;
+
+    --band-unharmed: #7fae63;
+    --band-hurt: #c2b64a;
+    --band-bloodied: #d99248;
+    --band-critical: #e2705a;
+    --band-down: #9a9284;
+  }
+}
+
+.pHead {
+  max-width: 46rem;
+  margin: 0 auto clamp(0.8rem, 2.4vw, 1.4rem);
+  text-align: center;
+}
+
+/* The round is the only number on the page, so it can be the biggest thing. */
+.pTitle {
+  margin: 0;
+  font-size: clamp(1.6rem, 7vw, 2.6rem);
+  font-weight: 400;
+  font-variant: small-caps;
+  letter-spacing: 0.02em;
+}
+
+.pStale {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.pMessage {
+  max-width: 30rem;
+  margin: 3rem auto;
+  text-align: center;
+  font-size: clamp(1.05rem, 4vw, 1.3rem);
+  color: var(--ink-soft);
+  text-wrap: balance;
+}
+
+.pList {
+  list-style: none;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Initiative | name and conditions | how hurt. The middle column is the one
+   that grows, so long names wrap instead of squeezing the other two. */
+.pRow {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr) auto;
+  gap: clamp(0.5rem, 2vw, 1rem);
+  align-items: center;
+  padding: clamp(0.55rem, 2vw, 0.85rem) clamp(0.4rem, 2vw, 0.8rem);
+  border-bottom: 1px solid var(--rule);
+}
+
+/* Whose turn it is has to be readable from across a table, so it is a change
+   of ground rather than a marker you have to look for. */
+.pRow.is-turn {
+  background: var(--turn);
+  border-left: 4px solid var(--turn-edge);
+  border-bottom-color: transparent;
+  border-radius: 3px;
+  margin-left: -4px;
+}
+
+.pInit {
+  font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--ink-soft);
+}
+
+.pRow.is-turn .pInit {
+  color: var(--ink);
+}
+
+.pMain {
+  min-width: 0;
+}
+
+.pName {
+  display: block;
+  font-size: clamp(1.05rem, 4.6vw, 1.4rem);
+  line-height: 1.2;
+  overflow-wrap: break-word;
+}
+
+.pRow.is-turn .pName {
+  font-weight: 700;
+}
+
+/* Monsters in the softer ink, the way the DM's own saved rosters do it — the
+   party should be able to find themselves in the list at a glance. */
+.pRow.is-monster .pName {
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+.pRow.is-turn.is-monster .pName {
+  color: var(--ink);
+}
+
+.pTurnMark {
+  color: var(--turn-edge);
+  margin-right: 0.35em;
+  font-size: 0.8em;
+  vertical-align: 0.05em;
+}
+
+.pConditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+  margin-top: 0.28rem;
+}
+
+.pCondition {
+  font-size: clamp(0.72rem, 3vw, 0.85rem);
+  padding: 0.08em 0.45em;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* The bar is the glanceable version and the words are the accessible one.
+   Both, because colour alone is not a way to tell somebody they are dying. */
+.pHp {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  flex: 0 0 auto;
+}
+
+.pHpBar {
+  display: block;
+  width: clamp(3rem, 16vw, 5rem);
+  height: 0.42rem;
+  border-radius: 999px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.pHpBar > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.pHpLabel {
+  font-size: clamp(0.72rem, 3vw, 0.86rem);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.hp-unharmed .pHpBar > i { width: 100%; background: var(--band-unharmed); }
+.hp-hurt     .pHpBar > i { width: 72%;  background: var(--band-hurt); }
+.hp-bloodied .pHpBar > i { width: 45%;  background: var(--band-bloodied); }
+.hp-critical .pHpBar > i { width: 18%;  background: var(--band-critical); }
+.hp-down     .pHpBar > i { width: 0;    background: var(--band-down); }
+
+.hp-critical .pHpLabel { color: var(--band-critical); font-weight: 700; }
+
+/* Down is the one state worth changing the whole row for. */
+.pRow.hp-down .pName {
+  text-decoration: line-through;
+  color: var(--ink-soft);
+}
+
+.pFoot {
+  max-width: 46rem;
+  margin: 2rem auto 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  font-style: italic;
+}

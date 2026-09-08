@@ -3364,9 +3364,10 @@ body::before {
 #buttonMonsterShareURL,
 /* the options panel's settings */
 #options li > button,
-/* the edit-battle window, and the button that opens it */
+/* the edit-battle window, and the two buttons that sit on the round row */
 .editBattleDone,
 .editBattleClear,
+#buttonBattleLog,
 #buttonEditBattle {
   /* the nominal height the corners are scaled from */
   --btn-h: 2.5em;
@@ -3422,6 +3423,7 @@ body::before {
 #buttonDownloadData,
 #inputImportData,
 #buttonMonsterShareURL,
+#buttonBattleLog,
 #buttonEditBattle {
   --btn-pad-x: 0.9em;
   --btn-slice-x: 7.78%;
@@ -5377,7 +5379,11 @@ html[data-wallpaper="midnight"] body::before {
    of inside a panel, and the notched shape tells it apart. The art carries its
    own ground, so it reads on the dark paper as well as the light ones with
    nothing theme-specific here. */
-#buttonEditBattle {
+/* Both buttons on the round row take the same size. The row's own type is
+   large (it is the round number and the timer), and a button set at that size
+   is a slab — 0.72em brings them back to a control. */
+#buttonEditBattle,
+#buttonBattleLog {
   --btn-h: 2em;
   font-size: 0.72em;
   margin: 0;
@@ -6825,4 +6831,179 @@ html[data-wallpaper="midnight"] body::before {
       font-size: clamp(0.95rem, 2.4vw, 1.3rem);
     }
   }
+}
+
+/* ==========================================================================
+   EXPERIMENT: mark the slain          (see src/utils/experiments.ts)
+
+   A monster on zero gets a single line through its name and the row goes
+   quiet. That is all.
+
+   This started as a full hand-drawn X in two strokes over the name, reusing
+   the cross art from the checkboxes. It worked, and it was too much: at the
+   size a tracker row gives it the cross covered the name it was crossing, and
+   a dead monster shouted louder than the living ones next to it. A line
+   through a name is what a DM actually does and it leaves the name readable,
+   which matters — you still refer back to what killed you.
+
+   TO REMOVE: delete this block, the `isSlain` / `slainClass` pair and the
+   `!isSlain` guard on the stat panel in BattleTracker.tsx, and
+   CROSS_OUT_SLAIN_MONSTERS.
+   ========================================================================== */
+
+/* The row steps back. Still legible, no longer competing with the living. */
+#battleTracker tbody tr.isSlain > td {
+  opacity: 0.6;
+}
+
+/* The name itself carries the line. `.strike` already exists in index.css for
+   the Dead condition — line-through plus the muted ink — so a monster on zero
+   simply gets the same treatment the condition has always given. */
+
+
+/* ==========================================================================
+   BATTLE LOG
+
+   Opens from the round row beside Edit Battle. The two share the drawn button
+   and the window frame, and differ in exactly one thing: Edit Battle is green
+   because it changes the fight, and the log is beige because it only reads it.
+   Two green buttons side by side would say they weigh the same.
+   ========================================================================== */
+
+/* Edit Battle and Battle Log travel together. */
+.roundActions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 0 0 auto;
+}
+
+/* The row's own gap is 4rem, which is right between the round and the timer
+   and far too much either side of a pair of buttons. */
+#round {
+  column-gap: clamp(1rem, 2.4vw, 4rem);
+}
+
+/* Wider than Edit Battle: its rows are a time and a sentence, not a name and
+   a bin. */
+.battleLogInner {
+  width: min(34rem, 94vw);
+  text-align: left;
+}
+
+.battleLogInner h3 {
+  text-align: center;
+}
+
+.battleLogRounds {
+  list-style: none;
+  margin: 0.4em 0 0;
+  padding: 0;
+}
+
+.battleLogRound + .battleLogRound {
+  margin-top: 0.9em;
+}
+
+/* The round is the heading, not a line in the list — that is what
+   groupByRound trades the "round" entries for. */
+.battleLogRoundHead {
+  margin: 0 0 0.25em;
+  font-size: 0.95em;
+  font-variant: small-caps;
+  letter-spacing: 0.6px;
+  color: var(--panel-ink-soft);
+  border-bottom: 1px solid var(--panel-rule);
+  padding-bottom: 0.12em;
+}
+
+.battleLogQuiet {
+  font-variant: normal;
+  font-style: italic;
+  letter-spacing: 0;
+  opacity: 0.75;
+}
+
+.battleLogEntries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* A fixed column for the time so the sentences all start at one margin —
+   a ragged left edge is much harder to scan than a ragged right one. */
+.battleLogEntry {
+  display: grid;
+  grid-template-columns: 4.2em minmax(0, 1fr);
+  gap: 0.5em;
+  align-items: baseline;
+  padding: 0.16em 0.2em;
+  border-radius: 2px;
+}
+
+.battleLogEntry:nth-child(odd) {
+  background-color: var(--panel-inset);
+}
+
+.battleLogTime {
+  font-size: 0.78em;
+  font-variant-numeric: tabular-nums;
+  color: var(--panel-ink-soft);
+  opacity: 0.8;
+}
+
+.battleLogText {
+  overflow-wrap: break-word;
+}
+
+/* The two lines a DM scans for get weight; everything else stays even, so the
+   weight means something. */
+.battleLogEntry.is-down .battleLogText,
+.battleLogEntry.is-revived .battleLogText {
+  font-weight: 700;
+}
+
+.battleLogEntry.is-down .battleLogText {
+  color: #7a1f14;
+}
+
+.battleLogEntry.is-revived .battleLogText {
+  color: #3d5a24;
+}
+
+
+/* ==========================================================================
+   PLAYER LINK — the Battle Manager row
+   ========================================================================== */
+
+/* The code is meant to be read off a screen and typed by hand, so it gets a
+   face where 0 and O cannot be confused — and it wraps, because a URL that
+   forces the panel wider would push the whole window off a phone. */
+.playerLinkUrl {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.86em;
+  word-break: break-all;
+  background-color: var(--panel-inset);
+  padding: 0.1em 0.3em;
+  border-radius: 2px;
+}
+
+/* Deliberately a link and not a drawn button: stopping the share is rare and
+   destructive, and a third button on this row would compete with the two that
+   are the point of it. */
+.playerLinkStop {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: #7a2f12;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.playerLinkStop:hover,
+.playerLinkStop:focus-visible {
+  color: #9e0000;
+  filter: none;
 }

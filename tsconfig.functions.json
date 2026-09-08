@@ -1,0 +1,24 @@
+{
+  /* Pages Functions and the code they share.
+   *
+   * These were not in any project, so `tsc -b` skipped them entirely and a
+   * broken route would have shipped without a word from the build. They import
+   * types from src (the PlayerView shape, the room-code guards), so src is
+   * visible here but only src's TYPES are used — nothing in the browser bundle
+   * imports back the other way. */
+  "extends": "./tsconfig.node.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.functions.tsbuildinfo",
+    "types": ["./worker-configuration.d.ts"],
+    "strict": true,
+    /* The app project does not set this, and turning it on here would demand
+       churn in src/types that has nothing to do with the server code. */
+    "verbatimModuleSyntax": false,
+    "noEmit": true,
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM"]
+  },
+  "include": ["./worker-configuration.d.ts", "./functions", "./server", "./src/utils/playerView.ts", "./src/utils/roomCode.ts", "./src/types"]
+}
