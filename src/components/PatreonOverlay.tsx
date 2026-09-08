@@ -48,9 +48,10 @@ export default function PatreonOverlay({ onClose }: PatreonOverlayProps) {
             <p>
                 Support Simulacrum Technologies on Patreon to help us keep improving, or just continue to your tracker.
             </p>
-            <p>
-                If you are new here consider taking the tour.
-            </p>
+            {/* The line inviting people to take the tour is gone: the tour is
+                switched off behind TOUR_ENABLED (see utils/devmode.ts), so it
+                was pointing at something that does not exist. The tour itself
+                is still whole — bring this back with it. */}
             <div>
                 <button
                     onClick={handlePatreonLogin}

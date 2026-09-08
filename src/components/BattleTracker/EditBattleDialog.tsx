@@ -64,7 +64,9 @@ export function EditBattleDialog({
      because there is nothing left in it to edit. */
   const confirmClear = async () => {
     const ok = await confirmDialog(
-      `Clear the battle? All ${combatants.length} combatants leave, and the round and turn timer reset.`,
+      combatants.length === 1
+        ? "Clear the battle? The last combatant leaves, and the round and turn timer reset."
+        : `Clear the battle? All ${combatants.length} combatants leave, and the round and turn timer reset.`,
       { title: "Clear battle", tone: "danger", confirmLabel: "Clear battle" },
     );
     if (ok) {

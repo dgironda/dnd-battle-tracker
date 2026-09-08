@@ -1235,8 +1235,17 @@ sup {
      here as well left a supporter's page with no row template at all: the
      rows fell back to implicit `auto`, the rail's height went into the empty
      banner row, and a 57px band of nothing opened above the round. */
-  #page:has(.adSlot-tower) {
-    grid-template-columns: minmax(min(21rem, max(27vw, 20.5rem)), 18%) auto minmax(0, 1fr);
+  /* Nested behind the same width the table itself needs, because this is about
+     the RAIL and the rail only exists in the wide layout. Left ungated it also
+     applied to the narrow one — and `:has()` carries the specificity of its
+     argument, so `#page:has(.adSlot-tower)` scores (1,1,0) and beat the plain
+     `#page` card rule in fixes.css: a non-supporter on a narrow window kept
+     the three-column desktop template, and every row of the stacked page came
+     out 328px wide in a 900px window. */
+  @media (min-width: 63rem) {
+    #page:has(.adSlot-tower) {
+      grid-template-columns: minmax(min(21rem, max(27vw, 20.5rem)), 18%) auto minmax(0, 1fr);
+    }
   }
   #header {
   grid-area: header;
@@ -1324,6 +1333,35 @@ sup {
      down by the ad's full height instead of the ~20px the row cannot absorb. */
   #page:has(.adSlot-banner) #round {
     margin-top: 0;
+  }
+
+  /* With an ad in it, the banner's row is real height rather than nothing, so
+     the round's row no longer has to hold the top of the page open: sized to
+     its content it stops carrying ~75px of air under the round number, and the
+     roster starts directly under it. A supporter keeps the `.2fr` row, which
+     is what sits the round where it belongs on a page with no ad above it.
+
+     Gated on the table's own width for the same reason the tower rule is:
+     `:has()` takes its argument's specificity, so ungated this (1,1,0) rule
+     would beat the plain `#page` card layout in fixes.css and impose a
+     four-row template on the seven-row stacked page. */
+  @media (min-width: 63rem) {
+    #page:has(.adSlot-banner) {
+      grid-template-rows: auto auto 1fr .2fr;
+    }
+  }
+
+  /* Same case, the other half of it. The Start ribbon spans the banner's row
+     and the round's, and `margin-top: auto` bottom-aligns it so that with no
+     ad it tucks in beside the round. With an ad there that leaves an empty
+     rectangle beside the banner and drops the ribbon low; released, the ribbon
+     rises into that space and the two sit level across the top. */
+  #page:has(.adSlot-banner) #battleControls {
+    margin-top: 0;
+    /* `start`, not just a released margin: as a stretched grid item it filled
+       the two rows and centred the ribbon inside them, which left the ribbon
+       sitting halfway down instead of up level with the banner. */
+    align-self: start;
   }
   #buttonResetCombat {
     justify-self: end;

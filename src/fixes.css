@@ -69,8 +69,8 @@
        second line when there are three of them, so it loses a little room and
        nothing else does. */
     grid-template-columns:
-      minmax(0, 24fr) minmax(0, 9fr) minmax(0, 15fr)
-      repeat(4, minmax(0, 8fr)) minmax(0, 18fr);
+      minmax(0, 24fr) minmax(0, 9fr) minmax(0, 16fr)
+      repeat(4, minmax(0, 8fr)) minmax(0, 17fr);
     /* No gap: the cells butt together so a row reads as one continuous strip
        rather than eight separate plaques. */
     column-gap: 0;
@@ -123,7 +123,7 @@
        after the body type has hit its floor — they are the first thing that
        will not fit, and a heading set smaller than the numbers under it is
        normal where one clipped mid-word is not. */
-    font-size: clamp(0.82rem, 1.69cqw, 2.02rem);
+    font-size: clamp(0.78rem, 1.69cqw, 2.02rem);
   }
 
   /* ---- the plaques ------------------------------------------------------ */
@@ -307,6 +307,23 @@
   padding-bottom: 0.16em;
   margin-bottom: -0.16em;
   vertical-align: bottom;
+}
+
+/* Under about 800px of table — a 1024px window with a tower promo in the rail,
+   which is the tightest configuration the table is used at — the name column
+   is down to ~120px of text and the common long ones need a third line. Better
+   a row that is one line taller than a name cut in half; above that width two
+   lines is still plenty and the rows stay even. Measured against
+   #battleTrackerScroll, which is the size container the rest of the tracker's
+   `cqw` sizing already resolves against.
+
+   It has to sit AFTER the rule above: a container query adds no specificity,
+   so placed before it the plain rule simply won and the clamp stayed at 2. */
+@container (max-width: 50rem) {
+  #battleTracker .combatantName .combatantNameText {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
 }
 
 /* The turn marker sits in the row's left margin, so it must not eat into the
@@ -4551,13 +4568,48 @@ body::before {
   --btn-ink: #23301a;
 }
 
-/* The Patreon calls to action are the loudest thing the page asks for, so they
-   take the red. The brand's own coral would be the fourth flat fill in a page
-   with no flat fills left in it; the label still says whose button it is. */
+/* The Patreon calls to action have their own drawn button now
+   (button_patreon.svg, 706x272): the plaque, the logo and "Support Us On
+   PATREON" are all in the artwork, so this is a whole background rather than
+   the nine-sliced frame the other buttons use, and the label in the DOM is
+   left in place for screen readers with nothing of it painted.
+
+   That means undoing the generic button above rather than re-colouring it: no
+   border-image scaffolding, no padding, and a box in the artwork's own ratio
+   so the drawing is never squashed. */
 #patreonLogin,
 #patreonLink > button {
-  --btn-art: url('./assets/draftsvgs_v2/button_rounded-red-med.svg');
-  --btn-ink: #fbf3e7;
+  --btn-art: none;
+  border: none;
+  border-image: none;
+  padding: 0;
+  min-height: 0;
+  height: auto;
+  /* A fixed width with a cap, not `min(100%, 14rem)`: `font-size: 0` leaves
+     the button with no intrinsic width, and as a flex item with nothing to
+     size from it shrank to 12px. `flex: 0 0 auto` stops it giving way. */
+  width: 14rem;
+  max-width: 100%;
+  flex: 0 0 auto;
+  aspect-ratio: 706 / 272;
+
+  background-color: transparent;
+  background-image: url('./assets/draftsvgs_v2/button_patreon.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+
+  /* The words are drawn. Kept in the DOM and out of sight, so the button still
+     announces itself; `font-size: 0` rather than `display: none` on a child,
+     because the text node is the accessible name. */
+  font-size: 0;
+  color: transparent;
+}
+
+/* It is the widest thing in the rail, so it takes the rail's own width rather
+   than a share of the text around it. */
+#patreonLink > button {
+  width: var(--button-width, 14rem);
 }
 
 /* "Lost it" is the destructive half of the concentration check, but that
@@ -4696,10 +4748,6 @@ body::before {
   align-items: center;
 }
 
-#patreonLink > button {
-  font-size: 1rem;
-}
-
 @media (prefers-reduced-motion: reduce) {
   #initiativeDialogInner #submitInit,
   #initiativeDialogInner #randomInit,
@@ -4715,6 +4763,33 @@ body::before {
   }
 }
 
+
+/* -- the Patreon buttons' states -----------------------------------------
+   The shared :hover above ends with `background: none`, which for every other
+   drawn button is harmless — their artwork is a `border-image`, and the
+   shorthand only clears a background they never had. These two carry their
+   artwork AS the background, so that one line erased the button on hover.
+
+   Declared after all of it so the image survives every state, and so the
+   `font-size: 0` that hides the DOM label is not undone by a later rule. The
+   feedback stays what it was: a touch brighter and a pixel up, which reads
+   just as well on a painted button as on a nine-sliced one. */
+#patreonLogin,
+#patreonLink > button,
+#patreonLogin:hover,
+#patreonLink > button:hover,
+#patreonLogin:focus-visible,
+#patreonLink > button:focus-visible,
+#patreonLogin:active,
+#patreonLink > button:active {
+  background-image: url('./assets/draftsvgs_v2/button_patreon.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-color: transparent;
+  font-size: 0;
+  color: transparent;
+}
 
 /* ==========================================================================
    CONFIRM BATTLE START
@@ -6003,9 +6078,15 @@ html[data-wallpaper="midnight"] body::before {
   /* ---- one column, and nothing hanging off the side of it --------------- */
   #page {
     display: grid;
+    /* `adbanner`, not `banner` — that is the name AdSlot's banner asks for, and
+       the landscape template above uses. With the row named `banner` the slot
+       matched nothing, so `grid-area: adbanner` was read as an unknown line
+       name and grid invented columns for it: the page came out five columns
+       wide, every row was 328px of a 680px window, and the banner itself
+       rendered 0px wide. One wrong word cost the whole layout. */
     grid-template-areas:
       "header"
-      "banner"
+      "adbanner"
       "round"
       "battletracker"
       "sbbutt"
@@ -6106,6 +6187,17 @@ html[data-wallpaper="midnight"] body::before {
      320px screen up gets at least two on a line and a 768px tablet gets all
      three. There is a floor rather than an even split because below about 9rem
      the labels drawn into the artwork stop being readable. */
+  /* The tower promo is `grid-area: adtower` in the rail, which means nothing
+     once the rail is a flex bar — so it defaulted to order 0 and put 120px of
+     promo above the masthead. It goes last, under the managers. */
+  #header .adSlot-tower {
+    order: 6;
+    flex: 1 1 100%;
+    display: flex;
+    justify-content: center;
+    margin: 0.2rem 0 0;
+  }
+
   #heroManagerButton,
   #monsterManagerButton,
   #battleManagerButton {
