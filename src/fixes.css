@@ -6246,9 +6246,9 @@ html[data-wallpaper="midnight"] body::before {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 0.34rem;
-    width: 2.7rem;
-    height: 2.5rem;
+    gap: 0.3rem;
+    width: 2.9rem;
+    height: auto;
     padding: 0;
     margin: 0;
     border: none;
@@ -6256,26 +6256,54 @@ html[data-wallpaper="midnight"] body::before {
     cursor: pointer;
   }
 
-  /* Painted bars, not the pencil-stroke masks this started as. The underline
-     artwork is a thin line drawn inside a tall, mostly empty box, so masking
-     with it produced a hairline whatever height the bar was given — 9.7px of
-     element, about 2px of visible ink. The hand comes from the geometry
-     instead: three bars, each a slightly different length and each set at its
-     own small angle, with round ends like a soft pencil. */
+  /* Three drawn strokes. The first attempt masked these with the combatant
+     name's underline artwork, which is a hairline in a tall, mostly empty box
+     — SVG masks letterbox by default, so it stayed a hairline whatever height
+     the bar was given. The second attempt gave up and painted plain rounded
+     rectangles, which is how it ended up looking like three strips of tape.
+
+     These are their own drawings: stroke_menu-1..3.svg, each a filled outline
+     rather than a stroked line, so the weight swells and thins along its
+     length the way a pencil does, and each ends bluntly at a slightly
+     different place. They carry `preserveAspectRatio="none"`, so the mask
+     stretches to whatever box it is given instead of letterboxing — which is
+     what defeated the first attempt.
+
+     `currentColor` in the file is irrelevant to a mask; the ink is the
+     background-color here, so the strokes follow the theme. */
   #mastheadToggle > span {
     display: block;
     width: 100%;
-    height: 0.42rem;
-    border-radius: 0.3rem;
+    /* The artwork's own proportion, so the drawn weight is the drawn weight. */
+    aspect-ratio: 120 / 25;
     background-color: var(--color-ink, #2c2118);
-    opacity: 0.88;
-    transform-origin: left center;
-    transition: transform 0.16s ease-out, opacity 0.16s ease-out;
+    opacity: 0.86;
+    -webkit-mask-image: var(--stroke);
+    mask-image: var(--stroke);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    transform-origin: center;
+    transition: transform 0.18s ease-out, opacity 0.18s ease-out;
   }
 
-  #mastheadToggle > span:nth-child(1) { width: 100%;  transform: rotate(-1.6deg); }
-  #mastheadToggle > span:nth-child(2) { width: 92%;   transform: rotate(0.9deg); }
-  #mastheadToggle > span:nth-child(3) { width: 97%;   transform: rotate(-0.7deg); }
+  /* Each stroke is a different drawing, and each sits at its own small angle,
+     so the three do not stack up as one printed glyph. */
+  #mastheadToggle > span:nth-child(1) {
+    --stroke: url('./assets/draftsvgs_v2/stroke_menu-1.svg');
+    transform: rotate(-1.4deg);
+  }
+
+  #mastheadToggle > span:nth-child(2) {
+    --stroke: url('./assets/draftsvgs_v2/stroke_menu-2.svg');
+    transform: rotate(0.8deg);
+  }
+
+  #mastheadToggle > span:nth-child(3) {
+    --stroke: url('./assets/draftsvgs_v2/stroke_menu-3.svg');
+    transform: rotate(-0.6deg);
+  }
 
   #mastheadToggle:hover > span {
     opacity: 1;
@@ -6289,11 +6317,11 @@ html[data-wallpaper="midnight"] body::before {
   }
 
   #mastheadToggle[aria-expanded="false"] > span:nth-child(1) {
-    transform: translateY(0.38rem) rotate(-1.6deg);
+    transform: translateY(0.34rem) rotate(-1.4deg);
   }
 
   #mastheadToggle[aria-expanded="false"] > span:nth-child(3) {
-    transform: translateY(-0.38rem) rotate(-0.7deg);
+    transform: translateY(-0.34rem) rotate(-0.6deg);
   }
 
   /* What the fold takes: the identity and the doors out of the tracker. What
@@ -6305,13 +6333,117 @@ html[data-wallpaper="midnight"] body::before {
      Battle and the two buttons rise to the top line of their own accord and
      sit beside the corner controls. No separate collapsed template. */
   #page:has(#mastheadToggle[aria-expanded="false"]) #logo,
-  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton,
-  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton,
-  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton,
   #page:has(#mastheadToggle[aria-expanded="false"]) #aboutButton,
   #page:has(#mastheadToggle[aria-expanded="false"]) #patreonLink,
   #page:has(#mastheadToggle[aria-expanded="false"]) #header .adSlot-tower {
     display: none;
+  }
+
+  /* ---- the managers, folded ----------------------------------------------
+     The ribbons shorten rather than crop. A crop leaves a hard vertical cut
+     where the drawing used to continue, which reads as a rendering fault; what
+     is wanted is the same ribbon, shorter — its drawn start joined straight to
+     its drawn end, with the middle taken out.
+
+     Done with the artwork as it ships, not a second set of files. The button
+     draws nothing itself; its two pseudo-elements each show the same drawing
+     at the same scale — `background-size: auto 100%` sizes by height alone, so
+     the drawing runs off whichever side its `background-position` does not
+     pin. ::before pins LEFT and so keeps the start; ::after pins RIGHT and so
+     keeps the end. Side by side in one box, the join is the splice.
+
+     Two numbers per button: --chip-l is how much of the start to keep,
+     --chip-r how much of the end. Both are lengths at the chip's own height,
+     so the seam stays put at any size. The hover artwork is deliberately not
+     wired up here — a chip this size has nowhere to show it. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton {
+    --chip-h: 2.5rem;
+    position: relative;
+    height: var(--chip-h);
+    width: calc(var(--chip-l) + var(--chip-r));
+    min-width: 0;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    flex: 0 0 auto;
+    justify-self: auto;
+    /* The ends draw it. */
+    background-image: none;
+    border: none;
+  }
+
+  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton::before,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton::after,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton::before,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton::after,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton::before,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background-image: var(--chip-art);
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    pointer-events: none;
+  }
+
+  /* The start of the drawing. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton::before,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton::before,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton::before {
+    left: 0;
+    width: var(--chip-l);
+    background-position: left center;
+  }
+
+  /* The end of it, butted straight onto the start. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton::after,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton::after,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton::after {
+    right: 0;
+    width: var(--chip-r);
+    background-position: right center;
+  }
+
+  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton {
+    --chip-art: url('./assets/draftsvgs_v2/button_hero-manager.svg');
+    --chip-l: 3.05rem;
+    --chip-r: 1.15rem;
+  }
+
+  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton {
+    --chip-art: url('./assets/draftsvgs_v2/button_monster-manager.svg');
+    --chip-l: 3.3rem;
+    --chip-r: 0.95rem;
+  }
+
+  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton {
+    --chip-art: url('./assets/draftsvgs_v2/button_battle-manager.svg');
+    --chip-l: 3.35rem;
+    --chip-r: 1rem;
+  }
+
+  /* Folded, the two columns are the chips and Start the Battle; the two battle
+     buttons take the line under them. Without this the chips would land in the
+     column Start the Battle is already in. */
+  @media (max-width: 33.99rem) {
+    #page:has(#mastheadToggle[aria-expanded="false"]) {
+      grid-template-areas:
+        "logo     hmbutt"
+        "logo     mmbutt"
+        "bmbutt   about"
+        "patreon  sbbutt"
+        "ractions ractions"
+        "adbanner adbanner"
+        "round    round"
+        "battletracker battletracker"
+        "adtower  adtower"
+        "footer   footer";
+    }
   }
 
   /* The gear and the fold button are absolute, so they hold no row open. This
@@ -6319,6 +6451,31 @@ html[data-wallpaper="midnight"] body::before {
      — #battleControls renders for every stage except the empty prompt. */
   #page:has(#mastheadToggle[aria-expanded="false"]) #battleControls {
     min-height: 4.9rem;
+  }
+
+  /* Folded, the masthead becomes the chip cluster: a flex box in the column
+     beside Start the Battle, holding the only three children it has left.
+     `display: contents` is what it is the rest of the time, and with that in
+     force the three chips stayed in their own grid cells, spread across the
+     top of the page instead of gathered in the corner.
+
+     The padding is the room the gear and the fold button occupy — both are
+     absolute, so they hold nothing open and would otherwise sit on top of the
+     first chip. The min-height covers two rows of chips, so the round line
+     cannot ride up under them when Start the Battle is the shorter column. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #header {
+    grid-area: patreon;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.1rem 0 0.1rem 3.6rem;
+    box-sizing: border-box;
+    height: auto;
+    max-height: none;
+    min-height: 5.4rem;
+    overflow: visible;
   }
 
   /* The gear is a corner fitting, not a row. Given a grid cell it either sat
