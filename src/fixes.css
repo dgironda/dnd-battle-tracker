@@ -4776,6 +4776,18 @@ body::before {
    `font-size: 0` that hides the DOM label is not undone by a later rule. The
    feedback stays what it was: a touch brighter and a pixel up, which reads
    just as well on a painted button as on a nine-sliced one. */
+/* The artwork is 136x52 and the DOM label is hidden (`font-size: 0` below),
+   so nothing inside this button gives it an intrinsic size — put it in a
+   container that squeezes and it collapses to a sliver of orange. It keeps its
+   own size and its own ratio, wherever it is placed. */
+#patreonLink > button {
+  flex: 0 0 auto;
+  width: 8.5rem;
+  min-width: 8.5rem;
+  aspect-ratio: 136 / 52;
+  height: auto;
+}
+
 #patreonLogin,
 #patreonLink > button,
 #patreonLogin:hover,
@@ -7402,47 +7414,47 @@ html[data-wallpaper="midnight"] body::before {
   }
 
   /* ---- short screens ----------------------------------------------------
-     A phone held sideways is 812x375. The bar as laid out above — a 10rem
-     logo on one line, the support note on the next, three ribbons on the
-     third — comes to about 370px, which is the whole screen: the round, the
-     cards and the Start button were all below the fold before anything had
-     happened. Everything in the bar comes down a size and the support note
-     joins the masthead's line instead of taking one of its own, which brings
-     the whole thing to roughly 170px. */
+     A phone held sideways is 812x375, and the masthead has to come down a
+     size or the round, the cards and the Start button are all below the fold
+     before anything has happened.
+
+     This block used to describe a masthead that no longer exists — it was
+     written when #header was a wrapping flex BAR, and it read "a 10rem logo
+     on one line, the support note on the next, three ribbons on the third".
+     #header is a named grid now, and `display: contents` when the page is
+     folded, so every `flex:` in here was addressing a flex container that had
+     not existed for some time and doing nothing at all. The declarations that
+     were not flex went on applying, which is worse than doing nothing: the
+     logo's `width` and the gear's fixed 2rem quietly overrode the sizes the
+     current layout sets, on any viewport under 544px tall.
+
+     What is left is the part that was always the point — everything a size
+     smaller — expressed against the layout that is actually there. */
   @media (max-height: 34rem) {
-    #header {
-      gap: 0.3rem 0.55rem;
-      padding: 0.3rem 0.6rem 0.1rem;
-    }
-
     #logo {
-      width: min(16vw, 6rem);
+      max-height: clamp(2.6rem, 12vh, 4rem);
     }
 
-    #optionsButton {
-      width: 2rem;
-      height: 2rem;
+    #page {
+      --corner-control: 1.9rem;
     }
 
     #aboutButton {
-      width: min(24vw, 7.5rem);
+      max-width: 9rem;
     }
 
     #patreonLink {
-      /* No longer a line of its own. */
-      flex: 1 1 auto;
-      font-size: 0.78rem;
+      font-size: 0.72rem;
     }
 
     #heroManagerButton,
     #monsterManagerButton,
     #battleManagerButton {
-      flex: 1 1 6rem;
       max-width: 10rem;
     }
 
-    #round {
-      margin: 0 0.6rem 0.2rem;
+    .roundLine {
+      padding: 0.1rem 0.6rem 0.2rem;
       font-size: clamp(0.95rem, 2.4vw, 1.3rem);
     }
   }
