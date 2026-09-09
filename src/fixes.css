@@ -6580,7 +6580,11 @@ html[data-wallpaper="midnight"] body::before {
        below — the masthead's third row reaches further up the gutter than the
        first two, so the strip has to stop short of it. */
     top: 4.7rem;
-    left: 0.35rem;
+    /* The gear and the fold button start at 0.35rem and are a full corner
+       wide; this is 85% of that, so sharing their left edge would leave it
+       sitting off to one side of them. Indented by half the difference, so all
+       three share a centre line down the gutter instead. */
+    left: calc(0.35rem + (var(--corner-control) - var(--patreon-thick)) / 2);
     z-index: 3;
     /* A little narrower than the gear and the fold button, which reads right —
        those two are controls for the page, this is an aside — and at full
