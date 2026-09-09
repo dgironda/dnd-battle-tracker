@@ -7716,11 +7716,62 @@ html[data-wallpaper="midnight"] body::before {
    would win on order and undo it. This is the exact complement of the card
    layout's `(orientation: portrait), (max-width: 62.99rem)`. */
 @media (orientation: landscape) and (min-width: 63rem) {
-  /* The wrapper portrait uses to lift .roundActions out of this row. Landscape
-     wants the round, the timer and the buttons on one flex line exactly as
-     before, so here it is not a box at all. */
+  /* ---- the timer gets a row to itself -----------------------------------
+     The timer is a live string that grows all session — "2s" at the top of a
+     fight, "10h 47m 12s" by the end. Sharing a line with the round, it
+     eventually shoved Edit Battle and the Battle Log onto a row of their own,
+     so the block changed height partway through an evening.
+
+     Two rows fixes it: the timer above, the round and the buttons together
+     below. The timer can then run as long as it likes without touching
+     anything, because nothing else is on its row.
+
+     This is a grid rather than a markup change on purpose. Putting the round
+     and the buttons inside one div would read the same here and break
+     portrait, where they are deliberately *not* together — .roundActions is
+     lifted out of this row entirely and placed up beside Start the Battle, and
+     it can only be placed independently while it is a child of #round. Grid
+     rows give the same two-row reading without moving anything in the DOM. */
+  #round {
+    display: grid;
+    grid-template-areas:
+      "timer timer"
+      "round actions";
+    /* The readouts take what they need and the rest of the row is the
+       buttons' column, so the two ends are pinned rather than floated: the
+       text sits against Start the Battle in the column to its left, and Edit
+       Battle and the Battle Log stay out at the right. Centring the whole
+       cluster instead left it stranded in the middle with a gap on both
+       sides. */
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+    row-gap: 0.05em;
+    /* Finishes level with the roster's right edge instead of the window's. */
+    padding-right: 0.5rem;
+  }
+
+  /* Dissolved so the round and the timer become grid items of #round and can
+     take an area each — as they were before, when the row was one flex line. */
   .roundLine {
     display: contents;
+  }
+
+  /* RoundNumberSpan writes the round as a bare <span>; the child combinator is
+     what keeps this off the timer's own <span> inside #turnTimeDisplay. */
+  .roundLine > span {
+    grid-area: round;
+    justify-self: start;
+  }
+
+  /* Left edge shared with the round below it, so the two read as one block. */
+  #turnTimeDisplay {
+    grid-area: timer;
+    justify-self: start;
+  }
+
+  .roundActions {
+    grid-area: actions;
+    justify-self: end;
   }
 
   /* A card-layout control. In the rail there is room for the masthead and no
@@ -8092,5 +8143,122 @@ a.drawnBtn:visited {
   .errorNotice {
     border-width: 20px 34px;
     border-image-width: 20px 34px;
+  }
+}
+/* ==========================================================================
+   THE PENCIL AND THE ERASER
+
+   The pointer is part of the fiction. A DM with a character sheet in front of
+   them picks up a pencil to change a number and turns it over to rub a mark
+   out, and there is no reason the pointer should not say so.
+
+   Both drawings are the same pencil — cursor_eraser.svg is cursor_pencil.svg
+   rotated 180° so the blunt end leads (tools/make-cursors.mjs). The hotspot
+   sits on whichever end is doing the work: the point at 1 30, the blunt end
+   at 1 26.
+
+   Three things worth knowing before touching these:
+
+   - **The keyword after the url is not optional.** It is the fallback, it is
+     required by the spec, and it is what Safari gets: Safari does not render
+     SVG cursors, so it quietly keeps `text` or `pointer` and nothing breaks.
+     Chrome and Firefox draw the pencil.
+   - **Chrome needs the SVG to have an intrinsic size.** icon_edit.svg is
+     `width="100%"`, which is why the cursors are generated at an explicit 32
+     rather than pointed at the icon directly.
+   - **Keep the hotspot inside the image.** Out-of-range coordinates are
+     handled inconsistently across browsers, so both of these sit well within
+     the 32px box rather than relying on anyone's clamping.
+
+   Deliberately not on the input you are typing in. Once the field is live the
+   I-beam is carrying real information — where the caret will land — and a
+   pencil sitting on top of it is a decoration that costs you the thing the
+   cursor is for. The pencil belongs on the affordance, the I-beam on the text.
+   ========================================================================== */
+
+:root {
+  --cursor-pencil: url('./assets/draftsvgs_v2/cursor_pencil.svg') 1 30;
+  --cursor-eraser: url('./assets/draftsvgs_v2/cursor_eraser.svg') 1 26;
+  /* The blade's point, not the middle of the drawing and not the corner of the
+     box: the sword is mirrored so it aims up and left like a cursor, and the
+     tip lands 11px in and 1px down. Measured off the rendered 32px art rather
+     than guessed — the nearest ink to the top-left corner is one of the green
+     sparks, which is not the thing you are pointing with. */
+  --cursor-action: url('./assets/draftsvgs_v2/cursor_action.svg') 11 1;
+}
+
+/* Every "click this to change it" affordance: the tracker's own cells, and the
+   hero and monster managers, which all render EditableCell's button. */
+.setEditingField,
+.editConditions {
+  cursor: var(--cursor-pencil), pointer;
+}
+
+/* ...except the hit points, which are not a correction.
+   Every other editable cell is a fact being fixed — a name, an initiative, an
+   ability score. Hit points are the one that changes because something just
+   happened to somebody, so the pointer is the action icon rather than the
+   pencil: what follows the click is a blow landing, not a typo being tidied.
+   Listed after the rule above at the same specificity, which is what carries
+   it — .hpButton also carries .setEditingField. */
+#battleTracker .setEditingField.hpButton {
+  cursor: var(--cursor-action), pointer;
+}
+
+/* A cell that cannot be edited should not offer a pencil. */
+.setEditingField:disabled,
+.setEditingField[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* ---- the eraser: a mark that is already there ---------------------------
+   An empty box gets the pencil — this is where a mark goes — and a ticked one
+   gets the eraser, because the only thing left to do to it is take it off.
+
+   Every selector comes in three parts, and all three are needed, because what
+   is under the pointer is not the same element in both layouts. `.checkOverlay`
+   is a portrait affordance: it is a full-cell transparent <label> there and
+   `display: none` in landscape, where the thing you actually hover is the
+   <input> itself. The cell is in the list as well so the pointer does not
+   change back to an arrow in the margin around the drawn box, which is most of
+   the cell. Setting only the overlay — as this first did — meant the whole
+   thing worked on a phone and did nothing at all on a desktop. */
+#battleTracker td:has(> input[type="checkbox"]:not(:checked):not(:disabled)),
+#battleTracker td > input[type="checkbox"]:not(:checked):not(:disabled),
+#battleTracker td > input[type="checkbox"]:not(:checked):not(:disabled) ~ .checkOverlay,
+.managerCheck:has(> input[type="checkbox"]:not(:checked)),
+.managerCheck > input[type="checkbox"]:not(:checked) {
+  cursor: var(--cursor-pencil), pointer;
+}
+
+#battleTracker td:has(> input[type="checkbox"]:checked:not(:disabled)),
+#battleTracker td > input[type="checkbox"]:checked:not(:disabled),
+#battleTracker td > input[type="checkbox"]:checked:not(:disabled) ~ .checkOverlay,
+.managerCheck:has(> input[type="checkbox"]:checked),
+.managerCheck > input[type="checkbox"]:checked {
+  cursor: var(--cursor-eraser), pointer;
+}
+
+/* Dead and dying combatants have their action economy locked; offering either
+   tool there would promise something the click will not do. */
+#battleTracker td:has(> input[type="checkbox"]:disabled),
+#battleTracker td > input[type="checkbox"]:disabled,
+#battleTracker td > input[type="checkbox"]:disabled ~ .checkOverlay {
+  cursor: not-allowed;
+}
+
+/* Nothing to point with on a touch screen — there is no pointer at all — and
+   a 32px drawing is a needless download on the device least able to spare it.
+   Hover is the honest test here rather than orientation: it asks whether the
+   device has a pointing device that can hover, which is exactly the question. */
+@media (hover: none) {
+  .setEditingField,
+  .editConditions,
+  #battleTracker td,
+  #battleTracker td > input[type="checkbox"],
+  #battleTracker td > input[type="checkbox"] ~ .checkOverlay,
+  .managerCheck,
+  .managerCheck > input[type="checkbox"] {
+    cursor: pointer;
   }
 }

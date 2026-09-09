@@ -1217,10 +1217,17 @@ sup {
        table is numbers being read mid-fight and cannot. */
     grid-template-columns: minmax(min(21rem, 27vw), 18%) auto minmax(0, 1fr);
     /* The banner's row is `auto`, so with no ad to hold it — a supporter, or a
-       fill that fails — it collapses to nothing and the page closes up rather
-       than opening a band of empty space above the round. `#round` carries its
-       own top margin for the no-ad case (see below). */
-    grid-template-rows: auto .2fr 1fr .2fr;
+       fill that fails — it collapses to nothing.
+
+       The round's row is `auto` for the same reason. It used to be `.2fr`,
+       which is a fraction of the window rather than a measure of what is in
+       it: on a 1000px-tall screen that reserved 194px for a row holding an
+       87px readout, and since the ribbon and the round are both bottom-aligned
+       in it the leftover opened as a band of empty page across the top. Sized
+       by its contents the row is as tall as the Start ribbon and no taller,
+       and the ~110px goes to the tracker, which is the part anybody is
+       actually reading. */
+    grid-template-rows: auto auto 1fr .2fr;
     max-width: 100vw;
     height: 100vh;
   }
@@ -1249,14 +1256,25 @@ sup {
   }
   #header {
   grid-area: header;
+  /* The containing block for the absolutely positioned gear above. */
+  position: relative;
   display: grid;
-  grid-template-areas: "options" "logo" "hmbutt" "mmbutt" "sbbutt" "lightdark" "about" "patreon" "adtower";
+  /* No "options" row any more: the gear is positioned absolutely in the corner
+     (see #optionsButton below) and no longer needs one.
+
+     "bmbutt" is new, and it is a fix rather than a rename. The Battle Manager
+     button never had an area — it was auto-placed, and it only ever landed in
+     the right row because every earlier cell happened to be full. The moment
+     the gear stopped occupying the first row the button dropped into it and
+     appeared in the top-left corner over the masthead. Named explicitly, it
+     stays where it belongs whatever else moves. */
+  grid-template-areas: "logo" "hmbutt" "mmbutt" "bmbutt" "lightdark" "about" "patreon" "adtower";
   /* Content-sized rows for everything that holds artwork. The buttons are
      sized by aspect-ratio now, and an `fr` row will happily come out shorter
      than that — which made each ribbon overhang the next by ~23px. The single
      fr row (lightdark, which is empty here) takes up whatever slack is left so
      the ad still sits at the foot of the rail. */
-  grid-template-rows: auto auto auto auto auto 1fr auto auto auto;
+  grid-template-rows: auto auto auto auto 1fr auto auto auto;
   align-items: start;
   justify-items: center;
   /* The safety valve. --button-width is sized from the viewport height so this
@@ -1270,7 +1288,10 @@ sup {
   }
   #logo {
     grid-area: logo;
-    margin-top: 0.2rem;
+    /* Was 0.2rem, which sat under the gear's old row. With that row gone the
+       masthead was flush against the very top edge and read as clipped; this
+       lands its top level with the Start Battle ribbon across the page. */
+    margin-top: 0.75rem;
   }
   #heroManagerButton {
     grid-area: hmbutt;
@@ -1298,12 +1319,28 @@ sup {
     margin: 0 .25rem .25rem 0;
   }
   #optionsButton {
-    grid-area: options;
-    /* Right into the corner, above the logo — it is a settings affordance, not
-       part of the masthead. */
-    justify-self: start;
-    align-self: start;
-    margin: 0.55rem 0 0 0.55rem;
+    /* In the corner, but out of the flow: as a grid item it held a row of its
+       own at the top of the rail — 42px of gear plus its margins, ~62px — and
+       pushed the logo and everything under it down by that much for a control
+       that is 42px wide in a 346px column. Absolute, it costs no height and
+       the masthead starts at the top of the page.
+
+       `grid-area: auto` is doing real work. An absolutely positioned grid
+       child that still names an area is positioned against THAT AREA rather
+       than the grid's padding box, so leaving `grid-area: options` here would
+       have pinned it inside the row this rule exists to collapse.
+
+       No overlap with the logo: the gear ends at ~51px and the logo, centred
+       in the rail, starts at ~53. */
+    position: absolute;
+    grid-area: auto;
+    top: 0.55rem;
+    left: 0.55rem;
+    z-index: 2;
+    margin: 0;
+  }
+  #battleManagerButton {
+    grid-area: bmbutt;
   }
   #aboutButton {
     grid-area: about;
@@ -1319,20 +1356,18 @@ sup {
        the timer were auto-placed into the banner's cell and rode to the top of
        the page. Named explicitly now. */
     grid-area: round;
-    /* A percentage margin resolves against the containing block's WIDTH, not
-       its height, so this is ~10% of the column — the offset that sat the
-       round and the timer level with the Start Battle ribbon before the
-       banner moved above them. With an ad present the row above takes its own
-       height from the `fr` rows, so the round shifts down by the ad and the
-       tracker stays where it is. */
-    margin-top: 10%;
-  }
+    /* Was `margin-top: 10%`, which was the wrong tool twice over. A percentage
+       margin resolves against the containing block's WIDTH, so on a wide
+       window "10%" was ~107px of the column — a vertical offset taking its
+       size from a horizontal measurement, growing as the window got wider. And
+       because it is a margin it went into the row's height, which is what
+       opened the band of empty page across the top.
 
-  /* ...and only for that case. When a banner IS above the round it already
-     holds the space, and keeping the margin as well would push the tracker
-     down by the ad's full height instead of the ~20px the row cannot absorb. */
-  #page:has(.adSlot-banner) #round {
+       What it was actually for was sitting the round level with the Start
+       Battle ribbon. That is what align-self does, and it costs no height:
+       the row is as tall as the ribbon, and the round centres against it. */
     margin-top: 0;
+    align-self: center;
   }
 
   /* With an ad in it, the banner's row is real height rather than nothing, so
