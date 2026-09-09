@@ -6870,11 +6870,15 @@ html[data-wallpaper="midnight"] body::before {
       "cHP   cHP   cHP   cHP   cInit cInit cInit cCond cCond  cCond  cCond  cCond"
       "cAct  cAct  cAct  cBon  cBon  cBon  cMove cMove cMove  cReact cReact cReact";
     align-items: center;
-    row-gap: 0.02rem;
+    /* In em, so the card's spacing scales with the card's own type. In rem it
+       did not: at a 27px card the row gap came out 0.32px and the padding
+       2.4px, so the type grew and the space between it did not — three lines
+       of large type jammed together with the boxes against the drawn edge,
+       which is what looked wrong at width. More at the foot than the head,
+       because the last thing on the card is a row of checkboxes. */
+    row-gap: 0.12em;
     margin: 0 0 0.75rem;
-    /* More at the foot than the head: the last thing on the card is a row of
-       checkboxes, and a box sitting on the drawn edge reads as clipped. */
-    padding: 0.15rem 0.2rem 0.5rem;
+    padding: 0.25em 0.3em 0.5em;
     font-size: var(--card-font);
 
     border-style: solid;
@@ -6894,10 +6898,10 @@ html[data-wallpaper="midnight"] body::before {
     align-items: center;
     justify-content: center;
     min-width: 0;
-    /* Vertical padding on eight cells is eight times whatever it is. The card
-       has a row-gap and a drawn frame doing the same job; this only has to stop
-       the type touching. */
-    padding: 0.02rem 0.25rem;
+    /* Vertical padding on eight cells is eight times whatever it is, so it
+       stays small — but in em, so it is small relative to the type rather than
+       0.32px next to 27px type. */
+    padding: 0.08em 0.25em;
     background: none;
     border: none;
     line-height: 1.15;
