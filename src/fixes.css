@@ -6884,13 +6884,31 @@ html[data-wallpaper="midnight"] body::before {
     border-style: solid;
     border-color: transparent;
     border-width: 2px;
-    border-image-source: url('./assets/draftsvgs_v2/table_item-small1-2.svg');
-    /* Same reasoning as the landscape plaques: the slice is per axis, and a
-       card is far wider than the artwork is, so the horizontal figure has to
-       be small enough that it does not squash the drawn ends. */
-    border-image-slice: 24% 20% fill;
+    /* The card wears the row's own END pieces now, not the middle tile.
+
+       The landscape table is a three-part plaque: table_item-long-left on the
+       first cell, the small tile in the middle, table_item-long-right on the
+       last — each long piece drawn finished at ITS end and left open at the
+       other, so a row reads as one plaque however many cells it has. A card is
+       one box and can only carry one border-image, so it was carrying the
+       middle tile, which is open at both ends BY DESIGN. That is why it read
+       as a segment cut out of something rather than a thing with a beginning
+       and an end.
+
+       tools/make-card-frame.mjs builds the source it should have had: the left
+       cap of the left piece, a clean stretch of body, the right cap of the
+       right piece. Re-run it if the ends are ever redrawn.
+
+       The side rings are wider than the top and bottom because the caps are
+       wider than the edge is deep — 63 and 73 source units against 33 — and a
+       uniform ring would squash them back into the flat edge they replaced. */
+    border-image-source: url('./assets/draftsvgs_v2/table_item-card.svg');
+    border-image-slice: 24% 24.14% 24% 20.69% fill;
     border-image-repeat: stretch;
-    border-image-width: var(--card-edge);
+    border-image-width: var(--card-edge)
+                        calc(var(--card-edge) * 2.2)
+                        var(--card-edge)
+                        calc(var(--card-edge) * 1.9);
   }
 
   #battleTracker tbody td {
