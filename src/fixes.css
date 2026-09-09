@@ -2234,7 +2234,13 @@
   position: absolute;
   top: 0;
   right: 0.12em;
-  z-index: 4;
+  /* Above the sheet, not level with it. At 4 the two were equal, so the later
+     of the pair in the DOM won — and that is the sheet, which spans the whole
+     panel. The X was drawn exactly where you saw it and the click landed on
+     the heading behind it: `elementFromPoint` at the button's own centre
+     returned .heroStatHeaderName. It reads as a hit area offset from the
+     glyph; it is the glyph with a sheet laid over it. */
+  z-index: 5;
   width: 2em;
   height: 2em;
   margin: 0;

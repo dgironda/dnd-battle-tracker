@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useStatPanel } from './useStatPanel';
 import { Monster, Combatant } from '../../types/index';
 import { EditableCell } from "../../utils/Utils";
 import { useCombat } from './CombatContext';
@@ -18,8 +19,7 @@ interface MonsterStatBlockHoverProps {
 }
 
 export function MonsterStatBlockHover({ monster, currentHp, children, updateCombatant }: MonsterStatBlockHoverProps) {
-  const [isHovering, setIsHovering] = useState(false);
-  const [isStuck, setIsStuck] = useState(false);
+  const { rootRef, isOpen, close, toggle, onMouseEnter, onMouseLeave } = useStatPanel();
   const [editingField, setEditingField] = useState<string | null>(null);
   // Combatants come from the shared combat context. This used to be a private
   // copy seeded from localStorage on mount, so the notes shown here drifted out
@@ -46,8 +46,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
 
   function closeStatsButton(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
-    setIsStuck(false)
-    setIsHovering(false)
+    close();
     /* The close button lives inside .statBlockTrigger, and the trigger draws
        the name's underline on :focus-within as well as on open. A mouse click
        leaves focus on the button, so without this the underline stayed drawn
@@ -61,10 +60,9 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
   const handleKeyPressx = useCallback((event: KeyboardEvent) => {
     if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
     if (event.key.toLowerCase() === 'x' && !(event.ctrlKey || event.shiftKey || event.altKey || event.metaKey)) {
-      setIsStuck(false);
-      setIsHovering(false);
+      close();
     }
-  }, []);
+  }, [close]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyPressx);
@@ -92,10 +90,11 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
 
   return (
     <div
-      className={`statBlockTrigger${isHovering || isStuck ? " isOpen" : ""}`}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-      onClick={() => setIsStuck(!isStuck)}
+      ref={rootRef}
+      className={`statBlockTrigger${isOpen ? " isOpen" : ""}`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={toggle}
       style={{ left: '0px', opacity: 1 }}
     >
       {children}
@@ -103,7 +102,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
       {/* The scroll: rolled up off to the left when shut, it slides out and
           then unrolls to the right. All of that is in CSS so the two phases
           can be timed against each other; this only says whether it is open. */}
-      <div className={`statHover monsterStatHover${(isHovering || isStuck) ? ' isOpen' : ''}`}>
+      <div className={`statHover monsterStatHover${isOpen ? ' isOpen' : ''}`}>
         <button className='closeStats'
           onClick={closeStatsButton}>X
         </button>

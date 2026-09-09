@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useStatPanel } from './useStatPanel';
 import { Hero, Combatant } from '../../types/index';
 import { createUpdateHero, EditableCell } from "../../utils/Utils";
 import { useHeroes } from "../../hooks/useHeroes";
@@ -14,8 +15,7 @@ interface HeroStatBlockHoverProps {
 }
 
 export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockHoverProps) {
-  const [isHovering, setIsHovering] = useState(false);
-  const [isStuck, setIsStuck] = useState(false);
+  const { rootRef, isOpen, close, toggle, onMouseEnter, onMouseLeave } = useStatPanel();
   const [editingField, setEditingField] = useState<string | null>(null);
   // Shared roster. This component renders once per hero row, so the old
   // private useState + storeHeroes effect meant N copies of the whole list all
@@ -41,8 +41,7 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
 
   function closeStatsButton(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
-    setIsStuck(false);
-    setIsHovering(false);
+    close();
     /* The close button lives inside .statBlockTrigger, and the trigger draws
        the name's underline on :focus-within as well as on open. A mouse click
        leaves focus on the button, so without this the underline stayed drawn
@@ -55,10 +54,9 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
     if (event.key === 'x' && !(event.ctrlKey || event.shiftKey || event.altKey || event.metaKey)) {
       // Drive this through state. The old version wrote inline styles onto
       // every .statHover node, which React overwrote on the next render.
-      setIsStuck(false);
-      setIsHovering(false);
+      close();
     }
-  }, []);
+  }, [close]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyPressx);
@@ -85,10 +83,11 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
 
   return (
     <div
-      className={`statBlockTrigger${isHovering || isStuck ? " isOpen" : ""}`}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-      onClick={() => setIsStuck(!isStuck)}
+      ref={rootRef}
+      className={`statBlockTrigger${isOpen ? " isOpen" : ""}`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={toggle}
       style={{ left: '0px', opacity: 1 }}
     >
       {children}
@@ -97,7 +96,7 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
       {/* The scroll: rolled up off to the left when shut, it slides out and
           then unrolls to the right. All of that is in CSS so the two phases
           can be timed against each other; this only says whether it is open. */}
-      <div className={`statHover heroStatHover${(isHovering || isStuck) ? ' isOpen' : ''}`}>
+      <div className={`statHover heroStatHover${isOpen ? ' isOpen' : ''}`}>
         {/* Header */}
         <button className='closeStats'
           onClick={closeStatsButton}>X
