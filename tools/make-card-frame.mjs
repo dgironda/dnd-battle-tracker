@@ -1,20 +1,16 @@
 /**
  * Build the portrait card's frame from the table row's own end pieces.
  *
- * The landscape table already wears a three-part plaque: table_item-long-left
- * on the first cell, table_item-small* in the middle, table_item-long-right on
- * the last. Each long piece is drawn finished at ITS end and left open at the
+ * The landscape table wears a three-part plaque: table_item-long-left on the
+ * first cell, table_item-small* in the middle, table_item-long-right on the
+ * last. Each long piece is drawn finished at ITS end and left open at the
  * other, so a row reads as one plaque however many cells it has.
  *
- * A portrait card is one box, not a row of cells, so it can only carry one
- * border-image — and it was carrying the middle tile, which is open at both
- * ends by design. That is why it reads as a segment cut out of something
- * rather than a thing with a beginning and an end.
- *
- * This makes the source it should have had: the left cap of the left piece,
- * a stretchable length of plaque, and the right cap of the right piece. Fed to
- * border-image with the caps as the left and right slices, the ends stay drawn
- * at their own size while the middle stretches to whatever the card is.
+ * A portrait card is one box and can only carry one border-image, so it wore
+ * the middle tile — open at both ends by design, which is why it read as a
+ * segment cut out of something rather than a thing with a beginning and an
+ * end. This composes the source it should have had: the left cap of the left
+ * piece, a stretchable length of body, the right cap of the right piece.
  *
  *   node tools/make-card-frame.mjs
  */
@@ -23,57 +19,85 @@ import { join } from "node:path";
 
 const ART = "src/assets/draftsvgs_v2";
 
-/* Fractions of each source's width, read off the rendered artwork:
-   the left piece's drawn end runs to about 12%, the right piece's begins at
-   about 86%. The middle is taken from the left piece's open body. */
 const LEFT_SRC = "table_item-long-left";
 const RIGHT_SRC = "table_item-long-right";
-const CAP_LEFT = 0.12;
-const CAP_RIGHT = 0.14;
+
+/*
+ * Both pieces carry empty canvas past their drawn ends — measured by
+ * rasterising each and walking the columns for opaque pixels, the left one
+ * starts its ink at 6.0% and the right one stops at 94.4%. The caps are taken
+ * from the INK, not from the viewBox: slicing to the file's edge put ~30 units
+ * of nothing in the right ring, which rendered blank and pushed the drawn edge
+ * into the stretchable middle, where it smeared across the card.
+ */
+const LEFT_INK = 0.060;
+const RIGHT_INK = 0.944;
+const CAP = 0.090;             // how much of each end to keep
 const MIDDLE = [0.40, 0.72];   // a clean stretch of body, no notches
 
-function parse(name) {
-  const src = readFileSync(join(ART, `${name}.svg`), "utf8");
-  const open = src.match(/<svg\b[^>]*>/i);
+/*
+ * Both files are exports from the same tool, so both declare `_clip1` and
+ * `_Linear2`. Dropped into one document the second set collides with the
+ * first: the right piece resolved the LEFT piece's clipPath and was clipped
+ * away entirely, which is why its cap came out blank even though the geometry
+ * was right. Every id gets a per-source prefix, and every reference with it.
+ */
+function parse(name, prefix) {
+  const src = readFileSync(join(ART, name + ".svg"), "utf8");
+  const open = src.match(/<svg[^>]*>/i);
   const vb = open[0].match(/viewBox\s*=\s*"([^"]+)"/i)[1].trim().split(/[\s,]+/).map(Number);
-  return {
-    body: src.slice(open.index + open[0].length, src.lastIndexOf("</svg>")).trim(),
-    w: vb[2],
-    h: vb[3],
-  };
+
+  let body = src.slice(open.index + open[0].length, src.lastIndexOf("</svg>")).trim();
+  const ids = [...new Set([...body.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]))];
+
+  /* Plain string swaps rather than regexes: these ids are exporter-generated
+     (_clip1, _Linear2) and a regex would only invite escaping bugs. Longest
+     first, so a short id cannot rewrite a prefix of a longer one. */
+  for (const id of [...ids].sort((a, b) => b.length - a.length)) {
+    body = body
+      .split(' id="' + id + '"').join(' id="' + prefix + id + '"')
+      .split("url(#" + id + ")").join("url(#" + prefix + id + ")")
+      .split('href="#' + id + '"').join('href="#' + prefix + id + '"');
+  }
+
+  return { body, w: vb[2], h: vb[3], ids };
 }
 
-const L = parse(LEFT_SRC);
-const R = parse(RIGHT_SRC);
+const L = parse(LEFT_SRC, "capL_");
+const R = parse(RIGHT_SRC, "capR_");
 if (L.h !== R.h) throw new Error("the two end pieces are different heights");
 
 const n = (v) => +v.toFixed(2);
-const capL = n(L.w * CAP_LEFT);
+const capL = n(L.w * CAP);
+const capLX = n(L.w * LEFT_INK);           // the left cap starts at the ink
 const midX = n(L.w * MIDDLE[0]);
 const midW = n(L.w * (MIDDLE[1] - MIDDLE[0]));
-const capRX = n(R.w * (1 - CAP_RIGHT));
-const capR = n(R.w - capRX);
+const capR = n(R.w * CAP);
+const capRX = n(R.w * RIGHT_INK - capR);   // and the right cap ENDS at the ink
 const W = n(capL + midW + capR);
 const H = L.h;
 
 const out = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- GENERATED by tools/make-card-frame.mjs - do not edit by hand. -->
-<!-- ${LEFT_SRC} 0-${(CAP_LEFT * 100).toFixed(0)}% + its body + ${RIGHT_SRC} ${((1 - CAP_RIGHT) * 100).toFixed(0)}-100% -->
-<!-- border-image-slice: <top> ${n((capR / W) * 100)}% <bottom> ${n((capL / W) * 100)}% -->
+<!-- ${LEFT_SRC} from its ink + its body + ${RIGHT_SRC} up to its ink -->
+<!-- border-image-slice: 24% ${n((capR / W) * 100)}% fill -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
 <defs>
-<clipPath id="capLeft"><rect x="0" y="0" width="${capL}" height="${H}"/></clipPath>
+<clipPath id="frameCapLeft"><rect x="${capLX}" y="0" width="${capL}" height="${H}"/></clipPath>
 <clipPath id="frameMid"><rect x="${midX}" y="0" width="${midW}" height="${H}"/></clipPath>
-<clipPath id="capRight"><rect x="${capRX}" y="0" width="${capR}" height="${H}"/></clipPath>
+<clipPath id="frameCapRight"><rect x="${capRX}" y="0" width="${capR}" height="${H}"/></clipPath>
 <g id="frameLeftSrc">${L.body}</g>
 <g id="frameRightSrc">${R.body}</g>
 </defs>
-<g clip-path="url(#capLeft)"><use xlink:href="#frameLeftSrc"/></g>
+<g transform="translate(${n(-capLX)},0)"><g clip-path="url(#frameCapLeft)"><use xlink:href="#frameLeftSrc"/></g></g>
 <g transform="translate(${n(capL - midX)},0)"><g clip-path="url(#frameMid)"><use xlink:href="#frameLeftSrc"/></g></g>
-<g transform="translate(${n(capL + midW - capRX)},0)"><g clip-path="url(#capRight)"><use xlink:href="#frameRightSrc"/></g></g>
+<g transform="translate(${n(capL + midW - capRX)},0)"><g clip-path="url(#frameCapRight)"><use xlink:href="#frameRightSrc"/></g></g>
 </svg>
 `;
 
 writeFileSync(join(ART, "table_item-card.svg"), out);
+const clash = L.ids.filter((i) => R.ids.includes(i));
 console.log(`table_item-card.svg  ${W}x${H}`);
-console.log(`  border-image-slice: 24% ${n((capR / W) * 100)}% 24% ${n((capL / W) * 100)}% fill`);
+console.log(`  border-image-slice: 24% ${n((capR / W) * 100)}% fill`);
+console.log(`  side ring: ${n(capL / (H * 0.24))}x the top ring`);
+console.log(`  ids namespaced: ${L.ids.length} + ${R.ids.length}, ${clash.length} would have collided (${clash.join(", ")})`);

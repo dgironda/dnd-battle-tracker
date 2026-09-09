@@ -6899,16 +6899,19 @@ html[data-wallpaper="midnight"] body::before {
        cap of the left piece, a clean stretch of body, the right cap of the
        right piece. Re-run it if the ends are ever redrawn.
 
-       The side rings are wider than the top and bottom because the caps are
-       wider than the edge is deep — 63 and 73 source units against 33 — and a
-       uniform ring would squash them back into the flat edge they replaced. */
+       Both caps are taken from the INK, not from the viewBox: each source
+       carries empty canvas past its drawn end, and slicing to the file's edge
+       put ~30 units of nothing in the right ring — which rendered blank and
+       pushed the drawn edge into the stretchable middle, where it smeared.
+
+       The side rings are wider than the top and bottom because a cap is wider
+       than the edge is deep, 47 source units against 33, and a uniform ring
+       squashes them back into the flat edge they replaced. */
     border-image-source: url('./assets/draftsvgs_v2/table_item-card.svg');
-    border-image-slice: 24% 24.14% 24% 20.69% fill;
+    border-image-slice: 24% 18% fill;
     border-image-repeat: stretch;
     border-image-width: var(--card-edge)
-                        calc(var(--card-edge) * 2.2)
-                        var(--card-edge)
-                        calc(var(--card-edge) * 1.9);
+                        calc(var(--card-edge) * 1.43);
   }
 
   #battleTracker tbody td {
