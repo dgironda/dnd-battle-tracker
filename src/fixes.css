@@ -6576,15 +6576,24 @@ html[data-wallpaper="midnight"] body::before {
        patreon row, which sits below the house promo, and put the button over
        the first combatant. */
     grid-area: auto;
-    /* Clear of the gear and the fold button above it. */
-    top: 5rem;
+    /* Clear of the fold button above it and of the Battle Manager ribbon
+       below — the masthead's third row reaches further up the gutter than the
+       first two, so the strip has to stop short of it. */
+    top: 4.7rem;
     left: 0.35rem;
     z-index: 3;
-    /* The artwork is 136x52, so on its side it is 2.615 corner-widths long.
-       One variable, used both ways round: the container is corner-wide and
-       strip-long, the button inside it is strip-long and corner-wide. */
-    --patreon-strip: calc(var(--corner-control) * 2.615);
-    width: var(--corner-control);
+    /* A little narrower than the gear and the fold button, which reads right —
+       those two are controls for the page, this is an aside — and at full
+       corner width the strip ran 88px and its foot landed on the Battle
+       Manager ribbon. The artwork is 136x52, so on its side it is 2.615 of
+       whatever thickness it is given.
+
+       One pair of variables, used both ways round: the container is
+       strip-wide and strip-long, and the button inside it is those two the
+       other way about. */
+    --patreon-thick: calc(var(--corner-control) * 0.85);
+    --patreon-strip: calc(var(--patreon-thick) * 2.615);
+    width: var(--patreon-thick);
     height: var(--patreon-strip);
     margin: 0 !important;
     padding: 0;
@@ -6594,9 +6603,9 @@ html[data-wallpaper="midnight"] body::before {
     position: absolute;
     top: 0;
     left: 0;
-    /* Laid out flat first: as long as the strip, as thick as the gutter. */
+    /* Laid out flat first: as long as the strip, as thick as the strip. */
     width: var(--patreon-strip);
-    height: var(--corner-control);
+    height: var(--patreon-thick);
     min-width: 0;
     max-width: none;
     aspect-ratio: auto;
