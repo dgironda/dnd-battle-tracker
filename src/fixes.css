@@ -6295,13 +6295,21 @@ html[data-wallpaper="midnight"] body::before {
      what defeated the first attempt.
 
      `currentColor` in the file is irrelevant to a mask; the ink is the
-     background-color here, so the strokes follow the theme. */
+     background-color here, so the strokes follow the theme.
+
+     That colour is a `light-dark()` pair rather than one value. It used to be
+     `var(--color-ink, #2c2118)`, and `--color-ink` is defined nowhere in the
+     project — so the fallback was in force on every paper, including Midnight,
+     where dark brown ink on a near-black ground made the button vanish.
+     The pair keeps the pencil ink on the six light papers and swaps to chalk
+     on Midnight, the only dark one. `light-dark()` resolves against
+     `color-scheme`, which optionsContext sets on <html> beside `data-theme`. */
   #mastheadToggle > span {
     display: block;
     width: 100%;
     /* The artwork's own proportion, so the drawn weight is the drawn weight. */
     aspect-ratio: 120 / 25;
-    background-color: var(--color-ink, #2c2118);
+    background-color: light-dark(#2c2118, #f4efe6);
     opacity: 0.86;
     -webkit-mask-image: var(--stroke);
     mask-image: var(--stroke);
