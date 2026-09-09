@@ -6657,7 +6657,14 @@ html[data-wallpaper="midnight"] body::before {
     box-sizing: border-box;
     padding-left: 2.5rem;
     max-width: 100%;
-    max-height: clamp(3.8rem, 15vh, 8.5rem);
+    /* Answers to BOTH dimensions. It was `15vh` alone, which meant the
+       masthead never responded to the one axis a desktop window is usually
+       dragged along: on a 961x677 window the cap pinned it to 99px while its
+       own column had 238px to give, so it sat there looking stranded beside
+       ribbons three times its size. Half the height term, plus a width term
+       that picks up the slack — small screens land where they did, wide short
+       ones get the size they have room for. */
+    max-height: clamp(3.8rem, calc(12vh + 6vw), 12rem);
     margin: 0;
     justify-self: start;
     align-self: center;
