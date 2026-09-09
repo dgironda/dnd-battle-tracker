@@ -1,11 +1,16 @@
 // src/components/PatreonOverlay.tsx
 import { useEffect, useState } from "react";
+import { track } from "../utils/telemetry";
+
+export type SupporterPromptReason = "first_visit" | "battle_manager" | "locked_wallpaper";
 
 interface PatreonOverlayProps {
     onClose: () => void;
+    /** What put it on screen. The same prompt, three quite different moments. */
+    reason: SupporterPromptReason;
 }
 
-export default function PatreonOverlay({ onClose }: PatreonOverlayProps) {
+export default function PatreonOverlay({ onClose, reason }: PatreonOverlayProps) {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
@@ -23,7 +28,16 @@ export default function PatreonOverlay({ onClose }: PatreonOverlayProps) {
         }
     }, []);
 
+    /* Reported when it actually becomes visible, not on mount: the first-visit
+       overlay decides in an effect whether it has anything to say, and counting
+       the ones it decides against would make the prompt look far more common
+       than it is. */
+    useEffect(() => {
+        if (isVisible) track("supporter_prompt_shown", { reason });
+    }, [isVisible, reason]);
+
     const handlePatreonLogin = () => {
+        track("supporter_prompt_clicked", { reason });
         const clientId = import.meta.env.VITE_PATREON_CLIENT_ID;
         const redirectUri = import.meta.env.VITE_PATREON_REDIRECT_URI;
         const authUrl = `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;

@@ -3,6 +3,7 @@ import { Hero, Monster, Combatant } from "../types/index";
 import { confirmDialog, notify } from "../utils/notify";
 import { ASK_FOR_GROUP_INITIATIVE } from "../utils/experiments";
 import { baseMonsterName, groupByKind } from "../utils/monsterNaming";
+import { track } from "../utils/telemetry";
 
 interface UseBattleManagerProps {
   setRoundNumber: (round: number) => void;
@@ -14,6 +15,14 @@ interface UseBattleManagerProps {
   removeMonstersFromRoster: (ids: string[]) => void;
   setCombatants: (combatants: Combatant[]) => void;
   setCurrentTurnIndex: (index: number) => void;
+  /**
+   * The fight currently on screen, read at the moment the new one commits.
+   *
+   * Only for the "battle_ended" report. Most fights never get cleared with the
+   * button — the next one is simply started over the top — so without this the
+   * started/ended pair would show almost every battle as abandoned.
+   */
+  getCurrentBattle: () => { rounds: number; combatants: number };
 }
 
 export const useBattleManager = (props: UseBattleManagerProps) => {
@@ -25,6 +34,7 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
     removeMonstersFromRoster,
     setCombatants,
     setCurrentTurnIndex,
+    getCurrentBattle,
   } = props;
 
   const handleStartBattle = useCallback(async () => {
@@ -43,6 +53,9 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
     }
 
     const newCombatants: Combatant[] = [];
+    /* Set inside the monster loop below, read once the battle is committed. */
+    let askedToGroup = false;
+    let grouped = false;
 
     try {
       for (const hero of presentHeroes) {
@@ -100,6 +113,7 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
            is not its to take. */
         let shared: number | null = null;
         if (group.length > 1) {
+          askedToGroup = true;
           const together = await confirmDialog(
             `Roll one initiative for all ${group.length} ${baseMonsterName(group[0].name)}s, or one each?`,
             {
@@ -108,7 +122,10 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
               cancelLabel: "One each",
             },
           );
-          if (together) shared = await askForInitiative(group[0]);
+          if (together) {
+            shared = await askForInitiative(group[0]);
+            grouped = true;
+          }
         }
 
         for (const monster of group) {
@@ -154,6 +171,24 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
     setRoundNumber(1);
     setCombatants(newCombatants.sort((a, b) => b.initiative - a.initiative));
     setCurrentTurnIndex(0);
+
+    /* Reported here rather than at the top of the function: everything above
+       can be cancelled part-way through, and a "battle_started" for a fight
+       nobody started would put a hole in every funnel built on it. */
+    const outgoing = getCurrentBattle();
+    if (outgoing.combatants > 0) {
+      track("battle_ended", {
+        rounds: outgoing.rounds,
+        combatants: outgoing.combatants,
+        ending: "replaced",
+      });
+    }
+    track("battle_started", {
+      heroes: presentHeroes.length,
+      monsters: presentMonsters.length,
+      combatants: newCombatants.length,
+      grouped_initiative: askedToGroup && grouped,
+    });
   }, [
     setRoundNumber,
     getHeroes,
@@ -162,6 +197,7 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
     removeMonstersFromRoster,
     setCombatants,
     setCurrentTurnIndex,
+    getCurrentBattle,
   ]);
 
   return { handleStartBattle };

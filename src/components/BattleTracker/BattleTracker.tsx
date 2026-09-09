@@ -26,6 +26,7 @@ import RoundNumberSpan from "./RoundNumber";
 import { HeroStatBlockHover } from "./HeroStatBlockHover";
 import { MonsterStatBlockHover } from "./MonsterStatBlockHover";
 import { useBattleManager } from "../../hooks/useStartBattle";
+import { track } from "../../utils/telemetry";
 import { ConditionReminder } from "./ConditionReminder";
 import SBPopup from "./SBPopup";
 import { EditBattleDialog } from "./EditBattleDialog";
@@ -335,6 +336,15 @@ const BattleTracker: React.FC = () => {
   );
 
   const addCondition = useCallback((combatantId: string, condition: string) => {
+    /* Reported from out here rather than from inside the updater: StrictMode
+       runs updaters twice and every condition would be counted twice. The
+       "already has it" test is the same one the updater makes, read off this
+       render's combatants. */
+    const target = combatants.find((c) => c.id === combatantId);
+    if (target && !target.conditions.includes(condition)) {
+      track("condition_applied", { condition });
+    }
+
     setCombatants((prev) =>
       prev.map((c) => {
         if (c.id !== combatantId || c.conditions.includes(condition)) return c;
@@ -345,7 +355,7 @@ const BattleTracker: React.FC = () => {
         return { ...c, conditions: [...c.conditions, condition] };
       })
     );
-  }, [setCombatants, logEvent]);
+  }, [combatants, setCombatants, logEvent]);
 
   const removeCondition = useCallback((combatantId: string, conditionToRemove: string) => {
     setCombatants((prev) =>
@@ -394,6 +404,11 @@ const BattleTracker: React.FC = () => {
   // never localStorage.
   const heroesRef = useRef(heroes);
   const monstersRef = useRef(monsters);
+  /* Read by useBattleManager when a new fight replaces this one; a ref rather
+     than a dependency so starting a battle does not re-make the callback on
+     every round change. */
+  const battleRef = useRef({ rounds: roundNumber, combatants: combatants.length });
+  battleRef.current = { rounds: roundNumber, combatants: combatants.length };
   useEffect(() => {
     heroesRef.current = heroes;
   }, [heroes]);
@@ -409,6 +424,7 @@ const BattleTracker: React.FC = () => {
     removeMonstersFromRoster,
     setCombatants,
     setCurrentTurnIndex,
+    getCurrentBattle: useCallback(() => battleRef.current, []),
   });
 
   const handleSBContinue = () => {
@@ -454,6 +470,9 @@ const BattleTracker: React.FC = () => {
 
   /** Everyone out, and the battle back to not having started. */
   const clearBattle = useCallback(() => {
+    if (battleRef.current.combatants > 0) {
+      track("battle_ended", { ...battleRef.current, ending: "cleared" });
+    }
     setCombatants([]);
     setCurrentTurnIndex(0);
     // 0 is the no-battle round: a battle starts at 1 (see useStartBattle).

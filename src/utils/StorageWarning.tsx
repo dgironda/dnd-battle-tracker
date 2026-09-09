@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { track } from './telemetry';
 
 interface StorageWarningProps {
   threshold?: number; // in bytes, default 3MB
@@ -14,6 +15,9 @@ export const StorageWarning: React.FC<StorageWarningProps> = ({
 }) => {
   const [currentSize, setCurrentSize] = useState<number>(0);
   const [isExceeded, setIsExceeded] = useState<boolean>(false);
+  /* Once per mount. The check re-runs on every write and on every focus, and
+     the same warning reported forty times in a session says nothing extra. */
+  const reported = useRef(false);
 
   const calculateStorageSize = useCallback((): number => {
     let totalChars = 0;
@@ -47,6 +51,15 @@ export const StorageWarning: React.FC<StorageWarningProps> = ({
       const exceeded = size > threshold;
       setIsExceeded(exceeded);
       onWarningChange?.(exceeded);
+
+      if (exceeded && !reported.current) {
+        reported.current = true;
+        /* Rounded to a tenth of a megabyte: enough to see the distribution,
+           not so precise that it fingerprints one person's storage. */
+        track("storage_warning_shown", {
+          megabytes: Math.round((size / (1024 * 1024)) * 10) / 10,
+        });
+      }
     };
 
     checkStorage();

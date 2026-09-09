@@ -1,4 +1,4 @@
-import { Fragment, lazy, Suspense, useState, useEffect, type ReactNode } from "react";
+import { Fragment, lazy, Suspense, useCallback, useState, useEffect, type ReactNode } from "react";
 import BattleTracker from "./components/BattleTracker/BattleTracker";
 import { CombatProvider } from "./components/BattleTracker/CombatContext";
 import { RosterProvider } from "./hooks/rosterContext";
@@ -11,6 +11,10 @@ import { Helmet } from "react-helmet-async";
 import monsterShareURL from "./utils/monsterShareURL";
 import { startTour } from "./components/Tour";
 import { DialogHost } from "./utils/notify";
+import ErrorBoundary from "./components/ErrorBoundary";
+import GlobalErrorNotice from "./components/GlobalErrorNotice";
+import { clearCrashCount } from "./utils/crashRecovery";
+import { registerContext, track } from "./utils/telemetry";
 import BTLogo from "./assets/draftsvgs_v2/logo.svg";
 import Backdrop from "./utils/backdrop";
 
@@ -56,11 +60,42 @@ function App() {
   const handleClosePanel = () => setOpenPanel(null);
   const [isPortrait, setIsPortrait] = useState(window.matchMedia("(orientation: portrait)").matches);
 
-  const togglePanel = (panel: PanelName) => setOpenPanel((prev) => (prev === panel ? null : panel));
+  /* Memoised on `openPanel` because it now reads it: the keyboard shortcuts
+     effect below closes over this, and a stale copy would report a panel as
+     opened every time its key was pressed, including to close it. */
+  const togglePanel = useCallback(
+    (panel: PanelName) => {
+      /* Outside the updater, not inside it: StrictMode runs updaters twice and
+         every event would be counted twice. Opening only — a close says nothing
+         about what the panel is worth. */
+      if (openPanel !== panel) track("panel_opened", { panel });
+      setOpenPanel((prev) => (prev === panel ? null : panel));
+    },
+    [openPanel]
+  );
 
   useEffect(() => {
     monsterShareURL.loadMonstersFromURL();
   }, []);
+
+  /* Getting this far means the app drew itself, so whatever crashed a previous
+     load is not crashing this one. Forgetting the count keeps the "clear the
+     current fight" escape hatch out of sight until reloading really has stopped
+     helping. */
+  useEffect(() => {
+    clearCrashCount();
+  }, []);
+
+  /* Registered as super properties rather than sent per event, so "does anyone
+     actually run a fight from a phone?" can be asked of every other event and
+     not just its own. Re-registered when the paper changes, which is rare. */
+  useEffect(() => {
+    registerContext({
+      orientation: isPortrait ? "portrait" : "landscape",
+      wallpaper: settings.wallpaper,
+      theme: settings.theme,
+    });
+  }, [isPortrait, settings.wallpaper, settings.theme]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(orientation: portrait)");
@@ -106,7 +141,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, []);
+  }, [togglePanel]);
 
   // Patreon OAuth.
   //
@@ -162,6 +197,7 @@ function App() {
   }, [openPanel, isSupporter]);
 
   const handlePatreonLogin = () => {
+    track("supporter_prompt_clicked", { reason: "header" });
     const clientId = import.meta.env.VITE_PATREON_CLIENT_ID;
     const redirectUri = import.meta.env.VITE_PATREON_REDIRECT_URI;
     const authUrl = `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;
@@ -212,6 +248,7 @@ function App() {
         <CombatProvider>
           {overlayVisible && (
             <PatreonOverlay
+              reason="first_visit"
               onClose={() => {
                 setOverlayVisible(false);
               }}
@@ -220,6 +257,7 @@ function App() {
 
           {battleOverlayVisible && (
             <PatreonOverlay
+              reason="battle_manager"
               onClose={() => {
                 setBattleOverlayVisible(false);
                 setOpenPanel(null);
@@ -228,7 +266,10 @@ function App() {
           )}
 
           {lockedOverlayVisible && (
-            <PatreonOverlay onClose={() => setLockedOverlayVisible(false)} />
+            <PatreonOverlay
+              reason="locked_wallpaper"
+              onClose={() => setLockedOverlayVisible(false)}
+            />
           )}
 
           <div id="header">
@@ -272,7 +313,12 @@ function App() {
                   )}
                 </button>
                 {openPanel === panel && (
-                  <Suspense fallback={null}>{panelContent[panel]}</Suspense>
+                  /* One panel throwing should cost that panel, not the fight
+                     behind it — so each gets its own boundary, named after the
+                     button that opened it. */
+                  <ErrorBoundary variant="panel" label={label} onClose={handleClosePanel}>
+                    <Suspense fallback={null}>{panelContent[panel]}</Suspense>
+                  </ErrorBoundary>
                 )}
               </Fragment>
             ))}
@@ -316,7 +362,12 @@ function App() {
 
           <AdSlot slot="banner" isSupporter={isSupporter} onSupport={handlePatreonLogin} />
 
-          <BattleTracker />
+          {/* The roster is the app, but it is not the whole page: keeping the
+              masthead alive means a crash here can still be answered by opening
+              the Battle Manager and loading a different fight. */}
+          <ErrorBoundary variant="panel" label="The battle tracker" placement="inline">
+            <BattleTracker />
+          </ErrorBoundary>
 
           <div id="footer">
             ©{new Date().getFullYear()}{" "}
@@ -334,6 +385,9 @@ function App() {
           </div>
 
           <DialogHost />
+          {/* Boundaries cannot see a throw inside an onClick or a rejected
+              promise. This does. */}
+          <GlobalErrorNotice />
         </CombatProvider>
       </RosterProvider>
     </>

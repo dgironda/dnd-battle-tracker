@@ -1452,6 +1452,7 @@
 .appDialogInner,
 .hpChangeModalInner,
 .popup-container,
+.errorNotice,
 #conCheckInner {
   box-sizing: border-box;
   background: none;
@@ -1478,7 +1479,8 @@
 #conditionReminderContent,
 .appDialogInner,
 .hpChangeModalInner,
-.popup-container {
+.popup-container,
+.errorNotice {
   border-image-source: url('./assets/draftsvgs_v2/container_monster-manager.svg');
   --panel-ink: #2b1a0c;
   --panel-ink-soft: #56391d;
@@ -7828,4 +7830,267 @@ html[data-wallpaper="midnight"] body::before {
 
 .battleLogEntry.is-revived .battleLogText {
   color: #3d5a24;
+}
+/* ==========================================================================
+   WHEN SOMETHING BREAKS
+
+   Three sizes of the same card — the whole page, one panel, one background
+   fault — all wearing the parchment window the rest of the app's dialogs wear.
+   `.errorNotice` is listed in both of the frame's selector blocks above, so
+   everything here is only what is particular to a crash.
+
+   The card is deliberately not styled as an alarm. A red slab tells a DM their
+   evening is over; a piece of paper with the problem written on it and a way to
+   send it to us tells them it is being dealt with. The one thing given any
+   emphasis is the copy button, because the whole point is the paste that
+   follows it.
+   ========================================================================== */
+
+/* --- the whole page has gone --------------------------------------------- */
+.errorScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;               /* over the dialogs at 1200, since it outranks them */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* --- one panel has gone; the fight behind it has not ---------------------- */
+.errorPanelWrap.is-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1100;               /* above the panel backdrop, below the dialogs */
+  width: min(92vw, 40rem);
+  max-height: 88vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* The roster's own boundary. It sits in the page grid where the table sat, so
+   it must take the space rather than float over a page that is otherwise fine. */
+.errorPanelWrap.is-inline {
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  min-width: 0;
+  padding: 1rem 0.5rem;
+}
+
+/* --- something threw in the background ------------------------------------ */
+.errorToastWrap {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1400;
+  width: min(calc(100vw - 2rem), 25rem);
+  max-height: 70vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* --- the card itself ------------------------------------------------------ */
+.errorNotice {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.2rem 0.7rem 0.7rem;
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.92rem, 1.1vw, 1.15rem);
+  line-height: 1.45;
+  text-align: left;
+}
+
+.errorScreen > .errorNotice {
+  width: min(92vw, 44rem);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* The corners are drawn at a fixed size, so a card this narrow needs the
+   smaller frame or the artwork is most of what you see. */
+.errorNotice.is-toast {
+  border-width: 16px 26px;
+  border-image-width: 16px 26px;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.errorNoticeHead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.errorNoticeTitle {
+  flex: 1 1 auto;
+  margin: 0.1rem 0 0.35rem;
+  font-family: 'Germania One', 'Caudex', serif;
+  font-size: 1.5em;
+  font-weight: normal;
+  line-height: 1.15;
+  color: var(--panel-ink);
+  text-wrap: balance;
+}
+
+.errorNotice.is-toast .errorNoticeTitle {
+  font-size: 1.25em;
+}
+
+/* How many times the same fault has come round. Only drawn from two up. */
+.errorNoticeCount {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+.errorNoticeDismiss {
+  flex: 0 0 auto;
+  align-self: start;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0.25rem;
+  border: none;
+  background: none;
+  color: var(--panel-ink);
+  font-family: 'Caudex', serif;
+  font-size: 1.3em;
+  line-height: 1;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.errorNoticeDismiss:hover,
+.errorNoticeDismiss:focus-visible {
+  opacity: 1;
+}
+
+.errorNoticeLede {
+  margin: 0 0 0.6rem;
+  color: var(--panel-ink-soft);
+}
+
+/* The error's own words. Boxed and monospaced so it reads as the machine
+   talking, not as more of our prose — and wrapped, because a long message on a
+   phone must not push the card sideways. */
+.errorNoticeMessage {
+  margin: 0 0 0.85rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--panel-inset);
+  border-left: 3px solid var(--panel-rule);
+  font-family: ui-monospace, 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+  font-size: 0.85em;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+/* Two steps, numbered because they genuinely are a sequence: copy it, then
+   paste it. The numbering earns its keep here. */
+.errorNoticeSteps {
+  margin: 0 0 0.6rem;
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.errorNoticeSteps > li {
+  margin: 0;
+}
+
+.errorNoticeSteps .drawnBtn {
+  margin: 0 0.4rem 0 0;
+  vertical-align: middle;
+}
+
+/* .drawnBtn is written for <button>; the Discord link is an <a>. */
+a.drawnBtn,
+a.drawnBtn:visited {
+  text-decoration: none;
+  color: var(--btn-ink);
+}
+
+/* Under its control, not beside it. Beside it, the sentence wrapped into the
+   gap left by the button and the two read as one broken line. */
+.errorNoticeHint {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--panel-ink-soft);
+  font-size: 0.88em;
+}
+
+.errorNoticeDetails {
+  margin: 0 0 0.5rem;
+}
+
+.errorNoticeDetails > summary {
+  cursor: pointer;
+  color: var(--panel-ink-soft);
+  font-size: 0.9em;
+}
+
+/* A textarea rather than a <pre>: it is selectable with one tap, and it is the
+   fallback for the browsers that refuse the clipboard outright. */
+.errorNoticeReport {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  resize: vertical;
+  background: var(--panel-field);
+  color: var(--panel-field-ink);
+  border: 1px solid var(--panel-rule);
+  border-radius: 0;
+  font-family: ui-monospace, 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+  font-size: 0.78em;
+  line-height: 1.35;
+  white-space: pre;
+}
+
+.errorNoticeActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.errorNoticeActions .drawnBtn {
+  margin: 0;
+}
+
+.errorNoticeLastResort {
+  margin: 0.5rem 0 0;
+  color: var(--panel-ink-soft);
+  font-size: 0.88em;
+}
+
+/* Portrait: the corner toast becomes a full-width strip at the foot, because a
+   25rem card in the corner of a 375px screen is the whole screen anyway, and
+   half-covering the roster is worse than sitting under it. */
+@media (orientation: portrait), (max-width: 62.99rem) {
+  .errorToastWrap {
+    right: 0.5rem;
+    left: 0.5rem;
+    bottom: 0.5rem;
+    width: auto;
+  }
+
+  .errorScreen > .errorNotice {
+    width: 100%;
+  }
+
+  /* The frame's corners are drawn at a fixed pixel size and do not shrink, so
+     on a narrow screen they have to be told to. */
+  .errorNotice {
+    border-width: 20px 34px;
+    border-image-width: 20px 34px;
+  }
 }
