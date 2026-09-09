@@ -6803,7 +6803,9 @@ html[data-wallpaper="midnight"] body::before {
     align-items: center;
     row-gap: 0.02rem;
     margin: 0 0 0.75rem;
-    padding: 0.15rem 0.2rem;
+    /* More at the foot than the head: the last thing on the card is a row of
+       checkboxes, and a box sitting on the drawn edge reads as clipped. */
+    padding: 0.15rem 0.2rem 0.5rem;
     font-size: var(--card-font);
 
     border-style: solid;
@@ -6948,7 +6950,17 @@ html[data-wallpaper="midnight"] body::before {
      A column each for HP and initiative, so the two numbers sit together, and
      the remaining half for the conditions that were costing a row. */
   #battleTracker tbody td.combatantConditions {
-    justify-content: flex-start;
+    /* Centred in the cell, not packed to its left edge. A combatant usually
+       has one chip or none, and a single chip hard against the left of a
+       quarter-width cell reads as a mistake rather than a state. */
+    justify-content: center;
+    align-content: center;
+    /* The base rule keeps 1.9rem of gutter down the right of this cell, with
+       !important, for the drawer the table row opens into. A card cell is a
+       quarter of the width and has no drawer, so that gutter was just 30px of
+       padding shoving every chip left of the centre it was being told to sit
+       in — the chips measured 13px off. Matched to the left padding. */
+    padding-right: 0.25rem !important;
     flex-wrap: wrap;
     gap: 0.15rem 0.25rem;
     padding-top: 0;
@@ -6960,11 +6972,16 @@ html[data-wallpaper="midnight"] body::before {
     scrollbar-width: thin;
   }
 
-  /* The bar is the width of its cell, and the cell is now a quarter of the
-     card rather than a half. Nothing else to do — but the label wants to stop
-     shouting now that it is small. */
+  /* The bar is the width of its cell, and the cell is a quarter of the card
+     rather than a half. Given that, it earns some height back: it is the
+     number a DM looks at most and it was the flattest thing on the card. */
   #battleTracker tbody td.combatantHP {
     justify-content: center;
+  }
+
+  #battleTracker tbody td.combatantHP .hpButton {
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
   }
 
   /* Label above value, like the four boxes on the line below it. Inline, the
