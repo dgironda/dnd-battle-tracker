@@ -6827,10 +6827,28 @@ html[data-wallpaper="midnight"] body::before {
        320, at 360 and at 390 alike — identical type in a card 70px wider, which
        is where the wasted space was coming from.
 
-       Solved as a line through the two ends instead: 0.95rem at a 285px card
-       (a 320px phone) and 1.35rem at a 700px one, which is
-       `0.675rem + 1.54cqw`. Every width in between now gets its own size. */
-    --card-font: clamp(0.95rem, calc(0.675rem + 1.54cqw), 1.35rem);
+       Solved as a line through the two ends instead, and the line has to be
+       steep enough to matter at the wide end as well: the first attempt was
+       capped at 1.35rem, which a 700px card reached and then stopped — so a
+       900px card had the same 21.6px type as a 700px one, the hit points sat
+       as a small number in the middle of a 260px bar, and the four boxes
+       stayed 26px squares in a card three times as wide. That is the same
+       fault as the floor, at the other end.
+
+       `0.53rem + 2.35cqw`, capped at 1.9rem: still 0.95rem at a 285px card, so
+       nothing changes on a phone, and about 28px by a 830px one.
+
+       And a height term taking whichever is smaller, for the same reason the
+       manager ribbons needed one: a card sized purely by its width comes out
+       193px tall on a 1000x700 window, where 700px of screen is the scarce
+       thing and that leaves a card and a half. The height term only bites when
+       a window is wide and short — everywhere else the width term is already
+       the smaller of the two and nothing changes. */
+    --card-font: clamp(
+      0.95rem,
+      min(calc(0.53rem + 2.35cqw), calc(0.5rem + 2.2vh)),
+      1.9rem
+    );
   }
 
   /* A card is one plaque, not eight. The per-cell artwork in gfx.css only
@@ -6958,9 +6976,30 @@ html[data-wallpaper="midnight"] body::before {
   #battleTracker tbody td.combatantReaction::before { content: "Reaction"; }
 
   /* The A/S/D/R hints are for a keyboard, and a portrait window is being
-     touched. The word above the box is the label now. */
+     touched. The word above the box is the label now — but the element
+     carrying that hint is a <label for>, and hiding it took the cell's tap
+     target with it. The only thing left to hit was the box, which is 1.2em:
+     20px on a 390px phone, against the 44px a thumb wants.
+     
+     So it stays, as the whole cell instead. The letter goes (font-size: 0),
+     the box keeps its drawn size, and the target becomes the 96x30 cell it
+     sits in — no visual change, no layout cost, and it still toggles the
+     input because that is what a <label for> does. */
   #battleTracker .checkOverlay {
-    display: none;
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    font-size: 0;
+    color: transparent;
+    cursor: pointer;
+    /* Over the box and its mark, so the whole cell answers the tap. */
+    z-index: 2;
   }
 
   /* The mark is centred on its CELL, which is right in the table — there the
