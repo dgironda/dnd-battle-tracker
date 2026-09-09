@@ -6771,7 +6771,16 @@ html[data-wallpaper="midnight"] body::before {
     width: 100%;
     justify-self: stretch;
     min-width: 0;
-    max-width: none;
+    /* Capped against viewport HEIGHT, by way of the artwork's own ratio, so the
+       cap makes the button narrower rather than letterboxing it.
+
+       Width alone is the wrong thing to size these by on a short window: at
+       1000x700 the column gave each ribbon 338px, the 2.55:1 art made that
+       132px tall, and three rows of that plus the round line left the roster
+       227px — one and a half cards on a screen 1000px wide. Height is what is
+       scarce there, so height gets a say. Tall windows are unaffected: at
+       768x1024 the cap is 339px and the column offers 256. */
+    max-width: min(100%, calc(13vh * 2.55));
     margin: 0;
   }
 
@@ -6812,7 +6821,16 @@ html[data-wallpaper="midnight"] body::before {
        into its neighbour. That is the doubled line and the ink blot between
        rows. Narrower ring, and a real gap under each card to put it in. */
     --card-edge: clamp(11px, 2.6cqw, 20px);
-    --card-font: clamp(0.95rem, 3.3cqw, 1.35rem);
+    /* The middle term has to START at the floor, not cross it somewhere up
+       the range. `3.3cqw` only reaches 0.95rem once the card is 460px wide, so
+       every phone sat pinned to the floor and the card came out 117px tall at
+       320, at 360 and at 390 alike — identical type in a card 70px wider, which
+       is where the wasted space was coming from.
+
+       Solved as a line through the two ends instead: 0.95rem at a 285px card
+       (a 320px phone) and 1.35rem at a 700px one, which is
+       `0.675rem + 1.54cqw`. Every width in between now gets its own size. */
+    --card-font: clamp(0.95rem, calc(0.675rem + 1.54cqw), 1.35rem);
   }
 
   /* A card is one plaque, not eight. The per-cell artwork in gfx.css only
@@ -6821,11 +6839,18 @@ html[data-wallpaper="midnight"] body::before {
      plain middle plaque around the whole card. */
   #battleTracker tbody tr {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    /* Twelve, not four. Four equal columns is right for the row of boxes and
+       wrong for the line above it: hit points had a quarter of the card and
+       three characters of slack at 320px — one three-digit creature and the
+       number would have been on top of the heart — while initiative sat in the
+       same quarter using 55px of 86 whatever the width. Twelve splits by what
+       each one holds: 4 for hit points, 3 for initiative, 5 for conditions,
+       and the boxes still take 3 apiece. */
+    grid-template-columns: repeat(12, minmax(0, 1fr));
     grid-template-areas:
-      "cName cName cName cName"
-      "cHP   cInit  cCond cCond"
-      "cAct  cBon   cMove cReact";
+      "cName cName cName cName cName cName cName cName cName  cName  cName  cName"
+      "cHP   cHP   cHP   cHP   cInit cInit cInit cCond cCond  cCond  cCond  cCond"
+      "cAct  cAct  cAct  cBon  cBon  cBon  cMove cMove cMove  cReact cReact cReact";
     align-items: center;
     row-gap: 0.02rem;
     margin: 0 0 0.75rem;
@@ -7008,6 +7033,15 @@ html[data-wallpaper="midnight"] body::before {
   #battleTracker tbody td.combatantHP .hpButton {
     padding-top: 0.3em;
     padding-bottom: 0.3em;
+  }
+
+  /* A shade under the card's own size. "188 / 188" plus the heart is the
+     widest this cell ever holds, and at 320px it came to 83px inside an 83px
+     bar — not overflowing, but with nothing between the number and the drawn
+     edge, which is what reads as bleeding. Six percent off the number is
+     invisible and buys the margin at the only width where it is tight. */
+  #battleTracker tbody td.combatantHP {
+    font-size: 0.94em;
   }
 
   /* Label above value, like the four boxes on the line below it. Inline, the
