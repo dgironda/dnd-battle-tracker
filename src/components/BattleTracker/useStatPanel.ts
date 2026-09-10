@@ -56,16 +56,28 @@ export function useStatPanel() {
   }, []);
 
   /* One handler for click and for tap, because a tap IS a click: the same
-     gesture should not mean "pin" the first time and nothing the second. */
-  const toggle = useCallback(
-    (event: React.MouseEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target?.closest(INTERACTIVE)) return;
-      if (isOpen) close();
-      else setIsStuck(true);
-    },
-    [isOpen, close],
-  );
+     gesture should not mean "pin" the first time and nothing the second.
+
+     It toggles `isStuck`, NOT `isOpen`, and the difference is the whole of a
+     bug this had on a desktop. To click the name you must first be hovering
+     it, so `isOpen` was already true and the click took the close branch: the
+     one gesture that is supposed to pin the panel was the gesture that shut
+     it. Worse, `close()` cleared `isHovering` too while the pointer was still
+     inside, and `mouseenter` does not fire again until you leave and come
+     back — so the panel stayed shut while you hovered the very thing that
+     opens it.
+
+     Unpinning deliberately leaves `isHovering` alone. In a hover layout the
+     pointer is still over the trigger, so the panel should fall back to being
+     open-because-hovered rather than being yanked out from under the cursor;
+     moving away then closes it. In the card layout hover never gets a vote
+     anyway, so `isStuck` and `isOpen` are the same thing and this is exactly
+     the behaviour it always had. */
+  const toggle = useCallback((event: React.MouseEvent) => {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest(INTERACTIVE)) return;
+    setIsStuck((stuck) => !stuck);
+  }, []);
 
   const onMouseEnter = useCallback(() => {
     if (!tapOnly) setIsHovering(true);
