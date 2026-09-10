@@ -18,7 +18,15 @@ import ErrorBoundary from "./components/ErrorBoundary";
 // whether the client was ever initialised.
 if (ANALYTICS_ENABLED) {
   posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
-    api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+    /* Our own origin, not us.i.posthog.com — see functions/relay/[[path]].ts.
+       PostHog's hostnames are on every mainstream blocklist, so a real share of
+       events never left the browser and the numbers under-reported. */
+    api_host: '/relay',
+    /* Where the toolbar and "view in PostHog" links point. It is the app URL,
+       which is NOT the ingestion host in VITE_PUBLIC_POSTHOG_HOST: with only a
+       relative api_host set, those links would resolve against our own domain
+       and 404. */
+    ui_host: 'https://us.posthog.com',
     defaults: '2025-05-24',
     /* Nothing leaves without going past this. See scrubSecrets. */
     before_send: (event) => {
