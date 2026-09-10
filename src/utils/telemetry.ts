@@ -170,6 +170,104 @@ export function registerContext(context: {
   }
 }
 
+/**
+ * What we know about the person, as opposed to what they just did.
+ *
+ * Event properties describe one moment; person properties describe whoever is
+ * sitting there, and every event they have ever sent gets filtered by them. It
+ * is the difference between "this fight had six monsters" and "this DM is a
+ * supporter" — the second is what lets you ask whether supporters run bigger
+ * fights at all.
+ */
+export interface PersonProperties {
+  /** Patreon supporter, as the client-side gate understands it. */
+  is_supporter?: boolean;
+  /** A name you gave a browser yourself. Only ever set by hand — see identifyPerson. */
+  label?: string;
+}
+
+/**
+ * Attach properties to whoever this browser already is.
+ *
+ * This is the one you want almost every time. It does NOT rename the person or
+ * merge anything: PostHog minted an anonymous id on first visit and that stays
+ * the primary key, which is exactly right for an app with no accounts.
+ */
+export function setPerson(properties: PersonProperties): void {
+  if (import.meta.env.DEV) console.debug("[telemetry] person", properties);
+  if (!ANALYTICS_ENABLED) return;
+  try {
+    posthog.setPersonProperties(properties);
+  } catch {
+    /* see track() */
+  }
+}
+
+/**
+ * Ids that must never become a person's primary key.
+ *
+ * The Patreon OAuth code is the trap this exists for. It is the closest thing
+ * this app has to a user id, it is sitting right there in localStorage, and
+ * reaching for it is the obvious move — but it is a credential. `before_send`
+ * already strips it out of every URL on the way to PostHog; handing it to
+ * identify() would put it back in as the person's primary key, in the clear,
+ * where every event is filed under it forever.
+ *
+ * So this is a guard rather than a comment asking nicely.
+ */
+export function looksLikeACredential(id: string): boolean {
+  try {
+    if (id === window.localStorage.getItem("patreon_code")) return true;
+  } catch {
+    /* Storage can be refused outright; fall through to the shape test. */
+  }
+  /* Long, opaque, unpunctuated — the shape of a token. A UUID is exempt
+     because that is what a legitimate anonymous id looks like, and a Patreon
+     numeric user id is far too short to match. */
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  return !isUuid && id.length >= 32 && /^[A-Za-z0-9_-]+$/.test(id);
+}
+
+/**
+ * Say that this browser is a particular known person.
+ *
+ * Only worth calling when you have an id that is stable across devices, because
+ * that is the single thing it buys: a DM on a laptop at home and a phone at the
+ * table are two anonymous people until something tells PostHog they are one, and
+ * until then the user count is inflated and retention is measuring the wrong
+ * thing.
+ *
+ * Battle Tracker has no accounts, so today there are exactly two callers worth
+ * having: claiming your own browser so you can filter yourself out of the
+ * numbers, and — if the Patreon code is ever actually exchanged for a token in
+ * worker/index.ts — the Patreon user id that exchange returns. The raw code is
+ * not that id, and looksLikeACredential refuses it.
+ *
+ * Returns whether it went through, so a caller is told rather than guessing.
+ */
+export function identifyPerson(id: string, properties: PersonProperties = {}): boolean {
+  const trimmed = id.trim();
+  if (!trimmed) return false;
+
+  if (looksLikeACredential(trimmed)) {
+    /* Loud on purpose. Silently ignoring this would look like it worked. */
+    console.error(
+      "[telemetry] refusing to identify by what looks like a credential. " +
+        "See looksLikeACredential in utils/telemetry.ts.",
+    );
+    return false;
+  }
+
+  if (import.meta.env.DEV) console.debug("[telemetry] identify", trimmed, properties);
+  if (!ANALYTICS_ENABLED) return false;
+  try {
+    posthog.identify(trimmed, properties);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Faults already sent this page load, so a render loop is not a thousand events. */
 const reported = new Set<string>();
 

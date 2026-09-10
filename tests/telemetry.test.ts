@@ -1,5 +1,6 @@
+/** @vitest-environment jsdom */
 import { describe as suite, it, expect } from "vitest";
-import { scrubSecrets } from "../src/utils/telemetry";
+import { looksLikeACredential, scrubSecrets } from "../src/utils/telemetry";
 
 /**
  * These are about one thing: a Patreon OAuth authorization code must never
@@ -43,5 +44,34 @@ suite("scrubSecrets", () => {
   it("catches the code wherever in the query it sits", () => {
     expect(scrubSecrets(`${site}/?a=1&code=secret&b=2`)).not.toContain("secret");
     expect(scrubSecrets(`${site}/some/path?code=secret#hash`)).not.toContain("secret");
+  });
+});
+
+/**
+ * The one rule identify() has to hold: the Patreon OAuth code must never
+ * become a person's primary key. `before_send` already strips it out of every
+ * URL; identify would put it back as the id every event is filed under.
+ */
+suite("looksLikeACredential", () => {
+  it("refuses the stored Patreon code outright", () => {
+    localStorage.setItem("patreon_code", "whatever-shape-this-happens-to-be");
+    expect(looksLikeACredential("whatever-shape-this-happens-to-be")).toBe(true);
+    localStorage.removeItem("patreon_code");
+  });
+
+  it("refuses a token-shaped string even when nothing is stored", () => {
+    /* Long, opaque, unpunctuated — an OAuth code looks like this. */
+    expect(looksLikeACredential("AbCdEf0123456789AbCdEf0123456789AbCdEf01")).toBe(true);
+    expect(looksLikeACredential("a".repeat(64))).toBe(true);
+  });
+
+  it("allows a UUID, which is what a real anonymous id looks like", () => {
+    expect(looksLikeACredential("019c07b9-cedb-7531-b029-09ec0ddc18a6")).toBe(false);
+  });
+
+  it("allows the short ids a real account system hands out", () => {
+    expect(looksLikeACredential("12345678")).toBe(false);
+    expect(looksLikeACredential("davey")).toBe(false);
+    expect(looksLikeACredential("patreon:4471239")).toBe(false);
   });
 });

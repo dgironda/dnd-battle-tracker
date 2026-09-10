@@ -6,5 +6,5 @@
   },
   // `functions` is the Pages Functions directory — the PostHog relay lives
   // there and is real production code, so it gets typechecked like the rest.
-  "include": ["./worker-configuration.d.ts", "./worker", "./functions"]
+  "include": ["./worker-configuration.d.ts", "./worker", "./functions", "./server"]
 }

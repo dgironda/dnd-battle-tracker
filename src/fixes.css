@@ -7481,6 +7481,14 @@ html[data-wallpaper="midnight"] body::before {
     margin: 0.15rem 0 0;
   }
 
+  /* The second sentence gets its own line here and only here. Run on from the
+     copyright in a phone's width the two wrap into a ragged four-line block
+     with the break landing mid-sentence; given a line of its own each one
+     breaks where it means to. Inline everywhere else, where there is room. */
+  .footerFinePrint {
+    display: block;
+  }
+
   /* The drawn frames are a flat 30px top and bottom and 53px each side. That
      is a reasonable margin on a 900px window and 106px of a 375px phone —
      nearly a third of the screen spent on the edge of the paper, which is what
@@ -8260,5 +8268,94 @@ a.drawnBtn:visited {
   .managerCheck,
   .managerCheck > input[type="checkbox"] {
     cursor: pointer;
+  }
+}
+/* ==========================================================================
+   THE COOKIE BAR
+
+   Sits at the foot of the page, over everything, until a decision is made.
+   Deliberately not a modal: a DM who ignores it can still run their whole
+   fight, because holding a combat tracker hostage over an analytics question
+   would be worse than not measuring at all.
+
+   Both buttons are the same size and weight. The pattern where "accept" is a
+   button and "decline" is a grey link under a "manage preferences" fold is the
+   one regulators keep fining people for, and it is not what this is.
+   ========================================================================== */
+
+.consentBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1300;              /* over the dialogs, under the crash screen */
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem 1.2rem;
+
+  box-sizing: border-box;
+  padding: 0.7rem clamp(0.75rem, 3vw, 2rem);
+  padding-bottom: max(0.7rem, env(safe-area-inset-bottom));
+
+  background: var(--color-bg2);
+  border-top: 1px solid var(--color-shadow);
+  box-shadow: 0 -6px 24px -18px var(--color-shadow);
+  color: var(--color-fg);
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.82rem, 1.6vw, 0.95rem);
+  line-height: 1.45;
+}
+
+.consentText {
+  flex: 1 1 22rem;
+  min-width: 0;
+  max-width: 52rem;
+  margin: 0;
+}
+
+.consentText a {
+  color: var(--color-link);
+}
+
+.consentButtons {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.consentButtons .drawnBtn {
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Portrait: the bar is the full width of a phone anyway, so the buttons get
+   their own line and each takes half of it — a 0.8rem target beside a wrapped
+   paragraph is not something you hit on the first try at a table. */
+@media (orientation: portrait), (max-width: 62.99rem) {
+  .consentBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    text-align: center;
+  }
+
+  /* The row layout gives this `flex: 1 1 22rem`, and flex-basis follows the
+     main axis — so in a column that 22rem stopped being a minimum width and
+     became a minimum HEIGHT, leaving the bar half a phone tall with a canyon
+     between the text and the buttons. */
+  .consentText {
+    flex: 0 0 auto;
+  }
+
+  .consentButtons {
+    justify-content: center;
+  }
+
+  .consentButtons .drawnBtn {
+    flex: 1 1 0;
+    max-width: 12rem;
   }
 }

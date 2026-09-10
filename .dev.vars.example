@@ -1,0 +1,23 @@
+# Server-side only. These are read by the Pages Functions in functions/api/patreon/
+# and must NEVER be given a VITE_ prefix — that would inline them into the browser
+# bundle, which for the client secret means publishing it.
+#
+# Local: copy to `.dev.vars` (gitignored) and fill in.
+# Production: Cloudflare dashboard → Pages → dnd-battle-tracker → Settings →
+#             Environment variables → add as ENCRYPTED, for the Production
+#             environment. Or:
+#               npx wrangler pages secret put PATREON_CLIENT_SECRET
+#               npx wrangler pages secret put PATREON_SESSION_SECRET
+
+# From the Patreon developer portal, next to the client ID you already have.
+PATREON_CLIENT_SECRET=
+
+# Signs the supporter session cookie. Not a Patreon value — any long random
+# string. Generate one with:  node -e "console.log(crypto.randomUUID()+crypto.randomUUID())"
+# Changing it signs everyone out, which is also how you revoke every session.
+PATREON_SESSION_SECRET=
+
+# Your campaign's numeric id. Optional but strongly recommended: without it the
+# check can only ask "is this person a patron of anything?", which lets someone
+# who supports an unrelated creator through as a supporter here.
+PATREON_CAMPAIGN_ID=

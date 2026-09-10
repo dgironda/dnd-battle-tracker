@@ -1,4 +1,5 @@
 import { ANALYTICS_ENABLED, scrubSecrets } from "./utils/telemetry";
+import { applyConsent, readConsent, REQUIRE_CONSENT } from "./utils/consent";
 import { HelmetProvider } from "react-helmet-async";
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -28,6 +29,11 @@ if (ANALYTICS_ENABLED) {
        and 404. */
     ui_host: 'https://us.posthog.com',
     defaults: '2025-05-24',
+    /* Nothing is captured until somebody says yes — see utils/consent.ts.
+       This is the half of the cookie bar that makes it more than decoration,
+       and the two are one decision: flipping REQUIRE_CONSENT means flipping
+       this with it. */
+    opt_out_capturing_by_default: REQUIRE_CONSENT,
     /* Nothing leaves without going past this. See scrubSecrets. */
     before_send: (event) => {
       if (!event?.properties) return event;
@@ -37,6 +43,24 @@ if (ANALYTICS_ENABLED) {
       return event;
     },
   });
+
+  /* A console handle, on purpose.
+     We import posthog as an ES module, so unlike the old script-snippet install
+     it never lands on `window` — which means there is no way to run
+     `posthog.opt_out_capturing()` or `posthog.identify(...)` on the live site,
+     and no way to check from the console whether analytics is even alive. That
+     cost an hour of wrongly concluding nothing was being collected.
+
+     It grants nobody anything new: the project key ships in this bundle already
+     and is designed to be public, so anything reachable through this handle was
+     reachable without it. */
+  (window as unknown as { posthog: typeof posthog }).posthog = posthog;
+
+  /* Re-apply the stored answer on every load. `opt_out_capturing_by_default`
+     only covers a browser that has never decided; somebody who accepted last
+     week has to be opted back in, and somebody who declined stays out even if
+     that default is ever changed. */
+  applyConsent(readConsent());
 }
 
 

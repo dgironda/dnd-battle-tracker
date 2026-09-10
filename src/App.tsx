@@ -14,7 +14,13 @@ import { DialogHost } from "./utils/notify";
 import ErrorBoundary from "./components/ErrorBoundary";
 import GlobalErrorNotice from "./components/GlobalErrorNotice";
 import { clearCrashCount } from "./utils/crashRecovery";
-import { registerContext, track } from "./utils/telemetry";
+import { identifyPerson, registerContext, setPerson, track } from "./utils/telemetry";
+import {
+  exchangeCode,
+  fetchSupporterState,
+  forgetLegacyCode,
+} from "./utils/patreonSession";
+import ConsentBanner from "./components/ConsentBanner";
 import BTLogo from "./assets/draftsvgs_v2/logo.svg";
 import Backdrop from "./utils/backdrop";
 
@@ -143,52 +149,70 @@ function App() {
     };
   }, [togglePanel]);
 
-  // Patreon OAuth.
-  //
-  // Note this is a client-side courtesy gate, not real authentication: the code
-  // is never exchanged for a token, so anyone can unlock these features from the
-  // console. That is a deliberate trade-off for a supporter perk — if it ever
-  // needs enforcing, the exchange belongs in worker/index.ts.
+  /* Patreon OAuth, verified.
+     
+     This used to be a courtesy gate: the redirect's code went into
+     localStorage, nothing ever exchanged it, and `getItem("patreon_code")`
+     was the whole test — satisfiable from the console in four seconds. The
+     exchange now happens in functions/api/patreon/, which is the only place
+     that can hold the client secret, and the browser is told the answer
+     rather than deciding it.
+
+     The cost of that, paid once: an existing supporter's stored code means
+     nothing any more, so they see the prompt and re-authorise. */
   const [isSupporter, setIsSupporter] = useState(false);
 
   useEffect(() => {
-    if (!ENABLE_PATREON) {
-      setIsSupporter(true);
-      return;
-    }
+    let cancelled = false;
+
+    const settle = (state: { isSupporter: boolean; personId: string | null }) => {
+      if (cancelled) return;
+      setIsSupporter(state.isSupporter);
+      /* The prompt waits for the answer instead of racing it. Defaulting it to
+         visible meant every returning supporter got a flash of "support us"
+         before the session came back and took it away again. */
+      setOverlayVisible(ENABLE_PATREON && !state.isSupporter);
+      /* A stable id across every device this patron signs in on — which is the
+         only thing identify() is actually for, and the reason the exchange was
+         worth building. Anonymous visitors stay anonymous. */
+      if (state.personId) identifyPerson(state.personId);
+    };
 
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
 
     if (code) {
-      localStorage.setItem("patreon_code", code);
-      setIsSupporter(true);
+      /* Off the URL before anything else can read it — the address bar, the
+         referrer on the next outbound link, and any analytics pageview. */
       window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (localStorage.getItem("patreon_code")) {
-      setIsSupporter(true);
+      exchangeCode(code).then(settle);
+    } else {
+      fetchSupporterState().then(settle);
     }
+
+    forgetLegacyCode();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const [overlayVisible, setOverlayVisible] = useState(true);
+  /* A person property rather than an event: it describes who is sitting there,
+     not something that just happened, so every event they have ever sent can be
+     filtered by it. That is what makes "do supporters run bigger fights?" a
+     question you can actually ask.
+
+     The boolean, never the Patreon code that produced it. */
+  useEffect(() => {
+    setPerson({ is_supporter: isSupporter });
+  }, [isSupporter]);
+
+  /* Starts hidden and is raised once the server has answered — see settle(). */
+  const [overlayVisible, setOverlayVisible] = useState(false);
   const [battleOverlayVisible, setBattleOverlayVisible] = useState(false);
   /* Raised by the Options panel when a locked wallpaper is picked. Its own
      state rather than the battle one, because dismissing it should leave
      Options open — the battle prompt closes the panel behind it. */
   const [lockedOverlayVisible, setLockedOverlayVisible] = useState(false);
-
-  useEffect(() => {
-    if (!ENABLE_PATREON) {
-      setOverlayVisible(false);
-      return;
-    }
-
-    const hasCode = localStorage.getItem("patreon_code");
-    const urlCode = new URLSearchParams(window.location.search).get("code");
-
-    if (hasCode || urlCode) {
-      setOverlayVisible(false);
-    }
-  }, []);
 
   useEffect(() => {
     if (openPanel === "battle" && !isSupporter && ENABLE_PATREON) {
@@ -374,7 +398,12 @@ function App() {
             <a href="https://www.simulacrumtechnologies.com" target="_blank" rel="noreferrer">
               Simulacrum Technologies
             </a>
-            . All rights reserved. Website design and content are protected by copyright law. Built by DMs, for DMs.
+            . All rights reserved.{" "}
+            {/* Wrapped so portrait can put it on a line of its own. Inline it
+                stays exactly as it reads now; see .footerFinePrint. */}
+            <span className="footerFinePrint">
+              Website design and content are protected by copyright law. Built by DMs, for DMs.
+            </span>
             <p>
               Join our{" "}
               <a href={DISCORD_URL} target="_blank" rel="noreferrer">
@@ -383,6 +412,8 @@ function App() {
               for updates and to provide feedback.
             </p>
           </div>
+
+          <ConsentBanner />
 
           <DialogHost />
           {/* Boundaries cannot see a throw inside an onClick or a rejected

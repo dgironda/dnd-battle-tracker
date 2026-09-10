@@ -1,5 +1,5 @@
 // src/components/PatreonOverlay.tsx
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { track } from "../utils/telemetry";
 
 export type SupporterPromptReason = "first_visit" | "battle_manager" | "locked_wallpaper";
@@ -10,31 +10,19 @@ interface PatreonOverlayProps {
     reason: SupporterPromptReason;
 }
 
+/* Whether this is on screen is App's decision, not its own.
+
+   It used to work the redirect out for itself — read `?code`, write it to
+   localStorage, hide — which duplicated App's copy of the same logic and is
+   now simply wrong: the code is exchanged server-side and nothing is stored.
+   Rendering when mounted is the whole of it. */
 export default function PatreonOverlay({ onClose, reason }: PatreonOverlayProps) {
-    const [isVisible, setIsVisible] = useState(false);
 
+    /* Mounted means visible now that App gates it, so this is the moment it is
+       actually shown to somebody. */
     useEffect(() => {
-        const code = new URLSearchParams(window.location.search).get("code");
-        const storedCode = localStorage.getItem("patreon_code");
-
-        if (code) {
-            // Store the code so they stay authorized
-            localStorage.setItem("patreon_code", code);
-            setIsVisible(false);
-            window.history.replaceState({}, document.title, window.location.pathname);
-        } else if (!storedCode) {
-            // Show the overlay every time if not logged in
-            setIsVisible(true);
-        }
-    }, []);
-
-    /* Reported when it actually becomes visible, not on mount: the first-visit
-       overlay decides in an effect whether it has anything to say, and counting
-       the ones it decides against would make the prompt look far more common
-       than it is. */
-    useEffect(() => {
-        if (isVisible) track("supporter_prompt_shown", { reason });
-    }, [isVisible, reason]);
+        track("supporter_prompt_shown", { reason });
+    }, [reason]);
 
     const handlePatreonLogin = () => {
         track("supporter_prompt_clicked", { reason });
@@ -45,12 +33,9 @@ export default function PatreonOverlay({ onClose, reason }: PatreonOverlayProps)
     };
 
     const handleContinue = () => {
-        // Simply close this session’s overlay, no localStorage persistence
-        setIsVisible(false);
+        /* Closing is App's to do — it owns whether this is mounted. */
         onClose();
     };
-
-    if (!isVisible) return null;
 
     return (
         <div
