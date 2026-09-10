@@ -1,19 +1,23 @@
+import { useMemo } from "react";
 import { DISCORD_URL } from "../utils/links";
+import { pickCreative } from "../constants/AdCreatives";
+import { track } from "../utils/telemetry";
 
 /**
  * Where ad inventory comes from.
  *
- * "house" serves our own promos and loads nothing third-party — no external
- * script, no cookie consent, no CSP change. Moving to a network is meant to be
- * a change to this constant plus the one branch in `AdSlot` that reads it:
- * everything else (placement, sizing, reserved space, the supporter gate) is
- * already in place and does not care what fills the box.
+ * - **"house"** — our own promos only. Loads nothing third-party.
+ * - **"affiliate"** — banners from constants/AdCreatives, served from our own
+ *   origin. Still nothing third-party: no script, no cookie, no consent, no CSP
+ *   change, and nothing for a blocker to recognise. Falls back to the house
+ *   promo whenever no creative fits, so the slot is never empty.
+ * - **"network"** — not built. A network's script is third-party, which means a
+ *   CSP entry and, for EEA/UK traffic, a certified consent platform.
  *
- * Before switching to "network": a network's script is third-party, so it needs
- * a CSP entry and a consent banner for EU/UK traffic, and its fixed creative
- * sizes should be checked against SLOTS below.
+ * Everything else — placement, reserved space, the supporter gate — is already
+ * in place and does not care what fills the box.
  */
-const AD_PROVIDER: "house" | "network" = "house";
+const AD_PROVIDER: "house" | "affiliate" | "network" = "affiliate";
 
 /**
  * The reserved box for each placement, in the IAB sizes a network would expect,
@@ -68,7 +72,42 @@ function HouseAd({ slot, onSupport }: { slot: AdSlotName; onSupport: () => void 
   );
 }
 
+/**
+ * One affiliate banner.
+ *
+ * `rel="sponsored"` is the part not to lose: this is a paid link, and that is
+ * the attribute search engines require on one. `noopener noreferrer` keeps the
+ * merchant from seeing where the click came from and from touching our window.
+ */
+function AffiliateAd({
+  slot,
+  creative,
+}: {
+  slot: AdSlotName;
+  creative: { id: string; image: string; href: string; alt: string };
+}) {
+  return (
+    <a
+      className="adAffiliate"
+      href={creative.href}
+      target="_blank"
+      rel="sponsored noopener noreferrer"
+      onClick={() => track("ad_clicked", { slot, creative: creative.id })}
+    >
+      <img src={creative.image} alt={creative.alt} loading="lazy" decoding="async" />
+    </a>
+  );
+}
+
 export default function AdSlot({ slot, isSupporter, onSupport }: AdSlotProps) {
+  /* Drawn once per mount rather than per render: a banner that changed every
+     time React re-rendered would be genuinely hostile, and it would wreck the
+     click-through besides. */
+  const creative = useMemo(
+    () => (AD_PROVIDER === "affiliate" ? pickCreative(slot) : null),
+    [slot],
+  );
+
   if (isSupporter) return null;
 
   const { w, h, label } = SLOTS[slot];
@@ -79,7 +118,38 @@ export default function AdSlot({ slot, isSupporter, onSupport }: AdSlotProps) {
       style={{ "--ad-w": `${w}px`, "--ad-h": `${h}px` } as React.CSSProperties}
       aria-label={`Advertisement (${label})`}
     >
-      {AD_PROVIDER === "house" ? <HouseAd slot={slot} onSupport={onSupport} /> : null}
+      {/* Labelled in the page, not only to a screen reader. Affiliate links are
+          paid links and US disclosure rules expect a person to be able to see
+          that — and it does no harm here, because a box that announces itself
+          as an ad is exactly the mild annoyance these slots are for. */}
+      <span className="adLabel" aria-hidden="true">
+        Advertisement
+      </span>
+
+      {/* The house promo is the fallback, not a lesser option: an empty slot is
+          no annoyance at all, so something is always in the box. */}
+      {creative ? (
+        <AffiliateAd slot={slot} creative={creative} />
+      ) : (
+        <HouseAd slot={slot} onSupport={onSupport} />
+      )}
+
+      {/* Only under a real ad. Under the house promo it would be telling
+          somebody to turn off the thing already asking them to turn it off. */}
+      {creative && (
+        <button
+          type="button"
+          className="adOptOut"
+          onClick={() => {
+            track("supporter_prompt_clicked", {
+              reason: slot === "banner" ? "banner_ad" : "tower_ad",
+            });
+            onSupport();
+          }}
+        >
+          Sick of ads? Become a supporter.
+        </button>
+      )}
     </aside>
   );
 }

@@ -72,7 +72,25 @@ export interface EventMap {
   /** The Patreon prompt appeared, and what put it there. */
   supporter_prompt_shown: { reason: "first_visit" | "battle_manager" | "locked_wallpaper" };
   /** Somebody clicked through to Patreon from it. */
-  supporter_prompt_clicked: { reason: "first_visit" | "battle_manager" | "locked_wallpaper" | "header" };
+  /**
+   * Somebody clicked through to Patreon, and from where.
+   *
+   * `banner_ad` and `tower_ad` are the whole point of the ad slots: they exist
+   * to sell the pledge, so a click that came from one has to be separable from
+   * a click on the rail button. Both used to report "header", which made the
+   * only question the ads are there to answer unanswerable.
+   */
+  supporter_prompt_clicked: {
+    reason:
+      | "first_visit"
+      | "battle_manager"
+      | "locked_wallpaper"
+      | "header"
+      | "banner_ad"
+      | "tower_ad";
+  };
+  /** An affiliate banner was clicked. `creative` is its id in AdCreatives. */
+  ad_clicked: { slot: string; creative: string };
   /**
    * Storage is filling up. A real risk on this product — the whole battle lives
    * in localStorage and photos are stored beside it — and currently invisible.
