@@ -23,13 +23,26 @@ interface Env extends PatreonEnv {
   PATREON_SESSION_SECRET?: string;
 }
 
-const ANONYMOUS = { isSupporter: false, personId: null };
+const ANONYMOUS = { isSupporter: false, personId: null, available: true };
+
+/**
+ * The server cannot answer the question at all.
+ *
+ * This is NOT the same as "not a supporter", and conflating the two is what
+ * took the supporter perks off every paying patron the first time this shipped
+ * without its secrets. A misconfigured server told everyone they had never paid
+ * and offered them the sign-in that was itself broken.
+ *
+ * `available: false` lets the client say "we cannot check right now" instead,
+ * which is both true and something a patron can act on.
+ */
+const UNAVAILABLE = { isSupporter: false, personId: null, available: false };
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const secret = env.PATREON_SESSION_SECRET;
   if (!secret) {
     console.error("[patreon] PATREON_SESSION_SECRET is not set — nobody can be verified.");
-    return json(ANONYMOUS);
+    return json(UNAVAILABLE);
   }
 
   const token = cookieFrom(request.headers.get("Cookie"), SESSION_COOKIE);

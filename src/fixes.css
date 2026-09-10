@@ -8359,3 +8359,51 @@ a.drawnBtn:visited {
     max-width: 12rem;
   }
 }
+/* ==========================================================================
+   "WE CANNOT CHECK RIGHT NOW"
+
+   Shown when the supporter gate could not answer — a missing secret, a bad
+   deploy, no network. It is not an error card and not a modal: the tracker
+   itself is fine and the only thing lost is a badge and an unlocked panel.
+
+   It exists because the alternative is worse. Without it a misconfigured
+   server tells a paying patron they never paid, hides the reason, and offers
+   them a sign-in button that is itself the broken thing.
+   ========================================================================== */
+
+.gateUnavailable {
+  grid-area: footer;
+  align-self: end;
+  justify-self: center;
+  z-index: 2;
+
+  box-sizing: border-box;
+  max-width: min(46rem, 92vw);
+  margin: 0 0 0.2rem;
+  padding: 0.4rem 0.9rem;
+
+  background: var(--panel-inset, rgba(107, 72, 36, 0.15));
+  border-left: 3px solid var(--color-redwarn);
+  border-radius: 3px;
+
+  color: var(--color-fg);
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.72rem, 1.4vw, 0.85rem);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.gateUnavailable a {
+  color: var(--color-link);
+}
+
+/* In the card layout the footer's row is content-sized and already tight, so
+   this takes the round's area instead — directly under the masthead, where a
+   notice about the masthead's own supporter button belongs. */
+@media (orientation: portrait), (max-width: 62.99rem) {
+  .gateUnavailable {
+    grid-area: adbanner;
+    align-self: center;
+    margin: 0.2rem 0.5rem;
+  }
+}

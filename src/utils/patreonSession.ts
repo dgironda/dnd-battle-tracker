@@ -17,23 +17,40 @@ export interface SupporterState {
   isSupporter: boolean;
   /** `patreon:<id>`, or null when signed out. Becomes the PostHog person id. */
   personId: string | null;
+  /**
+   * Whether the server could answer at all.
+   *
+   * False means misconfigured or unreachable — which is emphatically NOT the
+   * same as "not a supporter", and treating them as one is what silently
+   * stripped the perks from every paying patron the first time this deployed
+   * without its secrets. A patron in that state gets told, rather than being
+   * shown a sign-in button that cannot work.
+   */
+  available: boolean;
 }
 
-const ANONYMOUS: SupporterState = { isSupporter: false, personId: null };
+const ANONYMOUS: SupporterState = { isSupporter: false, personId: null, available: true };
+
+/** Reached nobody. Same shape as a configured server saying "cannot check". */
+const UNREACHABLE: SupporterState = { isSupporter: false, personId: null, available: false };
 
 /**
  * Dev builds have no Pages Functions in front of them and no Patreon app to
  * talk to, so the old behaviour stands: everything unlocked, nobody identified.
  */
-const OFFLINE: SupporterState = { isSupporter: true, personId: null };
+const OFFLINE: SupporterState = { isSupporter: true, personId: null, available: true };
 
 async function readJson(response: Response): Promise<SupporterState> {
-  if (!response.ok) return ANONYMOUS;
+  /* A 5xx is the server failing, not the visitor being a stranger. */
+  if (!response.ok) return response.status >= 500 ? UNREACHABLE : ANONYMOUS;
   try {
     const body = (await response.json()) as Partial<SupporterState>;
     return {
       isSupporter: body.isSupporter === true,
       personId: typeof body.personId === "string" ? body.personId : null,
+      /* Absent means an older deployment that predates this field, and those
+         were answering the question properly — so absence is "available". */
+      available: body.available !== false,
     };
   } catch {
     return ANONYMOUS;
@@ -48,7 +65,7 @@ export async function fetchSupporterState(): Promise<SupporterState> {
       await fetch("/api/patreon/session", { credentials: "same-origin" }),
     );
   } catch {
-    return ANONYMOUS;
+    return UNREACHABLE;
   }
 }
 
@@ -71,7 +88,7 @@ export async function exchangeCode(code: string): Promise<SupporterState> {
       }),
     );
   } catch {
-    return ANONYMOUS;
+    return UNREACHABLE;
   }
 }
 

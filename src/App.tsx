@@ -161,17 +161,30 @@ function App() {
      The cost of that, paid once: an existing supporter's stored code means
      nothing any more, so they see the prompt and re-authorise. */
   const [isSupporter, setIsSupporter] = useState(false);
+  /* False only when the server could not answer — a missing secret, a bad
+     deploy, no network. Kept apart from `isSupporter` because "we cannot check"
+     and "you never paid" are different things to say to a patron. */
+  const [gateAvailable, setGateAvailable] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
 
-    const settle = (state: { isSupporter: boolean; personId: string | null }) => {
+    const settle = (state: {
+      isSupporter: boolean;
+      personId: string | null;
+      available: boolean;
+    }) => {
       if (cancelled) return;
       setIsSupporter(state.isSupporter);
+      setGateAvailable(state.available);
       /* The prompt waits for the answer instead of racing it. Defaulting it to
          visible meant every returning supporter got a flash of "support us"
-         before the session came back and took it away again. */
-      setOverlayVisible(ENABLE_PATREON && !state.isSupporter);
+         before the session came back and took it away again.
+
+         And it stays down when the check failed: offering "sign in with
+         Patreon" to somebody whose sign-in is the broken thing is worse than
+         saying nothing. */
+      setOverlayVisible(ENABLE_PATREON && state.available && !state.isSupporter);
       /* A stable id across every device this patron signs in on — which is the
          only thing identify() is actually for, and the reason the exchange was
          worth building. Anonymous visitors stay anonymous. */
@@ -412,6 +425,21 @@ function App() {
               for updates and to provide feedback.
             </p>
           </div>
+
+          {!gateAvailable && (
+            /* Deliberately quiet and non-blocking. Nothing is wrong with the
+               tracker itself, and a patron who reads this knows the missing
+               perks are our fault rather than a lapsed pledge. */
+            <p className="gateUnavailable" role="status">
+              We can&apos;t check Patreon supporter status right now, so supporter
+              features are off. Nothing is wrong with your pledge — try again shortly,
+              or tell us on{" "}
+              <a href={DISCORD_URL} target="_blank" rel="noreferrer">
+                Discord
+              </a>
+              .
+            </p>
+          )}
 
           <ConsentBanner />
 
