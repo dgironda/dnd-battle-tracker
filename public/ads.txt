@@ -1,0 +1,51 @@
+# ads.txt — Authorized Digital Sellers (IAB Tech Lab)
+# https://iabtechlab.com/ads-txt/
+#
+# This file names who is allowed to sell advertising on
+# battletracker.simulacrumtechnologies.com. Buyers check it to spot inventory
+# being sold by somebody who does not have the right to sell it.
+#
+# ---------------------------------------------------------------------------
+# READ THIS BEFORE YOU ADD A NETWORK
+#
+# The spec treats a seller that is NOT listed here as unauthorized. So once you
+# start serving ads, this file has to be correct or bids get suppressed — an
+# ads.txt with no valid records says "nobody may sell my inventory", which is
+# the truth today and would be an expensive mistake later.
+#
+# Right now that is fine: no network is live, so there is nothing to suppress.
+# The moment you are approved by one, uncomment its line and put your real
+# publisher ID in. Deploying this file as-is alongside a live network is the
+# one way it can cost you money.
+# ---------------------------------------------------------------------------
+#
+# FORMAT
+#   <ad system domain>, <your publisher ID>, <DIRECT|RESELLER>, <cert authority ID>
+#
+#   DIRECT   = you contract with them yourself
+#   RESELLER = they are permitted to resell on your behalf
+#   The fourth field is optional and network-specific; copy it exactly from
+#   whatever the network's own instructions give you rather than from here.
+#
+# Cloudflare Pages serves everything in public/ from the site root, so this
+# lands at /ads.txt with no configuration. Verify after deploying:
+#   curl -s https://battletracker.simulacrumtechnologies.com/ads.txt
+#
+# ---------------------------------------------------------------------------
+# GOOGLE ADSENSE
+# Replace pub-0000000000000000 with your own publisher ID, which is in
+# AdSense under Account -> Settings -> Account information.
+#
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+#
+# ---------------------------------------------------------------------------
+# EZOIC — their dashboard generates the full list for you; paste it whole,
+# because it includes their resellers as well as the direct line.
+#
+# ---------------------------------------------------------------------------
+# ETHICALADS — no ads.txt entry is required at the time of writing; they serve
+# their own inventory directly and do not run an exchange.
+#
+# ---------------------------------------------------------------------------
+# Last reviewed: 10 September 2026. No network is live; this file is
+# intentionally inert.

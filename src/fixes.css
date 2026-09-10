@@ -1453,6 +1453,7 @@
 .hpChangeModalInner,
 .popup-container,
 .errorNotice,
+.privacyInner,
 #conCheckInner {
   box-sizing: border-box;
   background: none;
@@ -1480,7 +1481,8 @@
 .appDialogInner,
 .hpChangeModalInner,
 .popup-container,
-.errorNotice {
+.errorNotice,
+.privacyInner {
   border-image-source: url('./assets/draftsvgs_v2/container_monster-manager.svg');
   --panel-ink: #2b1a0c;
   --panel-ink-soft: #56391d;
@@ -8447,3 +8449,171 @@ a.drawnBtn:visited {
     margin-bottom: 0.9rem;
   }
 }
+/* ==========================================================================
+   THE PRIVACY PANEL
+
+   A modal rather than a route: the tracker is a single page holding a fight in
+   progress, and navigating away from it to read a policy would be a poor trade.
+   Opened from the footer, closed by the X, by Escape, or by clicking off it.
+   ========================================================================== */
+
+/* The footer's Privacy control is a <button> so it can open the panel, and it
+   has to stop looking like one. */
+.footerLink {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+
+.footerLink:hover,
+.footerLink:focus-visible {
+  color: var(--color-link);
+}
+
+/* Holds the two apart on one line without being read out as a word. */
+.footerSep {
+  opacity: 0.55;
+}
+
+/* The footer's type is 0.62rem in the card layout — deliberately, because
+   every pixel there is a pixel the roster does not get — which left this a
+   53x12 target. That is not something you hit on the first try at a table.
+
+   The hit area is grown with an absolutely positioned ::after rather than with
+   padding, because padding would push the footer taller and take back the
+   space the small type was buying. It grows upward and downward into the
+   footer's own lines, which hold nothing else interactive at this x position,
+   so it steals no taps from anything.
+
+   The Discord link beside it has the same constraint and is left alone: it is
+   long enough to hit, and widening its box would collide with this one. */
+@media (orientation: portrait), (max-width: 62.99rem) {
+  .footerLink {
+    position: relative;
+  }
+
+  .footerLink::after {
+    content: "";
+    position: absolute;
+    left: -0.35rem;
+    right: -0.35rem;
+    top: 50%;
+    height: 2rem;
+    transform: translateY(-50%);
+  }
+}
+
+.privacyOuter {
+  position: fixed;
+  inset: 0;
+  z-index: 1250;              /* over the cookie bar, under the crash screen */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.55);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Takes the parchment window the app's other dialogs wear — it is listed in
+   the two frame blocks further up this file alongside .appDialogInner. */
+.privacyInner {
+  position: relative;
+  width: min(46rem, 100%);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.2rem 0.9rem 0.9rem;
+
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.85rem, 1.05vw, 1rem);
+  line-height: 1.55;
+  text-align: left;
+}
+
+.privacyInner h2 {
+  margin: 0.2rem 0 0.4rem;
+  font-family: 'Germania One', 'Caudex', serif;
+  font-size: 1.7em;
+  font-weight: normal;
+  line-height: 1.1;
+}
+
+.privacyInner h3 {
+  margin: 1.15rem 0 0.3rem;
+  font-family: 'Germania One', 'Caudex', serif;
+  font-size: 1.15em;
+  font-weight: normal;
+  color: var(--panel-ink);
+}
+
+.privacyInner p { margin: 0 0 0.6rem; }
+.privacyInner ul { margin: 0 0 0.7rem; padding-left: 1.3em; }
+.privacyInner li { margin-bottom: 0.25rem; }
+.privacyInner a { color: var(--color-link); }
+
+.privacyInner code {
+  font-family: ui-monospace, 'Consolas', monospace;
+  font-size: 0.88em;
+  background: var(--panel-inset);
+  padding: 0.05em 0.3em;
+  border-radius: 2px;
+}
+
+/* The opening summary, sized up because it is the part most people read. */
+.privacyLede {
+  font-size: 1.05em;
+  color: var(--panel-ink);
+  border-left: 3px solid var(--panel-rule);
+  padding-left: 0.7rem;
+}
+
+/* The working control. A policy that describes a choice without offering it is
+   a leaflet, so this sits in the document rather than pointing elsewhere. */
+.privacyChoice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 1rem 0 0.6rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--panel-inset);
+  border-radius: 3px;
+}
+
+.privacyChoiceState { margin: 0; }
+.privacyChoice .drawnBtn { margin: 0; }
+
+.privacyFoot {
+  margin: 0.7rem 0 0;
+  font-size: 0.88em;
+  color: var(--panel-ink-soft);
+}
+
+.privacyClose {
+  position: absolute;
+  top: 0.15rem;
+  right: 0.25rem;
+  z-index: 2;
+  min-width: 0;
+  margin: 0;
+  padding: 0.1rem 0.4rem;
+  border: none;
+  background: none;
+  color: var(--panel-ink);
+  font-family: 'Caudex', serif;
+  font-size: 1.2em;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.privacyClose:hover,
+.privacyClose:focus-visible { opacity: 0.7; }

@@ -22,6 +22,7 @@ import {
   patreonAuthorizeUrl,
 } from "./utils/patreonSession";
 import ConsentBanner from "./components/ConsentBanner";
+import PrivacyPolicy from "./components/PrivacyPolicy";
 import BTLogo from "./assets/draftsvgs_v2/logo.svg";
 import Backdrop from "./utils/backdrop";
 
@@ -222,6 +223,9 @@ function App() {
 
   /* Starts hidden and is raised once the server has answered — see settle(). */
   const [overlayVisible, setOverlayVisible] = useState(false);
+  /* Its own state rather than a PANEL_BUTTONS entry: those each add a button to
+     the masthead grid, and this belongs in the footer beside the copyright. */
+  const [privacyOpen, setPrivacyOpen] = useState(false);
   const [battleOverlayVisible, setBattleOverlayVisible] = useState(false);
   /* Raised by the Options panel when a locked wallpaper is picked. Its own
      state rather than the battle one, because dismissing it should leave
@@ -421,8 +425,21 @@ function App() {
                 Discord server
               </a>{" "}
               for updates and to provide feedback.
+              {/* Sharing the Discord line rather than taking a third one: the
+                  footer is permanently on screen under a frozen top, and a
+                  line of page there is a line the roster does not get. */}
+              <span className="footerSep" aria-hidden="true"> · </span>
+              <button
+                type="button"
+                className="footerLink"
+                onClick={() => setPrivacyOpen(true)}
+              >
+                Privacy Policy
+              </button>
             </p>
           </div>
+
+          {privacyOpen && <PrivacyPolicy onClose={() => setPrivacyOpen(false)} />}
 
           {!gateAvailable && (
             /* Deliberately quiet and non-blocking. Nothing is wrong with the
