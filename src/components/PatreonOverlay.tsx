@@ -1,6 +1,7 @@
 // src/components/PatreonOverlay.tsx
 import { useEffect } from "react";
 import { track } from "../utils/telemetry";
+import { patreonAuthorizeUrl } from "../utils/patreonSession";
 
 export type SupporterPromptReason = "first_visit" | "battle_manager" | "locked_wallpaper";
 
@@ -26,10 +27,7 @@ export default function PatreonOverlay({ onClose, reason }: PatreonOverlayProps)
 
     const handlePatreonLogin = () => {
         track("supporter_prompt_clicked", { reason });
-        const clientId = import.meta.env.VITE_PATREON_CLIENT_ID;
-        const redirectUri = import.meta.env.VITE_PATREON_REDIRECT_URI;
-        const authUrl = `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;
-        window.location.href = authUrl;
+        window.location.href = patreonAuthorizeUrl();
     };
 
     const handleContinue = () => {

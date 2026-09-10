@@ -57,6 +57,37 @@ async function readJson(response: Response): Promise<SupporterState> {
   }
 }
 
+/**
+ * Where "Support us on Patreon" sends you.
+ *
+ * Built here rather than in each component because there were two copies of it
+ * and both were wrong in the same two ways.
+ *
+ * **`scope` was missing entirely**, and that is the one that would have wasted
+ * an afternoon: without it Patreon issues a token with no permissions, so
+ * `/v2/identity?include=memberships` comes back with no memberships and every
+ * real patron is read as "not a supporter". Sign-in appears to work and the
+ * perks never arrive. `identity` is who they are, `identity.memberships` is
+ * what they pledge — both are needed, space-separated.
+ *
+ * **The redirect was interpolated raw** into the query string. It survived
+ * because Patreon is lenient about it, but the token exchange requires the
+ * redirect to match the authorize request *exactly*, and hand-built query
+ * strings are exactly where that stops being true. URLSearchParams encodes it.
+ */
+export function patreonAuthorizeUrl(): string {
+  const query = new URLSearchParams({
+    response_type: "code",
+    client_id: import.meta.env.VITE_PATREON_CLIENT_ID,
+    redirect_uri: import.meta.env.VITE_PATREON_REDIRECT_URI,
+    scope: "identity identity.memberships",
+  });
+  /* URLSearchParams writes a space as "+", which is correct for form encoding
+     and not universally accepted in an OAuth `scope`. "%20" is accepted
+     everywhere, so the separator is normalised rather than left to chance. */
+  return `https://www.patreon.com/oauth2/authorize?${query.toString().replace(/\+/g, "%20")}`;
+}
+
 /** What the server currently says about this browser. */
 export async function fetchSupporterState(): Promise<SupporterState> {
   if (DEVMODE) return OFFLINE;

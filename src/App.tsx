@@ -19,6 +19,7 @@ import {
   exchangeCode,
   fetchSupporterState,
   forgetLegacyCode,
+  patreonAuthorizeUrl,
 } from "./utils/patreonSession";
 import ConsentBanner from "./components/ConsentBanner";
 import BTLogo from "./assets/draftsvgs_v2/logo.svg";
@@ -235,10 +236,7 @@ function App() {
 
   const handlePatreonLogin = () => {
     track("supporter_prompt_clicked", { reason: "header" });
-    const clientId = import.meta.env.VITE_PATREON_CLIENT_ID;
-    const redirectUri = import.meta.env.VITE_PATREON_REDIRECT_URI;
-    const authUrl = `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;
-    window.location.href = authUrl;
+    window.location.href = patreonAuthorizeUrl();
   };
 
   const panelContent: Record<PanelName, ReactNode> = {
