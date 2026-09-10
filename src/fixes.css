@@ -8407,3 +8407,43 @@ a.drawnBtn:visited {
     margin: 0.2rem 0.5rem;
   }
 }
+/* ==========================================================================
+   THE PATREON BUTTON IN THE RAIL
+
+   Landscape only. In the card layout it is the rotated strip tucked under the
+   hamburger, which is sized by --corner-control and has nothing to do with
+   this — hence the gate rather than a bare rule.
+
+   It sits at the foot of a 300px-wide rail at 8.5rem, which is about half the
+   width of the ribbons above it and reads as an afterthought rather than as
+   the ask. Sized against the rail's own measurement instead, so it grows and
+   shrinks with the buttons it sits under rather than staying put while they
+   move.
+
+   The bottom margin is the other half of it: flush against the last row of a
+   full-height grid, the button looked cropped rather than placed.
+   ========================================================================== */
+
+@media (orientation: landscape) and (min-width: 63rem) {
+  #patreonLink > button {
+    /* --button-width is the rail's own sizing (see gfx.css), and this takes all
+       of it so the ask is as wide as the ribbons above it rather than half
+       their width.
+
+       Worth knowing why the multiplier is 1 and not something smaller: this
+       button only ever renders for a NON-supporter, and a non-supporter is
+       exactly the case where the tower ad has already pulled --button-width
+       down from 230px to 174px. Anything under 1 was being taken off a number
+       that had already been reduced, which is how "bigger" came out at 143px
+       against the old fixed 136. The 8.5rem floor is that old fixed size, kept
+       as a minimum so this can never end up smaller than it was. */
+    width: clamp(8.5rem, var(--button-width, 14rem), 17rem);
+    min-width: 8.5rem;
+  }
+
+  #patreonLink {
+    /* Clear of the bottom edge. Anything under 0.5rem still reads as clipped
+       at the foot of the rail. */
+    margin-bottom: 0.9rem;
+  }
+}
