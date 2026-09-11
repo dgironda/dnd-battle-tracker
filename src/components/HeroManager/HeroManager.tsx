@@ -24,6 +24,10 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
   const { addHeroToCombat, combatants } = useCombat();
   /* Who is already fighting, so the button can say so. */
   const inBattle = useMemo(() => new Set(combatants.map((c) => c.id)), [combatants]);
+  /* The same test the tracker itself uses for "a battle is running" —
+     combatants exist (battleStage in BattleTracker). Before that there is no
+     fight to join, and a live "Join the Fray" button said otherwise. */
+  const battleRunning = combatants.length > 0;
 
   return (
     <div id="heroAddManage">
@@ -107,19 +111,25 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
                   {/* The same control the Monster Manager has. A hero stays on
                       the roster afterwards — the party is a standing list —
                       so this reads "already in" once they are in the fight
-                      rather than offering to add them twice. */}
-                  <button
-                    className="buttonJoinFray"
-                    disabled={inBattle.has(hero.id)}
-                    title={
-                      inBattle.has(hero.id)
-                        ? `${hero.name} is already in the battle`
-                        : `Add ${hero.name} to the battle`
-                    }
-                    onClick={() => addHeroToCombat(hero)}
-                  >
-                    {inBattle.has(hero.id) ? "In the Fray" : "Join the Fray"}
-                  </button>
+                      rather than offering to add them twice.
+
+                      Not rendered at all until a battle is running: hidden
+                      rather than disabled, because a greyed button still
+                      reads as something you could click. */}
+                  {battleRunning && (
+                    <button
+                      className="buttonJoinFray"
+                      disabled={inBattle.has(hero.id)}
+                      title={
+                        inBattle.has(hero.id)
+                          ? `${hero.name} is already in the battle`
+                          : `Add ${hero.name} to the battle`
+                      }
+                      onClick={() => addHeroToCombat(hero)}
+                    >
+                      {inBattle.has(hero.id) ? "In the Fray" : "Join the Fray"}
+                    </button>
+                  )}
                   <button
                     className="buttonDelete"
                     onClick={() => deleteHero(hero.id)}
