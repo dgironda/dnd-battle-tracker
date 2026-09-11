@@ -8,7 +8,11 @@ function stubSvgImports() {
     enforce: 'pre' as const,
     load(id: string) {
       if (/\.svg(\?|$)/.test(id)) {
-        return `export default "data:image/svg+xml,%3Csvg/%3E";`;
+        /* The file's own name rides along in the stub. Some tests care WHICH
+           asset a component reached for — the paper picker shows fourteen
+           different tiles — and one shared stub made them indistinguishable. */
+        const name = id.split(/[\\/]/).pop()!.replace(/\?.*$/, "");
+        return `export default ${JSON.stringify(`/stub/${name}`)};`;
       }
     },
   };

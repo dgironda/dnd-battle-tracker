@@ -178,6 +178,8 @@ export function track<K extends keyof EventMap>(name: K, properties: EventMap[K]
 export function registerContext(context: {
   orientation: "portrait" | "landscape";
   wallpaper: string;
+  /** Which motifs the paper carries — see constants/Wallpapers.ts. */
+  paper_style: string;
   theme: string;
 }): void {
   if (!ANALYTICS_ENABLED) return;

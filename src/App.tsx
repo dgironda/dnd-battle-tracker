@@ -101,9 +101,10 @@ function App() {
     registerContext({
       orientation: isPortrait ? "portrait" : "landscape",
       wallpaper: settings.wallpaper,
+      paper_style: settings.paperStyle,
       theme: settings.theme,
     });
-  }, [isPortrait, settings.wallpaper, settings.theme]);
+  }, [isPortrait, settings.wallpaper, settings.paperStyle, settings.theme]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(orientation: portrait)");
