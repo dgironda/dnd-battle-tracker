@@ -1,7 +1,15 @@
 import { useGlobalContext } from "../hooks/optionsContext";
 import { TOUR_ENABLED } from "../utils/devmode";
 import ToggleComponent from "./ToggleContext";
-import { WALLPAPERS, type Wallpaper } from "../constants/Wallpapers";
+import {
+  PAPER_STYLES,
+  WALLPAPERS,
+  tileUrl,
+  wallpaperById,
+  type PaperStyleId,
+  type Wallpaper,
+  type WallpaperId,
+} from "../constants/Wallpapers";
 import Icon from "./Icon";
 
 interface OptionsPanelProps {
@@ -22,6 +30,15 @@ export default function OptionsPanel({ onClose, isSupporter, onLockedPick }: Opt
     updateSetting("wallpaper", paper.id);
     updateSetting("theme", paper.dark ? "dark" : "light");
   };
+
+  /* Every preview is painted in the OTHER half of the choice: the styles are
+     shown in the colour you are on, the colours in the style you are on. Each
+     button then shows what it would actually give you, rather than a fixed
+     catalogue of art you have to imagine recoloured. */
+  const chosen = wallpaperById(settings.wallpaper);
+  const tile = (style: PaperStyleId, colour: WallpaperId) => ({
+    backgroundImage: `url(${tileUrl(style, colour)})`,
+  });
 
   return (
     <div id="options">
@@ -60,33 +77,91 @@ export default function OptionsPanel({ onClose, isSupporter, onLockedPick }: Opt
             </li>
           )}
           <li id="colorMode">
+            <h2 id="wallpaperHeading">Paper</h2>
+
+            {/* Named, unlike the colours: nobody can tell what "Armoury" means
+                from a 2.7em square, and the pair is small enough to say. */}
+            <h3 className="paperSubheading" id="paperStyleHeading">
+              Style
+            </h3>
+            <div className="paperStyleGrid" role="radiogroup" aria-labelledby="paperStyleHeading">
+              {PAPER_STYLES.map((style) => {
+                const isChosen = settings.paperStyle === style.id;
+                /* Neither style is locked today. The gate is here because the
+                   next one probably will be, and a lock bolted on later is how
+                   a picker ends up with two ways of saying the same thing. */
+                const locked = style.supporterOnly && !isSupporter;
+                return (
+                  <button
+                    key={style.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={isChosen}
+                    className={"paperStyleChoice" + (isChosen ? " isChosen" : "")}
+                    title={locked ? `${style.label} — supporters only` : style.blurb}
+                    onClick={() => {
+                      if (locked) {
+                        onLockedPick();
+                        return;
+                      }
+                      if (!isChosen) updateSetting("paperStyle", style.id);
+                    }}
+                  >
+                    <span
+                      className={
+                        `wallpaperSwatch paperStyleTile is-${chosen.id}` +
+                        (locked ? " isLocked" : "")
+                      }
+                      style={tile(style.id, chosen.id)}
+                      data-tile={`${style.id}-${chosen.id}`}
+                      aria-hidden="true"
+                    >
+                      {locked && (
+                        <span className="wallpaperLock">
+                          <Icon name="lock" size={16} color="currentColor" />
+                        </span>
+                      )}
+                    </span>
+                    <span className="paperStyleName">
+                      {style.label}
+                      {locked && <span className="visuallyHidden">, supporters only</span>}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
             {/* The grid is shown to everyone. A locked paper still reads as a
                 colour you could have — a row of two would not tell anybody
                 what they are missing — and picking one raises the prompt
                 rather than doing nothing. */}
-            <h2 id="wallpaperHeading">Paper</h2>
-            <div className="wallpaperGrid" role="radiogroup" aria-labelledby="wallpaperHeading">
+            <h3 className="paperSubheading" id="paperColourHeading">
+              Colour
+            </h3>
+            <div className="wallpaperGrid" role="radiogroup" aria-labelledby="paperColourHeading">
               {WALLPAPERS.map((paper) => {
-                const chosen = settings.wallpaper === paper.id;
+                const isChosen = settings.wallpaper === paper.id;
                 const locked = paper.supporterOnly && !isSupporter;
                 return (
                   <button
                     key={paper.id}
                     type="button"
                     role="radio"
-                    aria-checked={chosen}
+                    aria-checked={isChosen}
                     className={
                       `wallpaperSwatch is-${paper.id}` +
-                      (chosen ? " isChosen" : "") +
+                      (isChosen ? " isChosen" : "") +
                       (locked ? " isLocked" : "")
                     }
+                    style={tile(settings.paperStyle, paper.id)}
+                    data-tile={`${settings.paperStyle}-${paper.id}`}
                     title={locked ? `${paper.label} — supporters only` : paper.label}
                     onClick={() => {
                       if (locked) {
                         onLockedPick();
                         return;
                       }
-                      if (!chosen) choosePaper(paper);
+                      if (!isChosen) choosePaper(paper);
                     }}
                   >
                     <span className="visuallyHidden">

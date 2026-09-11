@@ -1,7 +1,15 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
 import { DEVMODE } from "../utils/devmode";
 import { STORAGE_KEYS, writeKey } from "../utils/LocalStorage";
-import { DEFAULT_WALLPAPER, isWallpaperId, type WallpaperId } from "../constants/Wallpapers";
+import {
+  DEFAULT_PAPER_STYLE,
+  DEFAULT_WALLPAPER,
+  isPaperStyleId,
+  isWallpaperId,
+  tileUrl,
+  type PaperStyleId,
+  type WallpaperId,
+} from "../constants/Wallpapers";
 
 interface Settings {
   version: 'twentyFourteen' | 'twentyTwentyFour';
@@ -12,6 +20,8 @@ interface Settings {
   tourReady: boolean;
   /** Which tile the page is papered with. See constants/Wallpapers.ts. */
   wallpaper: WallpaperId;
+  /** Which motifs are on it. The colour and the style are independent. */
+  paperStyle: PaperStyleId;
 }
 
 interface GlobalContextType {
@@ -27,6 +37,7 @@ const DEFAULT_SETTINGS: Settings = {
   currentTurnTime: true,
   tourReady: true,
   wallpaper: DEFAULT_WALLPAPER,
+  paperStyle: DEFAULT_PAPER_STYLE,
 };
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -53,6 +64,12 @@ function getSettings(): Settings {
     if (!isWallpaperId(merged.wallpaper)) {
       merged.wallpaper = merged.theme === "dark" ? "midnight" : DEFAULT_WALLPAPER;
     }
+    // Settings saved before the style existed carry no paperStyle at all —
+    // the merge above hands those the default. This catches the other case:
+    // a style we no longer ship, which would leave the page unpapered.
+    if (!isPaperStyleId(merged.paperStyle)) {
+      merged.paperStyle = DEFAULT_PAPER_STYLE;
+    }
     return merged;
   } catch (error) {
     console.error("Error loading settings:", error);
@@ -71,11 +88,26 @@ export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     document.documentElement.style.colorScheme = settings.theme;
   }, [settings.theme]);
 
-  // The wallpaper is a separate attribute so the two are independent in CSS:
-  // the theme drives the app's colours, this drives only the paper.
+  /* The paper is two attributes and one image. The attributes are separate
+     from the theme so the two stay independent in CSS — the theme drives the
+     app's colours, these drive only the paper — and CSS still keys off them:
+     the colour decides how strongly the tile is painted, the style decides
+     the size it tiles at.
+
+     The image itself arrives as a custom property rather than as a rule per
+     pairing. Two styles across seven colours is fourteen tiles, and fourteen
+     blocks of CSS would have to be kept in step with the list in
+     constants/Wallpapers.ts by hand; one property, read from the same
+     function the picker's previews use, cannot drift from them. */
   useEffect(() => {
-    document.documentElement.dataset.wallpaper = settings.wallpaper;
-  }, [settings.wallpaper]);
+    const root = document.documentElement;
+    root.dataset.wallpaper = settings.wallpaper;
+    root.dataset.paperStyle = settings.paperStyle;
+    root.style.setProperty(
+      "--paper-tile",
+      `url(${tileUrl(settings.paperStyle, settings.wallpaper)})`
+    );
+  }, [settings.wallpaper, settings.paperStyle]);
 
   const updateSetting = useCallback(<K extends keyof Settings>(key: K, value: Settings[K]) => {
     setSettings((prevSettings: Settings) => {

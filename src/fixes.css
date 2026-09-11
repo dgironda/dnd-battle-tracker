@@ -2769,7 +2769,10 @@ body::before {
   z-index: -1;
   pointer-events: none;
 
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-beige.svg');
+  /* Set by optionsContext from the same map the picker's previews read, so
+     the two cannot drift. The literal is the fallback for the frame before
+     React has stamped anything, and is the paper a first visit gets. */
+  background-image: var(--paper-tile, url('./assets/draftsvgs_v2/bg_pattern-weapons-beige.svg'));
   background-repeat: repeat;
   /* The tile is the artwork's own 482x466 bitmap now (see the note in the
      SVG), so this is that ratio, scaled to the size the padded 501-unit tile
@@ -2790,6 +2793,13 @@ body::before {
     background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-dark.svg');
     opacity: 0.2;
   }
+}
+
+/* The trinkets art is a square 500x500 bitmap where the armoury art is
+   482x466. Without its own size the tile is drawn into the armoury's ratio
+   and every motif comes out 3% short on one axis. */
+html[data-paper-style="trinkets"] body::before {
+  background-size: 385px 385px;
 }
 
 
@@ -5050,52 +5060,24 @@ body::before {
 /* ==========================================================================
    WALLPAPER CHOICES
 
-   Seven papers, keyed off `data-wallpaper` on the root (stamped by
-   optionsContext). The theme attribute still drives the app's colours; this
-   drives only the paper, so the two are independent in CSS even though the
-   picker sets them together.
+   A paper is two choices: a STYLE (which motifs) and a COLOUR (what they are
+   drawn on), both stamped on the root by optionsContext. Fourteen tiles come
+   out of that pairing, so the image itself arrives as `--paper-tile` rather
+   than as fourteen rules here that would have to be kept in step with
+   constants/Wallpapers.ts by hand.
 
-   Every light tile runs at the same 0.7 the cream one always did. That is not
-   a legibility ceiling — measured against the body ink, even the strongest of
-   these grounds stays above 9.5:1 at FULL opacity — it is just where the
-   colour reads as a tint of the page rather than as a slab of paint.
+   What is left is the one thing that genuinely differs between papers: how
+   hard the tile is painted. Every light paper runs at the same 0.7 the cream
+   one always did. That is not a legibility ceiling — measured against the
+   body ink, even the strongest of these grounds stays above 9.5:1 at FULL
+   opacity — it is just where the colour reads as a tint of the page rather
+   than as a slab of paint.
 
-   Midnight is the odd one: its tile has no ground at all, so its opacity
-   carries only the drawn motifs (see the note in that file).
+   Midnight is the odd one: its tiles carry no ground at all, so the page
+   colour shows through and the opacity governs only the drawn motifs.
    ========================================================================== */
 
-html[data-wallpaper="parchment"] body::before {
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-beige.svg');
-  opacity: 0.7;
-}
-
-html[data-wallpaper="moss"] body::before {
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-green.svg');
-  opacity: 0.7;
-}
-
-html[data-wallpaper="ember"] body::before {
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-orange.svg');
-  opacity: 0.7;
-}
-
-html[data-wallpaper="rose"] body::before {
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-pink.svg');
-  opacity: 0.7;
-}
-
-html[data-wallpaper="amethyst"] body::before {
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-purple.svg');
-  opacity: 0.7;
-}
-
-html[data-wallpaper="slate"] body::before {
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-grey.svg');
-  opacity: 0.7;
-}
-
 html[data-wallpaper="midnight"] body::before {
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-dark.svg');
   opacity: 0.2;
 }
 
@@ -5147,18 +5129,41 @@ html[data-wallpaper="midnight"] body::before {
 }
 
 #options .wallpaperSwatch {
-  width: 2.7em;
-  height: 2.7em;
+  /* Each row sets this and everything else follows from it, so the colour
+     swatches and the style tiles show the SAME window of the artwork at two
+     sizes rather than two crops that drift apart.
+
+     2.7em was enough when a swatch showed one motif; carrying the full window
+     it left each mark about 14px, which the paler papers lose entirely. */
+  --paper-box: 3.4em;
+
+  width: var(--paper-box);
+  height: var(--paper-box);
   padding: 0;
   margin: 0;
   border: none;
   border-radius: 0;
   cursor: pointer;
 
-  /* The tile itself, at a size that fits a motif or two into the square. */
+  /* A ZOOMED CROP of the tile rather than the whole thing shrunk into the
+     square. Shrunk, the armoury art disappears completely: its ink sits about
+     25 luminance levels off its own ground, so at a few pixels a stroke
+     anti-aliases into the paper and every swatch reads as a flat colour — the
+     two styles looked identical, which is the one thing a preview must not do.
+
+     The window is 350 of the armoury tile's 482 pixels, centred on (415, 235)
+     of the artwork: its motifs sit on a lattice about 230px apart, and that is
+     the smallest window holding one shield, one sword and one arrow. Hence the
+     numbers — 482/350 and 466/350 draw the tile at that zoom, and the offsets
+     are `half the box, less where that centre lands`, which is negative and
+     wraps because the background repeats. */
   background-repeat: repeat;
-  background-size: 2.2em 2.13em;
-  background-position: center;
+  background-size:
+    calc(var(--paper-box) * 482 / 350)
+    calc(var(--paper-box) * 466 / 350);
+  background-position:
+    calc(var(--paper-box) * (0.5 - 415.15 / 350))
+    calc(var(--paper-box) * (0.5 - 234.5 / 350));
 
   /* A drawn edge rather than a CSS one would be better, but there is no art
      for a swatch — this is the panel's own ink at low alpha, which reads as a
@@ -5189,39 +5194,35 @@ html[data-wallpaper="midnight"] body::before {
 
 #options .wallpaperSwatch.is-parchment {
   background-color: #ebddcc;
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-beige.svg');
 }
 
 #options .wallpaperSwatch.is-moss {
   background-color: #b0d883;
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-green.svg');
 }
 
 #options .wallpaperSwatch.is-ember {
   background-color: #f8be87;
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-orange.svg');
 }
 
 #options .wallpaperSwatch.is-rose {
   background-color: #f1aebc;
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-pink.svg');
 }
 
 #options .wallpaperSwatch.is-amethyst {
   background-color: #e0d3ee;
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-purple.svg');
 }
 
 #options .wallpaperSwatch.is-slate {
   background-color: #d7d7d7;
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-grey.svg');
 }
 
 /* Midnight's tile is motifs on transparency, so the swatch supplies the dark
    ground the page would. */
+/* Which tile any of these shows is the panel's to say — it paints the pairing
+   you would get, so the previews change as the other half of the choice does.
+   What stays here is each colour's ground, which the tile sits on. */
 #options .wallpaperSwatch.is-midnight {
   background-color: #1d1f21;
-  background-image: url('./assets/draftsvgs_v2/bg_pattern-weapons-dark.svg');
   box-shadow: inset 0 0 0 1px rgba(251, 243, 231, 0.45);
 }
 
@@ -5275,8 +5276,126 @@ html[data-wallpaper="midnight"] body::before {
   background-color: rgba(43, 26, 12, 0.78);
 }
 
+/* -- style, above the colours ---------------------------------------------
+   The two styles are named where the colours are not: nobody can read
+   "Armoury" off a 2.7em square, and with only two of them there is room to
+   say it. Each one is painted in the colour you are already on, so the pair
+   reads as a choice between two versions of YOUR paper rather than as a
+   catalogue of art you have to imagine recoloured. */
+#options .paperSubheading {
+  margin: 0.55em 0 0.1em;
+  font-size: 0.92em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.6px;
+  color: var(--panel-ink-soft);
+}
+
+#options .paperStyleGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.9em;
+  margin-top: 0.15em;
+}
+
+/* Not a drawn button: it is a swatch with its name under it, and the drawn
+   art would fight the tile it is showing. */
+#options .paperStyleChoice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.28em;
+  margin: 0;
+  padding: 0.1em;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: var(--panel-ink);
+  font-family: 'Caudex', serif;
+  font-size: 0.92em;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* index.css lights every button on hover; these lift like the swatches do. */
+#options .paperStyleChoice:hover {
+  filter: none;
+  background: none;
+}
+
+#options .paperStyleChoice:hover .paperStyleTile {
+  transform: translateY(-2px);
+  box-shadow: inset 0 0 0 1px rgba(43, 26, 12, 0.7);
+}
+
+#options .paperStyleChoice:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 2px;
+}
+
+/* The trinkets bitmap is square where the armoury one is 482x466, and its
+   motifs cluster elsewhere — (365, 375) of 500 is where its densest window
+   sits. The same 350px window, so the two styles are shown at one scale: the
+   armoury has three motifs in it and the trinkets a dozen, which is the real
+   difference between them. Keyed off the pairing each preview already carries,
+   so it covers the colour swatches and the style tiles alike. */
+#options .wallpaperSwatch[data-tile^="trinkets-"] {
+  background-size:
+    calc(var(--paper-box) * 500 / 350)
+    calc(var(--paper-box) * 500 / 350);
+  background-position:
+    calc(var(--paper-box) * (0.5 - 365 / 350))
+    calc(var(--paper-box) * (0.5 - 375 / 350));
+}
+
+/* A span rather than the button itself, so the name can sit beneath it. Much
+   larger than a colour swatch and zoomed further in: a colour reads at a
+   glance from any scrap of paper, but a STYLE is the motifs, and one drawn at
+   the size the page draws it is the only honest way to show which set you are
+   choosing. */
+/* A span rather than the button itself, so the name can sit beneath it. It
+   shows the same window as the colour swatches, just over twice the size: a
+   colour reads at a glance from any scrap of paper, but a STYLE is its motifs,
+   and they have to be big enough to tell apart. */
+#options .paperStyleTile {
+  --paper-box: 6em;
+  display: block;
+}
+
+#options .paperStyleChoice.isChosen .paperStyleTile {
+  box-shadow:
+    inset 0 0 0 1px rgba(43, 26, 12, 0.55),
+    0 0 0 2px #7a2f12;
+  transform: none;
+}
+
+/* On Midnight the ground is dark, so the edge takes the cream ink — the same
+   swap the colour swatches make. */
+#options .paperStyleChoice:hover .paperStyleTile.is-midnight {
+  box-shadow: inset 0 0 0 1px rgba(251, 243, 231, 0.75);
+}
+
+#options .paperStyleChoice.isChosen .paperStyleTile.is-midnight {
+  box-shadow:
+    inset 0 0 0 1px rgba(251, 243, 231, 0.55),
+    0 0 0 2px #7a2f12;
+}
+
+/* Seven swatches wrap 3 + 3 + 1 in a phone's panel, which leaves Midnight
+   sitting alone on a row looking like an afterthought. A little smaller fits
+   four across, so the row reads as 4 + 3. */
+@media (max-width: 30rem) {
+  #options .wallpaperGrid .wallpaperSwatch {
+    --paper-box: 3em;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  #options .wallpaperSwatch {
+  #options .wallpaperSwatch,
+  #options .paperStyleTile {
     transition: none;
     transform: none !important;
   }
