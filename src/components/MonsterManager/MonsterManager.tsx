@@ -46,7 +46,11 @@ async function loadBestiary(version: "twentyFourteen" | "twentyTwentyFour"): Pro
 const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
   const { monsters, setMonsters } = useMonsters();
   const { settings } = useGlobalContext();
-  const { addMonsterToCombat } = useCombat();
+  const { addMonsterToCombat, combatants } = useCombat();
+  /* The same test the tracker itself uses for "a battle is running" —
+     combatants exist (battleStage in BattleTracker). Before that there is no
+     fight to join, and a live "Join the Fray" button said otherwise. */
+  const battleRunning = combatants.length > 0;
 
   const [monstersData, setMonstersData] = useState<MonsterEntry[]>([]);
 
@@ -302,12 +306,17 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
                   </label>
                 </td>
                 <td className="monsterActions">
-                  <button
-                    className="buttonJoinFray"
-                    onClick={async () => { await addMonsterToCombat(m); deleteMonster(m.id, true); }}
-                  >
-                    Join the Fray
-                  </button>
+                  {/* Only once a battle is running — hidden rather than
+                      disabled, because a greyed button still reads as
+                      something you could click. */}
+                  {battleRunning && (
+                    <button
+                      className="buttonJoinFray"
+                      onClick={async () => { await addMonsterToCombat(m); deleteMonster(m.id, true); }}
+                    >
+                      Join the Fray
+                    </button>
+                  )}
                   <button
                     className="buttonDelete"
                     onClick={() => deleteMonster(m.id)}

@@ -7264,7 +7264,14 @@ html[data-wallpaper="midnight"] body::before {
 
   /* Join/delete get their own line and sit at opposite ends of it, which is
      the one arrangement that cannot put a destructive button under a thumb
-     aiming for the harmless one. */
+     aiming for the harmless one.
+
+     Join the Fray is only rendered while a battle is running, so this cell
+     sometimes holds the bin alone — and `space-between` puts a lone child at
+     the START. That moved the bin into the exact spot Join occupies during a
+     fight, which is the hazard this layout exists to prevent: a DM reaching
+     for Join out of habit after the battle ends would hit delete. The bin's
+     auto margin below is what keeps it at the right end either way. */
   .heroManagerHero > td.heroActions,
   .monsterManagerMonster > td.monsterActions {
     display: flex;
@@ -7285,10 +7292,21 @@ html[data-wallpaper="midnight"] body::before {
     margin: 0;
   }
 
-  .heroManagerHero > td.heroActions .buttonDelete,
-  .monsterManagerMonster > td.monsterActions .buttonDelete {
+  /* ID-scoped, and it has to be. `#heroAddManage .heroActions > *` (and the
+     Monster Manager's twin) set every child's margin to 0 at (1,1,0) — and an
+     ID outranks any number of classes, so the class-only version of this rule
+     lost on specificity and the auto margin silently never applied. Measured
+     with Join genuinely absent: computed margin-left 0, bin flush left, in
+     exactly the spot Join occupies during a fight. The panel IDs here lift it
+     to (1,3,1), which is what lets it win. */
+  #heroAddManage .heroManagerHero > td.heroActions .buttonDelete,
+  #monsterAddManage .monsterManagerMonster > td.monsterActions .buttonDelete {
     flex: 0 0 auto;
-    margin: 0;
+    /* margin-left: auto soaks up the free space on the bin's left, so it sits at
+       the right end whether or not Join is beside it. With Join present this is
+       identical to what space-between already did; alone, it is the difference
+       between the bin staying put and the bin moving under a thumb. */
+    margin: 0 0 0 auto;
   }
 
   /* The eight ability scores wrap rather than insisting on one line. */
