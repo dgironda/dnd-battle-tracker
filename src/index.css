@@ -1098,89 +1098,10 @@ sup {
   cursor: pointer;
 }
 
-/* Dark backdrop overlay */
-.battle-photo-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--color-photo-backdrop);
-  animation: fadeIn 0.2s ease-in;
-}
-
-/* Expanded Photo */
-.battle-photo-expanded {
-  position: relative;
-  z-index: 9999;
-  background: var(--color-photo-expanded-bg);
-  padding: 12px;
-  border-radius: 8px;
-  box-shadow: 0 8px 32px var(--color-photo-shadow-expanded);
-  max-width: 90vw;
-  max-height: 90vh;
-  animation: zoomIn 0.2s ease-out;
-  cursor: default;
-}
-
-.battle-photo-expanded img {
-  max-width: 80vw;
-  max-height: 80vh;
-  border-radius: 4px;
-  display: block;
-  object-fit: contain;
-}
-
-/* Close button */
-.battle-photo-close {
-  position: absolute;
-  top: -12px;
-  right: -12px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--color-photo-close-bg);
-  color: var(--color-photo-upload-text);
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  z-index: 10000;
-  box-shadow: 0 2px 8px var(--color-photo-shadow);
-}
-
-.battle-photo-close:hover {
-  background: var(--color-photo-close-bg-hover);
-  transform: scale(1.1);
-}
-
-.battle-photo-close:active {
-  transform: scale(0.95);
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes zoomIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
+/* The opened photo used to be styled from here: a white box pinned to the
+   top-left of the document, under the Battle Manager, with its close button
+   off the edge of the screen. It is a framed window now, sitting in the app's
+   own stack of layers — see `.photoViewerOuter` in fixes.css. */
 
 /* Ensure battle card has clearfix for floated thumbnail */
 .battle-card {

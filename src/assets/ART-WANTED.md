@@ -113,7 +113,7 @@ as statblock dividers. Purpose-drawn rules would be welcome but are not urgent.
 - `.photo-preview img` — was `border: 2px solid var(--color-photo-preview-border)`
 - `.battle-photo-thumbnail > img` — was `border: 2px solid var(--color-photo-preview-border)`
 - `.battle-photo-thumbnail:hover > img` — was `border-color: var(--color-photo-border-hover)`
-- `/* Close button */ .battle-photo-close` — was `border: 2px solid var(--color-photo-close-border)`
+- `.photoViewerClose` (the viewer's X, was `.battle-photo-close`) — was `border: 2px solid var(--color-photo-close-border)`
 
 ### Panels: About / Options
 
