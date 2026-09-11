@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 151 151" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-4736,-4371)">
+        <g id="status_hexed-dex" transform="matrix(0.969455,0,0,1.02911,2673.59,2074.87)">
+            <rect x="2127.75" y="2231.68" width="154.726" height="145.756" style="fill:none;"/>
+            <g transform="matrix(1,0,0,1,-6.28165,-2.7834)">
+                <g transform="matrix(1.0595,0,0,0.99808,-859.355,-2239.01)">
+                    <text x="2879.86px" y="4615.7px" style="font-family:'ComicNeue-Bold', 'Comic Neue';font-weight:700;font-size:44.785px;fill:none;stroke:black;stroke-width:3.01px;">D</text>
+                    <text x="2911.92px" y="4615.7px" style="font-family:'ComicNeue-Bold', 'Comic Neue';font-weight:700;font-size:32.552px;fill:none;stroke:black;stroke-width:3.01px;">E<tspan x="2934.25px " y="4615.7px ">X</tspan></text>
+                    <text x="2879.86px" y="4615.7px" style="font-family:'ComicNeue-Bold', 'Comic Neue';font-weight:700;font-size:44.785px;">D</text>
+                    <text x="2911.92px" y="4615.7px" style="font-family:'ComicNeue-Bold', 'Comic Neue';font-weight:700;font-size:32.552px;">E<tspan x="2934.25px " y="4615.7px ">X</tspan></text>
+                </g>
+                <g transform="matrix(0.812854,0,0,0.889823,407.857,-1521.89)">
+                    <path d="M2264.98,4277.95C2251.12,4300.81 2224.24,4320.09 2202.35,4320.09C2180.45,4320.09 2153.57,4300.81 2139.72,4277.95C2153.57,4255.09 2180.45,4235.81 2202.35,4235.81C2224.24,4235.81 2251.12,4255.09 2264.98,4277.95Z" style="fill:none;stroke:black;stroke-width:18.73px;stroke-linecap:round;stroke-miterlimit:0;"/>
+                </g>
+                <g transform="matrix(1.00255,0,0,0.944434,-2609.21,-1727.6)">
+                    <circle cx="4795.02" cy="4248.39" r="12.035" style="stroke:black;stroke-width:16.46px;stroke-linecap:round;stroke-miterlimit:0;"/>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

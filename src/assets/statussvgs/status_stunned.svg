@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 151 151" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;">
+    <g transform="matrix(1,0,0,1,-2472,-4485)">
+        <g id="status_stunned" transform="matrix(0.969455,0,0,1.02911,409.287,2189.29)">
+            <rect x="2127.75" y="2231.68" width="154.726" height="145.756" style="fill:none;"/>
+            <g transform="matrix(1.09037,0,0,1.09037,-201.91,-208.283)">
+                <g transform="matrix(0.312798,0.0789551,-0.0838139,0.294665,1780.29,887.657)">
+                    <path d="M2396.14,4215.75L2410.65,4260.42L2457.62,4260.42L2419.62,4288.02L2434.14,4332.69L2396.14,4305.09L2358.14,4332.69L2372.66,4288.02L2334.66,4260.42L2381.62,4260.42L2396.14,4215.75Z" style="stroke:black;stroke-width:35.06px;"/>
+                </g>
+                <g transform="matrix(0.205251,-0.111632,0.118502,0.193352,1248.52,1704.97)">
+                    <path d="M2396.14,4215.75L2410.65,4260.42L2457.62,4260.42L2419.62,4288.02L2434.14,4332.69L2396.14,4305.09L2358.14,4332.69L2372.66,4288.02L2334.66,4260.42L2381.62,4260.42L2396.14,4215.75Z" style="stroke:black;stroke-width:47.9px;"/>
+                </g>
+                <g transform="matrix(0.893311,-0.485855,0.515754,0.841525,-2420.79,-282.968)">
+                    <path d="M2598.56,4567.69C2588.74,4577.44 2571.71,4583.9 2552.35,4583.9C2549.8,4583.9 2547.29,4583.79 2544.84,4583.58" style="fill:none;stroke:black;stroke-width:14.67px;"/>
+                </g>
+                <g transform="matrix(0.893311,-0.485855,0.515754,0.841525,-2420.79,-282.968)">
+                    <path d="M2511.35,4524.74C2521.43,4517.48 2536.07,4512.91 2552.35,4512.91C2560.91,4512.91 2569.02,4514.18 2576.25,4516.43" style="fill:none;stroke:black;stroke-width:14.67px;"/>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
