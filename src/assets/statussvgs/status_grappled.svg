@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 151 151" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;">
+    <g transform="matrix(1,0,0,1,-2817,-4196)">
+        <g id="status_grappled" transform="matrix(0.969455,0,0,1.02911,754.332,1900.26)">
+            <rect x="2127.75" y="2231.68" width="154.726" height="145.756" style="fill:none;"/>
+            <g transform="matrix(1.34007,0,0,1.08087,-1668.79,-2299.81)">
+                <path d="M2868.02,4212.31L2913.64,4212.31" style="fill:none;stroke:black;stroke-width:13.23px;"/>
+            </g>
+            <g transform="matrix(1.14738,0,0,1.08087,-1113.22,-2299.81)">
+                <path d="M2892.09,4212.31L2892.09,4271.92C2892.09,4286.23 2889.83,4307.46 2868.02,4307.46C2846.21,4307.46 2838.81,4287.98 2838.81,4271.92" style="fill:none;stroke:black;stroke-width:14.38px;"/>
+            </g>
+            <g transform="matrix(-1.14738,0,0,1.08087,5523.45,-2299.81)">
+                <path d="M2892.09,4212.31L2892.09,4271.92C2892.09,4286.23 2889.83,4307.46 2868.02,4307.46C2846.21,4307.46 2838.81,4287.98 2838.81,4271.92" style="fill:none;stroke:black;stroke-width:14.38px;"/>
+            </g>
+        </g>
+    </g>
+</svg>

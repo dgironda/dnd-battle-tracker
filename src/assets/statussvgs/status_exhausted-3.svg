@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 151 151" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;">
+    <g transform="matrix(1,0,0,1,-2817,-4814)">
+        <g id="status_exhausted-3" transform="matrix(0.969455,0,0,1.02911,754.332,2518.29)">
+            <rect x="2127.75" y="2231.68" width="154.726" height="145.756" style="fill:none;"/>
+            <g transform="matrix(-0.763294,0.630298,-0.779959,-0.838197,7953.19,4307.91)">
+                <path d="M2860.07,4595.91C2860.07,4592.96 2861.37,4588.25 2862.56,4584.96L2877.85,4535.37L2893.15,4584.96C2894.33,4588.11 2895.64,4592.96 2895.64,4595.91C2895.64,4604.63 2887.67,4611.72 2877.85,4611.72C2868.04,4611.72 2860.07,4604.63 2860.07,4595.91Z" style="fill:none;stroke:black;stroke-width:14.97px;"/>
+            </g>
+            <g transform="matrix(-0.743765,0.0329671,-0.0337965,-0.676636,4537.45,5276.97)">
+                <path d="M2860.07,4595.91C2860.07,4592.96 2861.37,4588.25 2862.56,4584.96L2877.85,4535.37L2893.15,4584.96C2894.33,4588.11 2895.64,4592.96 2895.64,4595.91C2895.64,4604.63 2887.67,4611.72 2877.85,4611.72C2868.04,4611.72 2860.07,4604.63 2860.07,4595.91Z" style="fill:none;stroke:black;stroke-width:22.55px;"/>
+            </g>
+            <g transform="matrix(-0.0424627,0.700282,-0.7179,-0.0386302,5578.02,501.925)">
+                <path d="M2860.07,4595.91C2860.07,4592.96 2861.37,4588.25 2862.56,4584.96L2877.85,4535.37L2893.15,4584.96C2894.33,4588.11 2895.64,4592.96 2895.64,4595.91C2895.64,4604.63 2887.67,4611.72 2877.85,4611.72C2868.04,4611.72 2860.07,4604.63 2860.07,4595.91Z" style="fill:none;stroke:black;stroke-width:22.55px;"/>
+            </g>
+            <g transform="matrix(1.36183,0,0,1.28289,-1729.09,-3554.06)">
+                <g transform="matrix(53.0209,0,0,53.0209,2936.48,4615.7)">
+                </g>
+                <text x="2910.35px" y="4615.7px" style="font-family:'ComicNeue-Bold', 'Comic Neue';font-weight:700;font-size:53.021px;fill:none;stroke:black;stroke-width:2.34px;stroke-linecap:butt;stroke-miterlimit:2;">3</text>
+                <g transform="matrix(53.0209,0,0,53.0209,2936.48,4615.7)">
+                </g>
+                <text x="2910.35px" y="4615.7px" style="font-family:'ComicNeue-Bold', 'Comic Neue';font-weight:700;font-size:53.021px;">3</text>
+            </g>
+        </g>
+    </g>
+</svg>

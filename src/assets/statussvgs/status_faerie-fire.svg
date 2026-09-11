@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 151 151" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;">
+    <g transform="matrix(1,0,0,1,-4377,-4485)">
+        <g id="status_faerie-fire" transform="matrix(0.969455,0,0,1.02911,2314.28,2189.29)">
+            <rect x="2127.75" y="2231.68" width="154.726" height="145.756" style="fill:none;"/>
+            <g transform="matrix(2.74588,-3.83476e-16,2.10237e-15,1.92501,-5697.09,-6527.83)">
+                <path d="M2862.56,4582.88C2866.18,4572.84 2869.42,4566.63 2871.91,4558.18C2874.78,4566.42 2876.84,4574.95 2877.84,4583.85C2880.53,4577.82 2882.64,4571.53 2883.88,4564.83C2887.35,4570.33 2890.45,4576.34 2893.15,4582.88C2900.49,4602.41 2889.84,4618.26 2877.85,4618.3C2866.6,4618.34 2854.93,4604.02 2862.56,4582.88Z" style="fill:none;stroke:black;stroke-width:6.82px;"/>
+            </g>
+        </g>
+    </g>
+</svg>

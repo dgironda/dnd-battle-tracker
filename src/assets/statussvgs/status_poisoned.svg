@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 151 151" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;">
+    <g transform="matrix(1,0,0,1,-3507,-4196)">
+        <g id="status_poisoned" transform="matrix(0.969455,0,0,1.02911,1444.42,1900.26)">
+            <rect x="2127.75" y="2231.68" width="154.726" height="145.756" style="fill:none;"/>
+            <g transform="matrix(1.13661,0,0,1.13661,-295.071,-312.622)">
+                <g transform="matrix(0.878223,-0.338378,0.359201,0.827311,-2471.18,-14.2842)">
+                    <circle cx="3585.38" cy="4293.96" r="31.991" style="fill:none;stroke:black;stroke-width:15.3px;"/>
+                </g>
+                <g transform="matrix(0.525797,-0.202589,0.20885,0.481024,-614.838,942.858)">
+                    <circle cx="3585.38" cy="4293.96" r="31.991" style="fill:none;stroke:black;stroke-width:25.93px;"/>
+                </g>
+                <g transform="matrix(0.350345,-0.134987,0.1443,0.332352,345.908,1320.06)">
+                    <circle cx="3585.38" cy="4293.96" r="31.991" style="fill:none;stroke:black;stroke-width:38.23px;"/>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
