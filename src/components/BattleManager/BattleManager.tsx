@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Hero, Monster, Combatant } from '../../types/index';
 import { useCombat } from '../BattleTracker/CombatContext';
 import {
@@ -177,12 +177,17 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
 
     const id = crypto.randomUUID(); // Date.now() collided when two saves landed in the same ms
 
-    // The photo goes to IndexedDB first: if that fails there is simply no
-    // photo, which must not stop the battle being saved.
+    /* The photo goes to IndexedDB first: if that fails there is simply no
+       photo, which must not stop the battle being saved. It was recorded on
+       the battle either way, which left the card pointing at a picture that
+       had never been written — and said nothing about it. */
     let photoId: string | undefined;
     if (selectedPhoto) {
-      await putPhoto(id, { full: selectedPhoto.full, thumb: selectedPhoto.thumb });
-      photoId = id;
+      const stored = await putPhoto(id, {
+        full: selectedPhoto.full,
+        thumb: selectedPhoto.thumb,
+      });
+      if (stored !== null) photoId = id;
     }
 
     const newBattle: SavedBattle = {
@@ -206,7 +211,12 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
     setBattleName('');
     clearSelectedPhoto();
     setShowSaveDialog(false);
-    await notify(`"${newBattle.name}" saved.`, { title: 'Battle saved' });
+    await notify(
+      selectedPhoto && !photoId
+        ? `"${newBattle.name}" saved, but this browser would not store its photo.`
+        : `"${newBattle.name}" saved.`,
+      { title: 'Battle saved' }
+    );
   };
 
   const deleteBattle = async (id: string) => {
@@ -578,19 +588,23 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
     });
   }, []);
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  /**
+   * A picked file, compressed into the two sizes a battle keeps — or null,
+   * having already said why not.
+   *
+   * Shared by the save form and by the controls on a saved card, so a photo
+   * added after the fact is stored exactly like one added while saving.
+   */
+  const readPhoto = async (file: File): Promise<{ full: Blob; thumb: Blob } | null> => {
     if (!file.type.startsWith('image/')) {
       await notify('Choose an image file.', { title: 'Wrong file type' });
-      return;
+      return null;
     }
 
     const MAX_SIZE = 10 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
       await notify('Choose an image smaller than 10MB.', { title: 'Image too large' });
-      return;
+      return null;
     }
 
     try {
@@ -598,8 +612,8 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
         thumbnailMaxWidth: 200,
         thumbnailMaxHeight: 200,
         // Reference photos are read on a laptop, not printed. 1280px at 0.7
-        // keeps them legible while roughly halving what a saved battle costs
-        // against the ~5MB localStorage budget.
+        // keeps them legible while keeping the store small enough that a
+        // campaign's worth of battles fits in it.
         fullScreenMaxWidth: 1280,
         fullScreenMaxHeight: 720,
         quality: 0.7,
@@ -611,22 +625,116 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
       const full = dataUrlToBlob(compressed.fullScreen);
       const thumb = dataUrlToBlob(compressed.thumbnail) ?? full;
       if (!full || !thumb) throw new Error('Could not read the compressed image');
-
-      clearSelectedPhoto();
-      setSelectedPhoto({ full, thumb, previewUrl: URL.createObjectURL(thumb) });
+      return { full, thumb };
     } catch (error) {
       console.error('Image compression failed:', error);
       await notify('That image could not be processed. Try a different one.', {
         title: 'Image failed', tone: 'danger',
       });
-    } finally {
-      // Let the same file be picked again after a removal.
-      e.target.value = '';
+      return null;
     }
+  };
+
+  /** The save form's picker: held until the battle itself is saved. */
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const file = input.files?.[0];
+    // Cleared straight away, so the same file can be picked again after a
+    // removal — or after being turned down for its type or its size.
+    input.value = '';
+    if (!file) return;
+
+    const photo = await readPhoto(file);
+    if (!photo) return;
+
+    clearSelectedPhoto();
+    setSelectedPhoto({ ...photo, previewUrl: URL.createObjectURL(photo.thumb) });
   };
 
   const removePhoto = () => {
     clearSelectedPhoto();
+  };
+
+  /* ------------------------------------------------- photos on a saved card
+     A photo could only ever be attached in the save form above, and that form
+     is only on screen while a fight is running — so a battle already saved
+     could not be given one, and one attached by mistake could not be taken off
+     again without deleting the battle.
+
+     One hidden picker serves every card. Which battle asked for it is noted on
+     the way in and read back when the file arrives: a ref rather than state,
+     because nothing renders from it. */
+  const battlePhotoInput = useRef<HTMLInputElement>(null);
+  const photoTarget = useRef<string | null>(null);
+
+  const pickPhotoFor = (battleId: string) => {
+    photoTarget.current = battleId;
+    battlePhotoInput.current?.click();
+  };
+
+  /**
+   * Put a photo on a saved battle, or swap the one it has.
+   *
+   * The key is fresh every time rather than the battle's own id, because the
+   * thumbnail caches by key: reusing it would leave the old picture on the
+   * card until the panel was next opened. And nothing is deleted until the
+   * battle is safely pointing at the new photo, so a write that fails leaves
+   * the old one exactly where it was.
+   */
+  const attachPhoto = async (battleId: string, photo: { full: Blob; thumb: Blob }) => {
+    const target = savedBattles.find((b) => b.id === battleId);
+    if (!target) return;
+
+    const photoId = crypto.randomUUID();
+    if ((await putPhoto(photoId, photo)) === null) {
+      await notify(
+        'This browser would not store the photo. Private browsing usually blocks it.',
+        { title: 'Photo not saved', tone: 'warning' }
+      );
+      return;
+    }
+
+    const updated = savedBattles.map((b) => (b.id === battleId ? { ...b, photoId } : b));
+    if (!(await persistBattles(updated))) {
+      await deletePhoto(photoId);
+      return;
+    }
+
+    if (target.photoId) await deletePhoto(target.photoId);
+    setSavedBattles(updated);
+  };
+
+  const handleBattlePhotoPicked = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const file = input.files?.[0];
+    input.value = '';
+    const battleId = photoTarget.current;
+    photoTarget.current = null;
+    if (!file || !battleId) return;
+
+    const photo = await readPhoto(file);
+    if (photo) await attachPhoto(battleId, photo);
+  };
+
+  const removeBattlePhoto = async (battle: SavedBattle) => {
+    if (!battle.photoId) return;
+
+    const ok = await confirmDialog(
+      `Remove the photo from "${battle.name}"? The saved battle itself is kept.`,
+      { title: 'Remove photo', tone: 'danger', confirmLabel: 'Remove photo' }
+    );
+    if (!ok) return;
+
+    const updated = savedBattles.map((b) => {
+      if (b.id !== battle.id) return b;
+      const { photoId: _gone, ...rest } = b;
+      void _gone;
+      return rest;
+    });
+    if (!(await persistBattles(updated))) return;
+
+    await deletePhoto(battle.photoId);
+    setSavedBattles(updated);
   };
 
   return (
@@ -700,12 +808,17 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
                     {selectedPhoto && (
                       <div className="photo-preview">
                         <img src={selectedPhoto.previewUrl} alt="Reference photo preview" />
+                        {/* The mark, not the word: this is a 1.6em disc sitting
+                            on the corner of the preview, and "Remove" was
+                            spilling out of it across the photo. */}
                         <button
                           type="button"
                           onClick={removePhoto}
                           className="btn-remove-photo"
+                          title="Remove this photo"
+                          aria-label="Remove the photo"
                         >
-                          Remove
+                          X
                         </button>
                       </div>
                     )}
@@ -776,7 +889,12 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
                       onClick={() => setSelectedBattle(isSelected ? null : battle)}
                     >
                       {battle.photoId && (
-                        <BattlePhotoThumbnail photoId={battle.photoId} name={battle.name} />
+                        <BattlePhotoThumbnail
+                          photoId={battle.photoId}
+                          name={battle.name}
+                          onChange={() => pickPhotoFor(battle.id)}
+                          onRemove={() => removeBattlePhoto(battle)}
+                        />
                       )}
 
                       <div className="battle-card-header">
@@ -818,12 +936,32 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
                       </div>
 
                       <div className="battle-card-info">
-                        <p className="battle-stats">
-                          <span><b>{stats.heroes}</b> {stats.heroes === 1 ? 'hero' : 'heroes'}</span>
-                          <span><b>{stats.monsters}</b> {stats.monsters === 1 ? 'monster' : 'monsters'}</span>
-                          <span>round <b>{battle.roundNumber}</b></span>
-                        </p>
-                        <p className="battle-date">{formatDate(battle.savedDate)}</p>
+                        <div className="battle-card-facts">
+                          <p className="battle-stats">
+                            <span><b>{stats.heroes}</b> {stats.heroes === 1 ? 'hero' : 'heroes'}</span>
+                            <span><b>{stats.monsters}</b> {stats.monsters === 1 ? 'monster' : 'monsters'}</span>
+                            <span>round <b>{battle.roundNumber}</b></span>
+                          </p>
+                          <p className="battle-date">{formatDate(battle.savedDate)}</p>
+                        </div>
+
+                        {/* A photo that is already there carries its own
+                            controls in the viewer, so this is only ever the
+                            way in for a battle without one. */}
+                        {!battle.photoId && (
+                          <button
+                            type="button"
+                            className="drawnBtn btn-battle-photo"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              pickPhotoFor(battle.id);
+                            }}
+                            title="Add a reference photo to this battle"
+                            aria-label={`Add a photo to ${battle.name}`}
+                          >
+                            Add photo
+                          </button>
+                        )}
                       </div>
 
                       {isSelected && (
@@ -849,6 +987,16 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
                 })}
             </div>
           )}
+
+          {/* The one picker behind every card's photo button — see pickPhotoFor. */}
+          <input
+            ref={battlePhotoInput}
+            type="file"
+            accept="image/*"
+            onChange={handleBattlePhotoPicked}
+            aria-label="Choose a photo for a saved battle"
+            style={{ display: 'none' }}
+          />
         </div>
 
         <Popup

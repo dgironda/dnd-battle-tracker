@@ -5877,6 +5877,159 @@ html[data-wallpaper="midnight"] body::before {
   }
 }
 
+/* -- the photo, opened -----------------------------------------------------
+
+   Three things were wrong with it, and all three are the same mistake: it was
+   styled as though it were the only thing on the page.
+
+   `position: absolute` with no centring put the frame at the top-left of the
+   DOCUMENT, so its close button — offset -12px — hung off the top edge and
+   could not be clicked at all. And it painted UNDER the Battle Manager: the
+   panel is a positioned element at z-index 25, while the viewer's 9999 was
+   declared on a child inside a backdrop that had no z-index of its own.
+
+   So it is fixed, centred, and numbered against the app's other layers: over
+   the managers (25) and Edit Battle (1100), under the dialogs (1200), because
+   removing a photo asks first and that question has to be on top of it.
+   ========================================================================== */
+
+.photoViewerOuter {
+  position: fixed;
+  inset: 0;
+  z-index: 1150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2vh 2vw;
+  background: rgba(0, 0, 0, 0.62);
+}
+
+/* The frame the Edit Battle window wears, for the same reason it wears it:
+   this is a window over the page, not a panel of its own. */
+.photoViewerInner {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45em;
+  max-width: min(96vw, 72rem);
+  max-height: 96vh;
+  padding: 0.2rem 0.9rem 0.9rem;
+
+  background: none;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 20px 35px;
+  border-image-source: url('./assets/draftsvgs_v2/container_monster-manager.svg');
+  border-image-slice: 6% fill;
+  border-image-width: 20px 35px;
+  border-image-repeat: stretch;
+
+  color-scheme: light;
+  color: var(--panel-ink);
+  --panel-ink: #2b1a0c;
+  --panel-ink-soft: #56391d;
+
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.92rem, 1.05vw, 1.3rem);
+  line-height: 1.35;
+  text-align: center;
+}
+
+/* Clear of the X in the corner, so a long battle name does not run under it. */
+.photoViewerTitle {
+  margin: 0 1.8em 0.1em;
+  font-size: 1.3em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  color: var(--panel-ink);
+}
+
+/* What is left of the window once the frame, the title and the buttons have
+   taken theirs — so a tall photo shrinks to fit instead of pushing the
+   buttons off the bottom of the screen. */
+.photoViewerImage {
+  display: block;
+  max-width: 100%;
+  max-height: max(8rem, calc(96vh - 11rem));
+  object-fit: contain;
+}
+
+.photoViewerActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.photoViewerActions .drawnBtn {
+  --btn-h: 2.2em;
+  font-size: 0.9em;
+  margin: 0;
+}
+
+/* The panel's X rather than the app's red block, as the managers' own. */
+.photoViewerClose {
+  position: absolute;
+  top: 0.05em;
+  right: 0.15em;
+  width: 2em;
+  height: 2em;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: var(--panel-ink);
+  font-family: 'Caudex', serif;
+  font-size: 1.06em;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.photoViewerClose:hover,
+.photoViewerClose:focus-visible {
+  color: #9e0000;
+  filter: none;
+}
+
+/* 70px of drawn frame is a fifth of a phone's width; the artwork's corners
+   still read at two thirds of it. */
+@media (max-width: 40rem) {
+  .photoViewerInner {
+    border-width: 14px 22px;
+    border-image-width: 14px 22px;
+    padding: 0.15rem 0.5rem 0.6rem;
+  }
+}
+
+/* -- adding a photo to a battle already saved ------------------------------
+   The card carries the control now: this when there is no photo, and the
+   photo itself — which opens the viewer, where it can be changed or taken
+   off — when there is one. */
+#battleAddManage .battle-card-info {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.3em 0.6em;
+}
+
+#battleAddManage .battle-card-facts {
+  min-width: 0;
+}
+
+/* 0.85em of the CARD, matching Load and Share above it — the info block this
+   sits in is itself 0.9em, so the figure is divided through by that. */
+#battleAddManage .btn-battle-photo {
+  --btn-h: 2em;
+  font-size: 0.945em;
+  margin: 0 0 0 auto;
+  flex: 0 0 auto;
+}
+
 
 /* ==========================================================================
    AN X IS TWO STROKES
