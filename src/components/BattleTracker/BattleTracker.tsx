@@ -520,6 +520,8 @@ const BattleTracker: React.FC = () => {
         .map((c) => {
           if (c.conditions.includes("Dead")) return c;
 
+          let next = c;
+
           // Action, bonus and move are cleared once a round, when the order
           // wraps — never on entering a turn. Clearing them on entry meant
           // that stepping back to an earlier combatant (done by unticking one
@@ -528,17 +530,27 @@ const BattleTracker: React.FC = () => {
           // marks are the DM's record of what has happened this round, so they
           // survive moving around in it.
           if (isNewRound) {
-            return { ...c, action: false, bonus: false, move: false, reaction: false };
+            next = { ...next, action: false, bonus: false, move: false };
           }
 
           // A reaction refreshes at the start of its owner's turn, which is
-          // the rule as written, and is not part of the walk-the-order record
-          // above — nothing hands the turn back on the strength of it.
+          // the rule as written — and ONLY then. It is not part of the
+          // walk-the-order record above, and nothing hands the turn back on
+          // the strength of it.
+          //
+          // It used to be cleared in the round-wrap branch as well, for
+          // everybody, and that branch returned early. So a combatant who took
+          // an opportunity attack after their own turn got the reaction back
+          // at the top of the next round, before their turn came round again:
+          // Brannoc acts, spends his reaction on Cressa's turn, and has it
+          // back while Aldric is still opening round two. No early return
+          // now, so at a wrap the first combatant gets both resets and
+          // everyone else keeps a reaction they have not yet earned back.
           if (c.id === sortedCombatants[nextIndex].id) {
-            return { ...c, reaction: false };
+            next = { ...next, reaction: false };
           }
 
-          return c;
+          return next;
         })
         .sort((a, b) => b.initiative - a.initiative)
     );
