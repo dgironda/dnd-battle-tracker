@@ -7044,6 +7044,22 @@ html[data-wallpaper="midnight"] body::before {
     transform: rotate(90deg) translateY(-100%);
   }
 
+  /* ...and it STAYS turned. Hover, press and focus are declared globally with
+     `transform: translateY(±1px)`, and a transform replaces a transform rather
+     than adding to it — so touching the strip threw away the rotation and swung
+     the banner upright, then back, over the shared `transform 0.06s` transition.
+     That is the swivel.
+
+     Here the turn is not a flourish, it is where the button IS, so every state
+     keeps it and the button does not move at all. The nudge those global rules
+     give every other drawn button is right for them and is left alone; this
+     override lives inside the portrait block and never reaches landscape. */
+  #patreonLink:has(> button) > button:hover,
+  #patreonLink:has(> button) > button:active,
+  #patreonLink:has(> button) > button:focus-visible {
+    transform: rotate(90deg) translateY(-100%);
+  }
+
   /* The gear is a corner fitting, not a row. Given a grid cell it either sat
      in the masthead's line and stole width from it, or took a row of its own
      and cost the roster ~40px of frozen page for a 2rem icon. Absolute in the
