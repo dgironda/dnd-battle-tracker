@@ -6,6 +6,7 @@ import {
   conditionDescriptionsTwentyTwentyFour,
   conditionDescriptionsTwentyFourteen,
 } from "../../constants/Conditions";
+import ConditionMark from "./ConditionMark";
 import { EditableCell } from "../../utils/Utils";
 import { useConditionTip } from "./useConditionTip";
 import {
@@ -140,7 +141,7 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
               aria-label={`Remove ${conditionName}`}
               aria-describedby={tipName === conditionName ? tipId : undefined}
             >
-              {conditionName}
+              <ConditionMark name={conditionName} />
               <span className="conditionRemove" aria-hidden="true">×</span>
             </button>
           ))}
@@ -197,7 +198,7 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
             onMouseLeave={hideTip}
             aria-describedby={tipName === conditionName ? tipId : undefined}
           >
-            {conditionName}
+            <ConditionMark name={conditionName} />
           </span>
         ))}
       </button>

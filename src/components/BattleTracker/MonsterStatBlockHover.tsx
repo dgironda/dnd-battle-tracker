@@ -4,6 +4,7 @@ import { Monster, Combatant } from '../../types/index';
 import { EditableCell } from "../../utils/Utils";
 import { useCombat } from './CombatContext';
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
+import ConditionMark from './ConditionMark';
 import { useGlobalContext } from '../../hooks/optionsContext';
 import { useConditionTip } from './useConditionTip';
 
@@ -166,7 +167,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
                 onBlur={hideTip}
                 aria-describedby={tipName === conditionName ? tipId : undefined}
               >
-                {conditionName}
+                <ConditionMark name={conditionName} />
               </span>
             ))
           ) : (

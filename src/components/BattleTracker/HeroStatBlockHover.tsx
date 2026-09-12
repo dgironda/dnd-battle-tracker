@@ -4,6 +4,7 @@ import { Hero, Combatant } from '../../types/index';
 import { createUpdateHero, EditableCell } from "../../utils/Utils";
 import { useHeroes } from "../../hooks/useHeroes";
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
+import ConditionMark from './ConditionMark';
 import { useGlobalContext } from '../../hooks/optionsContext';
 import { useConditionTip } from './useConditionTip';
 
@@ -155,7 +156,7 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
                 onBlur={hideTip}
                 aria-describedby={tipName === conditionName ? tipId : undefined}
               >
-                {conditionName}
+                <ConditionMark name={conditionName} />
               </span>
             ))
           ) : (

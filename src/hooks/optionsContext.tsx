@@ -105,7 +105,7 @@ export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     root.dataset.paperStyle = settings.paperStyle;
     root.style.setProperty(
       "--paper-tile",
-      `url(${tileUrl(settings.paperStyle, settings.wallpaper)})`
+      `url(${JSON.stringify(tileUrl(settings.paperStyle, settings.wallpaper))})`
     );
   }, [settings.wallpaper, settings.paperStyle]);
 

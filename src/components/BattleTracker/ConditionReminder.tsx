@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Combatant } from '../../types/index';
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
+import ConditionMark from './ConditionMark';
 import { useGlobalContext } from '../../hooks/optionsContext';
 
 interface ConditionReminderProps {
@@ -85,7 +86,7 @@ export const ConditionReminder: React.FC<ConditionReminderProps> = ({
           {combatant.conditions.map((conditionName) => (
             <p
             key={conditionName}>
-              <span className='bold'>{conditionName}</span>: {conditionDescriptions[conditionName]}
+              <span className='bold'><ConditionMark name={conditionName} withName /></span>: {conditionDescriptions[conditionName]}
             </p>
           ))}
         </div>
