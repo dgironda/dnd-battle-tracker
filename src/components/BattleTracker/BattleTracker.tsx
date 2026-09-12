@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { Monster, Combatant } from "../../types/index";
 import {
   conditionOptions,
+  READIED_CONDITION,
   conditionDescriptionsTwentyTwentyFour,
   conditionDescriptionsTwentyFourteen,
 } from "../../constants/Conditions";
@@ -516,6 +517,14 @@ const BattleTracker: React.FC = () => {
     // A new round starts only when we actually wrap past the end of the order.
     const isNewRound = nextPosition === 0;
 
+    /* A readied action is held for a trigger "before the start of your next
+       turn", so the chip comes off at exactly the moment the reaction refreshes
+       below — not at the top of the round, and not while somebody else acts.
+       Read out here, and logged after the update, because the updater runs
+       twice under StrictMode and a log entry is a side effect. */
+    const startingTurn = sortedCombatants[nextIndex];
+    const readiedExpired = startingTurn?.conditions.includes(READIED_CONDITION) ?? false;
+
     setCombatants((prev) =>
       prev
         .map((c) => {
@@ -549,6 +558,17 @@ const BattleTracker: React.FC = () => {
           // everyone else keeps a reaction they have not yet earned back.
           if (c.id === sortedCombatants[nextIndex].id) {
             next = { ...next, reaction: false };
+
+            /* And the readied action goes with it. The trigger it was being
+               held for never came, and nothing in the rules lets you carry it
+               past your own turn — so the chip clears itself rather than
+               waiting for a DM to notice it is stale. */
+            if (next.conditions.includes(READIED_CONDITION)) {
+              next = {
+                ...next,
+                conditions: next.conditions.filter((x) => x !== READIED_CONDITION),
+              };
+            }
           }
 
           return next;
@@ -556,9 +576,14 @@ const BattleTracker: React.FC = () => {
         .sort((a, b) => b.initiative - a.initiative)
     );
 
+    /* The log says why the chip went, since nobody clicked it off. */
+    if (readiedExpired) {
+      logEvent("condition-off", startingTurn.name, { detail: READIED_CONDITION });
+    }
+
     setCurrentTurnIndex(nextIndex);
     if (isNewRound) setRoundNumber(roundNumber + 1);
-  }, [sortedCombatants, safeTurnIndex, roundNumber, setCombatants, setCurrentTurnIndex, setRoundNumber, setLastRun]);
+  }, [sortedCombatants, safeTurnIndex, roundNumber, setCombatants, setCurrentTurnIndex, setRoundNumber, setLastRun, logEvent]);
 
   // Always-current handle on the active combatant, so effects can read it
   // without taking a dependency on every mutation of the object.
