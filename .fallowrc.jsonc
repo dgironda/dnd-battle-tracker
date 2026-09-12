@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+
+  /* The art generators are entry points, not dead files.
+     Each one is run by hand when the drawings change — make-cursors rebuilds
+     the pencil/eraser/sword pointers, generate-hand-art the tick marks and
+     underlines, splice-button-art the manager ribbons, make-card-frame the
+     portrait card. Nothing imports them, which is the point: they write the
+     SVGs that the app then imports. Without this they show up as "unused
+     files" on every run, and a report with known-wrong entries in it stops
+     being read. */
+  "entry": ["tools/*.mjs"],
+
+  /* Exports that are unused HERE and used on a branch that has not landed yet.
+     Both are real consumers, verified with `git grep` against those branches:
+
+       AdSlotName            -> src/constants/AdCreatives.ts on `ads`
+       predefinedConditions  -> tests/conditionIcons.test.ts on `conditions`
+
+     Left exported on purpose. `fallow fix` would strip both, and master would
+     then break the moment either branch merged back. Revisit once they have:
+     fallow's stale-suppressions rule will say so when these stop being needed. */
+  "ignoreExports": [
+    { "file": "src/components/AdSlot.tsx", "exports": ["AdSlotName"] },
+    { "file": "src/constants/Conditions.ts", "exports": ["predefinedConditions"] }
+  ]
+}

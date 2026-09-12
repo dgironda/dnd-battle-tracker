@@ -241,9 +241,9 @@ export function looksLikeACredential(id: string): boolean {
  *
  * Battle Tracker has no accounts, so today there are exactly two callers worth
  * having: claiming your own browser so you can filter yourself out of the
- * numbers, and — if the Patreon code is ever actually exchanged for a token in
- * worker/index.ts — the Patreon user id that exchange returns. The raw code is
- * not that id, and looksLikeACredential refuses it.
+ * numbers, and the Patreon user id returned by the exchange in
+ * functions/api/patreon/exchange.ts. The raw code is not that id, and
+ * looksLikeACredential refuses it.
  *
  * Returns whether it went through, so a caller is told rather than guessing.
  */
