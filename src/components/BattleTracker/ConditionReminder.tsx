@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import { Combatant } from '../../types/index';
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
+import ConditionMark from './ConditionMark';
+import { roundsHeld } from '../../utils/conditionRounds';
+import { useCombat } from './CombatContext';
 import { useGlobalContext } from '../../hooks/optionsContext';
 
 interface ConditionReminderProps {
@@ -17,6 +20,10 @@ export const ConditionReminder: React.FC<ConditionReminderProps> = ({
   timeout = 10000
 }) => {
   const { settings } = useGlobalContext();
+  /* Up here with the other hooks, not beside the code that uses it: there is an
+     early return below, and a hook after it runs on some renders and not
+     others. */
+  const { roundNumber } = useCombat();
 
   useEffect(() => {
         const overlay = document.getElementById("conditionReminderOverlay");
@@ -85,7 +92,11 @@ export const ConditionReminder: React.FC<ConditionReminderProps> = ({
           {combatant.conditions.map((conditionName) => (
             <p
             key={conditionName}>
-              <span className='bold'>{conditionName}</span>: {conditionDescriptions[conditionName]}
+              <span className='bold'><ConditionMark
+                name={conditionName}
+                withName
+                rounds={roundsHeld(combatant, conditionName, roundNumber)}
+              /></span>: {conditionDescriptions[conditionName]}
             </p>
           ))}
         </div>

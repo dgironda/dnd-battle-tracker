@@ -15,6 +15,15 @@ const predefinedConditions = [
  * `predefinedConditions` keeps its own grouping (core, exhaustion, states,
  * spells, curses) — anything iterating it for other reasons is unaffected.
  */
+/**
+ * The readied-action chip.
+ *
+ * Named rather than typed out where it is used, because it is not just a label
+ * in a list: the tracker takes it off at the start of its owner's turn, and a
+ * rename would have to reach that code and the file status_ready.svg with it.
+ */
+const READIED_CONDITION = 'Ready';
+
 const conditionOptions = [
   'Concentrating',
   ...predefinedConditions
@@ -111,4 +120,4 @@ const conditionDescriptionsTwentyFourteen: Record<string, string> = {
   'Hexed-Wis': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack.\nYou have disadvantage on Wisdom ability checks.',
   'Hexed-Cha': 'You take an extra 1d6 Nectrotic damage when the Hexer hits you with an attack.\nYou have disadvantage on Charisma ability checks.',
 };
-  export {predefinedConditions, conditionOptions, conditionDescriptionsTwentyTwentyFour, conditionDescriptionsTwentyFourteen}
+  export {predefinedConditions, conditionOptions, READIED_CONDITION, conditionDescriptionsTwentyTwentyFour, conditionDescriptionsTwentyFourteen}

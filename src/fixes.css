@@ -676,6 +676,67 @@
   opacity: 1;
 }
 
+/* --- the chip's mark ------------------------------------------------------
+   A condition is its drawn icon now rather than its name: a DM reads "prone"
+   off the shape faster than off six letters set at 0.49em, and a row of five
+   conditions stops being a paragraph.
+
+   The name has not gone anywhere — the tooltip that already opened on hover
+   still names it, the picker that adds them is still a list of words, and
+   ConditionMark keeps one in a hidden span, because a mask carries no text for
+   a screen reader.
+
+   Painted as a MASK filled with `currentColor`, not dropped in as an image:
+   the art is black line work, and the chip goes cream-on-red when it is
+   hovered in the editor. A background image can only be tinted by filter, and
+   no filter yields a chosen colour — the tracker's tick marks are masks for
+   exactly this reason.
+
+   Sized in em, so the quantity queries above carry the marks down with the
+   type as a combatant collects more conditions; nothing needs to know about
+   both. */
+.conditionMark {
+  display: inline-block;
+  width: 1.75em;
+  height: 1.75em;
+  flex: 0 0 auto;
+  /* For the reminder, where a mark sits in a line of prose rather than in a
+     flex chip. The chips centre their own. */
+  vertical-align: -0.3em;
+
+  /* The image itself is set on the element by ConditionMark — see the note
+     there about React and custom properties. What stays here is everything
+     every mark shares. */
+  background-color: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* The chip was cut for a word — wide at the sides, tight top and bottom. A
+   mark wants the same room on all four, and the baseline it used to line the
+   text up on means nothing to a square. */
+.conditionName:has(.conditionMark),
+.conditionNameEditing:has(.conditionMark) {
+  align-items: center;
+  gap: 0.1em;
+  padding: 0.15em 0.3em;
+}
+
+/* In the editor every chip is a button that removes something, so its mark is
+   bigger than a resting one: dropping the word took the chip from about 45px
+   wide to 23, and a 23px target for a destructive click is too mean. The cell
+   has the room — it grows to fit its editor. */
+.conditionNameEditing .conditionMark {
+  width: 2.3em;
+  height: 2.3em;
+}
+
+
+
 /* The picker and its Done button, in the same hand as the chips. */
 .conditionEditOuter {
   display: flex;
@@ -694,6 +755,79 @@
   gap: 0.15rem;
   margin-bottom: 0;
   width: 100%;
+}
+
+/* --- and on a touch screen, big enough to actually hit --------------------
+   Shrinking a chip to its icon took the editor's remove buttons to 28x21 on a
+   phone, under even the 24x24 CSS pixels WCAG 2.2 asks for at AA — Apple wants
+   44pt and Material 48dp. So the editor's controls take a floor, and the chips
+   get the spacing between targets that goes with it.
+
+   A RESTING chip is deliberately left alone: it is not a target at all there,
+   because the whole cell is one button and it is the size of a card row.
+
+   `hover: none` rather than a width query — a phone held sideways has the same
+   fingers as one held upright, which is the question being asked. */
+@media (hover: none) {
+  .conditionEditOuter > div {
+    gap: 0.45rem;
+  }
+
+  .conditionNameEditing {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.3em 0.45em;
+  }
+
+  .conditionNameEditing .conditionMark {
+    width: 26px;
+    height: 26px;
+  }
+
+  /* Both were already under the floor before the marks arrived. */
+  .conditionSelect,
+  .editConditionsDone {
+    min-height: 44px;
+  }
+}
+
+/* In the reminder the mark is teaching rather than labelling, so it keeps its
+   name beside it — that dialog is where the two get introduced. */
+.conditionMarkName {
+  margin-left: 0.4em;
+}
+
+/* --- how long it has been held -------------------------------------------
+   "He has been raging three rounds" is a thing a DM asks and the chip alone
+   cannot answer. The count rides beside the mark from the second round on;
+   ConditionMark says why one is never shown.
+
+   Quiet on purpose: the mark is what is being read at a glance, and the number
+   is a note on it. Tabular figures so a column of chips does not jitter as a
+   fight runs from 9 into 10. */
+.conditionRounds {
+  font-size: 0.9em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.72;
+}
+
+/* In the reminder there is room for words, and a bare "3" next to Exhausted
+   would read as its level rather than its age. */
+.conditionRoundsWords {
+  margin-left: 0.35em;
+  font-size: 0.92em;
+  font-style: italic;
+  opacity: 0.75;
+}
+
+/* The tooltip has the room to spell it out, on its own line between the name
+   and the rules text. */
+.conditionTipHeld {
+  display: block;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  opacity: 0.82;
 }
 
 .conditionSelect {
@@ -6397,11 +6531,14 @@ html[data-wallpaper="midnight"] body::before {
        changes — the buttons keep their ids, their art and their panels.
 
        Reading order is the order of a fight: the managers that fill it, then
-       Start the Battle, then the round and the timer, then the roster. */
+       Start the Battle, then the round and the timer, then the roster.
+
+       About sits left of the Battle Manager on a phone — the reverse of the
+       rail, where the three managers stack together. Portrait only. */
     grid-template-areas:
       "logo     hmbutt"
       "logo     mmbutt"
-      "bmbutt   about"
+      "about    bmbutt"
       "sbbutt   ractions"
       "adbanner adbanner"
       "patreon  patreon"
@@ -6453,7 +6590,7 @@ html[data-wallpaper="midnight"] body::before {
     #page {
       grid-template-areas:
         "logo     hmbutt   mmbutt"
-        "logo     bmbutt   about"
+        "logo     about    bmbutt"
         ".        sbbutt   ractions"
         "adbanner adbanner adbanner"
         "patreon  patreon  patreon"
@@ -7369,6 +7506,21 @@ html[data-wallpaper="midnight"] body::before {
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
+  }
+
+  /* Editing wants room the middle line does not have. Five chips at the 44px
+     touch floor will not fit five twelfths of a card, and the cap above — which
+     stops a long RESTING list from growing the card — turned the editor into a
+     151px stack scrolling inside a 44px window, with the chips off the top.
+
+     So an open editor takes a line of its own across the card instead, and the
+     cap comes off while it is open: you are editing the thing, the card can
+     afford to grow. */
+  #battleTracker tbody td.combatantConditions:has(.conditionEditOuter) {
+    grid-area: auto / 1 / auto / -1;
+    max-height: none;
+    overflow: visible;
+    padding-top: 0.4em;
   }
 
   /* The bar is the width of its cell, and the cell is a quarter of the card

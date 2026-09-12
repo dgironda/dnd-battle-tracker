@@ -86,6 +86,18 @@ const endTurn = (id: string) => {
 
 const whoseTurn = () => document.querySelector('.isCurrentTurn')?.textContent ?? '';
 
+/** The conditions showing on one combatant's row, read off their own cell —
+ *  the side-car stat panels carry chips for the same combatant. */
+const conditionsOf = (name: string) => {
+  const row = [...document.querySelectorAll('#battleTracker tbody tr')].find((r) =>
+    r.querySelector('.combatantName')?.textContent?.includes(name),
+  );
+  const cell = row?.querySelector('td.combatantConditions');
+  return [...(cell?.querySelectorAll('[data-condition]') ?? [])].map((m) =>
+    m.getAttribute('data-condition'),
+  );
+};
+
 describe('turn order', () => {
   beforeEach(() => {
     vi.stubGlobal('alert', vi.fn());
@@ -157,6 +169,44 @@ describe('turn order', () => {
     endTurn('to-a');
     await waitFor(() => expect(whoseTurn()).toContain('Brannoc'));
     expect(box('to-b', 'reaction').checked).toBe(false);
+  });
+
+  it("takes a readied action off when its owner's turn starts, and not before", async () => {
+    /* A readied action is held for a trigger "before the start of your next
+       turn". Same rule and same moment as the reaction above, so it is tested
+       the same way: it must survive other people's turns, survive the round
+       wrapping, and go when its owner's own turn comes round. */
+    localStorage.setItem(
+      'storedCombatants',
+      JSON.stringify([
+        ALDRIC,
+        { ...BRANNOC, conditions: ['Ready', 'Poisoned'] },
+        { ...CRESSA, conditions: ['Ready'] },
+      ]),
+    );
+
+    renderTracker();
+    await screen.findByRole('table');
+    await waitFor(() => expect(whoseTurn()).toContain('Aldric'));
+
+    /* Held while somebody else acts. */
+    expect(conditionsOf('Brannoc')).toContain('Ready');
+
+    endTurn('to-a');
+    await waitFor(() => expect(whoseTurn()).toContain('Brannoc'));
+
+    /* His turn started, so the action he was holding is gone — and only it:
+       being poisoned has nothing to do with whose turn it is. */
+    await waitFor(() => expect(conditionsOf('Brannoc')).not.toContain('Ready'));
+    expect(conditionsOf('Brannoc')).toContain('Poisoned');
+
+    /* Cressa has not acted yet, so hers is still held. The top of the round is
+       not the start of her turn either. */
+    expect(conditionsOf('Cressa')).toContain('Ready');
+
+    endTurn('to-b');
+    await waitFor(() => expect(whoseTurn()).toContain('Cressa'));
+    await waitFor(() => expect(conditionsOf('Cressa')).not.toContain('Ready'));
   });
 
   it('does not hand the turn back when a reaction is unticked', async () => {

@@ -3,9 +3,12 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { Monster, Combatant } from "../../types/index";
 import {
   conditionOptions,
+  READIED_CONDITION,
   conditionDescriptionsTwentyTwentyFour,
   conditionDescriptionsTwentyFourteen,
 } from "../../constants/Conditions";
+import ConditionMark from "./ConditionMark";
+import { roundsHeld } from "../../utils/conditionRounds";
 import { EditableCell } from "../../utils/Utils";
 import { useConditionTip } from "./useConditionTip";
 import {
@@ -74,6 +77,8 @@ function combatantToMonster(c: Combatant): Monster {
 
 interface ConditionsEditorProps {
   combatant: Combatant;
+  /** The round on the table, against which each condition's age is worked out. */
+  roundNumber: number;
   isEditing: boolean;
   conditionDescriptions: Record<string, string>;
   onStartEditing: (id: string) => void;
@@ -89,6 +94,7 @@ interface ConditionsEditorProps {
  */
 const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
   combatant,
+  roundNumber,
   isEditing,
   conditionDescriptions,
   onStartEditing,
@@ -133,14 +139,17 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
                 hideTip();
                 onRemove(combatant.id, conditionName);
               }}
-              onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+              onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName], roundsHeld(combatant, conditionName, roundNumber))}
               onMouseLeave={hideTip}
-              onFocus={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+              onFocus={(e) => showTip(e, conditionName, conditionDescriptions[conditionName], roundsHeld(combatant, conditionName, roundNumber))}
               onBlur={hideTip}
               aria-label={`Remove ${conditionName}`}
               aria-describedby={tipName === conditionName ? tipId : undefined}
             >
-              {conditionName}
+              <ConditionMark
+              name={conditionName}
+              rounds={roundsHeld(combatant, conditionName, roundNumber)}
+            />
               <span className="conditionRemove" aria-hidden="true">×</span>
             </button>
           ))}
@@ -193,11 +202,14 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
           <span
             key={conditionName}
             className="conditionName"
-            onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+            onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName], roundsHeld(combatant, conditionName, roundNumber))}
             onMouseLeave={hideTip}
             aria-describedby={tipName === conditionName ? tipId : undefined}
           >
-            {conditionName}
+            <ConditionMark
+              name={conditionName}
+              rounds={roundsHeld(combatant, conditionName, roundNumber)}
+            />
           </span>
         ))}
       </button>
@@ -515,6 +527,14 @@ const BattleTracker: React.FC = () => {
     // A new round starts only when we actually wrap past the end of the order.
     const isNewRound = nextPosition === 0;
 
+    /* A readied action is held for a trigger "before the start of your next
+       turn", so the chip comes off at exactly the moment the reaction refreshes
+       below — not at the top of the round, and not while somebody else acts.
+       Read out here, and logged after the update, because the updater runs
+       twice under StrictMode and a log entry is a side effect. */
+    const startingTurn = sortedCombatants[nextIndex];
+    const readiedExpired = startingTurn?.conditions.includes(READIED_CONDITION) ?? false;
+
     setCombatants((prev) =>
       prev
         .map((c) => {
@@ -548,6 +568,17 @@ const BattleTracker: React.FC = () => {
           // everyone else keeps a reaction they have not yet earned back.
           if (c.id === sortedCombatants[nextIndex].id) {
             next = { ...next, reaction: false };
+
+            /* And the readied action goes with it. The trigger it was being
+               held for never came, and nothing in the rules lets you carry it
+               past your own turn — so the chip clears itself rather than
+               waiting for a DM to notice it is stale. */
+            if (next.conditions.includes(READIED_CONDITION)) {
+              next = {
+                ...next,
+                conditions: next.conditions.filter((x) => x !== READIED_CONDITION),
+              };
+            }
           }
 
           return next;
@@ -555,9 +586,14 @@ const BattleTracker: React.FC = () => {
         .sort((a, b) => b.initiative - a.initiative)
     );
 
+    /* The log says why the chip went, since nobody clicked it off. */
+    if (readiedExpired) {
+      logEvent("condition-off", startingTurn.name, { detail: READIED_CONDITION });
+    }
+
     setCurrentTurnIndex(nextIndex);
     if (isNewRound) setRoundNumber(roundNumber + 1);
-  }, [sortedCombatants, safeTurnIndex, roundNumber, setCombatants, setCurrentTurnIndex, setRoundNumber, setLastRun]);
+  }, [sortedCombatants, safeTurnIndex, roundNumber, setCombatants, setCurrentTurnIndex, setRoundNumber, setLastRun, logEvent]);
 
   // Always-current handle on the active combatant, so effects can read it
   // without taking a dependency on every mutation of the object.
@@ -1024,6 +1060,7 @@ const BattleTracker: React.FC = () => {
                     <td role="cell" className="combatantConditions">
                       <ConditionsEditor
                         combatant={combatant}
+                        roundNumber={roundNumber}
                         isEditing={editingConditions === combatant.id}
                         conditionDescriptions={conditionDescriptions}
                         onStartEditing={setEditingConditions}

@@ -4,6 +4,9 @@ import { Hero, Combatant } from '../../types/index';
 import { createUpdateHero, EditableCell } from "../../utils/Utils";
 import { useHeroes } from "../../hooks/useHeroes";
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
+import ConditionMark from './ConditionMark';
+import { roundsHeld } from '../../utils/conditionRounds';
+import { useCombat } from './CombatContext';
 import { useGlobalContext } from '../../hooks/optionsContext';
 import { useConditionTip } from './useConditionTip';
 
@@ -37,6 +40,9 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
   const { settings } = useGlobalContext();
+  /* For how long each condition has been held — the round is the other half
+     of that sum. */
+  const { roundNumber } = useCombat();
   const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
 
   function closeStatsButton(e: React.MouseEvent<HTMLButtonElement>) {
@@ -149,13 +155,16 @@ export function HeroStatBlockHover({ hero, children, combatant }: HeroStatBlockH
                 key={conditionName}
                 className='conditionName'
                 tabIndex={0}
-                onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+                onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName], combatant ? roundsHeld(combatant, conditionName, roundNumber) : null)}
                 onMouseLeave={hideTip}
-                onFocus={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+                onFocus={(e) => showTip(e, conditionName, conditionDescriptions[conditionName], combatant ? roundsHeld(combatant, conditionName, roundNumber) : null)}
                 onBlur={hideTip}
                 aria-describedby={tipName === conditionName ? tipId : undefined}
               >
-                {conditionName}
+                <ConditionMark
+                  name={conditionName}
+                  rounds={combatant ? roundsHeld(combatant, conditionName, roundNumber) : null}
+                />
               </span>
             ))
           ) : (

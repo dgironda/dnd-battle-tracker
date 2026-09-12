@@ -36,8 +36,12 @@ export default function OptionsPanel({ onClose, isSupporter, onLockedPick }: Opt
      button then shows what it would actually give you, rather than a fixed
      catalogue of art you have to imagine recoloured. */
   const chosen = wallpaperById(settings.wallpaper);
+  /* Quoted for the same reason ConditionMark quotes its mask: an asset Vite
+     chose to inline arrives as a data: URI full of raw parens, and an unquoted
+     url() ends at the first of them. These tiles are far too big to be inlined
+     today, which is not a thing to rely on. */
   const tile = (style: PaperStyleId, colour: WallpaperId) => ({
-    backgroundImage: `url(${tileUrl(style, colour)})`,
+    backgroundImage: `url(${JSON.stringify(tileUrl(style, colour))})`,
   });
 
   return (

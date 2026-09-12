@@ -11,6 +11,7 @@ import {
   storeBattleLog,
 } from '../../utils/LocalStorage';
 import { appendEntry, makeEntry, type LogEntry, type LogKind } from '../../utils/battleLog';
+import { stampConditionRounds } from '../../utils/conditionRounds';
 import { useMonsters } from "../../hooks/useMonsters";
 
 interface CombatContextType {
@@ -56,7 +57,14 @@ export const INITIATIVE_CANCELLED = "INITIATIVE_CANCELLED";
 export function CombatProvider({ children }: { children: React.ReactNode }) {
   const { setMonsters } = useMonsters();
 
-  const [combatants, setCombatants] = useState<Combatant[]>(() => getCombatants() || []);
+  /* Stamped on the way in as well as on every write: the initialiser does not
+     go through the wrapper below, so a reload would otherwise leave the
+     conditions already on the table with no start round until something else
+     happened to touch the roster — and they would then be dated to whatever
+     round that was. */
+  const [combatants, setCombatantsRaw] = useState<Combatant[]>(() =>
+    stampConditionRounds(getCombatants() || [], getRoundNumber()),
+  );
   const [currentTurnIndex, setCurrentTurnIndex] = useState(() => getTurnIndex());
   const [roundNumber, setRoundNumber] = useState(() => getRoundNumber());
   const [currentCombatant, setCurrentCombatant] = useState<Hero | Monster | null>(null);
@@ -75,6 +83,28 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
   /* Kept current every render, so logEvent can stamp the round without taking
      it as a dependency. */
   roundRef.current = roundNumber;
+
+  /* Every write to the roster goes through here, so a condition is stamped
+     with the round it began in whichever path applied it — the picker, a hero
+     joining mid-fight, damage dropping somebody into death saves, or a saved
+     battle being loaded. Stamping at each of those call sites instead would
+     hold until the next one was written and nobody remembered this.
+
+     The round comes from the ref, so this keeps one identity for the life of
+     the provider: it is handed to every consumer, and rebuilding it each round
+     would rerender all of them. */
+  const setCombatants = useCallback<React.Dispatch<React.SetStateAction<Combatant[]>>>(
+    (update) =>
+      setCombatantsRaw((prev) =>
+        stampConditionRounds(
+          typeof update === "function"
+            ? (update as (previous: Combatant[]) => Combatant[])(prev)
+            : update,
+          roundRef.current,
+        ),
+      ),
+    [],
+  );
 
   const logEvent = useCallback<CombatContextType["logEvent"]>((kind, who, extra) => {
     setBattleLog((prev) => appendEntry(prev, makeEntry(kind, who, roundRef.current, extra)));
@@ -181,7 +211,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
     // updates too. This used to write localStorage directly, leaving every
     // mounted copy of the monster list stale.
     setMonsters((prev) => prev.filter((m) => m.id !== monster.id));
-  }, [askForInitiative, setMonsters, logEvent]);
+  }, [askForInitiative, setMonsters, logEvent, setCombatants]);
 
   /**
    * Adds a hero into an *existing combat*, with the initiative dialog.
@@ -235,7 +265,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
         ? prev
         : [...prev, newCombatant].sort((a, b) => b.initiative - a.initiative)
     );
-  }, [askForInitiative, combatants, logEvent]);
+  }, [askForInitiative, combatants, logEvent, setCombatants]);
 
   const value = useMemo(
     () => ({
@@ -256,6 +286,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
     }),
     [
       combatants,
+      setCombatants,
       currentTurnIndex,
       roundNumber,
       battleLog,
