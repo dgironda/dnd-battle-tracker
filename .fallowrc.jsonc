@@ -11,17 +11,17 @@
      being read. */
   "entry": ["tools/*.mjs"],
 
-  /* Exports that are unused HERE and used on a branch that has not landed yet.
-     Both are real consumers, verified with `git grep` against those branches:
+  /* An export that is unused HERE and used on a branch that has not landed.
+     Verified with `git grep` against it:
 
-       AdSlotName            -> src/constants/AdCreatives.ts on `ads`
-       predefinedConditions  -> tests/conditionIcons.test.ts on `conditions`
+       AdSlotName -> src/constants/AdCreatives.ts on `ads`
 
-     Left exported on purpose. `fallow fix` would strip both, and master would
-     then break the moment either branch merged back. Revisit once they have:
-     fallow's stale-suppressions rule will say so when these stop being needed. */
+     Left exported on purpose: `fallow fix` would strip it, and master would
+     break the moment ads merged back. Drop this entry when ads lands.
+
+     `predefinedConditions` was held here for the same reason and no longer
+     needs to be — tests/conditionIcons.test.ts imports it on master now. */
   "ignoreExports": [
-    { "file": "src/components/AdSlot.tsx", "exports": ["AdSlotName"] },
-    { "file": "src/constants/Conditions.ts", "exports": ["predefinedConditions"] }
+    { "file": "src/components/AdSlot.tsx", "exports": ["AdSlotName"] }
   ]
 }

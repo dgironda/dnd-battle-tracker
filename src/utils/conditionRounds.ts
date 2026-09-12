@@ -14,8 +14,9 @@ import type { Combatant } from "../types/index";
  * saved battle. A start round is a fact that never needs touching again.
  */
 
-/** The round a condition began, per condition name. */
-export type ConditionSince = Record<string, number>;
+/** The round a condition began, per condition name. File-local: the exported
+ *  functions speak in Combatants and numbers, so nothing outside needs it. */
+type ConditionSince = Record<string, number>;
 
 /**
  * Bring a combatant's start rounds into line with the conditions they hold.
