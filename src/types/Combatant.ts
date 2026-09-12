@@ -18,6 +18,13 @@ export interface Combatant {
   reaction: boolean;
 
   conditions: string[];
+  /**
+   * The round each held condition began in, keyed by its name — so the tracker
+   * can say "raging, 3 rounds". Optional: a battle saved before this existed
+   * has none, and those start counting when it is next loaded. Maintained in
+   * one place, by stampConditionRounds; see utils/conditionRounds.ts.
+   */
+  conditionSince?: Record<string, number>;
   deathsaves: boolean[];
 
   ac: number;

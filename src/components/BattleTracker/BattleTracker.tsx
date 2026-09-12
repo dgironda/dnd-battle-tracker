@@ -8,6 +8,7 @@ import {
   conditionDescriptionsTwentyFourteen,
 } from "../../constants/Conditions";
 import ConditionMark from "./ConditionMark";
+import { roundsHeld } from "../../utils/conditionRounds";
 import { EditableCell } from "../../utils/Utils";
 import { useConditionTip } from "./useConditionTip";
 import {
@@ -76,6 +77,8 @@ function combatantToMonster(c: Combatant): Monster {
 
 interface ConditionsEditorProps {
   combatant: Combatant;
+  /** The round on the table, against which each condition's age is worked out. */
+  roundNumber: number;
   isEditing: boolean;
   conditionDescriptions: Record<string, string>;
   onStartEditing: (id: string) => void;
@@ -91,6 +94,7 @@ interface ConditionsEditorProps {
  */
 const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
   combatant,
+  roundNumber,
   isEditing,
   conditionDescriptions,
   onStartEditing,
@@ -135,14 +139,17 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
                 hideTip();
                 onRemove(combatant.id, conditionName);
               }}
-              onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+              onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName], roundsHeld(combatant, conditionName, roundNumber))}
               onMouseLeave={hideTip}
-              onFocus={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+              onFocus={(e) => showTip(e, conditionName, conditionDescriptions[conditionName], roundsHeld(combatant, conditionName, roundNumber))}
               onBlur={hideTip}
               aria-label={`Remove ${conditionName}`}
               aria-describedby={tipName === conditionName ? tipId : undefined}
             >
-              <ConditionMark name={conditionName} />
+              <ConditionMark
+              name={conditionName}
+              rounds={roundsHeld(combatant, conditionName, roundNumber)}
+            />
               <span className="conditionRemove" aria-hidden="true">×</span>
             </button>
           ))}
@@ -195,11 +202,14 @@ const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
           <span
             key={conditionName}
             className="conditionName"
-            onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+            onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName], roundsHeld(combatant, conditionName, roundNumber))}
             onMouseLeave={hideTip}
             aria-describedby={tipName === conditionName ? tipId : undefined}
           >
-            <ConditionMark name={conditionName} />
+            <ConditionMark
+              name={conditionName}
+              rounds={roundsHeld(combatant, conditionName, roundNumber)}
+            />
           </span>
         ))}
       </button>
@@ -1050,6 +1060,7 @@ const BattleTracker: React.FC = () => {
                     <td role="cell" className="combatantConditions">
                       <ConditionsEditor
                         combatant={combatant}
+                        roundNumber={roundNumber}
                         isEditing={editingConditions === combatant.id}
                         conditionDescriptions={conditionDescriptions}
                         onStartEditing={setEditingConditions}

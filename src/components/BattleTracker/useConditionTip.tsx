@@ -1,10 +1,13 @@
 import { useCallback, useState } from "react";
 import { createPortal } from "react-dom";
+import { describeRoundsHeld } from "../../utils/conditionRounds";
 import type { FocusEvent, MouseEvent } from "react";
 
 interface Tip {
   text: string;
   name: string;
+  /** How long it has been held, already worded. Null when nothing is recorded. */
+  held: string | null;
   x: number;
   y: number;
   above: boolean;
@@ -32,6 +35,9 @@ export function useConditionTip(idPrefix: string) {
     e: MouseEvent | FocusEvent,
     name: string,
     text: string | undefined,
+    /* The chips show a bare number, if anything; this is where it is spelled
+       out. Optional, so a caller with no round to hand simply omits it. */
+    rounds: number | null = null,
   ) => {
     if (!text) return;
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -40,6 +46,7 @@ export function useConditionTip(idPrefix: string) {
     setTip({
       text,
       name,
+      held: describeRoundsHeld(rounds),
       // clamped to half the card's width, so it always lands on screen
       x: Math.min(Math.max(r.left + r.width / 2, 168), window.innerWidth - 168),
       y: above ? r.top - 8 : r.bottom + 8,
@@ -58,6 +65,7 @@ export function useConditionTip(idPrefix: string) {
           style={{ left: tip.x, top: tip.y }}
         >
           <span className="conditionTipName">{tip.name}</span>
+          {tip.held && <span className="conditionTipHeld">{tip.held}</span>}
           {tip.text}
         </div>,
         document.body,

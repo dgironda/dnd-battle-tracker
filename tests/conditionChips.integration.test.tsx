@@ -46,6 +46,13 @@ const CUSTOM = combatant('cc-b', 'Brannoc', 10, ['Soaked']);
    the side-car stat panels render chips for the same combatants, so a
    document-wide lookup finds whichever the DOM happens to hold first. */
 const cells = () => [...document.querySelectorAll<HTMLElement>('.editConditions')];
+
+/** Spend a combatant's whole turn, which is what hands it to the next one. */
+const endTurn = (id: string) => {
+  for (const key of ['action', 'bonus', 'move']) {
+    fireEvent.click(document.getElementById(`${id}-${key}`) as HTMLInputElement);
+  }
+};
 const editor = () => document.querySelector<HTMLElement>('.conditionEditOuter')!;
 const markIn = (root: HTMLElement, condition: string) =>
   root.querySelector<HTMLElement>(`[data-condition="${condition}"]`);
@@ -123,6 +130,27 @@ describe('condition chips', () => {
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Remove Prone' })).toBeNull());
     /* Only the one clicked goes. */
     expect(screen.getByRole('button', { name: 'Remove Blinded' })).toBeInTheDocument();
+  });
+
+  it('counts up the rounds a condition has been held', async () => {
+    /* The seeded battle is in round 1, so everything on it has been held for
+       one round — and one is not a duration worth a badge. */
+    renderTracker();
+    await screen.findByRole('table');
+
+    const prone = () => markIn(cells()[0], 'Prone')!.closest('.conditionName')!;
+    expect(prone().querySelector('.conditionRounds')).toBeNull();
+
+    /* Play the round out — Aldric, then Brannoc — and it wraps to round 2. */
+    endTurn('cc-a');
+    endTurn('cc-b');
+    await waitFor(() => expect(screen.getByText(/Combat Round 2/)).toBeInTheDocument());
+
+    await waitFor(() =>
+      expect(prone().querySelector('.conditionRounds')?.textContent).toBe('2'),
+    );
+    /* And what a screen reader gets, since the badge is a bare numeral. */
+    expect(prone().textContent).toContain('held 2 rounds');
   });
 
   it('still adds a condition from the picker, as a mark', async () => {

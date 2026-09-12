@@ -5,6 +5,7 @@ import { EditableCell } from "../../utils/Utils";
 import { useCombat } from './CombatContext';
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
 import ConditionMark from './ConditionMark';
+import { roundsHeld } from '../../utils/conditionRounds';
 import { useGlobalContext } from '../../hooks/optionsContext';
 import { useConditionTip } from './useConditionTip';
 
@@ -25,7 +26,7 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
   // Combatants come from the shared combat context. This used to be a private
   // copy seeded from localStorage on mount, so the notes shown here drifted out
   // of step with the tracker.
-  const { combatants } = useCombat();
+  const { combatants, roundNumber } = useCombat();
   // The descriptions are on the chips themselves now, so the old click-to-
   // expand toggle (which appended ": <description>" after each name and made
   // the panel several times taller) is gone.
@@ -77,6 +78,9 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
   const baseHp = safe(currentHp ?? monster.currHp ?? monster.maxHp ?? 1, 1);
   const initiative = safe(monster.init, 0);
   const id = safe(monster.id, monster.name);
+  /* The durations live on the combatant in the fight, not on the roster entry
+     this panel is handed. */
+  const inFight = combatants.find((c) => c.id === id);
 
   const stats = {
     STR: safeStat(monster.str),
@@ -161,13 +165,16 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
                 key={conditionName}
                 className='conditionName'
                 tabIndex={0}
-                onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+                onMouseEnter={(e) => showTip(e, conditionName, conditionDescriptions[conditionName], inFight ? roundsHeld(inFight, conditionName, roundNumber) : null)}
                 onMouseLeave={hideTip}
-                onFocus={(e) => showTip(e, conditionName, conditionDescriptions[conditionName])}
+                onFocus={(e) => showTip(e, conditionName, conditionDescriptions[conditionName], inFight ? roundsHeld(inFight, conditionName, roundNumber) : null)}
                 onBlur={hideTip}
                 aria-describedby={tipName === conditionName ? tipId : undefined}
               >
-                <ConditionMark name={conditionName} />
+                <ConditionMark
+                  name={conditionName}
+                  rounds={inFight ? roundsHeld(inFight, conditionName, roundNumber) : null}
+                />
               </span>
             ))
           ) : (
