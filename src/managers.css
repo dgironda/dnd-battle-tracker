@@ -370,7 +370,7 @@
   background-color: var(--panel-rule-soft);
 }
 
-/* The marker beside every editable value: icon_edit.svg drawn in full. It is
+/* The marker beside an editable value: icon_edit.svg drawn in full. It is
    a pencil on the diagonal, so it needs a squarer, slightly larger box than a
    glyph would to read at this size. */
 .edit {

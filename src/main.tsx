@@ -12,6 +12,11 @@ import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import { Tour } from "./components/Tour";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { installNumberFieldSelection } from "./utils/numberFields";
+
+/* Every number field in the app opens with its number selected — see
+   numberFields.ts. Installed once, for the life of the page. */
+installNumberFieldSelection();
 
 // Analytics only in real builds, and only when a key is configured — dev runs
 // were previously firing events too (and being blocked by the old meta CSP).

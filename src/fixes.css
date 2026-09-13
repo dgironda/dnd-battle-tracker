@@ -3042,15 +3042,147 @@ html[data-paper-style="trinkets"] body::before {
   border-radius: 3px;
 }
 
-/* The pencil belongs to the right of the value it edits and has to stay there:
-   the button is inline by default, so a value near a column edge could wrap and
-   drop its pencil onto the next line. */
-#heroAddManage .setEditingField,
-#monsterAddManage .setEditingField {
-  display: inline-flex;
-  align-items: baseline;
-  white-space: nowrap;
+/* No pencils in the managers. Nearly everything on these two panels is a value
+   you can change, so a pencil after every one of them was the same mark a dozen
+   times a row — it said nothing the panel does not already say, and it cost the
+   names their width. The tracker and the side-car panels keep theirs, where an
+   editable value sits among ones that are not.
+
+   EditableCell still renders the <img>; only these panels decline to draw it.
+   A value that is empty used to be nothing BUT the pencil, so the managers pass
+   a placeholder for the fields that can be blank (see .managerBlank). */
+#heroAddManage .setEditingField .edit,
+#monsterAddManage .setEditingField .edit {
+  display: none;
 }
+
+/* ...and on a touch screen, the whole box is the target, not just the digits.
+   The pencil was part of the button, so taking it away took a single-digit
+   stat from 33px wide to 14 on a phone. A value's label belongs to it, so a
+   thumb landing on "STR" edits strength, and in the portrait card the tinted
+   HP and AC boxes are each one target. Nothing is drawn: the button reaches
+   out with an empty ::before laid over its cell. (::before, so ::after stays
+   free for something drawn inside the button itself.) */
+@media (hover: none) {
+  #heroAddManage td:has(> .setEditingField),
+  #monsterAddManage td:has(> .setEditingField),
+  #heroAddManage .heroStat,
+  #monsterAddManage .heroStat {
+    position: relative;
+  }
+
+  /* The landscape stat strip centres each stat in its column, shrink-wrapped
+     to "STR" or "14"; stretched, the box is the column and the content stays
+     centred inside it. The portrait strip sizes its stats already. */
+  #heroAddManage .heroStat,
+  #monsterAddManage .heroStat {
+    justify-self: stretch;
+  }
+
+  #heroAddManage .setEditingField::before,
+  #monsterAddManage .setEditingField::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  /* No filter on the button, in any state. index.css brightens every
+     button:hover with one, a finger landing IS a hover on a touch screen, and
+     a filter makes the button the containing block of its own ::before — so
+     the target shrank back to the digits the instant the press began. A tap
+     on "CHA" went down on the button and came up on the label, and the
+     browser fires no click for that. Specific enough to beat button:hover in
+     every state without naming the state.
+
+     The hover wash goes for the same reason: a touch screen's hover sticks to
+     whatever was tapped last, and the press shade below does that job over
+     the whole box instead of the digits. So does the browser's own tap flash,
+     which is a flat blue rectangle over the button alone. */
+  #heroAddManage .setEditingField,
+  #monsterAddManage .setEditingField {
+    filter: none;
+    background-color: transparent;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ...and the box answers the finger. Nothing said a press had landed until
+     the field opened, so the whole target takes a pencil-shade wash for as
+     long as it is held. Mixed from the panel's own ink, which makes it
+     graphite on the parchment and chalk on the red scroll without either
+     panel needing a colour of its own — a little heavier than the hover wash,
+     because a press is over in a moment. */
+  #heroAddManage .setEditingField:active::before,
+  #monsterAddManage .setEditingField:active::before {
+    background-color: color-mix(in srgb, currentColor 22%, transparent);
+  }
+}
+
+/* What an empty name or player shows in place of the pencil it used to be. */
+.managerBlank {
+  opacity: 0.6;
+}
+
+/* The drawing after a value that says what it is (EditableCell's `icon`): the
+   heart after HP is the tracker's own, and the shield after AC is its pair.
+   Both are stickers with a white rim, so they hold on the red scroll and on
+   parchment alike. Sized in em, so they follow each panel's type. */
+.valueIcon {
+  width: 0.95em;
+  height: 0.95em;
+  margin-left: 0.2em;
+  vertical-align: -0.14em;
+}
+
+/* A value and its drawing never part at a line break: the HP and AC columns
+   hold 50px of content at 1366x768, which put the heart on a line of its own
+   under the number. The .3rem every button carries on each side (index.css)
+   goes too — it was most of the difference. Measured there: "40" with its
+   heart is 51.5px, and three digits is 62, which is what the HP shares below
+   are sized for. */
+#heroAddManage td > .setEditingField:has(> .valueIcon),
+#monsterAddManage td > .setEditingField:has(> .valueIcon) {
+  white-space: nowrap;
+  margin-inline: 0;
+}
+
+/* ==========================================================================
+   WRITE-IN LINES — a trial. Delete this whole block to take them away; nothing
+   outside it depends on it.
+
+   Every value in the hero and monster managers sits on a faint pencil line,
+   the way a figure on a paper character sheet is written on a printed blank.
+   It says "you can write here" at rest, which is what the pencil after every
+   number used to say, in the sheet's own terms instead.
+
+   The line is the value button's own ::after: a block under its text, so it
+   runs as wide as what is written (never shorter than a short blank), sits
+   under the last line of a name that wraps, clicks as part of the value, and
+   is gone while the field is open. Its margins net to zero, so no row grows.
+   (The touch target above is the button's ::before, which is why it is not
+   that one.)
+
+   The strokes are the tracker's name underlines, black as drawn: graphite on
+   the monsters' parchment, inverted to chalk on the heroes' red scroll the way
+   the drawn checkboxes are.
+   ========================================================================== */
+#heroAddManage .setEditingField::after,
+#monsterAddManage .setEditingField::after {
+  content: "";
+  display: block;
+  min-width: 1.4em;
+  /* The stroke is about a sixth of its box. Any shorter and the grain in the
+     drawing, shrunk that far, reads as a dotted rule instead of lead. */
+  height: 0.85em;
+  /* Up onto the baseline, and the same amount given back underneath. */
+  margin: -0.57em -0.12em -0.28em;
+  background: url('./assets/draftsvgs_v2/underline_pencil-1.svg') center / 100% 100% no-repeat;
+  opacity: 0.38;
+}
+
+#heroAddManage .setEditingField::after {
+  filter: invert(1);
+}
+/* ---- end of WRITE-IN LINES ---- */
 
 /* -- "Hiding": an eye, open or shut ---------------------------------------
    Not a checkbox with a mark in it — the state is the shape of the icon. Both
@@ -5128,19 +5260,25 @@ html[data-paper-style="trinkets"] body::before {
    name pays the same way — "Christopher" is another single word that has to
    fit — so both take their share out of the actions column, which is the only
    one here with room to give: Ready looks roomy at 64px but its own heading
-   needs every pixel of that. */
+   needs every pixel of that.
+
+   HP then took two points back from the player, when the heart went in after
+   it: a level-20 hero's three digits and the heart are 62px, and at 9% the
+   column held 52. "Christopher" is 104px, and the player's 20 holds 113. */
 #heroAddManage .managerTableScroll thead th:nth-child(1) { width: 27%; }
-#heroAddManage .managerTableScroll thead th:nth-child(2) { width: 22%; }
-#heroAddManage .managerTableScroll thead th:nth-child(3) { width: 9%; }
+#heroAddManage .managerTableScroll thead th:nth-child(2) { width: 20%; }
+#heroAddManage .managerTableScroll thead th:nth-child(3) { width: 11%; }
 #heroAddManage .managerTableScroll thead th:nth-child(4) { width: 9%; }
 /* Ready? stays at 9: its own heading is 64px and it has exactly that. */
 #heroAddManage .managerTableScroll thead th:nth-child(5) { width: 9%; }
 #heroAddManage .managerTableScroll thead th:nth-child(6) { width: 24%; }
 
 /* The monster roster's shares, rebalanced: the two icon columns were 11% each
-   for a 24px eye and a 24px tick, and the name needed it more. */
-#monsterAddManage .managerTableScroll thead th:nth-child(1) { width: 35%; }
-#monsterAddManage .managerTableScroll thead th:nth-child(2) { width: 10%; }
+   for a 24px eye and a 24px tick, and the name needed it more. HP has since
+   taken two of those points back for its heart — monsters are where the
+   three-digit hit points are. */
+#monsterAddManage .managerTableScroll thead th:nth-child(1) { width: 33%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(2) { width: 12%; }
 #monsterAddManage .managerTableScroll thead th:nth-child(3) { width: 10%; }
 #monsterAddManage .managerTableScroll thead th:nth-child(4) { width: 8%; }
 #monsterAddManage .managerTableScroll thead th:nth-child(5) { width: 8%; }
@@ -5169,18 +5307,9 @@ html[data-paper-style="trinkets"] body::before {
   line-height: 1.15;
 }
 
-/* The pencil must stay on the last line of the name rather than being pushed
-   onto a line of its own: the button is inline-flex with nowrap, which makes
-   it an unbreakable box, so the name is the part that wraps. */
-#monsterAddManage tr.monsterManagerMonster > td:first-child .setEditingField .edit,
-#heroAddManage tr.heroManagerHero > td:first-child .setEditingField .edit,
-#heroAddManage tr.heroManagerHero > td:nth-child(2) .setEditingField .edit {
-  vertical-align: baseline;
-}
-
-/* No line cap: EditableCell renders the value as a bare text node beside the
-   pencil <img>, with no element to clamp. Names wrap as far as they need and
-   the row grows, which for a two-row block is a few pixels. */
+/* No line cap: EditableCell renders the value as a bare text node, with no
+   element to clamp. Names wrap as far as they need and the row grows, which
+   for a two-row block is a few pixels. */
 
 /* Editing a long name needs the whole column, not the width the text had. */
 #monsterAddManage tr.monsterManagerMonster > td:first-child input[type="text"],
@@ -5932,8 +6061,8 @@ html[data-wallpaper="midnight"] body::before {
    ========================================================================== */
 
 /* -- editing a name in place ---------------------------------------------- */
-/* The same EditableCell the tracker and the managers use, so the pencil and
-   the click-to-edit behave the way they do everywhere else. */
+/* The same EditableCell the tracker uses, so the pencil and the click-to-edit
+   behave the way they do there. */
 /* It was an inline-flex row that would not break, so "Ancient Deep Crow
    Matriarch of the Underdark" ran straight over the hit points and the bin
    beside it — 151px past the end of the row on a phone. A <button> cannot be

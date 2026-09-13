@@ -34,8 +34,8 @@
   --clear: rgb(255, 255, 255, 0.1);
   /* The editable-value pencil, one size across the whole app. Viewport-based
      rather than tied to any one surface's type, since it appears in the
-     tracker, the managers and the side-car panels, and has to read the same
-     in all three. */
+     tracker, the Edit Battle window and the side-car panels, and has to read
+     the same in all three. (The hero and monster managers draw none.) */
   --edit-size: clamp(1.15rem, 1.73vw, 2.2rem);
   --color-redwarn: #dc3545;
   --color-greengo: #28a745;

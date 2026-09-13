@@ -8,6 +8,8 @@ import { useGlobalContext } from "../../hooks/optionsContext";
 import { useCombat } from "../BattleTracker/CombatContext";
 import Icon from "../Icon";
 import { checkboxStyle, checkboxVariant } from "../../utils/handArt";
+import HeartIcon from "../../assets/draftsvgs_v2/icon_hp.svg";
+import ShieldIcon from "../../assets/draftsvgs_v2/icon_shield.svg";
 
 interface MonsterManagerProps {
   onClose: () => void;
@@ -270,13 +272,19 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
             <React.Fragment key={m.id}>
               <tr className="monsterManagerMonster">
                 <td>
-                  <EditableCell entity={m} field="name" type="text" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} />
+                  {/* The manager draws no pencil (fixes.css), so a blank name
+                      needs something of its own to click. */}
+                  <EditableCell entity={m} field="name" type="text" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster}>
+                    <span className="managerBlank">Unnamed</span>
+                  </EditableCell>
+                </td>
+                {/* The heart and the shield say which number is which without
+                    a trip back up to the header row. */}
+                <td>
+                  <EditableCell entity={m} field="hp" type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} icon={HeartIcon} />
                 </td>
                 <td>
-                  <EditableCell entity={m} field="hp" type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} />
-                </td>
-                <td>
-                  <EditableCell entity={m} field="ac" type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} />
+                  <EditableCell entity={m} field="ac" type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} icon={ShieldIcon} />
                 </td>
                 {/* Both booleans use the tracker's drawn box and tick, as the
                     Hero Manager's "Ready?" does. Pinned to a tick: a cross

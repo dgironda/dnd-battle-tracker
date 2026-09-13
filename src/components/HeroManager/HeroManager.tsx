@@ -7,6 +7,8 @@ import { useHeroes } from "../../hooks/useHeroes";
 import Icon from "../Icon";
 import { checkboxStyle, checkboxVariant } from "../../utils/handArt";
 import { useCombat } from "../BattleTracker/CombatContext";
+import HeartIcon from "../../assets/draftsvgs_v2/icon_hp.svg";
+import ShieldIcon from "../../assets/draftsvgs_v2/icon_shield.svg";
 
 interface HeroManagerProps {
   onClose: () => void;
@@ -51,6 +53,8 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
           {heroes.map((hero, index) => (
             <React.Fragment key={hero.id}>
               <tr className="heroManagerHero">
+                {/* The manager draws no pencil (fixes.css), so a blank value
+                    needs something of its own to click. */}
                 <td>
                   <EditableCell
                     entity={hero}
@@ -59,9 +63,13 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
                     editingField={editingField}
                     setEditingField={setEditingField}
                     updateEntity={updateHero}
-                  />
+                  >
+                    <span className="managerBlank">Unnamed</span>
+                  </EditableCell>
                 </td>
                 <td>
+                  {/* No player is ordinary — an NPC ally has none — so it
+                      reads as a blank, not as a prompt to fill one in. */}
                   <EditableCell
                     entity={hero}
                     field="player"
@@ -69,8 +77,13 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
                     editingField={editingField}
                     setEditingField={setEditingField}
                     updateEntity={updateHero}
-                  />
+                  >
+                    <span className="managerBlank" aria-hidden="true">—</span>
+                    <span className="visuallyHidden">No player</span>
+                  </EditableCell>
                 </td>
+                {/* The heart and the shield say which number is which without
+                    a trip back up to the header row. */}
                 <td>
                   <EditableCell
                     entity={hero}
@@ -79,6 +92,7 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
                     editingField={editingField}
                     setEditingField={setEditingField}
                     updateEntity={updateHero}
+                    icon={HeartIcon}
                   />
                 </td>
                 <td>
@@ -89,6 +103,7 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
                     editingField={editingField}
                     setEditingField={setEditingField}
                     updateEntity={updateHero}
+                    icon={ShieldIcon}
                   />
                 </td>
                 {/* The same drawn box and mark as the tracker's action

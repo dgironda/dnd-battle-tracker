@@ -14,6 +14,7 @@ export const EditableCell = <T extends { id: string }>({
   editingField,
   setEditingField,
   updateEntity,
+  icon,
   children
 }: {
   entity: T;
@@ -22,6 +23,9 @@ export const EditableCell = <T extends { id: string }>({
   editingField: string | null;
   setEditingField: Dispatch<SetStateAction<string | null>>;
   updateEntity: (entityId: string, field: keyof T, value: string | number) => void;
+  /** A drawing after the value that says what it is — the heart beside HP.
+      Inside the button, so clicking the drawing edits the value too. */
+  icon?: string;
   children?: ReactNode;
 }) =>
 {
@@ -142,6 +146,7 @@ export const EditableCell = <T extends { id: string }>({
       title="Click to edit"
     >
       {isEmpty ? children : String(currentValue)}
+      {icon && <img src={icon} alt="" aria-hidden="true" className="valueIcon" />}
       <img src={EditIcon} alt="" aria-hidden="true" className="edit" />
     </button>
   );
