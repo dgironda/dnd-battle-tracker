@@ -88,6 +88,26 @@ export function patreonAuthorizeUrl(): string {
   return `https://www.patreon.com/oauth2/authorize?${query.toString().replace(/\+/g, "%20")}`;
 }
 
+/**
+ * What to put in front of somebody once the server has answered.
+ *
+ * - `"invite"` — the Support-us prompt, for anyone who is not a supporter.
+ * - `"no-pledge"` — for a sign-in that has JUST come back without a pledge.
+ *   This used to be the invite again, and the invite's button is the sign-in,
+ *   and Patreon waves an account it has already authorised straight back: sign
+ *   in, "support us", sign in, "support us", with nothing to say why. Now the
+ *   visitor is told the sign-in worked and what it found.
+ * - `"none"` — a supporter, or a server that could not answer. Offering sign-in
+ *   to somebody whose sign-in is the broken thing helps nobody.
+ */
+export type SupporterPrompt = "invite" | "no-pledge" | "none";
+
+export function supporterPrompt(state: SupporterState, justSignedIn: boolean): SupporterPrompt {
+  if (!state.available || state.isSupporter) return "none";
+  if (justSignedIn && state.personId !== null) return "no-pledge";
+  return "invite";
+}
+
 /** What the server currently says about this browser. */
 export async function fetchSupporterState(): Promise<SupporterState> {
   if (DEVMODE) return OFFLINE;

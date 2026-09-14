@@ -14,6 +14,7 @@
 import {
   clearedCookie,
   cookieFrom,
+  countsAsSupporter,
   readSession,
   SESSION_COOKIE,
   type PatreonEnv,
@@ -49,7 +50,10 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const session = await readSession(token, secret);
   if (!session) return json(ANONYMOUS);
 
-  return json({ isSupporter: session.isSupporter, personId: `patreon:${session.userId}` });
+  return json({
+    isSupporter: countsAsSupporter(session, env),
+    personId: `patreon:${session.userId}`,
+  });
 };
 
 export const onRequestDelete: PagesFunction<Env> = async ({ request }) => {

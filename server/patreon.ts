@@ -44,6 +44,13 @@ export interface PatreonEnv {
    * somebody who supports an unrelated creator reads as a supporter here.
    */
   PATREON_CAMPAIGN_ID?: string;
+  /**
+   * Optional. Patreon user ids that get the supporter perks without a pledge —
+   * the people who make the tracker. Comma-separated; a `patreon:` prefix is
+   * allowed, since that is how /api/patreon/session shows an id. See
+   * countsAsSupporter for why this has to exist.
+   */
+  PATREON_TEAM_USER_IDS?: string;
   /* The build-time client vars are the same values, so they are accepted as a
      fallback: a Pages project that already has them set does not need them
      entered twice. The secret is never among these — it has no VITE_ twin and
@@ -58,6 +65,32 @@ export function clientId(env: PatreonEnv): string | undefined {
 
 export function redirectUri(env: PatreonEnv): string | undefined {
   return env.PATREON_REDIRECT_URI ?? env.VITE_PATREON_REDIRECT_URI;
+}
+
+/**
+ * Whether this person gets the supporter perks: an active pledge, or being on
+ * the team.
+ *
+ * The team is here because the account that OWNS the campaign has no pledge to
+ * it — a creator is not a member of their own campaign — so the one person
+ * certain to deserve the perks was the one the pledge check could never pass.
+ * Signing in with it went round forever: sign in, come back "not a supporter",
+ * get offered the sign-in again.
+ *
+ * Asked each time the answer is given rather than baked into the cookie, which
+ * keeps the pledge as it stood at sign-in. So an id added to the list applies
+ * on the next page load without signing in again, and one taken off stops
+ * applying just as fast.
+ */
+export function countsAsSupporter(
+  session: Pick<PatreonSession, "userId" | "isSupporter">,
+  env: PatreonEnv,
+): boolean {
+  if (session.isSupporter) return true;
+  return (env.PATREON_TEAM_USER_IDS ?? "")
+    .split(",")
+    .map((id) => id.trim().replace(/^patreon:/, ""))
+    .some((id) => id !== "" && id === session.userId);
 }
 
 /* ------------------------------------------------------------------------ */

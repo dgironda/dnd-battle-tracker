@@ -10,7 +10,7 @@ import { useGlobalContext } from "./hooks/optionsContext";
 import { Helmet } from "react-helmet-async";
 import monsterShareURL from "./utils/monsterShareURL";
 import { startTour } from "./components/Tour";
-import { DialogHost } from "./utils/notify";
+import { DialogHost, notify } from "./utils/notify";
 import ErrorBoundary from "./components/ErrorBoundary";
 import GlobalErrorNotice from "./components/GlobalErrorNotice";
 import { clearCrashCount } from "./utils/crashRecovery";
@@ -20,6 +20,8 @@ import {
   fetchSupporterState,
   forgetLegacyCode,
   patreonAuthorizeUrl,
+  supporterPrompt,
+  type SupporterState,
 } from "./utils/patreonSession";
 import ConsentBanner from "./components/ConsentBanner";
 import PrivacyPolicy from "./components/PrivacyPolicy";
@@ -172,22 +174,25 @@ function App() {
   useEffect(() => {
     let cancelled = false;
 
-    const settle = (state: {
-      isSupporter: boolean;
-      personId: string | null;
-      available: boolean;
-    }) => {
+    const settle = (state: SupporterState, justSignedIn = false) => {
       if (cancelled) return;
       setIsSupporter(state.isSupporter);
       setGateAvailable(state.available);
       /* The prompt waits for the answer instead of racing it. Defaulting it to
          visible meant every returning supporter got a flash of "support us"
-         before the session came back and took it away again.
-
-         And it stays down when the check failed: offering "sign in with
-         Patreon" to somebody whose sign-in is the broken thing is worse than
-         saying nothing. */
-      setOverlayVisible(ENABLE_PATREON && state.available && !state.isSupporter);
+         before the session came back and took it away again. What it waits
+         for — and why a sign-in without a pledge is told so rather than invited
+         to sign in again — is supporterPrompt in utils/patreonSession. */
+      const prompt = ENABLE_PATREON ? supporterPrompt(state, justSignedIn) : "none";
+      setOverlayVisible(prompt === "invite");
+      if (prompt === "no-pledge") {
+        void notify(
+          "You're signed in with Patreon, but that account doesn't have an active pledge to " +
+            "Simulacrum Technologies, so the supporter perks are still off. If you've just " +
+            "pledged, sign in again with Support us on Patreon to switch them on.",
+          { title: "No pledge on that account" },
+        );
+      }
       /* A stable id across every device this patron signs in on — which is the
          only thing identify() is actually for, and the reason the exchange was
          worth building. Anonymous visitors stay anonymous. */
@@ -201,7 +206,7 @@ function App() {
       /* Off the URL before anything else can read it — the address bar, the
          referrer on the next outbound link, and any analytics pageview. */
       window.history.replaceState({}, document.title, window.location.pathname);
-      exchangeCode(code).then(settle);
+      exchangeCode(code).then((state) => settle(state, true));
     } else {
       fetchSupporterState().then(settle);
     }

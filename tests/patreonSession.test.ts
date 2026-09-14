@@ -2,6 +2,7 @@ import { describe as suite, it, expect } from "vitest";
 import {
   clearedCookie,
   cookieFrom,
+  countsAsSupporter,
   isActivePatron,
   readSession,
   SESSION_COOKIE,
@@ -109,5 +110,40 @@ suite("who counts as a patron", () => {
   it("rejects somebody with no memberships at all", () => {
     expect(isActivePatron({ included: [] }, "99")).toBe(false);
     expect(isActivePatron({}, "99")).toBe(false);
+  });
+});
+
+/**
+ * The campaign's own creator has no pledge to it, so the pledge check alone
+ * could never let them in — and signing in with that account looped: sign in,
+ * "not a supporter", sign in again.
+ */
+suite("who else gets the perks", () => {
+  const creator = { userId: "4471239", isSupporter: false };
+
+  it("lets a team member in without a pledge", () => {
+    expect(countsAsSupporter(creator, { PATREON_TEAM_USER_IDS: "4471239" })).toBe(true);
+  });
+
+  it("reads a list the way people will type it", () => {
+    /* Spaces after the commas, and ids pasted straight out of
+       /api/patreon/session with their prefix still on. */
+    expect(countsAsSupporter(creator, { PATREON_TEAM_USER_IDS: "10, patreon:4471239 ,22" })).toBe(true);
+  });
+
+  it("still asks everybody else for a pledge", () => {
+    const stranger = { userId: "555", isSupporter: false };
+    expect(countsAsSupporter(stranger, { PATREON_TEAM_USER_IDS: "4471239" })).toBe(false);
+    expect(countsAsSupporter(stranger, {})).toBe(false);
+    /* An empty entry must not match an empty id. */
+    expect(countsAsSupporter({ userId: "", isSupporter: false }, { PATREON_TEAM_USER_IDS: "1,,2" })).toBe(false);
+  });
+
+  it("does not match part of an id", () => {
+    expect(countsAsSupporter(creator, { PATREON_TEAM_USER_IDS: "447123" })).toBe(false);
+  });
+
+  it("changes nothing for a patron", () => {
+    expect(countsAsSupporter({ userId: "555", isSupporter: true }, {})).toBe(true);
   });
 });

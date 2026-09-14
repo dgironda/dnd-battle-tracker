@@ -8,6 +8,7 @@
  */
 
 import {
+  countsAsSupporter,
   exchangeCode,
   PatreonError,
   sessionCookie,
@@ -50,7 +51,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   return json(
     {
-      isSupporter: session.isSupporter,
+      /* The cookie keeps the pledge as it stood; the team is added on top here
+         and in session.ts, never signed into the cookie. */
+      isSupporter: countsAsSupporter(session, env),
       /* The raw Patreon user id, prefixed so it reads as what it is wherever it
          turns up. This becomes the person id in PostHog. */
       personId: `patreon:${session.userId}`,

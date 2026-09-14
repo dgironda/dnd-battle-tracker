@@ -21,3 +21,10 @@ PATREON_SESSION_SECRET=
 # check can only ask "is this person a patron of anything?", which lets someone
 # who supports an unrelated creator through as a supporter here.
 PATREON_CAMPAIGN_ID=
+
+# Patreon user ids that get the supporter perks without pledging — the people
+# who make the tracker. Needed for the campaign's own creator account, which has
+# no pledge to itself and so never passes the check. Comma-separated. Not a
+# secret: sign in, open /api/patreon/session, and it is the number in personId
+# (the "patreon:" prefix may be left on).
+PATREON_TEAM_USER_IDS=

@@ -35,6 +35,9 @@ export const onRequestGet: PagesFunction<Env> = ({ env }) => {
     redirectUri: !!redirectUri(env),
     /* Optional, but without it any active pledge to ANY creator counts. */
     campaignId: !!env.PATREON_CAMPAIGN_ID,
+    /* Optional. Without it the campaign's own creator is not a supporter —
+       they have no pledge to themselves. */
+    teamUserIds: !!env.PATREON_TEAM_USER_IDS,
   };
 
   const required = ["sessionSecret", "clientSecret", "clientId", "redirectUri"] as const;
