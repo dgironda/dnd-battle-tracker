@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Hero, Monster, Combatant } from '../../types/index';
+import type { SavedBattle, ExportedData } from '../../types/index';
+import { planImport, importSummary } from '../../utils/backupImport';
 import { useCombat } from '../BattleTracker/CombatContext';
 import {
   getHeroes,
@@ -21,6 +22,7 @@ import StorageWarning from '../../utils/StorageWarning';
 import { compressImageForUpload } from '../../utils/imageCompression';
 import {
   putPhoto,
+  takeInPhotos,
   getPhoto,
   deletePhoto,
   pruneOrphans,
@@ -29,33 +31,6 @@ import {
 } from '../../utils/photoStore';
 import { notify, confirmDialog } from '../../utils/notify';
 import Icon from '../Icon';
-
-interface SavedBattle {
-  id: string;
-  name: string;
-  savedDate: string;
-  combatants: Combatant[];
-  roundNumber: number;
-  currentTurnIndex: number;
-  /**
-   * Legacy: the photo as a base64 data URL, inline. Read on load and moved
-   * into IndexedDB — see photoStore for why keeping it here was so expensive.
-   * Never written any more.
-   */
-  photo?: string;
-  /** Key into the IndexedDB photo store. */
-  photoId?: string;
-}
-
-interface ExportedData {
-  _header: Record<string, string>;
-  heroes: Hero[];
-  monsters: Monster[];
-  combatants: Combatant[];
-  round: number;
-  currentTurnIndex: number;
-  battles: SavedBattle[];
-}
 
 interface BattleManagerProps {
   onClose: () => void;
@@ -73,7 +48,6 @@ interface BattleManagerProps {
  * something absurd into memory.
  */
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
-const MAX_ENTRIES = 1000;
 
 const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
   const {
@@ -399,12 +373,6 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
     input.click();
   };
 
-  const isValidGameData = (data: unknown): data is Partial<ExportedData> => {
-    if (data === null || typeof data !== 'object') return false;
-    const d = data as Record<string, unknown>;
-    return 'heroes' in d && 'combatants' in d && 'round' in d && 'battles' in d;
-  };
-
   const importFromJson = (file: File) => {
     if (!file) return;
 
@@ -422,61 +390,15 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
 
     reader.onload = async (event) => {
       try {
-        const jsonString = event.target?.result as string;
-        const importedData: unknown = JSON.parse(jsonString);
-
-        if (!isValidGameData(importedData)) {
-          await notify(
-            'That file is missing heroes, combatants, battles or round data.',
-            { title: 'Unrecognised file', tone: 'warning' }
-          );
-          return;
-        }
-
-        const incomingHeroes = Array.isArray(importedData.heroes) ? importedData.heroes : null;
-        const incomingCombatants = Array.isArray(importedData.combatants) ? importedData.combatants : null;
-        const incomingBattles = Array.isArray(importedData.battles) ? importedData.battles : null;
-        // Monsters are optional so files exported before the fix still load.
-        const incomingMonsters = Array.isArray(importedData.monsters) ? importedData.monsters : [];
-
-        if (!incomingHeroes || !incomingCombatants || !incomingBattles) {
-          await notify('The heroes, combatants and battles in that file are not lists.', {
-            title: 'Invalid file', tone: 'warning',
-          });
-          return;
-        }
-
-        const round = importedData.round;
-        if (typeof round !== 'number' || round < 0 || !Number.isFinite(round)) {
-          await notify('That file has an invalid round number.', { title: 'Invalid file', tone: 'warning' });
-          return;
-        }
-
-        const existingHeroes = getHeroes() ?? [];
-        const existingMonsters = getMonsters() ?? [];
-        const existingBattles = savedBattles ?? [];
-
-        const existingHeroIds = new Set(existingHeroes.map(h => h.id));
-        const existingMonsterIds = new Set(existingMonsters.map(m => m.id));
-        const existingBattleIds = new Set(existingBattles.map(b => b.id));
-
-        // Give anything that clashes with what's already stored a fresh id.
-        const reId = <T extends { id: string }>(items: T[], taken: Set<string>): T[] =>
-          items.map((item) => (taken.has(item.id) ? { ...item, id: crypto.randomUUID() } : item));
-
-        const mergedHeroes = [...existingHeroes, ...reId(incomingHeroes, existingHeroIds)];
-        const mergedMonsters = [...existingMonsters, ...reId(incomingMonsters, existingMonsterIds)];
-        const mergedBattles = [...existingBattles, ...reId(incomingBattles, existingBattleIds)];
-
-        if (
-          mergedHeroes.length > MAX_ENTRIES ||
-          mergedMonsters.length > MAX_ENTRIES ||
-          incomingCombatants.length > MAX_ENTRIES ||
-          mergedBattles.length > MAX_ENTRIES
-        ) {
-          await notify(`That would leave more than ${MAX_ENTRIES} entries in one list.`, {
-            title: 'Too much data', tone: 'warning',
-          });
+        /* What the file is allowed to change, decided before anything is
+           touched — see utils/backupImport. */
+        const plan = planImport(JSON.parse(event.target?.result as string), {
+          heroes: getHeroes() ?? [],
+          monsters: getMonsters() ?? [],
+          battles: savedBattles ?? [],
+        });
+        if (!plan.ok) {
+          await notify(plan.message, { title: plan.title, tone: 'warning' });
           return;
         }
 
@@ -488,13 +410,12 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
            `combatants: []`, so importing a friend's backup could silently
            clear the fight on the table. It is now only touched when there is
            something to put there AND the user says so. */
-        const wantsBattle = incomingCombatants.length > 0;
-        let replaceBattle = false;
-        if (wantsBattle) {
-          replaceBattle =
-            combatants.length === 0 ||
+        const wantsBattle = plan.combatants.length > 0;
+        const replaceBattle =
+          wantsBattle &&
+          (combatants.length === 0 ||
             (await confirmDialog(
-              `That file has a battle in it (${incomingCombatants.length} combatants). ` +
+              `That file has a battle in it (${plan.combatants.length} combatants). ` +
                 `Loading it replaces the one you have in progress. Your heroes, monsters and saved ` +
                 `battles are merged either way.`,
               {
@@ -503,62 +424,32 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
                 confirmLabel: 'Replace battle',
                 cancelLabel: 'Keep mine',
               }
-            ));
-        }
+            )));
 
         // Every write goes through the shared key constants. The round used to
         // be written to "roundnumber" here while the app read "roundNumber",
         // so the imported round was silently discarded.
-        /* A file's battles carry their photo inline, which is where they used
-           to live. Move each one into IndexedDB and strip it from the record
-           before any of this reaches localStorage — importing a backup with
-           photos in it would otherwise blow the budget on the spot. */
-        const rehomed: SavedBattle[] = [];
-        for (const battle of mergedBattles) {
-          if (!battle.photo) {
-            rehomed.push(battle);
-            continue;
-          }
-          const blob = dataUrlToBlob(battle.photo);
-          const { photo: _inline, ...rest } = battle;
-          void _inline;
-          if (blob) {
-            await putPhoto(battle.id, { full: blob, thumb: blob });
-            rehomed.push({ ...rest, photoId: battle.id });
-          } else {
-            rehomed.push(rest);
-          }
-        }
+        /* A file's battles carry their photo inline; they go into IndexedDB
+           before any of this reaches localStorage (takeInPhotos). */
+        const battles = await takeInPhotos(plan.battles);
 
-        storeHeroes(mergedHeroes);
-        storeMonsters(mergedMonsters);
-        await persistBattles(rehomed);
+        storeHeroes(plan.heroes);
+        storeMonsters(plan.monsters);
+        await persistBattles(battles);
 
         // Push the imported state into the live app instead of reloading.
         reloadRosters();
-        setSavedBattles(rehomed);
+        setSavedBattles(battles);
 
         if (replaceBattle) {
-          storeCombatants(incomingCombatants, round);
-          setCombatants(incomingCombatants);
-          setRoundNumber(round);
-          setCurrentTurnIndex(
-            Math.min(
-              Math.max(typeof importedData.currentTurnIndex === 'number' ? importedData.currentTurnIndex : 0, 0),
-              Math.max(incomingCombatants.length - 1, 0)
-            )
-          );
+          storeCombatants(plan.combatants, plan.round);
+          setCombatants(plan.combatants);
+          setRoundNumber(plan.round);
+          setCurrentTurnIndex(plan.turnIndex);
         }
 
-        const battleLine = replaceBattle
-          ? ' The battle in the file is now on the table.'
-          : wantsBattle
-            ? ' The battle in the file was left out; yours is untouched.'
-            : '';
-
         await notify(
-          `Imported ${incomingHeroes.length} heroes, ${incomingMonsters.length} monsters and ` +
-            `${incomingBattles.length} saved battles.${battleLine}`,
+          importSummary(plan.added, replaceBattle ? 'replaced' : wantsBattle ? 'kept' : 'none'),
           { title: 'Import complete' }
         );
       } catch (error) {
