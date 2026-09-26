@@ -1,0 +1,71 @@
+/* ==========================================================================
+   THE BATTLE SIDE, IN THREE STAGES
+
+   The right of the page has three jobs depending on how far along you are, and
+   only one of them at a time:
+
+     prompt   nothing to fight with — one line saying so
+     ready    both rosters have someone — one very large Start the Battle
+     running  the tracker, exactly as it has always looked
+
+   These two states take the same slot: rows 2-3, columns 2-3, which is the
+   round row plus the tracker row. Written as line numbers rather than a named
+   area because there is no name for "the whole battle side" in the template —
+   adding one would mean re-cutting the grid, and the banner row above has to
+   stay where it is.
+
+   BattleTracker renders exactly one of the three, so no wrapper element was
+   needed: it already owns all three pieces.
+   ========================================================================== */
+
+#battlePrompt,
+#battleControls.isSolo {
+  grid-area: 2 / 2 / 4 / 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 2rem;
+}
+
+#battlePrompt {
+  /* The two rows this sits in are `fr` rows in a column whose first row is
+     `auto`, and the rail spans all four — so the `auto` row absorbs the rail's
+     whole height and the `fr` rows collapse to whatever is left. With the
+     tracker there that is most of the page; with only this sentence there it
+     was 38px, and the prompt ended up sitting on the footer at the very bottom
+     of the window. The Start ribbon in the next stage is what holds those rows
+     open for itself, so this claims the same. */
+  min-height: 42vh;
+  align-self: stretch;
+  max-width: 22ch;
+  margin: 0 auto;
+  font-family: 'Caudex', serif;
+  font-size: clamp(1.1rem, 1.9vw, 2rem);
+  line-height: 1.4;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--color-fg);
+  opacity: 0.8;
+}
+
+/* The one thing on the page at this point, so it is sized like it. */
+#battleControls.isSolo #buttonStartBattle {
+  /* gfx.css sets the width with !important, so this has to as well. */
+  width: min(58vw, 54rem) !important;
+  max-width: 100%;
+  /* The nudge that tucks it beside the round number is wrong when it is the
+     only thing here. */
+  position: static;
+  left: auto;
+  top: auto;
+  margin: 0;
+}
+
+#battleControls.isSolo {
+  margin: 0;
+  align-self: stretch;
+  /* The same floor as the prompt, so the ribbon lands where the sentence it
+     replaces was rather than jumping up the page when a hero is added. */
+  min-height: 42vh;
+}

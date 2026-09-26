@@ -182,7 +182,7 @@ export function CombatantRow({
         style={{
           /* A custom property, not backgroundColor: the tint is
              painted by the button inside the cell, not by the
-             cell — see .combatantHP in fixes.css for why. */
+             cell — see .combatantHP in fixes/battle-table.css for why. */
           ["--hp-tint" as string]: hpTint(combatant.currHp, combatant.maxHp),
           // Healthy HP inherits the table's own ink, so it
           // matches initiative exactly. Only a bloodied cell

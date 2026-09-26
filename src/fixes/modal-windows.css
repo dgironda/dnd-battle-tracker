@@ -1,0 +1,165 @@
+/* ==========================================================================
+   MODAL WINDOWS
+
+   Framed in the managers' scroll artwork: parchment for the windows you read
+   and fill in, the red banner for a concentration check.
+   ========================================================================== */
+
+/* --- modal windows on the managers' scrolls --------------------------------
+   Every modal is framed with the same container artwork the managers use, so
+   a dialog reads as another sheet from the same pad rather than as a browser
+   box. `border-image` 9-slices it, which is what lets one drawing wrap a
+   window of any size.
+
+   Most take the parchment scroll. The three that interrupt a fight — starting
+   a battle, taking damage, and a concentration check — take the hero banner
+   instead: they are the moments that should feel urgent, and the red says so
+   before the words do.
+
+   The border is the frame, so the box has to be border-box or the artwork
+   inflates the window; and the old background, radius and shadow all go,
+   since the artwork now supplies the edge. */
+#initiativeDialogInner,
+#conditionReminderContent,
+.appDialogInner,
+.hpChangeModalInner,
+.popup-container,
+.errorNotice,
+.privacyInner,
+#conCheckInner {
+  box-sizing: border-box;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 20px 35px;
+  border-image-slice: 6% fill;
+  border-image-width: 20px 35px;
+  border-image-repeat: stretch;
+  /* The artwork does not follow the theme, so neither can the text on it. */
+  color-scheme: light;
+  color: var(--panel-ink);
+}
+
+/* ---- parchment: the windows you read and fill in ----
+   The HP window and the shared confirm popup moved here from the red banner.
+   Both carry decisions with a colour to them — take damage / heal, continue /
+   cancel — and the drawn buttons are red and green: on the banner's own red
+   the damage button vanished into its ground. The banner is kept for the one
+   window that is a single dramatic prompt rather than a form. */
+#initiativeDialogInner,
+#conditionReminderContent,
+.appDialogInner,
+.hpChangeModalInner,
+.popup-container,
+.errorNotice,
+.privacyInner {
+  border-image-source: url('../assets/draftsvgs_v2/container_monster-manager.svg');
+  --panel-ink: #2b1a0c;
+  --panel-ink-soft: #56391d;
+  --panel-rule: rgba(43, 26, 12, 0.30);
+  --panel-inset: rgba(107, 72, 36, 0.15);
+  --panel-field: rgba(255, 253, 248, 0.80);
+  --panel-field-ink: #2b1a0c;
+}
+
+/* ---- the red banner: hold your concentration ---- */
+#conCheckInner {
+  border-image-source: url('../assets/draftsvgs_v2/container_hero-manager.svg');
+  --panel-ink: #fbf3e7;
+  --panel-ink-soft: #eed6ba;
+  --panel-rule: rgba(251, 243, 231, 0.26);
+  --panel-field: rgba(251, 243, 231, 0.94);
+  --panel-field-ink: #2b1c10;
+}
+
+/* Headings and body copy take the panel's ink rather than a theme token. */
+#initiativeDialogInner h1, #initiativeDialogInner h2, #initiativeDialogInner h3,
+#conditionReminderContent h1, #conditionReminderContent h2, #conditionReminderContent h3,
+.appDialogInner .appDialogTitle, .appDialogInner .appDialogMessage,
+.hpChangeModalInner h1, .hpChangeModalInner h2, .hpChangeModalInner h3,
+.popup-container .popup-title, .popup-container .popup-message,
+#conCheckInner h1, #conCheckInner h2, #conCheckInner h3, #conCheckMessage,
+#deathSavesBox, #deathSavesBox > h2 {
+  color: var(--panel-ink);
+  background: none;
+}
+
+/* Fields sit on the artwork and have to stay legible on either ground. */
+#initiativeDialogInner input,
+.hpChangeModalInner input,
+#conCheckInner input,
+.appDialogInner input {
+  background-color: var(--panel-field);
+  color: var(--panel-field-ink);
+  border-radius: 2px;
+}
+
+/* Death saves are a section inside the HP window, not a window of their own,
+   so they get a tint of the banner rather than a frame. */
+#deathSavesBox {
+  background-color: rgba(0, 0, 0, 0.22);
+  border-radius: 0;
+}
+
+
+
+/* Left over from when these panels were manager-style frames. The parchment is
+   drawn by .statHover::after now, and with the panel's own border-image gone
+   these were painting a manager scroll behind it. */
+.heroStatHover,
+.monsterStatHover {
+  border-image-source: none;
+}
+
+/* The start-battle window carries two rosters, which is a lot of window: cap
+   it and let the content scroll inside the frame rather than running off the
+   bottom of the screen. The frame is the border, so it stays put while the
+   content moves. */
+.popup-container {
+  max-height: 86vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--panel-rule) transparent;
+}
+
+/* Those rosters kept their own light backgrounds, which left the window's
+   cream ink sitting on white and effectively invisible. Same treatment as the
+   hero manager's roster: tints of the banner underneath, ruled in its own ink,
+   so the table belongs to the sheet it is drawn on. */
+.popup-container table {
+  border-collapse: collapse;
+  width: 100%;
+  color: var(--panel-ink);
+}
+
+.popup-container th {
+  background-color: rgba(0, 0, 0, 0.34);
+  color: var(--panel-ink);
+  border: none;
+  border-bottom: 1px solid var(--panel-rule);
+  padding: 0.3rem 0.5rem;
+}
+
+.popup-container td {
+  background-color: rgba(251, 243, 231, 0.06);
+  color: var(--panel-ink);
+  border: none;
+  border-bottom: 1px solid rgba(251, 243, 231, 0.14);
+  padding: 0.28rem 0.5rem;
+}
+
+.popup-container tr:nth-of-type(even) td {
+  background-color: rgba(0, 0, 0, 0.16);
+}
+
+/* The editable initiative bonus sits on the banner too. */
+.popup-container .setEditingField {
+  color: inherit;
+}
+
+.popup-container .setEditingField:hover {
+  background-color: rgba(251, 243, 231, 0.14);
+}

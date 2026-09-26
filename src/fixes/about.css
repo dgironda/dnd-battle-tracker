@@ -1,0 +1,249 @@
+/* ==========================================================================
+   ABOUT — the same parchment as the managers
+
+   It was a plain tinted box: default type, `overflow-x: scroll`, and the
+   keyboard shortcuts as seven paragraphs with the key run into the sentence.
+   Now it is the monster-manager scroll, on one responsive base with everything
+   inside it in `em`, and the three things it holds — what the app does, what
+   the keys do, and who built it — each get their own section instead of
+   sharing one column.
+   ========================================================================== */
+
+#about {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+
+  /* Two columns want more room than Options' single one, but the panel still
+     has to fit a laptop: the vw term takes over below ~1100px. */
+  width: min(94vw, 62rem);
+  max-width: none;
+  max-height: 88vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  box-sizing: border-box;
+  background: none;
+  background-color: transparent;
+  color: var(--panel-ink);
+  color-scheme: light;
+
+  border-style: solid;
+  border-color: transparent;
+  border-width: 30px 53px;
+  border-image-source: url('../assets/draftsvgs_v2/container_monster-manager.svg');
+  border-image-slice: 6% fill;
+  border-image-width: 30px 53px;
+  border-image-repeat: stretch;
+
+  --panel-ink: #2b1a0c;
+  --panel-ink-soft: #56391d;
+  --panel-rule: rgba(43, 26, 12, 0.30);
+
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.92rem, 1.02vw, 1.28rem);
+  line-height: 1.42;
+  padding: 0.2rem 0.7rem 0.7rem;
+}
+
+#about,
+#about h2,
+#about h3,
+#about p,
+#about li {
+  font-weight: normal;
+}
+
+#about h2 {
+  font-size: 1.75em;
+  font-variant: small-caps;
+  letter-spacing: 0.6px;
+  text-align: center;
+  margin: 0 0 0.15em;
+  color: var(--panel-ink);
+  filter: none;
+}
+
+/* A drawn rule rather than a border, as the panels use. The stroke art is
+   400x20, so the box needs roughly a twentieth of its width in height or the
+   pencil line squashes flat and reads as a CSS border again; the negative
+   margins claw that height back out of the flow. */
+#about h2::after {
+  content: "";
+  display: block;
+  height: 26px;
+  margin: -9px auto -6px;
+  width: 62%;
+  background-image: url('../assets/draftsvgs_v2/underline_pencil-2.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.55;
+}
+
+#about h3 {
+  font-size: 1.16em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.15em;
+  color: var(--panel-ink);
+  width: auto;
+  filter: none;
+}
+
+#about h3::after {
+  content: "";
+  display: block;
+  height: 22px;
+  margin: -8px 0 0;
+  background-image: url('../assets/draftsvgs_v2/underline_pencil-6.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.5;
+}
+
+/* Instructions and shortcuts side by side; the list is the wider of the two
+   because its lines are sentences and the shortcuts' are fragments. */
+#aboutGrid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 0.5em 1.6em;
+  align-items: start;
+  margin-top: 0.3em;
+}
+
+#about section {
+  min-width: 0;
+}
+
+#about #instructions {
+  overflow: visible;
+}
+
+#about ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#about #instructions li {
+  position: relative;
+  margin: 0 0 0.5em;
+  padding-left: 1.1em;
+  list-style: none;
+}
+
+/* An en-dash in the panel's own ink instead of a browser bullet. */
+#about #instructions li::before {
+  content: "–";
+  position: absolute;
+  left: 0.15em;
+  top: 0;
+  color: var(--panel-ink-soft);
+}
+
+/* -- keyboard shortcuts ---------------------------------------------------
+   A real key/meaning list. The <dl> is a grid of two-cell rows so every
+   description starts on the same line whatever the key art's width. */
+#about dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.24em;
+}
+
+#about .shortcutRow {
+  display: grid;
+  grid-template-columns: 2.6em 1fr;
+  align-items: center;
+  gap: 0.7em;
+}
+
+#about .shortcutRow dt,
+#about .shortcutRow dd {
+  margin: 0;
+}
+
+#about .keyShortcut {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+}
+
+#about .shortcutRow dd {
+  color: var(--panel-ink-soft);
+}
+
+/* -- credits --------------------------------------------------------------
+   Role and name in two columns so the names line up, rather than five
+   sentences each starting with a different word. */
+#credits {
+  margin-top: 0.5em;
+}
+
+#about #credits ul {
+  display: grid;
+  /* 15rem fitted three columns into the panel and left the names ~160px, so
+     every multi-name credit wrapped to three lines. Two columns give the name
+     column room to hold its line. */
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: 0.1em 1.8em;
+  align-items: baseline;
+}
+
+#about #credits li {
+  display: grid;
+  grid-template-columns: 8.5em 1fr;
+  gap: 0.6em;
+  margin: 0;
+  padding: 0.1em 0;
+}
+
+#about .creditRole {
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  color: var(--panel-ink-soft);
+}
+
+#about a {
+  color: #7a2f12;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+#about #aboutCloseButton {
+  position: absolute;
+  top: 0.1em;
+  right: 0.3em;
+  z-index: 3;
+  float: none;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: #7a2f12;
+  font-family: 'Caudex', serif;
+  font-size: 1.15em;
+  width: 2em;
+  height: 2em;
+  aspect-ratio: auto !important;
+  cursor: pointer;
+}
+
+#about #aboutCloseButton:hover {
+  filter: none;
+  color: #a63c17;
+}
+
+/* One column once the two would be too narrow to read. This is a container
+   width, not a device width — the panel is 94vw at small sizes. */
+@media (max-width: 60rem) {
+  #aboutGrid {
+    grid-template-columns: 1fr;
+    gap: 0.6em;
+  }
+}

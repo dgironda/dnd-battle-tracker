@@ -273,8 +273,8 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
             <React.Fragment key={m.id}>
               <tr className="monsterManagerMonster">
                 <td>
-                  {/* The manager draws no pencil (fixes.css), so a blank name
-                      needs something of its own to click. */}
+                  {/* The manager draws no pencil (fixes/monster-manager.css),
+                      so a blank name needs something of its own to click. */}
                   <EditableCell entity={m} field="name" type="text" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster}>
                     <span className="managerBlank">Unnamed</span>
                   </EditableCell>

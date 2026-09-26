@@ -1,0 +1,62 @@
+/* ==========================================================================
+   EDIT BATTLE — the app's own vocabulary
+
+   Was a plain list with two pill buttons. The window is the parchment frame
+   the other dialogs use, the actions are the drawn buttons, and a monster's
+   name is editable here: adding two Goblins by hand leaves two rows called
+   "Goblin", and this is where you tell them apart.
+   ========================================================================== */
+
+/* -- editing a name in place ---------------------------------------------- */
+/* The same EditableCell the tracker uses, so the pencil and the click-to-edit
+   behave the way they do there. */
+/* It was an inline-flex row that would not break, so "Ancient Deep Crow
+   Matriarch of the Underdark" ran straight over the hit points and the bin
+   beside it — 151px past the end of the row on a phone. A <button> cannot be
+   display:inline (the browser normalises that back to inline-block, which is
+   just as unbreakable), so it is a block that fills its column and wraps its
+   words inside itself, with the pencil flowing after the last one — and onto a
+   line of its own when the last word ends flush against the edge. */
+.editBattleName .setEditingField {
+  font: inherit;
+  color: inherit;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.05em 0.25em;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/* Inline with the words rather than a flex item, so it rides the last line. */
+.editBattleName .setEditingField .edit {
+  display: inline;
+  vertical-align: -0.12em;
+  margin-left: 0.2em;
+}
+
+.editBattleName .setEditingField:hover,
+.editBattleName .setEditingField:focus-visible {
+  background-color: rgba(107, 72, 36, 0.16);
+}
+
+.editBattleName input {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+  padding: 0.1em 0.35em;
+  border: none;
+  border-radius: 2px;
+  background-color: var(--panel-field, rgba(255, 253, 248, 0.85));
+  color: var(--panel-field-ink, #2b1a0c);
+}
+
+/* A hero's name is not editable here — heroes are a standing roster and their
+   names belong to the Hero Manager. The line still reads the same. */
+.editBattleRow.is-hero .editBattleName {
+  padding: 0.05em 0.25em;
+}

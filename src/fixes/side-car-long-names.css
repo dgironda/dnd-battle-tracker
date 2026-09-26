@@ -1,0 +1,90 @@
+/* ==========================================================================
+   THE SIDE-CAR, WITH A LONG NAME IN IT
+
+   Three things went wrong once a monster was called something like "Adult Gold
+   Dragon" rather than "Goblin".
+
+   The sheet sat 1em clear of the roll and left another 1em gutter at the far
+   side, so the text began well inside the paper and there was a band of blank
+   parchment where the scroll starts. Those gutters are trimmed, which both
+   moves the text left and gives the line more to work with.
+
+   The name did not wrap, so it ran 36px off the paper.
+
+   And the notes line — an EditableCell, so a button with the text and the
+   pencil inside it — is `inline-flex ... nowrap` for the managers' table
+   cells, where the pencil must never leave its value's side. On a paragraph of
+   notes that meant one unbreakable 400px line hanging 86px off the edge with
+   the pencil out in the page. Here it flows as inline content instead: the
+   text wraps, and the pencil follows the last word onto whatever line it ends
+   on — including a line of its own when the word before it just fits.
+   ========================================================================== */
+
+.statHoverSheet {
+  /* Was `- 2em` (a 1em gutter each side) and `+ 1em` off the roll. */
+  width: calc(var(--scroll-open) - var(--sheet-edge)
+              - (var(--scroll-rod) - var(--scroll-lap)) - 1.1em);
+  margin-left: calc(var(--scroll-rod) - var(--scroll-lap) + 0.35em);
+}
+
+/* Nothing in the panel may push the paper wider than it is. */
+.statHover .statHoverSheet > * {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.statHover .monsterStatName h3,
+.statHover .heroStatName h3,
+.statHover .monsterStatName,
+.statHover .heroStatName {
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+  line-height: 1.1;
+}
+
+/* The notes line, and any editable value inside the panel that can run long.
+   These are <button>s, and a button cannot be display:inline — the browser
+   blockifies it back to inline-block. So the words inside it wrap, but the
+   button itself is one unbreakable box on whatever line it starts on. */
+.statHover .setEditingField {
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  text-align: left;
+}
+
+/* Which is why the notes button gets its own line under the "Notes:" label
+   rather than starting after it. Sharing the line cost the label's width off
+   the right-hand edge — the button's 100% is 100% of the paper, measured from
+   a start point already pushed in by "Notes:", so it hung 52px past the edge.
+   On its own line it starts at the margin and the words fill the full width,
+   with the pencil riding after the last one (and dropping to a line of its own
+   when that last word ends flush). */
+.statHover [class$="-notes"] .setEditingField {
+  display: block;
+  /* border-box, because .setEditingField carries 2px/4px of padding and a
+     content-box 100% would lay that 4px outside the paper. */
+  box-sizing: border-box;
+  width: 100%;
+  padding-left: 0;
+  /* index.css gives every button `margin: .3rem`. Four and a bit pixels of it
+     on the left is enough to push a 100%-wide box off the paper. */
+  margin: 0;
+}
+
+.statHover .setEditingField .edit {
+  /* Inline with the words rather than a flex item, so it rides the last line. */
+  display: inline;
+  vertical-align: -0.15em;
+  margin-left: 0.15em;
+}
+
+/* The notes textarea, once it is being edited, gets the same width as the
+   line it replaces rather than the browser's default columns. */
+.statHover .editableCellTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+}

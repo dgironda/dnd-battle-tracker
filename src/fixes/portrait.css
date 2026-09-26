@@ -1,0 +1,1667 @@
+/* ==========================================================================
+   PORTRAIT
+   ==========================================================================
+
+   Everything above this point assumes a wide window: the managers are a rail
+   down the left, the tracker is an eight-column table, and the stat panel
+   slides in from the side. None of that survives a rotation, and until now
+   portrait simply got whatever fell out of the base stylesheet — a 230px logo,
+   manager buttons collapsed to 49x19, and the tracker's cells stacked with no
+   plaques and no headings.
+
+   The one structural idea here: in portrait a combatant is a CARD, not a row.
+   The eight columns fold into four lines on one plaque —
+
+       name
+       hit points          initiative
+       action  bonus  move  reaction
+       conditions
+
+   — which is the same information in the same reading order, only turned
+   through ninety degrees. The column headings go away with the columns; each
+   value carries its own label instead.
+
+   The trigger is portrait OR too narrow for the table (63rem — see the note on
+   the landscape block), so the two together cover every window with no gap and
+   no overlap: a phone held sideways is 812x375, which is landscape and has
+   nowhere near the width for eight columns, and gets the cards. A wide-but-
+   short window still gets the table it has room for.
+
+   Portrait stays in the trigger even above 63rem because index.css splits the
+   PAGE grid on orientation alone: a tall portrait monitor gets its stacked
+   page from there whatever its width, and a table styled for a rail beside it
+   would have nowhere to sit. */
+@media (orientation: portrait), (max-width: 62.99rem) {
+
+  /* ---- one column, and nothing hanging off the side of it --------------- */
+  #page {
+    display: grid;
+    /* `adbanner`, not `banner` — that is the name AdSlot's banner asks for, and
+       the landscape template above uses. With the row named `banner` the slot
+       matched nothing, so `grid-area: adbanner` was read as an unknown line
+       name and grid invented columns for it: the page came out five columns
+       wide, every row was 328px of a 680px window, and the banner itself
+       rendered 0px wide. One wrong word cost the whole layout. */
+    /* ---- top down ---------------------------------------------------------
+       The masthead is not a box any more. Everything the DM reaches for lives
+       in #header — logo, three managers, About, the Patreon block — but Start
+       the Battle does not: it is #battleControls, a sibling. As long as
+       #header is one grid item those two can never share a band, which is why
+       Start the Battle kept ending up under the roster instead of beside the
+       thing that starts.
+
+       `display: contents` drops the header's box and hands its children
+       straight to #page, so one template can place all of them. Nothing else
+       changes — the buttons keep their ids, their art and their panels.
+
+       Reading order is the order of a fight: the managers that fill it, then
+       Start the Battle, then the round and the timer, then the roster.
+
+       About sits left of the Battle Manager on a phone — the reverse of the
+       rail, where the three managers stack together. Portrait only. */
+    grid-template-areas:
+      "logo     hmbutt"
+      "logo     mmbutt"
+      "about    bmbutt"
+      "sbbutt   ractions"
+      "adbanner adbanner"
+      "patreon  patreon"
+      "round    round"
+      "battletracker battletracker"
+      "adtower  adtower"
+      "footer   footer";
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    justify-items: stretch;
+    align-items: center;
+    max-width: 100vw;
+    column-gap: 0.5rem;
+    row-gap: 0.3rem;
+    padding: 0.35rem 0.6rem 0;
+    box-sizing: border-box;
+    /* The gear and the fold button are placed against this. */
+    position: relative;
+    /* Both corner controls, one number. */
+    --corner-control: 2.1rem;
+    /* ---- the frozen top --------------------------------------------------
+       The page is exactly one screen and the ROSTER is the only thing that
+       scrolls. Everything above it — the masthead, the managers, Start the
+       Battle, the round, the timer, Edit Battle, Battle Log — stays where the
+       DM left it, which is the whole point: mid-fight those are the controls,
+       and hunting for them up a scrolled page is the thing this fixes.
+
+       Done with a fixed-height page rather than sticky positioning because
+       sticky would need the round row to know the masthead's height, and that
+       is only knowable by measuring it at runtime.
+
+       `dvh`, not `vh`: on a phone `vh` is the viewport with the browser's
+       chrome hidden, so a 100vh page is taller than the screen and the bottom
+       row sits under the address bar. */
+    grid-template-rows: auto auto auto auto auto auto auto minmax(0, 1fr) auto auto;
+    height: 100dvh;
+    min-height: 0;
+    /* clip, not hidden: `hidden` on one axis makes the other a scroll
+       container, which would put a scrollbar down a page that fits. */
+    overflow-x: clip;
+  }
+
+  /* Two columns is a phone. Once there is room for the drawn labels to be read
+     at a third of the width, the two rosters share the top line and the logo
+     gets the height the artwork was drawn for. This is the arrangement in the
+     reference: gear in the corner, a tall masthead on the left, the four
+     things you press stacked two-by-two beside it, then Start the Battle out
+     to the right of the support note. */
+  @media (min-width: 34rem) {
+    #page {
+      grid-template-areas:
+        "logo     hmbutt   mmbutt"
+        "logo     about    bmbutt"
+        ".        sbbutt   ractions"
+        "adbanner adbanner adbanner"
+        "patreon  patreon  patreon"
+        "round    round    round"
+        "battletracker battletracker battletracker"
+        "adtower  adtower  adtower"
+        "footer   footer   footer";
+      grid-template-columns: minmax(0, 30fr) minmax(0, 35fr) minmax(0, 35fr);
+      grid-template-rows: auto auto auto auto auto auto minmax(0, 1fr) auto auto;
+    }
+  }
+
+  /* Column headings belong to columns. index.css hides them, but only under
+     `orientation: portrait` — so a phone held sideways kept a row of headings
+     over a stack of cards. */
+  #battleTrackerHeader {
+    display: none;
+  }
+
+  /* ---- the masthead -----------------------------------------------------
+     No box: its children are #page's grid items now (see the template above).
+     The rail's height cap, its scroll and its own grid all belong to
+     landscape and have to be switched off explicitly, or `display: contents`
+     silently keeps none of them and all of them at once — the box is gone but
+     the declarations still resolve against a phantom. */
+  #header {
+    display: contents;
+  }
+
+  #logo                 { grid-area: logo; }
+  #heroManagerButton    { grid-area: hmbutt; }
+  #monsterManagerButton { grid-area: mmbutt; }
+  #battleManagerButton  { grid-area: bmbutt; }
+  #aboutButton          { grid-area: about; }
+  #patreonLink          { grid-area: patreon; }
+  #header .adSlot-tower { grid-area: adtower; }
+
+  /* ---- the round row splits ---------------------------------------------
+     Edit Battle and the Battle Log are things you do to the battle, not facts
+     about it, so they belong with Start the Battle rather than beside the
+     round number. #round dissolves and its two halves take their own areas:
+     the text stays on its own line under the masthead, the buttons go up. */
+  #round {
+    display: contents;
+  }
+
+  .roundLine {
+    grid-area: round;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.2rem 1.1rem;
+    padding: 0.15rem 0.6rem 0.35rem;
+    font-size: clamp(1rem, 3.6vw, 1.45rem);
+    /* The line that says where the frozen part stops and the roster begins. */
+    border-bottom: 1px solid var(--color-shadow, rgba(0, 0, 0, 0.18));
+  }
+
+  .roundActions {
+    grid-area: ractions;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    margin: 0;
+  }
+
+  #buttonEditBattle,
+  #buttonBattleLog {
+    width: 100%;
+    max-width: 11rem;
+    margin: 0;
+  }
+
+  /* ---- the masthead folds away ------------------------------------------
+     Three pencil strokes, reusing the underline artwork the combatant names
+     are drawn with, so the control is in the same hand as everything else.
+     It sits under the gear in the corner, out of the grid entirely — the
+     masthead it hides would otherwise take its space with it. */
+  #mastheadToggle {
+    position: absolute;
+    top: 2.6rem;
+    left: 0.35rem;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.26rem;
+    /* The same width as the gear above it, from the same variable, so the two
+       corner controls stay a matched pair. It was 2.9rem against the gear's
+       2.1 and read as the bigger of the two, which is backwards — the gear is
+       the one that opens a panel. */
+    width: var(--corner-control);
+    height: auto;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+
+  /* Three drawn strokes. The first attempt masked these with the combatant
+     name's underline artwork, which is a hairline in a tall, mostly empty box
+     — SVG masks letterbox by default, so it stayed a hairline whatever height
+     the bar was given. The second attempt gave up and painted plain rounded
+     rectangles, which is how it ended up looking like three strips of tape.
+
+     These are their own drawings: stroke_menu-1..3.svg, each a filled outline
+     rather than a stroked line, so the weight swells and thins along its
+     length the way a pencil does, and each ends bluntly at a slightly
+     different place. They carry `preserveAspectRatio="none"`, so the mask
+     stretches to whatever box it is given instead of letterboxing — which is
+     what defeated the first attempt.
+
+     `currentColor` in the file is irrelevant to a mask; the ink is the
+     background-color here, so the strokes follow the theme.
+
+     That colour is a `light-dark()` pair rather than one value. It used to be
+     `var(--color-ink, #2c2118)`, and `--color-ink` is defined nowhere in the
+     project — so the fallback was in force on every paper, including Midnight,
+     where dark brown ink on a near-black ground made the button vanish.
+     The pair keeps the pencil ink on the six light papers and swaps to chalk
+     on Midnight, the only dark one. `light-dark()` resolves against
+     `color-scheme`, which optionsContext sets on <html> beside `data-theme`. */
+  #mastheadToggle > span {
+    display: block;
+    width: 100%;
+    /* The artwork's own proportion, so the drawn weight is the drawn weight. */
+    aspect-ratio: 120 / 25;
+    background-color: light-dark(#2c2118, #f4efe6);
+    opacity: 0.86;
+    -webkit-mask-image: var(--stroke);
+    mask-image: var(--stroke);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    transform-origin: center;
+    transition: transform 0.18s ease-out, opacity 0.18s ease-out;
+  }
+
+  /* Each stroke is a different drawing, and each sits at its own small angle,
+     so the three do not stack up as one printed glyph. */
+  #mastheadToggle > span:nth-child(1) {
+    --stroke: url('../assets/draftsvgs_v2/stroke_menu-1.svg');
+    transform: rotate(-1.4deg);
+  }
+
+  #mastheadToggle > span:nth-child(2) {
+    --stroke: url('../assets/draftsvgs_v2/stroke_menu-2.svg');
+    transform: rotate(0.8deg);
+  }
+
+  #mastheadToggle > span:nth-child(3) {
+    --stroke: url('../assets/draftsvgs_v2/stroke_menu-3.svg');
+    transform: rotate(-0.6deg);
+  }
+
+  #mastheadToggle:hover > span {
+    opacity: 1;
+  }
+
+  /* Folded: the middle stroke goes, the outer two close on it. Not a rotation
+     into an X — these are pencil strokes, and a drawn line pretending to be a
+     vector cross is the one thing on this page that would look printed. */
+  #mastheadToggle[aria-expanded="false"] > span:nth-child(2) {
+    opacity: 0;
+  }
+
+  #mastheadToggle[aria-expanded="false"] > span:nth-child(1) {
+    transform: translateY(0.34rem) rotate(-1.4deg);
+  }
+
+  #mastheadToggle[aria-expanded="false"] > span:nth-child(3) {
+    transform: translateY(-0.34rem) rotate(-0.6deg);
+  }
+
+  /* What the fold takes: the identity and the doors out of the tracker. What
+     it keeps: the controls for the fight in front of you — Start the Battle,
+     Edit Battle and the log — plus the round and the timer. Folding is for
+     mid-combat, and those are exactly the things you reach for mid-combat.
+
+     Their rows collapse to nothing when their neighbours go, so Start the
+     Battle and the two buttons rise to the top line of their own accord and
+     sit beside the corner controls. No separate collapsed template. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #logo,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #aboutButton,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #patreonLink,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #header .adSlot-tower {
+    display: none;
+  }
+
+  /* Except the support button, which stays. It is a corner fitting like the
+     gear and the fold control — absolutely placed in the gutter, costing the
+     folded layout no width and no height — so there is nothing to gain by
+     taking it away, and folding is exactly when a page is being used for a
+     while. The thank-you line a supporter gets is prose, not a control, and
+     is still hidden by the rule above: `:has(> button)` is what tells them
+     apart. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #patreonLink:has(> button) {
+    display: block;
+  }
+
+  /* ---- the managers, folded ----------------------------------------------
+     The whole ribbon, not a shortened one. Stacked in a column they have the
+     width for it, it is the drawing people already know, and it brings the
+     hover artwork back — a chip had nowhere to show that.
+
+     Sized by WIDTH, because in a column width is what they share; each
+     artwork's own ratio then decides the height (2.55:1 for the two ribbons,
+     3.34:1 for the battle plaque, so that one comes out shorter).
+
+     tools/splice-button-art.mjs and the three *-short.svg files it generates
+     are left in the tree but nothing references them now, so nothing ships
+     them. Delete both if the short version is not wanted back. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #heroManagerButton,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #monsterManagerButton,
+  #page:has(#mastheadToggle[aria-expanded="false"]) #battleManagerButton {
+    /* Three stacked ribbons are the tallest thing in the folded top, so their
+       width is also what sets the band's height — 2.55:1 for the two scrolls
+       means every pixel of width costs 0.39 of height, three times over. This
+       is the knob for the whole balance: 14rem gave a 200px column and 572px
+       of roster, 15rem gives 239px and about 545. Start the Battle came down
+       to make room for it. */
+    width: clamp(7rem, 30vw, 15rem);
+    height: auto;
+    min-width: 0;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    flex: 0 0 auto;
+    justify-self: auto;
+  }
+
+  /* Folded, two across: the chip pyramid, and the three battle buttons stacked
+     beside it.
+
+     Three groups across meant three narrow things — the ribbon came out 96px
+     wide and the two buttons 99px, which is small for a thumb. Stacked, the
+     buttons share one column and can be as wide as it is, which on a phone is
+     most of the screen. It costs one row of height and buys a target you can
+     hit without looking.
+
+     A template of its own rather than the expanded one with columns swapped:
+     folded, every masthead area is either empty or `display: none` (the chips
+     are flex children of #header, not grid items), so only these seven areas
+     have anything in them. */
+  @media (min-width: 23rem) {
+    #page:has(#mastheadToggle[aria-expanded="false"]) {
+      grid-template-areas:
+        "patreon  sbbutt"
+        "patreon  ractions"
+        "adbanner adbanner"
+        "round    round"
+        "battletracker battletracker"
+        "adtower  adtower"
+        "footer   footer";
+      grid-template-columns: max-content minmax(0, 1fr);
+      grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;
+    }
+
+    /* The buttons FILL their column rather than sitting at a fixed width in
+       the middle of it. Capped at 15rem they left about 130px of bare paper on
+       each side of themselves — the column is `1fr`, so all the width the
+       cluster does not take lands here, and centring a fixed-width button in
+       it just puts the waste on both sides instead of one.
+
+       The cap is now a ceiling for very wide windows, not the usual case, and
+       the manager ribbons opposite grew with them so the two columns share the
+       row instead of leaving a channel of paper down the middle. */
+    /* The ribbon is capped tighter than the two buttons under it. It is 2.87:1,
+       so at the buttons' width it came out 122px tall and was the loudest
+       thing on a folded page — louder than the roster it is meant to be making
+       room for. Narrower than its neighbours is fine: it is a different shape,
+       and it stays centred over them. */
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonStartBattle {
+      width: min(100%, 17rem) !important;
+    }
+
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonEditBattle,
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonBattleLog {
+      width: min(100%, 21rem);
+      max-width: none;
+      font-size: 0.72rem;
+    }
+
+    /* Stacked as one block: the ribbon sits directly over the two buttons
+       rather than each centring in its own row with a gap between. */
+    #page:has(#mastheadToggle[aria-expanded="false"]) #battleControls {
+      align-items: flex-end;
+      padding-bottom: 0.15rem;
+    }
+
+    #page:has(#mastheadToggle[aria-expanded="false"]) .roundActions {
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 0.15rem;
+    }
+  }
+
+  /* ---- the chip size, and the cap derived from it ------------------------
+     The chips take their size from height, so this is the cluster's width
+     too: at the cap, a pair is 134px and the cluster 191px; at the floor,
+     81px and 139px. */
+  /* No width cap any more. It existed to force the wrap that made the
+     pyramid; a column wraps by definition, and the grid column is
+     `max-content`, so the cluster is exactly as wide as its widest chip. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #header {
+    max-width: none;
+  }
+
+  /* Folded, the masthead becomes the chip cluster: a flex box in the column
+     beside Start the Battle, holding the only three children it has left.
+     `display: contents` is what it is the rest of the time, and with that in
+     force the three chips stayed in their own grid cells, spread across the
+     top of the page instead of gathered in the corner.
+
+     The padding is the room the gear and the fold button occupy — both are
+     absolute, so they hold nothing open and would otherwise sit on top of the
+     first chip. The min-height covers two rows of chips, so the round line
+     cannot ride up under them when Start the Battle is the shorter column. */
+  #page:has(#mastheadToggle[aria-expanded="false"]) #header {
+    grid-area: patreon;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    /* A column of three, matching the battle buttons beside it. The pyramid
+       this used to be was two chips up and one centred below; stacking costs a
+       row of height and buys chips half again as large, which is the trade
+       that was asked for. */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.1rem 0 0.1rem 3.6rem;
+    box-sizing: border-box;
+    height: auto;
+    max-height: none;
+    min-height: 5.4rem;
+    overflow: visible;
+  }
+
+  /* Folded, one column. Under 23rem the two columns will not sit side by side:
+     at its floor the cluster is 7rem of ribbon plus the 3.6rem corner gutter,
+     about 170px, and the buttons do not go below 9rem — 322px of content box
+     with the gap, which a 368px viewport clears and a 352px one does not. So the cluster takes a line
+     of its own — still a pyramid, just full width — and the ribbon and the two
+     battle buttons share the line beneath it. */
+  @media (max-width: 22.99rem) {
+    #page:has(#mastheadToggle[aria-expanded="false"]) {
+      grid-template-areas:
+        "patreon  patreon"
+        "sbbutt   sbbutt"
+        "ractions ractions"
+        "adbanner adbanner"
+        "round    round"
+        "battletracker battletracker"
+        "adtower  adtower"
+        "footer   footer";
+      grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto auto;
+    }
+
+    /* Nothing shares a line here, so the buttons take the whole width — the
+       biggest targets on the smallest screen, which is where that matters. */
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonStartBattle {
+      width: min(84vw, 15rem) !important;
+    }
+
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonEditBattle,
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonBattleLog {
+      width: min(84vw, 15rem);
+      max-width: none;
+      font-size: 0.72rem;
+    }
+
+    #page:has(#mastheadToggle[aria-expanded="false"]) #header {
+      min-height: 0;
+    }
+
+    #page:has(#mastheadToggle[aria-expanded="false"]) #battleControls {
+      min-height: 0;
+    }
+  }
+
+  /* ---- the support button, on its side in the corner ---------------------
+     The masthead's left edge is a gutter: the gear and the fold button sit in
+     it and the logo is inset past it, so below them it is bare paper the full
+     height of the masthead. The support button goes there, turned on its side,
+     which costs the layout nothing and stops it taking a row of its own.
+
+     `:has(> button)` is what scopes this to a non-supporter. The same element
+     holds the thank-you line for a supporter, and that is prose — it belongs
+     across the page, not on its side in a 34px column.
+
+     Rotation does not change the box a layout sees, so the two have to be
+     described separately: the BUTTON is sized normally and then turned, and
+     its container is given the footprint that turning it produces — width and
+     height swapped. `rotate(90deg) translateY(-100%)` about the top-left
+     corner is what lands the turned button back inside that footprint;
+     rotation alone would swing it out to the left of its own box. */
+  #patreonLink:has(> button) {
+    position: absolute;
+    /* Out of the grid entirely. An absolutely positioned GRID CHILD that still
+       names an area is positioned against that AREA rather than against the
+       grid's padding box — so `top: 5rem` was measuring 5rem down from the
+       patreon row, which sits below the house promo, and put the button over
+       the first combatant. */
+    grid-area: auto;
+    /* Clear of the fold button above it and of the Battle Manager ribbon
+       below — the masthead's third row reaches further up the gutter than the
+       first two, so the strip has to stop short of it. */
+    top: 4.7rem;
+    /* The gear and the fold button start at 0.35rem and are a full corner
+       wide; this is 85% of that, so sharing their left edge would leave it
+       sitting off to one side of them. Indented by half the difference, so all
+       three share a centre line down the gutter instead. */
+    left: calc(0.35rem + (var(--corner-control) - var(--patreon-thick)) / 2);
+    z-index: 3;
+    /* A little narrower than the gear and the fold button, which reads right —
+       those two are controls for the page, this is an aside — and at full
+       corner width the strip ran 88px and its foot landed on the Battle
+       Manager ribbon. The artwork is 136x52, so on its side it is 2.615 of
+       whatever thickness it is given.
+
+       One pair of variables, used both ways round: the container is
+       strip-wide and strip-long, and the button inside it is those two the
+       other way about. */
+    --patreon-thick: calc(var(--corner-control) * 0.85);
+    --patreon-strip: calc(var(--patreon-thick) * 2.615);
+    width: var(--patreon-thick);
+    height: var(--patreon-strip);
+    margin: 0 !important;
+    padding: 0;
+  }
+
+  #patreonLink:has(> button) > button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* Laid out flat first: as long as the strip, as thick as the strip. */
+    width: var(--patreon-strip);
+    height: var(--patreon-thick);
+    min-width: 0;
+    max-width: none;
+    aspect-ratio: auto;
+    transform-origin: top left;
+    transform: rotate(90deg) translateY(-100%);
+  }
+
+  /* ...and it STAYS turned. Hover, press and focus are declared globally with
+     `transform: translateY(±1px)`, and a transform replaces a transform rather
+     than adding to it — so touching the strip threw away the rotation and swung
+     the banner upright, then back, over the shared `transform 0.06s` transition.
+     That is the swivel.
+
+     Here the turn is not a flourish, it is where the button IS, so every state
+     keeps it and the button does not move at all. The nudge those global rules
+     give every other drawn button is right for them and is left alone; this
+     override lives inside the portrait block and never reaches landscape. */
+  #patreonLink:has(> button) > button:hover,
+  #patreonLink:has(> button) > button:active,
+  #patreonLink:has(> button) > button:focus-visible {
+    transform: rotate(90deg) translateY(-100%);
+  }
+
+  /* The gear is a corner fitting, not a row. Given a grid cell it either sat
+     in the masthead's line and stole width from it, or took a row of its own
+     and cost the roster ~40px of frozen page for a 2rem icon. Absolute in the
+     page's top-left corner costs nothing and is where the reference has it —
+     the masthead's own top-left is whitespace, so the two do not collide. */
+  #optionsButton {
+    position: absolute;
+    top: 0.2rem;
+    left: 0.35rem;
+    z-index: 3;
+    width: var(--corner-control);
+    height: var(--corner-control);
+    margin: 0;
+    padding: 0;
+  }
+
+  /* `#header > button { margin-bottom: .75rem }` is the rail's row spacing;
+     the bar uses `gap` instead. */
+  #header > button {
+    margin: 0;
+  }
+
+  /* The masthead is the page's title and it is allowed to look like one: the
+     reference has it roughly 200x180, spanning both manager rows, with the
+     About button's baseline sitting above its foot.
+
+     Two caps, and which one binds depends on the screen. `max-width: 100%`
+     is the column — that is what holds it on a phone, where the column is
+     narrow and the height cap never engages. `max-height` is viewport height
+     — that is what holds it on a wide but short window, where the column
+     would otherwise let it run down a third of the page. Height is the
+     scarcer of the two now that the top is frozen. */
+  #logo {
+    width: auto;
+    /* Inset by the gear's width at every portrait size, not just on a phone.
+       The gear is in the corner and the masthead is the widest thing near it,
+       so without this the two are always negotiating for the same pixels. */
+    box-sizing: border-box;
+    padding-left: 2.5rem;
+    max-width: 100%;
+    /* Answers to BOTH dimensions. It was `15vh` alone, which meant the
+       masthead never responded to the one axis a desktop window is usually
+       dragged along: on a 961x677 window the cap pinned it to 99px while its
+       own column had 238px to give, so it sat there looking stranded beside
+       ribbons three times its size. Half the height term, plus a width term
+       that picks up the slack — small screens land where they did, wide short
+       ones get the size they have room for. */
+    max-height: clamp(3.8rem, calc(12vh + 6vw), 12rem);
+    margin: 0;
+    justify-self: start;
+    align-self: center;
+  }
+
+  /* The label is painted into the artwork (741x165), so the button has no text
+     to be sized by and index.css's `width: fit-content` left it 6px wide — a
+     sliver beside the gear with no way to tell it was the About button. Given
+     a width and the artwork's own ratio, like the manager ribbons. */
+  #aboutButton {
+    width: 100%;
+    max-width: 15rem;
+    height: auto;
+    aspect-ratio: 741 / 165;
+    background-size: contain;
+    background-position: center;
+    padding: 0;
+    margin: 0;
+    justify-self: center;
+  }
+
+  /* Its own line under the masthead: it is two lines of prose and would
+     otherwise set the height of the row the logo is in. */
+  /* Under the house promo, not up in the masthead.
+
+     For a non-supporter these are two asks for the same thing on one screen —
+     the promo says "Back us on Patreon to turn these off" and the button says
+     "Support us on Patreon" — with the tracker's own controls in between them.
+     Together they read as one block: the promo makes the case and the branded
+     button is what you press. For a supporter this is the thank-you line and
+     the promo is not rendered at all, so it simply sits lower.
+
+     Spans its row, so it should use it. Centred inside its own 209px it was
+     wrapping to four lines; across the full width it is two. */
+  #patreonLink {
+    justify-self: stretch;
+    margin: 0 !important;
+    text-align: center;
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+
+  /* Two paragraphs, each carrying a 1em margin, in a header that no longer
+     scrolls away. The words are worth their two lines; the 37px of margin
+     around them is not. */
+  #patreonLink p {
+    margin: 0;
+  }
+
+  #patreonLink p + p {
+    margin-top: 0.2rem;
+  }
+
+  /* The drawn W / E / R keycaps come off on a phone. Not for space — because
+     there is no W key. They were also the reason the manager labels looked
+     clipped: the label is painted into the artwork and runs to within ~12px of
+     the right edge, so at a phone's button width the cap sat on its last
+     letter. */
+  .panelButtonKey {
+    display: none;
+  }
+
+  /* ---- the rail promo comes off the phone -------------------------------
+     REVERSIBLE IN ONE LINE: delete this rule to put it back.
+
+     The tower is a 300x120 house promo that exists because the landscape rail
+     is a tall column with slack under the patreon block. In portrait there is
+     no rail, and now that the top is frozen it is not a promo you scroll past
+     — it is 139px of an 844px phone, permanently, in the band the DM needs for
+     controls. Measured on a 390x844 phone as a non-supporter: with it, the
+     frozen top is 511px and the roster gets 203px, which is less than one
+     combatant card. Without it, 346px frozen and 368px of roster.
+
+     The leaderboard banner still serves on phones, so the placement is not
+     lost — this drops the second impression per mobile screen, which is the
+     usual arrangement on a phone anyway. Yours to reverse if the numbers say
+     otherwise. */
+  #header .adSlot-tower {
+    display: none;
+  }
+
+  /* In the grid these need a real width: the label is painted into the
+     artwork, so `width: auto` sizes them to their only DOM content — the
+     little keycap badge — and all three collapse to ~50px slivers. That is
+     also why `flex: 1 1 9rem` was doing the work before, and why removing the
+     flex container took it away. */
+  #heroManagerButton,
+  #monsterManagerButton,
+  #battleManagerButton {
+    /* index.css's portrait rules pinned these to `fit-content`, and the label
+       is painted into the artwork rather than set as text — so the content was
+       an empty string and both buttons shrank to 49x19. They take their
+       column, and the artwork's own ratio takes it from there.
+
+       No height cap: the reference draws them at ~250x90, and a cap of 4.4rem
+       was cutting that to 70 and squeezing the drawn label with it. What
+       stops them growing is the column, which is a third of the page. */
+    width: 100%;
+    justify-self: stretch;
+    min-width: 0;
+    /* Capped against viewport HEIGHT, by way of the artwork's own ratio, so the
+       cap makes the button narrower rather than letterboxing it.
+
+       Width alone is the wrong thing to size these by on a short window: at
+       1000x700 the column gave each ribbon 338px, the 2.55:1 art made that
+       132px tall, and three rows of that plus the round line left the roster
+       227px — one and a half cards on a screen 1000px wide. Height is what is
+       scarce there, so height gets a say. Tall windows are unaffected: at
+       768x1024 the cap is 339px and the column offers 256. */
+    max-width: min(100%, calc(13vh * 2.55));
+    margin: 0;
+  }
+
+  /* ---- round, timer, Edit Battle, Battle Log ---------------------------- */
+  /* ---- the tracker ------------------------------------------------------ */
+  /* The one scrolling thing on the page. */
+  #battleTrackerScroll {
+    grid-area: battletracker;
+    /* #page centres its items so the short ones sit on the line with the tall
+       ones in the masthead rows. This is the one item that must not be
+       centred: centring stops it stretching, so it sized itself to all 1024px
+       of roster inside a 351px row and hung off both ends of the page. */
+    align-self: stretch;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 0.5rem;
+    overflow-y: auto;
+    /* Without this a grid item refuses to shrink below its content and the
+       1fr row grows to fit every card, taking the page with it. */
+    min-height: 0;
+    overscroll-behavior: contain;
+  }
+
+  #battleTracker {
+    width: 100%;
+    /* The cards size themselves against their own width, the same way the
+       table's rows do in landscape, so one set of proportions holds from a
+       320px phone to a 900px tablet. */
+    container-type: inline-size;
+    /* The ring the plaque's drawn edge is painted into. It has to be wide
+       enough to hold the slice at something near its own scale: at 19px the
+       166px-wide artwork's ends were squeezed to nothing and the parchment
+       centre stopped short of them, leaving a band of bare page down each
+       side of every card. */
+    /* This is a ring the drawn edge is painted into, and with a 2px border it
+       is painted almost entirely OUTSIDE the card's box — 25px of it, against
+       a 5px gap to the next card, so every card's frame was landing 45px deep
+       into its neighbour. That is the doubled line and the ink blot between
+       rows. Narrower ring, and a real gap under each card to put it in. */
+    --card-edge: clamp(11px, 2.6cqw, 20px);
+    /* The middle term has to START at the floor, not cross it somewhere up
+       the range. `3.3cqw` only reaches 0.95rem once the card is 460px wide, so
+       every phone sat pinned to the floor and the card came out 117px tall at
+       320, at 360 and at 390 alike — identical type in a card 70px wider, which
+       is where the wasted space was coming from.
+
+       Solved as a line through the two ends instead, and the line has to be
+       steep enough to matter at the wide end as well: the first attempt was
+       capped at 1.35rem, which a 700px card reached and then stopped — so a
+       900px card had the same 21.6px type as a 700px one, the hit points sat
+       as a small number in the middle of a 260px bar, and the four boxes
+       stayed 26px squares in a card three times as wide. That is the same
+       fault as the floor, at the other end.
+
+       `0.53rem + 2.35cqw`, capped at 1.9rem: still 0.95rem at a 285px card, so
+       nothing changes on a phone, and about 28px by a 830px one.
+
+       And a height term taking whichever is smaller, for the same reason the
+       manager ribbons needed one: a card sized purely by its width comes out
+       193px tall on a 1000x700 window, where 700px of screen is the scarce
+       thing and that leaves a card and a half. The height term only bites when
+       a window is wide and short — everywhere else the width term is already
+       the smaller of the two and nothing changes. */
+    --card-font: clamp(
+      0.95rem,
+      min(calc(0.53rem + 2.35cqw), calc(0.5rem + 2.2vh)),
+      1.9rem
+    );
+  }
+
+  /* A card is one plaque, not eight. The per-cell artwork in gfx.css only
+     paints where a border-style is set, and that is set inside the landscape
+     block — so in portrait those sources sit unused and the row carries the
+     plain middle plaque around the whole card. */
+  #battleTracker tbody tr {
+    display: grid;
+    /* Twelve, not four. Four equal columns is right for the row of boxes and
+       wrong for the line above it: hit points had a quarter of the card and
+       three characters of slack at 320px — one three-digit creature and the
+       number would have been on top of the heart — while initiative sat in the
+       same quarter using 55px of 86 whatever the width. Twelve splits by what
+       each one holds: 4 for hit points, 3 for initiative, 5 for conditions,
+       and the boxes still take 3 apiece. */
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-areas:
+      "cName cName cName cName cName cName cName cName cName  cName  cName  cName"
+      "cHP   cHP   cHP   cHP   cInit cInit cInit cCond cCond  cCond  cCond  cCond"
+      "cAct  cAct  cAct  cBon  cBon  cBon  cMove cMove cMove  cReact cReact cReact";
+    align-items: center;
+    /* In em, so the card's spacing scales with the card's own type. In rem it
+       did not: at a 27px card the row gap came out 0.32px and the padding
+       2.4px, so the type grew and the space between it did not — three lines
+       of large type jammed together with the boxes against the drawn edge,
+       which is what looked wrong at width. More at the foot than the head,
+       because the last thing on the card is a row of checkboxes. */
+    row-gap: 0.12em;
+    margin: 0 0 0.75rem;
+    padding: 0.25em 0.3em 0.5em;
+    font-size: var(--card-font);
+
+    border-style: solid;
+    border-color: transparent;
+    border-width: 2px;
+    /* The card wears the row's own END pieces now, not the middle tile.
+
+       The landscape table is a three-part plaque: table_item-long-left on the
+       first cell, the small tile in the middle, table_item-long-right on the
+       last — each long piece drawn finished at ITS end and left open at the
+       other, so a row reads as one plaque however many cells it has. A card is
+       one box and can only carry one border-image, so it was carrying the
+       middle tile, which is open at both ends BY DESIGN. That is why it read
+       as a segment cut out of something rather than a thing with a beginning
+       and an end.
+
+       tools/make-card-frame.mjs builds the source it should have had: the left
+       cap of the left piece, a clean stretch of body, the right cap of the
+       right piece. Re-run it if the ends are ever redrawn.
+
+       Both caps are taken from the INK, not from the viewBox: each source
+       carries empty canvas past its drawn end, and slicing to the file's edge
+       put ~30 units of nothing in the right ring — which rendered blank and
+       pushed the drawn edge into the stretchable middle, where it smeared.
+
+       The side rings are wider than the top and bottom because a cap is wider
+       than the edge is deep, 47 source units against 33, and a uniform ring
+       squashes them back into the flat edge they replaced. */
+    border-image-source: url('../assets/draftsvgs_v2/table_item-card.svg');
+    border-image-slice: 24% 18% fill;
+    border-image-repeat: stretch;
+    border-image-width: var(--card-edge)
+                        calc(var(--card-edge) * 1.43);
+  }
+
+  #battleTracker tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    /* Vertical padding on eight cells is eight times whatever it is, so it
+       stays small — but in em, so it is small relative to the type rather than
+       0.32px next to 27px type. */
+    padding: 0.08em 0.25em;
+    background: none;
+    border: none;
+    line-height: 1.15;
+  }
+
+  /* The name gets the whole first line, so it has four times the room it had
+     in the table and rarely needs to wrap at all. */
+  #battleTracker tbody td.combatantName {
+    grid-area: cName;
+    justify-content: center;
+    /* No turn-marker gutter: the marker points along a row, and there is no
+       row for it to point at. */
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    font-size: 1.08em;
+    /* It is the biggest type on the card, so its leading is the single largest
+       piece of vertical space in it. 1.2 was set for names that wrap to two
+       lines; most do not. */
+    line-height: 1.1;
+  }
+
+  /* 0.6em top and bottom is what gives the name its row height in the table,
+     where the name shares a line with everything else. On a card the name has
+     a line to itself, so that padding is 28px of nothing — the largest single
+     piece of dead space in the card. Enough is kept for the drawn underline to
+     sit under the word and for the turn-circle to clear it. */
+  #battleTracker .combatantName > div,
+  #battleTracker .combatantName > span:not(.currentTurnIndicator) {
+    padding: 0.25em 0;
+  }
+
+  #battleTracker tbody td.combatantHP    { grid-area: cHP; }
+  #battleTracker tbody td.combatantInit  { grid-area: cInit; }
+  #battleTracker tbody td.combatantAction   { grid-area: cAct; }
+  #battleTracker tbody td.combatantBonus    { grid-area: cBon; }
+  #battleTracker tbody td.combatantMove     { grid-area: cMove; }
+  #battleTracker tbody td.combatantReaction { grid-area: cReact; }
+  #battleTracker tbody td.combatantConditions { grid-area: cCond; }
+
+  /* Each value says what it is, now that there is no column heading over it.
+     Small caps and faded, so the card still reads as its numbers first. */
+  #battleTracker tbody td.combatantInit::before,
+  #battleTracker tbody td.combatantAction::before,
+  #battleTracker tbody td.combatantBonus::before,
+  #battleTracker tbody td.combatantMove::before,
+  #battleTracker tbody td.combatantReaction::before {
+    font-variant: small-caps;
+    /* 0.66em came out at 10px, which is small even for a label. */
+    font-size: 0.74em;
+    letter-spacing: 0.3px;
+    line-height: 1;
+    /* Not the row's tan at 72% — that is 2.8:1 on the plaque's parchment at
+       10px, which is below AA and looked it. This is the same family two steps
+       darker at full strength: 5.0:1, still clearly a label rather than a
+       value. The plaque artwork is light in both themes, so it is a literal
+       rather than a theme token. */
+    color: #8a6030;
+  }
+
+  #battleTracker tbody td.combatantInit::before { content: "Init"; margin-right: 0.4em; }
+
+  /* The four spent-this-turn boxes are a label over a checkbox, because four
+     words across a phone will not sit beside their boxes. */
+  #battleTracker tbody td.combatantAction,
+  #battleTracker tbody td.combatantBonus,
+  #battleTracker tbody td.combatantMove,
+  #battleTracker tbody td.combatantReaction {
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  #battleTracker tbody td.combatantAction::before   { content: "Action"; }
+  #battleTracker tbody td.combatantBonus::before    { content: "Bonus"; }
+  #battleTracker tbody td.combatantMove::before     { content: "Move"; }
+  #battleTracker tbody td.combatantReaction::before { content: "Reaction"; }
+
+  /* The A/S/D/R hints are for a keyboard, and a portrait window is being
+     touched. The word above the box is the label now — but the element
+     carrying that hint is a <label for>, and hiding it took the cell's tap
+     target with it. The only thing left to hit was the box, which is 1.2em:
+     20px on a 390px phone, against the 44px a thumb wants.
+     
+     So it stays, as the whole cell instead. The letter goes (font-size: 0),
+     the box keeps its drawn size, and the target becomes the 96x30 cell it
+     sits in — no visual change, no layout cost, and it still toggles the
+     input because that is what a <label for> does. */
+  #battleTracker .checkOverlay {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    font-size: 0;
+    color: transparent;
+    cursor: pointer;
+    /* Over the box and its mark, so the whole cell answers the tap. */
+    z-index: 2;
+  }
+
+  /* The mark is centred on its CELL, which is right in the table — there the
+     cell holds nothing but the box. Here the cell is a column with the label
+     above the box, so the cell's middle is about 8px above the box's middle
+     and the mark floated off the top of it.
+
+     Anchored to the bottom instead: the box is the last thing in the column,
+     so its centre is half a box up from the cell's bottom edge. `1.2em` is the
+     box (see the checkbox rule), hence `0.6em`. Padding-bottom goes to zero so
+     that is the whole distance — the card's own row-gap already separates the
+     cells. The tilt, scale and nudge stay exactly as the box has them, so mark
+     and box keep sitting crooked together. */
+  #battleTracker tbody td.combatantAction,
+  #battleTracker tbody td.combatantBonus,
+  #battleTracker tbody td.combatantMove,
+  #battleTracker tbody td.combatantReaction {
+    padding-bottom: 0;
+  }
+
+  #battleTracker tbody td.combatantAction .tickMark,
+  #battleTracker tbody td.combatantBonus .tickMark,
+  #battleTracker tbody td.combatantMove .tickMark,
+  #battleTracker tbody td.combatantReaction .tickMark {
+    top: auto;
+    bottom: 0.6em;
+    transform: translate(-50%, 50%) rotate(var(--cb-tilt, 0deg))
+               scale(var(--cb-scale, 1)) translateY(var(--cb-nudge, 0));
+  }
+
+  /* ---- the middle line: HP, initiative, conditions -----------------------
+     One line that says where this combatant stands. HP had two of the four
+     columns and its bar stretched the whole card, which read as a progress
+     meter for the card rather than a number for the creature; initiative sat
+     a third of a card away from it; and conditions had a row of their own at
+     the foot, which is a whole line of card for what is usually nothing.
+
+     A column each for HP and initiative, so the two numbers sit together, and
+     the remaining half for the conditions that were costing a row. */
+  #battleTracker tbody td.combatantConditions {
+    /* Centred in the cell, not packed to its left edge. A combatant usually
+       has one chip or none, and a single chip hard against the left of a
+       quarter-width cell reads as a mistake rather than a state. */
+    justify-content: center;
+    align-content: center;
+    /* The base rule keeps 1.9rem of gutter down the right of this cell, with
+       !important, for the drawer the table row opens into. A card cell is a
+       quarter of the width and has no drawer, so that gutter was just 30px of
+       padding shoving every chip left of the centre it was being told to sit
+       in — the chips measured 13px off. Matched to the left padding. */
+    padding-right: 0.25rem !important;
+    flex-wrap: wrap;
+    gap: 0.15rem 0.25rem;
+    padding-top: 0;
+    /* It shares a line now, so a long list scrolls rather than growing the
+       card under the neighbour it sits beside. */
+    max-height: 3.4em;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  /* Editing wants room the middle line does not have. Five chips at the 44px
+     touch floor will not fit five twelfths of a card, and the cap above — which
+     stops a long RESTING list from growing the card — turned the editor into a
+     151px stack scrolling inside a 44px window, with the chips off the top.
+
+     So an open editor takes a line of its own across the card instead, and the
+     cap comes off while it is open: you are editing the thing, the card can
+     afford to grow. */
+  #battleTracker tbody td.combatantConditions:has(.conditionEditOuter) {
+    grid-area: auto / 1 / auto / -1;
+    max-height: none;
+    overflow: visible;
+    padding-top: 0.4em;
+  }
+
+  /* The bar is the width of its cell, and the cell is a quarter of the card
+     rather than a half. Given that, it earns some height back: it is the
+     number a DM looks at most and it was the flattest thing on the card. */
+  #battleTracker tbody td.combatantHP {
+    justify-content: center;
+  }
+
+  #battleTracker tbody td.combatantHP .hpButton {
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+  }
+
+  /* A shade under the card's own size. "188 / 188" plus the heart is the
+     widest this cell ever holds, and at 320px it came to 83px inside an 83px
+     bar — not overflowing, but with nothing between the number and the drawn
+     edge, which is what reads as bleeding. Six percent off the number is
+     invisible and buys the margin at the only width where it is tight. */
+  #battleTracker tbody td.combatantHP {
+    font-size: 0.94em;
+  }
+
+  /* Label above value, like the four boxes on the line below it. Inline, the
+     card had two different ways of labelling a cell on the same line — "Init"
+     beside its number, "Action" over its box — and the eye had to switch
+     between them. Stacked, every cell on the card reads the same way down. */
+  #battleTracker tbody td.combatantInit {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+  }
+
+  #battleTracker tbody td.combatantInit::before {
+    margin-right: 0;
+  }
+
+  /* ---- the managers, as cards -------------------------------------------
+     Same move as the tracker. A hero row is six columns wide — name, player,
+     HP, AC, ready, and the join/delete pair — which on a phone leaves each of
+     them about fifty pixels: "Gerwin the Bold" came out as three stacked
+     words and the delete button fell off the side of the drawn frame.
+
+     So the row folds the same way a combatant does: the name takes a line to
+     itself, the numbers share the next, and the two buttons get the last. The
+     column headings are already hidden in portrait, so each value states what
+     it is. */
+  #heroAddManage,
+  #monsterAddManage,
+  #battleAddManage {
+    width: min(95vw, 42rem);
+    max-width: 95vw;
+    max-height: 92vh;
+    box-sizing: border-box;
+  }
+
+  /* The rows below are grids, and a grid `tr` inside a real table is still
+     laid out by the table algorithm — it shrink-wraps to its widest cell and
+     the card ends up 90px wide in a 600px panel. Taking the table parts out of
+     table layout is what lets the rows have the panel's width, exactly as the
+     landscape block does for the tracker. */
+  #heroAddManage table,
+  #monsterAddManage table,
+  #heroAddManage thead,
+  #monsterAddManage thead,
+  #heroAddManage tbody,
+  #monsterAddManage tbody,
+  .statsRow,
+  .heroesSpacer {
+    display: block;
+    width: 100%;
+  }
+
+  .heroManagerHero,
+  .monsterManagerMonster {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: center;
+    row-gap: 0.2rem;
+    column-gap: 0.35rem;
+  }
+
+  .heroManagerHero {
+    grid-template-areas:
+      "nm  nm  nm  nm"
+      "pl  hp  ac  rd"
+      "act act act act";
+  }
+
+  .monsterManagerMonster {
+    grid-template-areas:
+      "nm  nm  nm  nm"
+      "hp  ac  hd  rd"
+      "act act act act";
+  }
+
+  .heroManagerHero > td:nth-child(1),
+  .monsterManagerMonster > td:nth-child(1) { grid-area: nm; }
+  .heroManagerHero > td:nth-child(2) { grid-area: pl; }
+  .heroManagerHero > td:nth-child(3) { grid-area: hp; }
+  .heroManagerHero > td:nth-child(4) { grid-area: ac; }
+  .heroManagerHero > td:nth-child(5) { grid-area: rd; }
+  .heroManagerHero > td:nth-child(6) { grid-area: act; }
+  .monsterManagerMonster > td:nth-child(2) { grid-area: hp; }
+  .monsterManagerMonster > td:nth-child(3) { grid-area: ac; }
+  .monsterManagerMonster > td:nth-child(4) { grid-area: hd; }
+  .monsterManagerMonster > td:nth-child(5) { grid-area: rd; }
+  .monsterManagerMonster > td:nth-child(6) { grid-area: act; }
+
+  /* Every value cell is a label over its value. */
+  .heroManagerHero > td:nth-child(n+2):nth-child(-n+5),
+  .monsterManagerMonster > td:nth-child(n+2):nth-child(-n+5) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.05rem;
+    min-width: 0;
+    padding: 0.1rem 0;
+  }
+
+  .heroManagerHero > td:nth-child(n+2):nth-child(-n+5)::before,
+  .monsterManagerMonster > td:nth-child(n+2):nth-child(-n+5)::before {
+    font-variant: small-caps;
+    font-size: 0.72em;
+    letter-spacing: 0.3px;
+    line-height: 1;
+    /* The panel's own softer ink rather than its main ink faded — both panels
+       already carry a pair that reads on their ground, and fading the main one
+       lands wherever it lands. */
+    color: var(--panel-ink-soft, inherit);
+  }
+
+  .heroManagerHero > td:nth-child(2)::before { content: "Player"; }
+  .heroManagerHero > td:nth-child(3)::before { content: "HP"; }
+  .heroManagerHero > td:nth-child(4)::before { content: "AC"; }
+  .heroManagerHero > td:nth-child(5)::before { content: "Ready"; }
+  .monsterManagerMonster > td:nth-child(2)::before { content: "HP"; }
+  .monsterManagerMonster > td:nth-child(3)::before { content: "AC"; }
+  .monsterManagerMonster > td:nth-child(4)::before { content: "Hiding"; }
+  .monsterManagerMonster > td:nth-child(5)::before { content: "Ready"; }
+
+  /* The name has the line to itself, so it reads as the heading of the card
+     rather than as the first of six columns. */
+  .heroManagerHero > td:nth-child(1),
+  .monsterManagerMonster > td:nth-child(1) {
+    display: block;
+    text-align: left;
+    font-size: 1.12em;
+    padding: 0.1rem 0.2rem 0.15rem;
+    min-width: 0;
+  }
+
+  .heroManagerHero > td:nth-child(1) .setEditingField,
+  .monsterManagerMonster > td:nth-child(1) .setEditingField {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  /* Join/delete get their own line and sit at opposite ends of it, which is
+     the one arrangement that cannot put a destructive button under a thumb
+     aiming for the harmless one.
+
+     Join the Fray is only rendered while a battle is running, so this cell
+     sometimes holds the bin alone — and `space-between` puts a lone child at
+     the START. That moved the bin into the exact spot Join occupies during a
+     fight, which is the hazard this layout exists to prevent: a DM reaching
+     for Join out of habit after the battle ends would hit delete. The bin's
+     auto margin below is what keeps it at the right end either way. */
+  .heroManagerHero > td.heroActions,
+  .monsterManagerMonster > td.monsterActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.15rem 0.2rem 0.1rem;
+    min-width: 0;
+  }
+
+  .heroManagerHero > td.heroActions .buttonJoinFray,
+  .monsterManagerMonster > td.monsterActions .buttonJoinFray {
+    /* Takes what is left after the delete button, so a long label wraps
+       inside the button instead of pushing the bin off the card. */
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 16rem;
+    margin: 0;
+  }
+
+  /* ID-scoped, and it has to be. `#heroAddManage .heroActions > *` (and the
+     Monster Manager's twin) set every child's margin to 0 at (1,1,0) — and an
+     ID outranks any number of classes, so the class-only version of this rule
+     lost on specificity and the auto margin silently never applied. Measured
+     with Join genuinely absent: computed margin-left 0, bin flush left, in
+     exactly the spot Join occupies during a fight. The panel IDs here lift it
+     to (1,3,1), which is what lets it win. */
+  #heroAddManage .heroManagerHero > td.heroActions .buttonDelete,
+  #monsterAddManage .monsterManagerMonster > td.monsterActions .buttonDelete {
+    flex: 0 0 auto;
+    /* margin-left: auto soaks up the free space on the bin's left, so it sits at
+       the right end whether or not Join is beside it. With Join present this is
+       identical to what space-between already did; alone, it is the difference
+       between the bin staying put and the bin moving under a thumb. */
+    margin: 0 0 0 auto;
+  }
+
+  /* The eight ability scores wrap rather than insisting on one line. */
+  .statsRow > td {
+    display: block;
+    padding: 0 0.2rem 0.2rem;
+  }
+
+  .heroStats,
+  .monsterStats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.15rem 0.5rem;
+  }
+
+  /* ---- modals in general ------------------------------------------------
+     Every window is at most a phone wide and at most a phone tall, and
+     scrolls inside its own frame rather than running off the bottom of the
+     screen. The frame is the border, so it stays put while the content
+     moves. */
+  .hpChangeModalInner,
+  .appDialogInner,
+  .popup-container,
+  #initiativeDialogInner,
+  #conditionReminderContent,
+  #conCheckInner,
+  .editBattleDialog {
+    width: min(95vw, 34rem);
+    max-width: 95vw;
+    max-height: 90vh;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* The condition reminder's overlay is pinned to the top-left quadrant of
+     the window — `left: 10vw; right: 50vw; bottom: 50vh` — which on a phone is
+     a 150px slot, so "Prone: Your only movement options are..." came out one
+     word per line and ran off the top of the screen. It gets the width of the
+     page and sits under the top edge instead. */
+  #conditionReminderOverlay {
+    left: 0;
+    right: 0;
+    top: 0.6rem;
+    bottom: auto;
+    align-items: flex-start;
+    padding: 0 0.6rem;
+    box-sizing: border-box;
+  }
+
+  #conditionReminderContent {
+    margin: 0;
+    max-height: 46vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* ---- the stat panel ---------------------------------------------------
+     In landscape it slides in from the left edge and sits beside the row it
+     belongs to. There is no beside in portrait: it becomes a sheet in the
+     middle of the screen. */
+  .statHover {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    /* The drawn scroll is wider than this element: the roll hangs --scroll-lap
+       past the left edge and the paper --sheet-edge past the right. Centring
+       the BOX therefore hangs the roll's turned ends off the side of a phone,
+       which is what cut the knobs in half. The box is the artwork's width less
+       those two overhangs, and the whole thing is nudged by half their
+       difference so the drawing is what ends up centred. */
+    width: calc(min(92vw, 26rem) - var(--scroll-lap) - var(--sheet-edge));
+    /* NOT overflow: auto. The parchment and the roll are drawn by ::after and
+       ::before at negative offsets — outside this element's box — so a scroll
+       container here clips both of them away and leaves a plain tan rectangle
+       with the top of the name cut off. The scroll goes on the sheet inside
+       instead, where there is nothing hanging over the edge. */
+    overflow: visible;
+    z-index: 30;
+
+    /* Closed, it is gone. In landscape the shut panel is a rod parked against
+       the row it belongs to, which is where the unrolling starts from; here
+       there is no row to park against, and left as-is a rolled-up scroll sat
+       in the middle of the screen over whatever was behind it. */
+    opacity: 0;
+    visibility: hidden;
+    transform:
+      translate(calc(-50% + (var(--scroll-lap) - var(--sheet-edge)) / 2), -50%)
+      scale(0.96);
+    transition:
+      opacity 0.18s ease-out,
+      transform 0.18s ease-out,
+      visibility 0s linear 0.18s;
+  }
+
+  .statHover.isOpen {
+    width: calc(min(92vw, 26rem) - var(--scroll-lap) - var(--sheet-edge));
+    opacity: 1;
+    visibility: visible;
+    transform:
+      translate(calc(-50% + (var(--scroll-lap) - var(--sheet-edge)) / 2), -50%)
+      scale(1);
+    pointer-events: auto;
+    transition:
+      opacity 0.18s ease-out,
+      transform 0.18s ease-out;
+  }
+
+  .statHover .statHoverSheet {
+    /* The width and offset it has in landscape are the scroll's rod-and-lap
+       geometry, which only means anything beside the table. */
+    width: auto;
+    margin-left: calc(var(--scroll-rod) - var(--scroll-lap));
+    margin-right: 0.4em;
+    /* A long stat block scrolls within the paper rather than growing the paper
+       past the bottom of the screen. */
+    max-height: 74vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  /* ---- the footer and the start button ---------------------------------- */
+  /* Beside the support note rather than under the roster. It is the control
+     that begins the thing the page is for, so it sits with the managers that
+     filled it — not below 800px of combatants where it had to be scrolled to.
+     In the flow now, so it no longer pushes itself to the foot of a column. */
+  #battleControls {
+    grid-area: sbbutt;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+  }
+
+  /* The ribbon is nudged `left: -50px; top: 12px` in landscape, where it hangs
+     off the corner of the round row on purpose. In a column half a phone wide
+     that nudge walked it 47px out of its own cell and printed the artwork over
+     the Discord line. The offset is landscape's, so it stops here. */
+  #battleControls #buttonStartBattle {
+    left: 0;
+    top: 0;
+  }
+
+  /* ---- when freezing costs more than it buys -----------------------------
+     The frozen top is worth about 340px. On a 568px screen that leaves 156px
+     of roster — less than one combatant card — and a control bar you cannot
+     scroll away from is worse than one you can, because there is nothing left
+     to read underneath it.
+
+     So under 40rem tall the page goes back to being a page: it scrolls as a
+     whole, the roster stops being its own scroll box, and the masthead leaves
+     with everything else. Everything above still reads top-down, which was the
+     other half of the point.
+
+     Measured at 320x568: 156px of roster frozen, the full 825px unfrozen. */
+  @media (max-height: 39.99rem) {
+    #page {
+      height: auto;
+      min-height: 100dvh;
+      grid-template-rows: none;
+      grid-auto-rows: auto;
+    }
+
+    #battleTrackerScroll {
+      overflow-y: visible;
+      min-height: 0;
+    }
+  }
+
+  /* The gear sits over the masthead's top-left, which is whitespace on a wide
+     window but is the face of the "D" once the logo fills a phone's column.
+     Inset by the gear's own width, so the two never share a pixel. Only below
+     34rem: above it the logo is held by the height cap and clears the corner
+     on its own. */
+  /* The legal line is two sentences of boilerplate, and with a frozen top it
+     is permanently on screen — so it gets out of the way. Every pixel here is
+     a pixel the roster does not get. Kept in full: it is a copyright notice,
+     and it is the only place on the site that carries one. */
+  #footer {
+    grid-area: footer;
+    margin: 0.25rem 0.7rem 0.4rem;
+    text-align: center;
+    font-size: 0.62rem;
+    line-height: 1.25;
+  }
+
+  /* The Discord line is its own paragraph; its default margin was costing more
+     height than the words in it. */
+  #footer p {
+    margin: 0.15rem 0 0;
+  }
+
+  /* The second sentence gets its own line here and only here. Run on from the
+     copyright in a phone's width the two wrap into a ragged four-line block
+     with the break landing mid-sentence; given a line of its own each one
+     breaks where it means to. Inline everywhere else, where there is room. */
+  .footerFinePrint {
+    display: block;
+  }
+
+  /* The drawn frames are a flat 30px top and bottom and 53px each side. That
+     is a reasonable margin on a 900px window and 106px of a 375px phone —
+     nearly a third of the screen spent on the edge of the paper, which is what
+     squeezed the monster roster into 241px and pushed half of each ability row
+     out of sight. Scaled with the viewport instead, so a phone still gets a
+     frame and still gets its content. */
+  #about,
+  #options,
+  #heroAddManage,
+  #monsterAddManage,
+  #battleAddManage,
+  .hpChangeModalInner,
+  .appDialogInner,
+  .popup-container,
+  #initiativeDialogInner,
+  #conditionReminderContent,
+  #conCheckInner {
+    --frame-y: clamp(13px, 3.4vw, 30px);
+    --frame-x: clamp(17px, 6vw, 53px);
+    border-width: var(--frame-y) var(--frame-x);
+    border-image-width: var(--frame-y) var(--frame-x);
+  }
+
+  /* The close mark sits in the corner of the sheet, and every window's title
+     is centred across the full width — which is fine while the title is short
+     of that corner and, at portrait widths, is not: "About the Tracker" ran
+     its last letter straight under the X. The heading keeps clear of the
+     corner instead. */
+  #about > h2:first-of-type,
+  #options > h2:first-of-type {
+    padding-right: 1.8em;
+  }
+
+  /* The eight ability scores are an eight-column grid everywhere else, which
+     needs about 420px to stay legible. Below that they wrap. */
+  #heroAddManage .heroStats,
+  #monsterAddManage .heroStats,
+  #heroAddManage .monsterStats,
+  #monsterAddManage .monsterStats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.1rem 0.45rem;
+  }
+
+  #heroAddManage .heroStat,
+  #monsterAddManage .heroStat {
+    /* Four across on a phone, all eight on a tablet — a whole number either
+       way, so the labels stay in columns rather than staggering. */
+    flex: 0 0 calc(25% - 0.35rem);
+    min-width: 0;
+  }
+
+  /* Nested, not a container query: the managers are not container roots and
+     the thing that decides here is how wide the window is. */
+  @media (min-width: 30rem) {
+    #heroAddManage .heroStat,
+    #monsterAddManage .heroStat {
+      flex: 0 0 calc(12.5% - 0.4rem);
+    }
+  }
+
+  /* Nothing in a manager may scroll sideways: the roster is the width of the
+     panel and wraps inside it. */
+  #heroAddManage .managerTableScroll,
+  #monsterAddManage .managerTableScroll {
+    overflow-x: hidden;
+    max-height: none;
+  }
+
+  /* ---- Edit Battle ------------------------------------------------------
+     Four things across one line leaves the name about 90px on a phone, which
+     is the one column here that can be long — and telling two goblins apart is
+     the whole reason this window exists. Initiative and the bin keep the
+     outside edges and stay vertically centred; the name and the hit points
+     stack up the middle. */
+  .editBattleRow {
+    grid-template-columns: 2.2em minmax(0, 1fr) auto;
+    grid-template-areas:
+      "init name del"
+      "init hp   del";
+    column-gap: 0.5em;
+    row-gap: 0.05em;
+  }
+
+  .editBattleInit   { grid-area: init; }
+  .editBattleName   { grid-area: name; }
+  .editBattleHp     { grid-area: hp; }
+  .editBattleRemove { grid-area: del; }
+
+  /* Big enough to hit with a thumb without being able to miss the name and
+     delete somebody by accident. */
+  .editBattleRemove {
+    padding: 0.4rem;
+  }
+
+  .editBattleActions {
+    flex-wrap: wrap;
+    gap: 0.5em;
+  }
+
+  /* ---- the start-of-battle banner --------------------------------------- */
+  #buttonStartBattle {
+    max-width: 90vw;
+  }
+
+  /* ---- the two states before the fight ----------------------------------
+     Both are placed by line number into the landscape grid — rows 2-3,
+     columns 2-3, "the whole battle side". A portrait page has one column, so
+     asking for column 2 conjured a second one: the header, the managers and
+     the footer were squeezed into a 185px strip down the left with the Start
+     banner alone in the space beside them. They take the tracker's own slot
+     here. */
+  /* Both of these were written when `sbbutt` was a full-width row under the
+     roster, where a 38vh minimum read as "there is nothing here yet, here is
+     the one thing to do". `sbbutt` is a cell in the masthead band now, so that
+     minimum prised the band open to 320px and crushed the roster to 75.
+
+     They split instead, by what each one actually is. The prompt appears only
+     when there is nothing to track at all, so it takes the roster's own space
+     — it is what you would be reading there. Start the Battle keeps its place
+     beside the managers and just stops demanding a third of the screen. */
+  #battlePrompt {
+    grid-area: battletracker;
+    align-self: center;
+    padding: 1.5rem 1rem;
+    min-height: 0;
+  }
+
+  #battleControls.isSolo {
+    grid-area: sbbutt;
+    padding: 0;
+    min-height: 0;
+  }
+
+  #battleControls.isSolo #buttonStartBattle {
+    /* gfx.css sets the width with !important, so this has to as well. */
+    width: 100% !important;
+    max-width: 20rem;
+  }
+
+  #battlePrompt {
+    max-width: 26ch;
+    font-size: clamp(1.05rem, 4.4vw, 1.6rem);
+  }
+
+  /* ---- short screens ----------------------------------------------------
+     A phone held sideways is 812x375, and the masthead has to come down a
+     size or the round, the cards and the Start button are all below the fold
+     before anything has happened.
+
+     This block used to describe a masthead that no longer exists — it was
+     written when #header was a wrapping flex BAR, and it read "a 10rem logo
+     on one line, the support note on the next, three ribbons on the third".
+     #header is a named grid now, and `display: contents` when the page is
+     folded, so every `flex:` in here was addressing a flex container that had
+     not existed for some time and doing nothing at all. The declarations that
+     were not flex went on applying, which is worse than doing nothing: the
+     logo's `width` and the gear's fixed 2rem quietly overrode the sizes the
+     current layout sets, on any viewport under 544px tall.
+
+     What is left is the part that was always the point — everything a size
+     smaller — expressed against the layout that is actually there. */
+  @media (max-height: 34rem) {
+    #logo {
+      max-height: clamp(2.6rem, 12vh, 4rem);
+    }
+
+    #page {
+      --corner-control: 1.9rem;
+    }
+
+    #aboutButton {
+      max-width: 9rem;
+    }
+
+    #patreonLink {
+      font-size: 0.72rem;
+    }
+
+    #heroManagerButton,
+    #monsterManagerButton,
+    #battleManagerButton {
+      max-width: 10rem;
+    }
+
+    .roundLine {
+      padding: 0.1rem 0.6rem 0.2rem;
+      font-size: clamp(0.95rem, 2.4vw, 1.3rem);
+    }
+  }
+}

@@ -1,0 +1,63 @@
+/* ==========================================================================
+   THE RESTYLE, ONE FILE PER SURFACE
+
+   This was one fixes.css of 9,200 lines. It is cut along the section banners
+   it already had, and the pieces load here in the order they had there,
+   because the order is load-bearing: most of these rules meet index.css, and
+   each other, at equal specificity, where the later one wins. So when a rule
+   seems to be ignored, look for the same selector in the files below it
+   before reaching for !important.
+
+   That is also why a surface can turn up twice. A file further down added to
+   it later, and has to stay behind what came in between: the managers, Edit
+   Battle, the marks. portrait.css is the narrow and portrait layout for all
+   of them, which is why it comes so late.
+
+   The whole list loads after index.css (see main.tsx), so it wins over the
+   first draft there.
+   ========================================================================== */
+
+@import "./battle-table.css";
+@import "./conditions.css";
+@import "./first-review.css";
+@import "./pencil-marks.css";
+@import "./modal-windows.css";
+@import "./stat-block-scroll.css";
+@import "./tick-mark.css";
+@import "./hero-manager.css";
+@import "./ad-slots.css";
+@import "./wallpaper.css";
+@import "./monster-manager.css";
+/* A trial: delete this line and the file to take the write-in lines away. */
+@import "./write-in-lines.css";
+@import "./options.css";
+@import "./drawn-buttons.css";
+@import "./about.css";
+@import "./hp-window.css";
+/* The Battle Manager, still in src/fixes.css: the battle-link branch edits it,
+   and leaving it put lets that branch merge cleanly. Once it has, move it
+   here as battle-manager.css. */
+@import "../fixes.css";
+@import "./rest-of-the-buttons.css";
+@import "./confirm-battle-start.css";
+@import "./long-names.css";
+@import "./paper-picker.css";
+@import "./monster-manager-floor.css";
+@import "./hero-join-the-fray.css";
+@import "./edit-battle.css";
+@import "./battle-stages.css";
+@import "./edit-battle-parchment.css";
+@import "./pointing-hand.css";
+@import "./saved-battle-photos.css";
+@import "./cross-mark.css";
+@import "./side-car-long-names.css";
+@import "./portrait.css";
+/* An experiment (utils/experiments.ts): delete this line and the file to end it. */
+@import "./mark-the-slain.css";
+@import "./battle-log.css";
+@import "./error-cards.css";
+@import "./pencil-and-eraser.css";
+@import "./cookie-bar.css";
+@import "./gate-unavailable.css";
+@import "./patreon-rail-button.css";
+@import "./privacy-panel.css";

@@ -21,11 +21,10 @@
  * crossing and a dead monster shouted louder than the living ones beside it.
  *
  * TO REMOVE COMPLETELY:
- *   1. src/components/BattleTracker/BattleTracker.tsx — the `isSlain` const,
- *      the `slainClass` on the <tr>, the `|| isSlain` in the monster name's
- *      strike class, and the `isSlain ? ... :` guard around
- *      <MonsterStatBlockHover>.
- *   2. src/fixes.css — the block marked "EXPERIMENT: mark the slain".
+ *   1. src/components/BattleTracker/CombatantRow.tsx — the `isSlain` const,
+ *      the `slainClass` on the <tr>, and the `isSlain ? ... :` guard around
+ *      <MonsterStatBlockHover> (keep what it guards).
+ *   2. src/fixes/mark-the-slain.css, and its line in src/fixes/index.css.
  *   3. this constant.
  */
 export const CROSS_OUT_SLAIN_MONSTERS = true;

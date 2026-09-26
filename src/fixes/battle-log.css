@@ -1,0 +1,180 @@
+/* ==========================================================================
+   BATTLE LOG
+
+   Opens from the round row beside Edit Battle. The two share the drawn button
+   and the window frame, and differ in exactly one thing: Edit Battle is green
+   because it changes the fight, and the log is beige because it only reads it.
+   Two green buttons side by side would say they weigh the same.
+   ========================================================================== */
+
+/* Both of these are the landscape half of a pair, and they load AFTER the
+   card layout in portrait.css — so they have to be gated rather than left
+   bare, or they would win on order and undo it. This is the exact complement
+   of the card layout's `(orientation: portrait), (max-width: 62.99rem)`. */
+@media (orientation: landscape) and (min-width: 63rem) {
+  /* ---- the timer gets a row to itself -----------------------------------
+     The timer is a live string that grows all session — "2s" at the top of a
+     fight, "10h 47m 12s" by the end. Sharing a line with the round, it
+     eventually shoved Edit Battle and the Battle Log onto a row of their own,
+     so the block changed height partway through an evening.
+
+     Two rows fixes it: the timer above, the round and the buttons together
+     below. The timer can then run as long as it likes without touching
+     anything, because nothing else is on its row.
+
+     This is a grid rather than a markup change on purpose. Putting the round
+     and the buttons inside one div would read the same here and break
+     portrait, where they are deliberately *not* together — .roundActions is
+     lifted out of this row entirely and placed up beside Start the Battle, and
+     it can only be placed independently while it is a child of #round. Grid
+     rows give the same two-row reading without moving anything in the DOM. */
+  #round {
+    display: grid;
+    grid-template-areas:
+      "timer timer"
+      "round actions";
+    /* The readouts take what they need and the rest of the row is the
+       buttons' column, so the two ends are pinned rather than floated: the
+       text sits against Start the Battle in the column to its left, and Edit
+       Battle and the Battle Log stay out at the right. Centring the whole
+       cluster instead left it stranded in the middle with a gap on both
+       sides. */
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+    row-gap: 0.05em;
+    /* Finishes level with the roster's right edge instead of the window's. */
+    padding-right: 0.5rem;
+  }
+
+  /* Dissolved so the round and the timer become grid items of #round and can
+     take an area each — as they were before, when the row was one flex line. */
+  .roundLine {
+    display: contents;
+  }
+
+  /* RoundNumberSpan writes the round as a bare <span>; the child combinator is
+     what keeps this off the timer's own <span> inside #turnTimeDisplay. */
+  .roundLine > span {
+    grid-area: round;
+    justify-self: start;
+  }
+
+  /* Left edge shared with the round below it, so the two read as one block. */
+  #turnTimeDisplay {
+    grid-area: timer;
+    justify-self: start;
+  }
+
+  .roundActions {
+    grid-area: actions;
+    justify-self: end;
+  }
+
+  /* A card-layout control. In the rail there is room for the masthead and no
+     reason to fold it away — and left visible it would join #header's grid with
+     no area of its own, which is how this layout has broken before. */
+  #mastheadToggle {
+    display: none;
+  }
+}
+
+/* Edit Battle and Battle Log travel together. */
+.roundActions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 0 0 auto;
+}
+
+/* The row's own gap is 4rem, which is right between the round and the timer
+   and far too much either side of a pair of buttons. */
+#round {
+  column-gap: clamp(1rem, 2.4vw, 4rem);
+}
+
+/* Wider than Edit Battle: its rows are a time and a sentence, not a name and
+   a bin. */
+.battleLogInner {
+  width: min(34rem, 94vw);
+  text-align: left;
+}
+
+.battleLogInner h3 {
+  text-align: center;
+}
+
+.battleLogRounds {
+  list-style: none;
+  margin: 0.4em 0 0;
+  padding: 0;
+}
+
+.battleLogRound + .battleLogRound {
+  margin-top: 0.9em;
+}
+
+/* The round is the heading, not a line in the list — that is what
+   groupByRound trades the "round" entries for. */
+.battleLogRoundHead {
+  margin: 0 0 0.25em;
+  font-size: 0.95em;
+  font-variant: small-caps;
+  letter-spacing: 0.6px;
+  color: var(--panel-ink-soft);
+  border-bottom: 1px solid var(--panel-rule);
+  padding-bottom: 0.12em;
+}
+
+.battleLogQuiet {
+  font-variant: normal;
+  font-style: italic;
+  letter-spacing: 0;
+  opacity: 0.75;
+}
+
+.battleLogEntries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* A fixed column for the time so the sentences all start at one margin —
+   a ragged left edge is much harder to scan than a ragged right one. */
+.battleLogEntry {
+  display: grid;
+  grid-template-columns: 4.2em minmax(0, 1fr);
+  gap: 0.5em;
+  align-items: baseline;
+  padding: 0.16em 0.2em;
+  border-radius: 2px;
+}
+
+.battleLogEntry:nth-child(odd) {
+  background-color: var(--panel-inset);
+}
+
+.battleLogTime {
+  font-size: 0.78em;
+  font-variant-numeric: tabular-nums;
+  color: var(--panel-ink-soft);
+  opacity: 0.8;
+}
+
+.battleLogText {
+  overflow-wrap: break-word;
+}
+
+/* The two lines a DM scans for get weight; everything else stays even, so the
+   weight means something. */
+.battleLogEntry.is-down .battleLogText,
+.battleLogEntry.is-revived .battleLogText {
+  font-weight: 700;
+}
+
+.battleLogEntry.is-down .battleLogText {
+  color: #7a1f14;
+}
+
+.battleLogEntry.is-revived .battleLogText {
+  color: #3d5a24;
+}

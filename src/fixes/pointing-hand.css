@@ -1,0 +1,52 @@
+/* ==========================================================================
+   ROOM FOR THE POINTING HAND
+
+   The body cells reserve the marker's width in the .combatantName rule in
+   battle-table.css — on EVERY row, not just the current one, because padding
+   only the row being pointed at makes every name in the table jump sideways
+   each time the turn advances, which is worse than the problem being fixed.
+
+   This is the heading, which takes the same gutter so the column still reads
+   as one column: "Name" over the names rather than over the hand.
+   ========================================================================== */
+#battleTracker thead th.thFirst {
+  padding-left: var(--turn-marker-gutter);
+}
+
+
+/* The prompt dialog's text field — same parchment field as the managers use. */
+.appDialogInner .appDialogInput {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0.6em 0 0;
+  padding: 0.35em 0.6em;
+  border: none;
+  border-radius: 2px;
+  background-color: var(--panel-field);
+  color: var(--panel-field-ink);
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+}
+
+.appDialogInner .appDialogInput:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 1px;
+}
+
+.appDialogConfirm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+
+/* The saved-battle card's Share button, beside the green Load. Beige: sending
+   the encounter is the neutral action, loading it is the one that changes what
+   is on your table. */
+#battleAddManage .btn-share {
+  --btn-h: 2em;
+  font-size: 0.85em;
+  margin: 0;
+}

@@ -1,0 +1,181 @@
+/* ==========================================================================
+   OPTIONS — the same treatment as the managers
+
+   It was a plain tinted box with default buttons in it. Now it is the same
+   parchment scroll, on one responsive base with everything in em, Caudex at
+   normal weight, and the settings themselves as the chip vocabulary used
+   everywhere else.
+   ========================================================================== */
+
+#options {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+
+  width: min(88vw, max(34vw, 28rem));
+  max-width: none;
+  max-height: 88vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  box-sizing: border-box;
+  background: none;
+  background-color: transparent;
+  color: var(--panel-ink);
+  color-scheme: light;
+
+  /* the monster manager's frame, sliced the same way */
+  border-style: solid;
+  border-color: transparent;
+  border-width: 30px 53px;
+  border-image-source: url('../assets/draftsvgs_v2/container_monster-manager.svg');
+  border-image-slice: 6% fill;
+  border-image-width: 30px 53px;
+  border-image-repeat: stretch;
+
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.95rem, 1.25vw, 1.5rem);
+  line-height: 1.3;
+  padding: 0.2rem 0.6rem 0.6rem;
+}
+
+#options,
+#options h2,
+#options button {
+  font-weight: normal;
+}
+
+#options h2 {
+  font-size: 1.5em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  text-align: center;
+  margin: 0 0 0.1em;
+}
+
+/* A pencil rule under each heading, as the panels use. */
+#options h2::after {
+  content: "";
+  display: block;
+  height: 26px;
+  margin: -8px 0 -4px;
+  background-image: url('../assets/draftsvgs_v2/underline_pencil-2.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.55;
+}
+
+#options ul {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
+}
+
+#options li {
+  margin: 0;
+  width: 100%;
+  text-align: center;
+}
+
+/* Empty list items were holding space in a flex column. */
+#options li:empty {
+  display: none;
+}
+
+/* Every setting is the same chip: a pill in the panel's own ink. */
+#options li > button {
+  padding: 0.2em 1em 0.26em;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(107, 72, 36, 0.16);
+  color: #5c3a17;
+  font-family: 'Caudex', serif;
+  font-size: 0.95em;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: background-color 0.13s ease;
+}
+
+#options li > button:hover,
+#options li > button:focus-visible,
+.editBattleDone:focus-visible,
+.editBattleClear:focus-visible,
+#buttonEditBattle:focus-visible {
+  background-color: rgba(107, 72, 36, 0.3);
+  filter: none;
+}
+
+#options #optionsCloseButton {
+  position: absolute;
+  top: 0.1em;
+  right: 0.3em;
+  z-index: 3;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: #7a2f12;
+  font-family: 'Caudex', serif;
+  font-size: 1.1em;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+}
+
+/* -- the rules-version switch ---------------------------------------------
+   Two drawn buttons side by side, 2014 left and 2024 right, each with its own
+   off / on / hover / pressed art. The order below matters: `on` is declared
+   after `:hover` so the chosen side stays lit when you point at it, and
+   `:active` last so a press always shows. */
+#options .versionToggle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* The two halves butt together — they read as one switch, not two
+     buttons, so there is no gap between them. */
+  gap: 0;
+}
+
+#options .versionOption {
+  width: 44%;
+  max-width: 11rem;
+  /* The art's own viewBox, so `contain` fills the box exactly and leaves
+     no unpainted strip beside the drawing. */
+  aspect-ratio: 707 / 248;
+  padding: 0;
+  /* The panel's generic button rule carries a 0.3em margin, which showed up
+     as a 9.6px gap between the two halves even with the flex gap at zero. */
+  margin: 0;
+  border: none;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  cursor: pointer;
+}
+
+/* The two pieces of art each carry a 1-unit transparent margin at the seam
+   (measured off the alpha channel: 2 units of 707, a 0.5px hairline at the
+   rendered size), so boxes that touch still leave a visible light line. This
+   pulls the right half over that margin — both shapes are solid fills with
+   their own outline, so they merge into one shared divider. */
+#options .versionOption2024 { margin-inline-start: -0.06rem; }
+
+#options .versionOption2014 { background-image: url('../assets/draftsvgs_v1/button_2014-off.svg'); }
+#options .versionOption2024 { background-image: url('../assets/draftsvgs_v1/button_2024-off.svg'); }
+
+#options .versionOption2014:hover { background-image: url('../assets/draftsvgs_v1/button_2014-hover.svg'); }
+#options .versionOption2024:hover { background-image: url('../assets/draftsvgs_v1/button_2024-hover.svg'); }
+
+#options .versionOption2014[aria-checked="true"] { background-image: url('../assets/draftsvgs_v1/button_2014-on.svg'); }
+#options .versionOption2024[aria-checked="true"] { background-image: url('../assets/draftsvgs_v1/button_2024-on.svg'); }
+
+#options .versionOption2014:active { background-image: url('../assets/draftsvgs_v1/button_2014-active.svg'); }
+#options .versionOption2024:active { background-image: url('../assets/draftsvgs_v1/button_2024-active.svg'); }

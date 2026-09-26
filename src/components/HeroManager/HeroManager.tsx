@@ -53,8 +53,9 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
           {heroes.map((hero, index) => (
             <React.Fragment key={hero.id}>
               <tr className="heroManagerHero">
-                {/* The manager draws no pencil (fixes.css), so a blank value
-                    needs something of its own to click. */}
+                {/* The manager draws no pencil (fixes/monster-manager.css
+                    covers both managers), so a blank value needs something
+                    of its own to click. */}
                 <td>
                   <EditableCell
                     entity={hero}

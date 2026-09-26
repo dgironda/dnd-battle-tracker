@@ -1,0 +1,53 @@
+/* ==========================================================================
+   WALLPAPER
+
+   A tiled weapons pattern behind everything. It goes on a fixed pseudo-element
+   rather than on `body` itself for two reasons: a background image cannot be
+   faded on its own, and each of these files is a single flat colour, so they
+   need very different handling per theme. The beige tile paints its own
+   ground, a shade off the cream page, and only needs taking down slightly.
+   Dark mode uses a tile with the ground removed entirely, so the page colour
+   shows through and the opacity carries only the drawn motifs.
+
+   Fixed, so it behaves like wallpaper and stays put while the page scrolls.
+   z-index -1 puts it above the page's background colour and behind every bit
+   of content. Tile size is the one number to tune if it reads too busy. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  /* Set by optionsContext from the same map the picker's previews read, so
+     the two cannot drift. The literal is the fallback for the frame before
+     React has stamped anything, and is the paper a first visit gets. */
+  background-image: var(--paper-tile, url('../assets/draftsvgs_v2/bg_pattern-weapons-beige.svg'));
+  background-repeat: repeat;
+  /* The tile is the artwork's own 482x466 bitmap now (see the note in the
+     SVG), so this is that ratio, scaled to the size the padded 501-unit tile
+     used to render at. */
+  background-size: 385px 372px;
+  opacity: 0.7;
+}
+
+/* Which tile and how strongly is `data-wallpaper`'s job now — see the
+   wallpaper choices in paper-picker.css. What stays here is everything the
+   papers share: the fixed pseudo-element, the repeat, and the tile size. */
+
+/* Before React mounts, nothing has stamped `data-wallpaper` yet, so a dark-OS
+   visitor would get a flash of the cream paper on a dark page. This covers
+   that one frame and is overridden the moment the attribute lands. */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]):not([data-wallpaper]) body::before {
+    background-image: url('../assets/draftsvgs_v2/bg_pattern-weapons-dark.svg');
+    opacity: 0.2;
+  }
+}
+
+/* The trinkets art is a square 500x500 bitmap where the armoury art is
+   482x466. Without its own size the tile is drawn into the armoury's ratio
+   and every motif comes out 3% short on one axis. */
+html[data-paper-style="trinkets"] body::before {
+  background-size: 385px 385px;
+}

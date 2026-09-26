@@ -1,0 +1,255 @@
+/* ==========================================================================
+   THE HP WINDOW
+
+   It was a stack of full-width coloured slabs: a `border-radius: 8px` card, a
+   grey "Current HP" sentence, an emoji shield, an emoji tally for the death
+   saves, and three flat buttons. The frame and the buttons come from the same
+   artwork as everything else now; what is left here is the information design.
+
+   The two figures that matter — what is left, and any temporary hit points —
+   read as a pair of numbers rather than a sentence, because that is what a DM
+   is glancing at mid-turn.
+   ========================================================================== */
+
+.hpChangeModalInner {
+  min-width: min(26rem, 92vw);
+  max-width: min(34rem, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.2rem 0.9rem 0.9rem;
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.95rem, 1.05vw, 1.3rem);
+  text-align: center;
+}
+
+/* The combatant's name is the window's title. */
+.hpChangeModalInner > h3 {
+  font-size: 1.6em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.6px;
+  margin: 0 0 0.1em;
+}
+
+.hpChangeModalInner > h3::after {
+  content: "";
+  display: block;
+  height: 24px;
+  width: 70%;
+  margin: -9px auto -2px;
+  background-image: url('../assets/draftsvgs_v2/underline_pencil-3.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.5;
+}
+
+/* -- the two figures ------------------------------------------------------ */
+.hpReadout {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0.9em;
+  margin: 0.5em 0 0.7em;
+}
+
+.hpStat {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1em;
+  padding: 0.35em 0.5em 0.45em;
+  background-color: var(--panel-inset, rgba(107, 72, 36, 0.15));
+}
+
+.hpStatLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  font-size: 0.88em;
+  color: var(--panel-ink-soft);
+}
+
+.hpTempIcon {
+  width: 1.15em;
+  height: 1.15em;
+  object-fit: contain;
+}
+
+.hpStatValue {
+  font-size: 1.85em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--panel-ink);
+}
+
+.hpStatOf {
+  font-size: 0.58em;
+  opacity: 0.7;
+  margin-left: 0.1em;
+}
+
+/* The temp-HP figure is an EditableCell, so it renders as text until clicked
+   and as a number input after. Both have to sit at the figure's size. */
+.hpStatTemp .hpStatValue > * {
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.hpStatTemp .editableCellNum {
+  width: 3.2em;
+  text-align: center;
+  font-size: inherit;
+  font-family: inherit;
+  background-color: var(--panel-field);
+  color: var(--panel-field-ink);
+  border-radius: 2px;
+}
+
+/* -- the amount ----------------------------------------------------------- */
+.hpAmountLabel {
+  display: block;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  font-size: 0.9em;
+  color: var(--panel-ink-soft);
+  margin-bottom: 0.15em;
+}
+
+.hpChangeModalInner .hpChangeModalInput {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 0.2em;
+  padding: 0.4em 0.6em;
+  font-family: 'Caudex', serif;
+  font-size: 1.15em;
+  text-align: center;
+  background-color: var(--panel-field);
+  color: var(--panel-field-ink);
+  border: none;
+  border-radius: 2px;
+}
+
+.hpChangeModalInner .hpChangeModalInput:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 1px;
+}
+
+.hpChangeModalInner .errorMsg {
+  margin: 0.2em 0 0;
+  color: #9e0000;
+  font-size: 0.92em;
+}
+
+/* -- the actions ---------------------------------------------------------- */
+.hpChangeModalInner .hpChangeModalButtonBox {
+  display: flex;
+  gap: 0.6em;
+  width: 100%;
+  margin: 0.6em 0 0;
+}
+
+.hpChangeModalInner .hpChangeModalButtonBox > button {
+  flex: 1 1 0;
+  margin: 0;
+}
+
+.hpChangeModalInner .hpChangeModalCancelButton {
+  width: auto;
+  min-width: 9em;
+  margin: 0.5em auto 0;
+  display: inline-flex;
+}
+
+/* -- death saves ---------------------------------------------------------- */
+/* A section of the window, not a window of its own: a tint of the parchment
+   and the panel's own rule, rather than a white slab with its own radius. */
+.hpChangeModalInner #deathSavesBox {
+  background-color: var(--panel-inset, rgba(107, 72, 36, 0.15));
+  border-radius: 0;
+  margin: 0 0 0.7em;
+  padding: 0.4em 0.6em 0.6em;
+}
+
+.hpChangeModalInner #deathSavesBox > h2 {
+  font-size: 1.05em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.35em;
+  color: var(--panel-ink);
+}
+
+.hpChangeModalInner #deathSavesBoxInner {
+  background: rgba(255, 253, 248, 0.55);
+  border-radius: 0;
+  min-height: 2.6em;
+  margin: 0 0 0.55em;
+  padding: 0.3em 0.5em;
+  gap: 0.35em;
+  justify-content: center;
+}
+
+.hpChangeModalInner #deathSavesNull {
+  font-size: 0.9em;
+  font-style: italic;
+  color: var(--panel-ink-soft);
+  opacity: 0.75;
+}
+
+/* The tally is drawn marks, the same hand as the tracker's ticks and crosses.
+   They are masks rather than images because a background image can only be
+   tinted by filter, and no filter gives you a chosen colour. */
+.deathSaveMark {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.deathSaveMark.success {
+  color: #2f6b1f;
+  -webkit-mask-image: url('../assets/draftsvgs_v2/check_hand-2.svg');
+  mask-image: url('../assets/draftsvgs_v2/check_hand-2.svg');
+}
+
+.deathSaveMark.failure {
+  color: #9e0000;
+  -webkit-mask-image: url('../assets/draftsvgs_v2/cross_hand-2.svg');
+  mask-image: url('../assets/draftsvgs_v2/cross_hand-2.svg');
+}
+
+/* Only the last mark can be taken back, so only it offers to be clicked. */
+.deathSaveMark.removable {
+  cursor: pointer;
+}
+
+.deathSaveMark.removable:hover {
+  opacity: 0.55;
+}
+
+.hpChangeModalInner .deathSavesButtons {
+  gap: 0.6em;
+}
+
+.hpChangeModalInner .deathSavesButtons > div {
+  display: flex;
+  gap: 0.6em;
+  width: 100%;
+}
+
+.hpChangeModalInner .deathSavesButtons button {
+  flex: 1 1 0;
+  margin: 0;
+}

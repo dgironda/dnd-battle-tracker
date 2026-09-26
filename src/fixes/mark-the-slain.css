@@ -1,0 +1,26 @@
+/* ==========================================================================
+   EXPERIMENT: mark the slain          (see src/utils/experiments.ts)
+
+   A monster on zero gets a single line through its name and the row goes
+   quiet. That is all.
+
+   This started as a full hand-drawn X in two strokes over the name, reusing
+   the cross art from the checkboxes. It worked, and it was too much: at the
+   size a tracker row gives it the cross covered the name it was crossing, and
+   a dead monster shouted louder than the living ones next to it. A line
+   through a name is what a DM actually does and it leaves the name readable,
+   which matters — you still refer back to what killed you.
+
+   TO REMOVE: delete this block, the `isSlain` / `slainClass` pair and the
+   `!isSlain` guard on the stat panel in BattleTracker.tsx, and
+   CROSS_OUT_SLAIN_MONSTERS.
+   ========================================================================== */
+
+/* The row steps back. Still legible, no longer competing with the living. */
+#battleTracker tbody tr.isSlain > td {
+  opacity: 0.6;
+}
+
+/* The name itself carries the line. `.strike` already exists in index.css for
+   the Dead condition — line-through plus the muted ink — so a monster on zero
+   simply gets the same treatment the condition has always given. */

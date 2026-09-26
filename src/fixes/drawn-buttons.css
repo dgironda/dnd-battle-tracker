@@ -1,0 +1,252 @@
+/* ==========================================================================
+   DRAWN BUTTONS
+
+   Emily's button art, in two shapes (rounded / cutout) and three colours
+   (red / green / beige). Each file is 9-sliced with `border-image` rather than
+   stretched with `background-size`, so ONE file covers any label length: the
+   drawn corners are placed untouched and only the straight edges and the flat
+   middle stretch. That is why the -med files are used for everything and the
+   -small ones are not needed here.
+
+   Three things make this work, and all three are easy to get wrong:
+
+   1. `border-width` stays 0 so the artwork takes no layout space at all;
+      `border-image-width` paints the corners out over the padding instead.
+      The padding therefore has to be wide enough to clear the corner, which
+      is what --btn-pad-x is for.
+   2. The corners only keep their shape if the painted edge is in the
+      artwork's own ratio — a percentage border-image-width ties the corner to
+      the *button's* aspect and squashes it. So both edges are derived from
+      --btn-h (the button's nominal height) using the same proportion the
+      slice has in the file.
+   3. The slice itself must be a percentage: these SVGs are sized
+      width="100%" height="100%", and a unitless border-image-slice does not
+      resolve against them.
+
+   Measured off the alpha channel of the -med art (463x120): the rounded
+   corner runs 52x48, the cutout's notch 36x30. Fills are flat — red #9E0000
+   (cream ink, 7.7:1), green #A2DB3B and beige #FBF4EB (both dark ink, 8.6:1
+   and 13:1) — so the ink colour is fixed per colour rather than per surface.
+   ========================================================================== */
+
+.drawnBtn,
+/* the HP window */
+.hpChangeModalDmgButton,
+.hpChangeModalHealButton,
+.hpChangeModalCancelButton,
+/* the shared confirm popup */
+.btn-continue,
+.btn-cancel,
+/* the battle manager */
+.btn-save-battle,
+.save-dialog-buttons button,
+.btn-load,
+.btn-share,
+.btn-delete,
+.btn-upload-photo,
+#buttonDownloadData,
+#inputImportData,
+#buttonMonsterShareURL,
+/* the options panel's settings */
+#options li > button,
+/* the edit-battle window, and the two buttons that sit on the round row */
+.editBattleDone,
+.editBattleClear,
+#buttonBattleLog,
+#buttonEditBattle {
+  /* the nominal height the corners are scaled from */
+  --btn-h: 2.5em;
+  --btn-pad-x: 1.15em;
+  /* rounded is the default shape; .isCutout below swaps in the other numbers */
+  --btn-slice-x: 11.23%;
+  --btn-slice-y: 40%;
+  --btn-edge-x: calc(var(--btn-h) * 52 / 120);
+  --btn-edge-y: calc(var(--btn-h) * 48 / 120);
+  /* beige is the default colour */
+  --btn-art: url('../assets/draftsvgs_v2/button_rounded-beige-med.svg');
+  --btn-ink: #3a2a18;
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  min-height: var(--btn-h);
+  padding: 0.15em var(--btn-pad-x);
+  margin: 0.2em;
+
+  border-style: solid;
+  border-color: transparent;
+  border-width: 0;
+  border-image-source: var(--btn-art);
+  border-image-slice: var(--btn-slice-y) var(--btn-slice-x) fill;
+  border-image-width: var(--btn-edge-y) var(--btn-edge-x);
+  border-image-repeat: stretch;
+  border-radius: 0;
+
+  background: none;
+  background-color: transparent;
+  box-shadow: none;
+  color: var(--btn-ink);
+
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  line-height: 1.1;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.12s ease, transform 0.06s ease;
+}
+
+/* The concave-cornered variant. Its notch is shallower than the rounded
+   corner, so it needs both a different slice and less padding to clear it. */
+.drawnBtn.isCutout,
+#buttonDownloadData,
+#inputImportData,
+#buttonMonsterShareURL,
+#buttonBattleLog,
+#buttonEditBattle {
+  --btn-pad-x: 0.9em;
+  --btn-slice-x: 7.78%;
+  --btn-slice-y: 25%;
+  --btn-edge-x: calc(var(--btn-h) * 36 / 120);
+  --btn-edge-y: calc(var(--btn-h) * 30 / 120);
+}
+
+.drawnBtn.isRed,
+.hpChangeModalDmgButton,
+.btn-delete,
+.editBattleClear {
+  --btn-art: url('../assets/draftsvgs_v2/button_rounded-red-med.svg');
+  --btn-ink: #fbf3e7;
+}
+
+.drawnBtn.isGreen,
+.hpChangeModalHealButton,
+.btn-continue,
+.btn-save-battle,
+.save-dialog-buttons button:first-child,
+.btn-load,
+#buttonEditBattle {
+  --btn-art: url('../assets/draftsvgs_v2/button_rounded-green-med.svg');
+  --btn-ink: #23301a;
+}
+
+/* The cutout art is a separate set of files, so a cutout button has to name
+   its colour again rather than inheriting the rounded one. */
+.drawnBtn.isCutout.isRed { --btn-art: url('../assets/draftsvgs_v2/button_cutout-red-med.svg'); }
+.drawnBtn.isCutout.isGreen,
+#buttonDownloadData,
+#buttonEditBattle { --btn-art: url('../assets/draftsvgs_v2/button_cutout-green-med.svg'); }
+.drawnBtn.isCutout.isBeige,
+#inputImportData,
+#buttonMonsterShareURL { --btn-art: url('../assets/draftsvgs_v2/button_cutout-beige-med.svg'); }
+
+/* `button:hover { filter: brightness(130%) }` in index.css washes the drawn
+   art out — the red goes pink and the beige goes white — so the hover is a
+   small lift instead, and the press actually presses. */
+.drawnBtn:hover,
+.hpChangeModalDmgButton:hover,
+.hpChangeModalHealButton:hover,
+.hpChangeModalCancelButton:hover,
+.btn-continue:hover,
+.btn-cancel:hover,
+.btn-save-battle:hover,
+.save-dialog-buttons button:hover,
+.btn-load:hover,
+.btn-share:hover,
+.btn-delete:hover,
+.btn-upload-photo:hover,
+#buttonDownloadData:hover,
+#inputImportData:hover,
+#buttonMonsterShareURL:hover,
+#options li > button:hover,
+.editBattleDone:hover,
+.editBattleClear:hover,
+#buttonEditBattle:hover {
+  filter: brightness(1.07) saturate(1.05);
+  transform: translateY(-1px);
+  background: none;
+  background-color: transparent;
+}
+
+.drawnBtn:active,
+.hpChangeModalDmgButton:active,
+.hpChangeModalHealButton:active,
+.hpChangeModalCancelButton:active,
+.btn-continue:active,
+.btn-cancel:active,
+.btn-save-battle:active,
+.save-dialog-buttons button:active,
+.btn-load:active,
+.btn-share:active,
+.btn-delete:active,
+.btn-upload-photo:active,
+#buttonDownloadData:active,
+#inputImportData:active,
+#buttonMonsterShareURL:active,
+#options li > button:active,
+.editBattleDone:active,
+.editBattleClear:active,
+#buttonEditBattle:active {
+  filter: brightness(0.94);
+  transform: translateY(1px);
+}
+
+.drawnBtn:focus-visible,
+.hpChangeModalDmgButton:focus-visible,
+.hpChangeModalHealButton:focus-visible,
+.hpChangeModalCancelButton:focus-visible,
+.btn-continue:focus-visible,
+.btn-cancel:focus-visible,
+.btn-save-battle:focus-visible,
+.save-dialog-buttons button:focus-visible,
+.btn-load:focus-visible,
+.btn-share:focus-visible,
+.btn-delete:focus-visible,
+.btn-upload-photo:focus-visible,
+#buttonDownloadData:focus-visible,
+#inputImportData:focus-visible,
+#buttonMonsterShareURL:focus-visible,
+#options li > button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  filter: brightness(1.07) saturate(1.05);
+}
+
+.drawnBtn:disabled,
+.drawnBtn[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawnBtn,
+  .hpChangeModalDmgButton,
+  .hpChangeModalHealButton,
+  .hpChangeModalCancelButton,
+  .btn-continue,
+  .btn-cancel,
+  .btn-save-battle,
+  .save-dialog-buttons button,
+  .btn-load,
+  .btn-share,
+  .btn-delete,
+  .btn-upload-photo,
+  #buttonDownloadData,
+  #inputImportData,
+  #buttonMonsterShareURL,
+  #options li > button,
+  .editBattleDone,
+  .editBattleClear,
+  #buttonEditBattle {
+    transition: none;
+    transform: none !important;
+  }
+}

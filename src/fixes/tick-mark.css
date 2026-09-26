@@ -1,0 +1,83 @@
+/* ==========================================================================
+   THE TICK
+
+   The drawn tick over a checked box, in the tracker and both managers: a
+   masked element, wiped on in the direction it was drawn.
+   ========================================================================== */
+
+/* --- the tick, drawn rather than switched on ------------------------------
+   The mark is its own element sitting over the box. It has to be: the reveal
+   is a mask wipe, and masking the input would have wiped the box away with
+   it. The cell carries the variant and the per-instance tilt, so the mark
+   inherits the same values the box uses and lands square inside it.
+
+   The wipe runs left to right, which is roughly the order a tick is drawn —
+   down into the turn, then out along the long stroke — and it is slightly
+   quicker than the underline because a tick is a flick, not a line. */
+#battleTracker td.combatantAction,
+#battleTracker td.combatantBonus,
+#battleTracker td.combatantMove,
+#battleTracker td.combatantReaction {
+  position: relative;
+}
+
+#battleTracker .tickMark,
+#heroAddManage .tickMark,
+#monsterAddManage .tickMark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /* Half again the box, so the stroke runs over the line the way it did when
+     the box was accidentally fixed at 23px — that overshoot is the point. */
+  width: 1.8em;
+  height: 1.8em;
+  pointer-events: none;
+
+  /* The mark is a mask, not a background image, so it can be coloured — a
+     background image can only be tinted by filter, and no filter turns black
+     into a specific green. The wipe that draws it on is a second mask layer
+     intersected with the first, so it still draws itself in stroke-first. */
+  background-color: var(--mark-ink, #3c8a24);
+  -webkit-mask-image: var(--hand-tick), linear-gradient(#000, #000);
+  mask-image: var(--hand-tick), linear-gradient(#000, #000);
+  -webkit-mask-repeat: no-repeat, no-repeat;
+  mask-repeat: no-repeat, no-repeat;
+  -webkit-mask-position: center, var(--mark-wipe-pos, left center);
+  mask-position: center, var(--mark-wipe-pos, left center);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+
+  /* Same tilt, scale and nudge as the box it sits in. */
+  transform: translate(-50%, -50%) rotate(var(--cb-tilt, 0deg))
+             scale(var(--cb-scale, 1)) translateY(var(--cb-nudge, 0));
+
+  /* The reveal runs along the stroke rather than always left to right — each
+     mark class says which way it was drawn (--mark-wipe-from / -pos). */
+  -webkit-mask-size: 100% 100%, var(--mark-wipe-from, 0% 100%);
+  mask-size: 100% 100%, var(--mark-wipe-from, 0% 100%);
+
+  transition:
+    mask-size var(--mark-wipe-dur, 0.62s) cubic-bezier(0.35, 0.75, 0.45, 1),
+    -webkit-mask-size var(--mark-wipe-dur, 0.62s) cubic-bezier(0.35, 0.75, 0.45, 1);
+}
+
+#battleTracker input[type="checkbox"]:checked + .tickMark,
+#heroAddManage input[type="checkbox"]:checked + .tickMark,
+#monsterAddManage input[type="checkbox"]:checked + .tickMark {
+  -webkit-mask-size: 100% 100%, 100% 100%;
+  mask-size: 100% 100%, 100% 100%;
+}
+
+/* Unticking takes the mark straight off rather than un-drawing it backwards,
+   which is what rubbing something out looks like. */
+#battleTracker input[type="checkbox"]:not(:checked) + .tickMark,
+#heroAddManage input[type="checkbox"]:not(:checked) + .tickMark,
+#monsterAddManage input[type="checkbox"]:not(:checked) + .tickMark {
+  transition:
+    mask-size 0.1s ease-in,
+    -webkit-mask-size 0.1s ease-in;
+}
+
+#battleTracker input[type="checkbox"]:disabled + .tickMark {
+  opacity: 0.28;
+}

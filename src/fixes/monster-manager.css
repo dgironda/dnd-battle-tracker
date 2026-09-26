@@ -1,0 +1,438 @@
+/* ==========================================================================
+   MONSTER MANAGER — the same treatment as the Hero Manager
+
+   Everything here mirrors that panel, differing only where the ground does:
+   this is the light parchment scroll, so the ink is dark, the drawn checkbox
+   is not inverted, and the ticked mark takes the deeper green. Sizes are all
+   em of one responsive base, as there.
+   ========================================================================== */
+
+#monsterAddManage {
+  /* Wider than it was (50vw / 42rem): the roster carries eight stat columns
+     under every name plus a two-button actions column, and all of it was
+     working to the millimetre. */
+  width: min(88vw, max(56vw, 46rem));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#monsterAddManage .monster-content,
+#monsterAddManage .monster-content h2,
+#monsterAddManage .monster-content h3,
+#monsterAddManage .monster-content th,
+#monsterAddManage .monster-content td,
+#monsterAddManage .monster-content button,
+#monsterAddManage .monster-content input {
+  font-family: 'Caudex', serif;
+  /* Matching the Hero Manager: size and small-caps carry the hierarchy, not
+     weight. */
+  font-weight: normal;
+}
+
+#monsterAddManage .monster-content {
+  font-size: clamp(0.95rem, 1.35vw, 1.6rem);
+  line-height: 1.3;
+  padding: 0 0.3rem 0.2rem;
+}
+
+#monsterAddManage .monster-content > h2 {
+  font-size: 1.76em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  line-height: 1.05;
+  margin: 0;
+  padding: 0 2.6rem;
+}
+
+#monsterAddManage .monster-content > h2::after {
+  content: "";
+  display: block;
+  height: 30px;
+  margin: -10px 0;
+  background-image: url('../assets/draftsvgs_v2/underline_pencil-2.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.55;
+}
+
+/* -- the add row -- */
+#monsterAddManage #addMonsterOuter {
+  gap: 0.5rem;
+  padding: 0.3rem 0 0.5rem !important;
+}
+
+/* -- add monster x N ------------------------------------------------------
+   One button and a multiplier, rather than "Add Monster" beside a second
+   "Add Monsters" doing the same job with a different number. The drawn button
+   carries its label in the artwork, so the count has to read as part of the
+   same control without being able to sit inside it. */
+#monsterAddManage .addMonsterRow {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+#monsterAddManage .addMonsterCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: text;
+}
+
+#monsterAddManage .addMonsterTimes {
+  font-family: 'Caudex', serif;
+  font-size: 1.15em;
+  line-height: 1;
+  color: var(--panel-ink-soft);
+}
+
+/* Scoped through #addMonsterOuter so it outranks that block's own input rule,
+   which is two ids deep and was leaving this at the browser's default width. */
+#monsterAddManage #addMonsterOuter .addMonsterCount input {
+  /* Two digits plus the browser's spinner. */
+  width: 3.6em;
+  min-width: 0;
+  text-align: center;
+}
+
+#monsterAddManage #addMonsterOuter input {
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+  padding: 0.28em 0.5em;
+  border: none;
+  border-radius: 3px;
+}
+
+/* No pencils in the managers. Nearly everything on these two panels is a value
+   you can change, so a pencil after every one of them was the same mark a dozen
+   times a row — it said nothing the panel does not already say, and it cost the
+   names their width. The tracker and the side-car panels keep theirs, where an
+   editable value sits among ones that are not.
+
+   EditableCell still renders the <img>; only these panels decline to draw it.
+   A value that is empty used to be nothing BUT the pencil, so the managers pass
+   a placeholder for the fields that can be blank (see .managerBlank). */
+#heroAddManage .setEditingField .edit,
+#monsterAddManage .setEditingField .edit {
+  display: none;
+}
+
+/* ...and on a touch screen, the whole box is the target, not just the digits.
+   The pencil was part of the button, so taking it away took a single-digit
+   stat from 33px wide to 14 on a phone. A value's label belongs to it, so a
+   thumb landing on "STR" edits strength, and in the portrait card the tinted
+   HP and AC boxes are each one target. Nothing is drawn: the button reaches
+   out with an empty ::before laid over its cell. (::before, so ::after stays
+   free for something drawn inside the button itself.) */
+@media (hover: none) {
+  #heroAddManage td:has(> .setEditingField),
+  #monsterAddManage td:has(> .setEditingField),
+  #heroAddManage .heroStat,
+  #monsterAddManage .heroStat {
+    position: relative;
+  }
+
+  /* The landscape stat strip centres each stat in its column, shrink-wrapped
+     to "STR" or "14"; stretched, the box is the column and the content stays
+     centred inside it. The portrait strip sizes its stats already. */
+  #heroAddManage .heroStat,
+  #monsterAddManage .heroStat {
+    justify-self: stretch;
+  }
+
+  #heroAddManage .setEditingField::before,
+  #monsterAddManage .setEditingField::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  /* No filter on the button, in any state. index.css brightens every
+     button:hover with one, a finger landing IS a hover on a touch screen, and
+     a filter makes the button the containing block of its own ::before — so
+     the target shrank back to the digits the instant the press began. A tap
+     on "CHA" went down on the button and came up on the label, and the
+     browser fires no click for that. Specific enough to beat button:hover in
+     every state without naming the state.
+
+     The hover wash goes for the same reason: a touch screen's hover sticks to
+     whatever was tapped last, and the press shade below does that job over
+     the whole box instead of the digits. So does the browser's own tap flash,
+     which is a flat blue rectangle over the button alone. */
+  #heroAddManage .setEditingField,
+  #monsterAddManage .setEditingField {
+    filter: none;
+    background-color: transparent;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ...and the box answers the finger. Nothing said a press had landed until
+     the field opened, so the whole target takes a pencil-shade wash for as
+     long as it is held. Mixed from the panel's own ink, which makes it
+     graphite on the parchment and chalk on the red scroll without either
+     panel needing a colour of its own — a little heavier than the hover wash,
+     because a press is over in a moment. */
+  #heroAddManage .setEditingField:active::before,
+  #monsterAddManage .setEditingField:active::before {
+    background-color: color-mix(in srgb, currentColor 22%, transparent);
+  }
+}
+
+/* What an empty name or player shows in place of the pencil it used to be. */
+.managerBlank {
+  opacity: 0.6;
+}
+
+/* The drawing after a value that says what it is (EditableCell's `icon`): the
+   heart after HP is the tracker's own, and the shield after AC is its pair.
+   Both are stickers with a white rim, so they hold on the red scroll and on
+   parchment alike. Sized in em, so they follow each panel's type. */
+.valueIcon {
+  width: 0.95em;
+  height: 0.95em;
+  margin-left: 0.2em;
+  vertical-align: -0.14em;
+}
+
+/* A value and its drawing never part at a line break: the HP and AC columns
+   hold 50px of content at 1366x768, which put the heart on a line of its own
+   under the number. The .3rem every button carries on each side (index.css)
+   goes too — it was most of the difference. Measured there: "40" with its
+   heart is 51.5px, and three digits is 62, which is what the HP shares below
+   are sized for. */
+#heroAddManage td > .setEditingField:has(> .valueIcon),
+#monsterAddManage td > .setEditingField:has(> .valueIcon) {
+  white-space: nowrap;
+  margin-inline: 0;
+}
+
+/* -- "Hiding": an eye, open or shut ---------------------------------------
+   Not a checkbox with a mark in it — the state is the shape of the icon. Both
+   files are generated stand-ins (see ART-WANTED.md). */
+#monsterAddManage .hidingToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+#monsterAddManage .hidingToggle input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  border: none;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  background-image: url('../assets/draftsvgs_v2/icon_eye-open.svg');
+
+  font-size: inherit;
+  width: 1.6em;
+  height: 1.6em;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.15s ease;
+}
+
+#monsterAddManage .hidingToggle input[type="checkbox"]:checked {
+  background-image: url('../assets/draftsvgs_v2/icon_eye-shut.svg');
+  /* hidden reads as the more emphatic state, so it is the darker one */
+  opacity: 1;
+}
+
+#monsterAddManage .hidingToggle input[type="checkbox"]:hover,
+#monsterAddManage .hidingToggle input[type="checkbox"]:focus-visible {
+  opacity: 1;
+}
+
+/* -- the roster --
+   Fixed layout with explicit shares: left to size itself the table came out
+   914px in an 834px panel, and the 80px that spilled off the right edge was
+   exactly the column holding the buttons. Now the widths are declared and the
+   name column gives way instead of the actions. */
+#monsterAddManage .managerTableScroll table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* The actions column was 28%, which at this panel's width is ~178px — the
+   pill, the gap, the bin and the cell's own padding come to ~209, so the bin
+   hung 26px past the end of its own cell and against the roster's edge. The
+   name column gives way; it still holds the longest stock monster name. */
+#monsterAddManage .managerTableScroll thead th:nth-child(1) { width: 29%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(2) { width: 10%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(3) { width: 10%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(4) { width: 11%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(5) { width: 11%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(6) { width: 29%; }
+
+/* A long monster name is cut rather than allowed to widen the table. */
+#monsterAddManage tr.monsterManagerMonster > td:first-child .setEditingField {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#monsterAddManage .managerTableScroll thead th {
+  color: var(--color-header-ink);
+  background-color: var(--panel-head);
+  font-size: 0.88em;
+  font-variant: small-caps;
+  letter-spacing: 0.6px;
+  padding: 0.26em 0.5em;
+}
+
+#monsterAddManage .managerTableScroll tbody td {
+  padding: 0.2em 0.5em;
+  font-size: 1.06em;
+  vertical-align: middle;
+}
+
+#monsterAddManage tr.monsterManagerMonster > td:first-child {
+  font-size: 1.18em;
+}
+
+/* One band per monster, alternating, exactly as the Hero Manager does it —
+   no dark inset behind the stat strip. Monsters are two rows each (name,
+   stats) with no spacer, so alternate pairs are 4n+1 and 4n+2. */
+#monsterAddManage .monsterTableBody tr.monsterManagerMonster td,
+#monsterAddManage .managerTableScroll .statsRow > td {
+  background-color: rgba(107, 72, 36, 0.07);
+}
+
+#monsterAddManage .monsterTableBody tr:nth-of-type(4n + 1) td,
+#monsterAddManage .monsterTableBody tr:nth-of-type(4n + 2) td {
+  background-color: rgba(107, 72, 36, 0.16);
+}
+
+/* -- the stat strip, as a statblock line -- */
+#monsterAddManage .managerTableScroll .statsRow > td {
+  font-size: 1em;
+  padding: 0.12em 0.6em 0.34em;
+}
+
+#monsterAddManage .heroStats {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.1rem 0.4rem;
+  justify-items: center;
+}
+
+#monsterAddManage .heroStat {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  line-height: 1.15;
+}
+
+#monsterAddManage .heroStatLabel {
+  font-size: 0.76em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  opacity: 0.86;
+}
+
+#monsterAddManage .heroStat .setEditingField {
+  font-size: 1.12em;
+  padding: 0 0.1em;
+}
+
+/* -- actions: the two buttons on one line, sharing a baseline --
+   NOT `display: flex` on the cell. A td that becomes a flex container stops
+   being a table-cell, so it no longer stretches to the row's height — it came
+   out 54px in a 69px row and left an untinted strip along the bottom of the
+   column that read as a white box. Centring the buttons inline keeps the cell
+   a cell. */
+/* The pair was centred in its column, which left the bin hard against the
+   roster's scrollbar with the pill crowding it from the other side. Anchored
+   to the right instead, so the bin keeps a margin from the edge and the pill
+   is pulled off it. */
+/* Specific enough to beat `.managerTableScroll tbody td`, which sets the
+   padding for every cell in the roster and was quietly winning here. */
+#monsterAddManage .managerTableScroll tbody td.monsterActions {
+  text-align: right;
+  white-space: nowrap;
+  /* The pair is anchored right, so the usual 0.5em on the left is space the
+     column does not need. */
+  padding-left: 0;
+  padding-right: 0.7em;
+}
+
+#monsterAddManage .monsterActions > * {
+  vertical-align: middle;
+  /* `button { margin: .3rem }` was adding 4.8px on every side of both of
+     these, so the gap was not the one declared below and the pair ran 8px
+     past the end of its own cell. */
+  margin: 0;
+}
+
+#monsterAddManage .monsterActions > * + * {
+  margin-left: 0.8em;
+}
+
+/* "Join the Fray" — the same pill shape the conditions editor's Done uses, so
+   the one action in this table looks like the app's other actions. */
+#monsterAddManage .buttonJoinFray {
+  padding: 0.16em 0.8em 0.22em;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(107, 72, 36, 0.9);
+  color: #f6efe3;
+  font-family: 'Caudex', serif;
+  font-size: 0.8em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.13s ease;
+}
+
+#monsterAddManage .buttonJoinFray:hover,
+#monsterAddManage .buttonJoinFray:focus-visible {
+  background-color: rgba(78, 52, 26, 0.95);
+  filter: none;
+}
+
+/* The bin takes the panel's own ink, as the Hero Manager's does, rather than
+   sitting in a filled button of its own. */
+#monsterAddManage .buttonDelete {
+  color: var(--panel-ink);
+  background: none;
+  border: none;
+  padding: 0.15rem;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.13s ease;
+}
+
+#monsterAddManage .buttonDelete:hover,
+#monsterAddManage .buttonDelete:focus-visible {
+  opacity: 1;
+  filter: none;
+}
+
+#monsterAddManage .saveClose {
+  background: none;
+  border: none;
+  color: var(--panel-ink);
+  font-family: 'Caudex', serif;
+  font-size: 1.06em;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+}
+
+/* A label for screen readers only — the actions column has no visible heading,
+   but it still needs a name. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

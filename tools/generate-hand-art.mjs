@@ -391,7 +391,7 @@ writeFileSync(join(OUT, "container_scroll-roll.svg"),
 /* Each cross keeps its two strokes apart as well as together. The pair is
    what the mark looks like; the halves are what lets it be DRAWN — one stroke
    and then the other, the way a person makes an X, rather than both of them
-   sliding out from behind a curtain. See .handMarkCross in fixes.css. */
+   sliding out from behind a curtain. See .handMarkCross in fixes/cross-mark.css. */
 const CROSSES = [
   { n: 1, warp: 31,  tooth: 71,  scale: 3.0, cut: "-0.26",
     a: bar(33, 34, 101, 100, 6.5, 13.5, 2), b: bar(103, 31, 30, 103, 12.5, 5.5, -3) },

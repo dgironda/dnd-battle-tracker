@@ -3,8 +3,9 @@ import { HelmetProvider } from "react-helmet-async";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-// Loaded after index.css so the review fixes win at equal specificity.
-import "./fixes.css";
+// Loaded after index.css so the restyle wins at equal specificity. Its own
+// files are in cascade order too — see fixes/index.css.
+import "./fixes/index.css";
 import App from "./App";
 import { GlobalProvider } from "./hooks/optionsContext";
 import { Tour } from "./components/Tour";

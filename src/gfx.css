@@ -249,7 +249,7 @@
 /* The plaques are 9-sliced rather than stretched as a background: the drawn
    corners stay drawn, the wobbly edges stretch, and the parchment centre
    fills. That decouples the row height from the art's aspect ratio, which is
-   what used to force ~70px rows. Sizing lives in fixes.css. */
+   what used to force ~70px rows. Sizing lives in fixes/battle-table.css. */
 /* Every header cell uses the same plaque. The long-left / long-right pair
    carry decorative end treatments that read as odd bracket shapes once the
    cell is 9-sliced, so the header runs the plain plaque all the way across. */
@@ -259,8 +259,8 @@
     border-image-source: url('./assets/draftsvgs_v2/table_header-small1.svg');
 }
 
-/* One plaque per body column; `border-image` in fixes.css slices them so a
-   cell's shape does not have to match the artwork's aspect ratio. */
+/* One plaque per body column; `border-image` in fixes/battle-table.css slices
+   them so a cell's shape does not have to match the artwork's aspect ratio. */
 .combatantName {
     border-image-source: url('./assets/draftsvgs_v2/table_item-long-left.svg');
 }

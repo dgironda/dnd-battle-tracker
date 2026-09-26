@@ -1,0 +1,30 @@
+/* ==========================================================================
+   MONSTER MANAGER — a floor under the panel
+
+   With an empty roster the panel shrank to the height of its add row, which
+   left the search field and the Add Monster button looking like a stray
+   toolbar floating in the middle of the screen rather than a manager with
+   nothing in it yet. The floor is a proportion of the viewport, capped so it
+   cannot outgrow the panel's own max-height on a short screen.
+   ========================================================================== */
+#monsterAddManage {
+  min-height: min(26rem, 60vh);
+}
+
+/* The empty-roster line then has somewhere to sit rather than being pinned
+   under the add row. */
+#monsterAddManage .managerTableScroll {
+  min-height: 0;
+}
+
+/* Tall enough to take up the slack the floor above creates, so the line sits
+   in the middle of an empty manager rather than tucked under the headings. */
+#monsterAddManage .monsterRosterEmpty td {
+  height: 9em;
+  vertical-align: middle;
+  padding: 1em 0.5em;
+  text-align: center;
+  font-style: italic;
+  color: var(--panel-ink-soft);
+  background: none;
+}

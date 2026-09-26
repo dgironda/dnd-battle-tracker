@@ -1,0 +1,276 @@
+/* ==========================================================================
+   HERO MANAGER — brought in line with the tracker and the side-car panels
+
+   The modal still read like the pre-restyle app: 0.74rem stat strips, plain
+   sentence-case column heads, alternating flat bands for rows, ✅/❌ glyphs,
+   and a stock green submit button. Everything below is the same vocabulary
+   the rest of the app now uses — Caudex throughout, small-caps labels over
+   bold values, pencil strokes instead of rules and bands, the drawn checkbox,
+   and a type scale you can read across the table mid-fight.
+   ========================================================================== */
+
+/* The panel was 80vw for a six-column roster that does not need it. 50vw where
+   there is room for it — but with a floor, because below about 1350px 50vw
+   wraps the title, stacks the form and pushes the Ready column off the table.
+   Centred by transform rather than a matching `left`, so the floor and the cap
+   do not each need their own offset. The monster and battle managers keep the
+   wider frame; their tables carry more columns. */
+#heroAddManage {
+  width: min(80vw, max(50vw, 42rem));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#heroAddManage .hero-content,
+#heroAddManage .hero-content h2,
+#heroAddManage .hero-content h3,
+#heroAddManage .hero-content th,
+#heroAddManage .hero-content td,
+#heroAddManage .hero-content button,
+#heroAddManage .hero-content input {
+  font-family: 'Caudex', serif;
+  /* Caudex's bold is heavy, and cream at 700 on the saturated red of the
+     scroll blooms at the edges — it reads as a shadow behind the letters
+     rather than as emphasis. Size and small-caps carry the hierarchy here
+     instead. */
+  font-weight: normal;
+}
+
+#heroAddManage .hero-content {
+  /* One responsive base; everything in the panel is an em of it, so the whole
+     roster scales as one and keeps its proportions at any width. */
+  font-size: clamp(0.95rem, 1.35vw, 1.6rem);
+  line-height: 1.3;
+  padding: 0 0.3rem 0.2rem;
+}
+
+/* -- the title, set like the panels' names -- */
+#heroAddManage .hero-content > h2 {
+  font-size: 1.76em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  line-height: 1.05;
+  margin: 0;
+  padding: 0 2.6rem;
+}
+
+/* A pencil stroke under the title, the way the side-car panels rule their
+   sections — the modal had nothing between the heading and the form. */
+#heroAddManage .hero-content > h2::after {
+  content: "";
+  display: block;
+  height: 30px;
+  margin: -10px 0 -10px;
+  background-image: url('../assets/draftsvgs_v2/underline_pencil-2.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  /* the strokes are black; on the red scroll they take the panel's own ink */
+  filter: invert(1) sepia(0.35) saturate(0.5) brightness(1.25);
+  opacity: 0.65;
+}
+
+/* -- the add form -- */
+/* The four fields sat in one four-across row with the button stranded on a
+   row of its own below, which cost the form a third of its height for nothing.
+   Name and Player take a line, then HP, AC and the button share the next —
+   `display: contents` lets the inner wrapper's inputs lay out as items of the
+   form itself, so this needs no change to the markup. */
+#heroAddManage #addHeroOuter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  padding: 0.4rem 0.55rem 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+#heroAddManage #addHeroOuter h3 {
+  width: 100%;
+  font-size: 1.06em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+#heroAddManage #addHeroInner {
+  display: contents;
+}
+
+#heroAddManage #addHeroName,
+#heroAddManage #addHeroPlayer {
+  flex: 1 1 42%;
+}
+
+#heroAddManage #addHeroHP,
+#heroAddManage #addHeroAC {
+  flex: 1 1 28%;
+}
+
+#heroAddManage .addPresent-div {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+#heroAddManage #addHeroInner input {
+  min-width: 0;
+  width: auto;
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+  padding: 0.28em 0.5em;
+  border: none;
+  border-radius: 3px;
+}
+
+/* -- the roster table -- */
+#heroAddManage .managerTableScroll thead th {
+  /* goldenrod on the red band, the same ink as the tracker's column heads */
+  color: var(--color-header-ink);
+  background-color: var(--panel-head);
+  font-size: 0.88em;
+  font-variant: small-caps;
+  letter-spacing: 0.6px;
+  padding: 0.26rem 0.5rem;
+}
+
+#heroAddManage .managerTableScroll tbody td {
+  /* 0.5em each side is 10.9px, and six columns of it is 131px of a 632px
+     table on a 1366px screen — a fifth of the roster spent on gaps, which is
+     what left "Bartholomew" and "Christopher" each a few pixels short of
+     fitting and broke them mid-word. The rows are told apart by their tint,
+     not by their gutters, so this can be tight. */
+  padding: 0.2em 0.28em;
+  font-size: 1.06em;
+  vertical-align: middle;
+}
+
+/* The hero's own name carries the weight, as it does in the tracker. */
+#heroAddManage tr.heroManagerHero > td:first-child {
+  font-size: 1.18em;
+}
+
+/* Rows were told apart by alternating flat bands of black at 22%, which on the
+   red scroll read as stripes of a different material. One faint tint and a
+   drawn rule between heroes does the same job without the banding. */
+/* --- one band per hero ---------------------------------------------------
+   Every hero was drawn the same way: a faint row for the name, then a hard
+   `rgba(0,0,0,0.24)` inset for the stat strip, then a ruled gap. Five of those
+   dark stripes down the panel is most of why it was a lot to look at — and
+   because they never alternated, the stripes read as the structure rather than
+   the heroes did.
+
+   Each hero is one continuous band now, alternating so neighbours separate,
+   with air between them. No rules, no dark blocks: the quietest thing that
+   still groups two rows into one hero. Heroes occupy every third row (name,
+   stats, spacer), so alternate pairs are 6n+1 and 6n+2. */
+#heroAddManage .heroTableBody tr.heroManagerHero td,
+#heroAddManage .managerTableScroll .statsRow > td {
+  background-color: rgba(251, 243, 231, 0.05);
+}
+
+#heroAddManage .heroTableBody tr:nth-of-type(6n + 1) td,
+#heroAddManage .heroTableBody tr:nth-of-type(6n + 2) td {
+  background-color: rgba(251, 243, 231, 0.12);
+}
+
+/* Space, not a line — the banding is doing the separating now. */
+#heroAddManage .heroesSpacer {
+  height: 15px;
+  padding: 0;
+  background: none;
+  filter: none;
+}
+
+/* -- the stat strip, set like the side-car panel's ability row -- */
+#heroAddManage .managerTableScroll .statsRow > td {
+  font-size: 1em;
+  padding: 0.12em 0.6em 0.22em;
+}
+
+#heroAddManage .heroStats {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.1rem 0.4rem;
+  justify-items: center;
+}
+
+#heroAddManage .heroStat {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  line-height: 1.15;
+}
+
+#heroAddManage .heroStatLabel {
+  font-size: 0.76em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  opacity: 0.86;
+}
+
+#heroAddManage .heroStat .setEditingField {
+  font-size: 1.12em;
+  padding: 0 0.1em;
+}
+
+/* -- the ready checkbox -- */
+#heroAddManage td.managerCheckCell,
+#monsterAddManage td.managerCheckCell {
+  text-align: center;
+}
+
+#heroAddManage .managerCheck,
+#monsterAddManage .managerCheck {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* The drawn box is dark ink, which is invisible on the RED scroll — the same
+   art inverted reads as chalk on it. The monster panel's parchment is light,
+   so its boxes stay as drawn. */
+#heroAddManage .managerCheck input[type="checkbox"] {
+  filter: invert(1) sepia(0.3) saturate(0.4) brightness(1.3);
+}
+
+/* A ticked box means this hero is in the fight, which is the one thing worth
+   spotting at a glance down the roster — so on the red scroll the mark takes a
+   far brighter green than it needs on the tracker's cream plaques. */
+#heroAddManage .managerCheck .tickMark {
+  --mark-ink: #86e05c;
+}
+
+/* Parchment needs the deeper green, as the tracker's plaques do — the bright
+   one washes out on a light ground. */
+#monsterAddManage .managerCheck .tickMark {
+  --mark-ink: #3c8a24;
+}
+
+/* -- delete -- */
+#heroAddManage .buttonDelete {
+  background: none;
+  border: none;
+  padding: 0.15rem;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.13s ease;
+}
+
+#heroAddManage .buttonDelete:hover,
+#heroAddManage .buttonDelete:focus-visible {
+  opacity: 1;
+  filter: none;
+}
+
+/* -- close mark, as on the side-car panels -- */
+#heroAddManage .saveClose {
+  background: none;
+  border: none;
+  color: var(--panel-ink);
+  font-family: 'Caudex', serif;
+  font-size: 1.06em;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+}
