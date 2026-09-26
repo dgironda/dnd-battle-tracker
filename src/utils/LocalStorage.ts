@@ -74,15 +74,6 @@ function removeKey(key: string): void {
   }
 }
 
-function hasKey(key: string): boolean {
-  try {
-    return localStorage.getItem(key) !== null;
-  } catch (error) {
-    console.error(`Error checking ${key}:`, error);
-    return false;
-  }
-}
-
 function readInt(key: string, fallback: number): number {
   try {
     const stored = localStorage.getItem(key);
@@ -108,10 +99,6 @@ function clearHeroes(): void {
   removeKey(STORAGE_KEYS.heroes);
 }
 
-function hasStoredHeroes(): boolean {
-  return hasKey(STORAGE_KEYS.heroes);
-}
-
 /* ---------------------------------------------------------------- monsters */
 
 function storeMonsters(monsters: Monster[]): void {
@@ -126,10 +113,6 @@ function clearMonsters(): void {
   removeKey(STORAGE_KEYS.monsters);
 }
 
-function hasStoredMonsters(): boolean {
-  return hasKey(STORAGE_KEYS.monsters);
-}
-
 /* -------------------------------------------------------------- combatants */
 
 function storeCombatants(combatants: Combatant[], round: number): void {
@@ -139,10 +122,6 @@ function storeCombatants(combatants: Combatant[], round: number): void {
 
 function getCombatants(): Combatant[] {
   return readJSON<Combatant[]>(STORAGE_KEYS.combatants, []);
-}
-
-function storeRoundNumber(round: number): void {
-  writeKey(STORAGE_KEYS.round, round.toString());
 }
 
 function getRoundNumber(): number {
@@ -206,29 +185,21 @@ function clearCombatants(): void {
   removeKey(STORAGE_KEYS.battleLog);
 }
 
-function hasStoredCombatants(): boolean {
-  return hasKey(STORAGE_KEYS.combatants);
-}
-
 export {
   storeHeroes,
   getHeroes,
   clearHeroes,
-  hasStoredHeroes,
   storeMonsters,
   getMonsters,
   clearMonsters,
-  hasStoredMonsters,
   storeCombatants,
   getCombatants,
   storeBattleLog,
   getBattleLog,
   getRoundNumber,
-  storeRoundNumber,
   getTurnIndex,
   storeTurnIndex,
   getTurnStart,
   storeTurnStart,
   clearCombatants,
-  hasStoredCombatants,
 };

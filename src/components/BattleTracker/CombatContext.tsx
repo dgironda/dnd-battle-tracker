@@ -52,7 +52,7 @@ interface CombatContextType {
 const CombatContext = createContext<CombatContextType | null>(null);
 
 /** Thrown into the start-battle loop when the user cancels an initiative roll. */
-export const INITIATIVE_CANCELLED = "INITIATIVE_CANCELLED";
+const INITIATIVE_CANCELLED = "INITIATIVE_CANCELLED";
 
 export function CombatProvider({ children }: { children: React.ReactNode }) {
   const { setMonsters } = useMonsters();

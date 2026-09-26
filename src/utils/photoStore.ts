@@ -98,7 +98,7 @@ export function deletePhoto(id: string): Promise<unknown> {
   return tx("readwrite", (store) => store.delete(id));
 }
 
-export async function listPhotoIds(): Promise<string[]> {
+async function listPhotoIds(): Promise<string[]> {
   const keys = await tx<IDBValidKey[]>("readonly", (store) => store.getAllKeys());
   return (keys ?? []).map(String);
 }
@@ -151,15 +151,4 @@ export function blobToDataUrl(blob: Blob): Promise<string> {
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(blob);
   });
-}
-
-/**
- * A blob URL for display, and the function to release it.
- *
- * Object URLs live until revoked or the document goes away, so a list that
- * mints one per card and never lets go leaks the whole set.
- */
-export function objectUrl(blob: Blob): { url: string; release: () => void } {
-  const url = URL.createObjectURL(blob);
-  return { url, release: () => URL.revokeObjectURL(url) };
 }

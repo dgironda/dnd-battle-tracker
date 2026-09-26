@@ -335,8 +335,3 @@ export function wasHandled(error: unknown): boolean {
   }
   return true;
 }
-
-/** Test seam: drop every outstanding claim. */
-export function resetHandled(): void {
-  claims.clear();
-}

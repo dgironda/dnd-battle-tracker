@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { track } from "../utils/telemetry";
 import { beginPatreonSignIn } from "../utils/patreonSession";
 
-export type SupporterPromptReason = "first_visit" | "battle_manager" | "locked_wallpaper";
+type SupporterPromptReason = "first_visit" | "battle_manager" | "locked_wallpaper";
 
 interface PatreonOverlayProps {
     onClose: () => void;

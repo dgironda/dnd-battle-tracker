@@ -30,7 +30,7 @@ export const LEGACY_MONSTERS_PARAM = "monsters";
 /** Browsers start refusing URLs somewhere past this. */
 export const MAX_URL_LENGTH = 30000;
 
-export const MAX_ENCOUNTER_MONSTERS = 200;
+const MAX_ENCOUNTER_MONSTERS = 200;
 export const MAX_ENCOUNTER_NAME = 80;
 
 /**

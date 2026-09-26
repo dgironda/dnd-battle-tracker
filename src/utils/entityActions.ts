@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { Hero, Monster, Combatant } from "../types/index";
+import { Hero, Monster } from "../types/index";
 import { confirmDialog } from "./notify";
 
 export const createAddHero = (setHeroes: Dispatch<SetStateAction<Hero[]>>) =>
@@ -94,19 +94,5 @@ export const createDeleteMonster = (
     }
 
     setMonsters(prevMonsters => prevMonsters.filter(monster => monster.id !== monsterId));
-  };
-};
-
-export const createUpdateCombatant = (setCombatants: Dispatch<SetStateAction<Combatant[]>>) =>
-{
-  return (combatantId: string, field: keyof Combatant, value: string | number | boolean) =>
-  {
-    setCombatants(prevCombatants =>
-      prevCombatants.map(combatant =>
-        combatant.id === combatantId
-          ? { ...combatant, [field]: value }
-          : combatant
-      )
-    );
   };
 };
