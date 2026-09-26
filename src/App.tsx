@@ -10,20 +10,23 @@ import { useGlobalContext } from "./hooks/optionsContext";
 import { Helmet } from "react-helmet-async";
 import monsterShareURL from "./utils/monsterShareURL";
 import { startTour } from "./components/Tour";
-import { DialogHost, notify } from "./utils/notify";
+import { confirmDialog, DialogHost, notify } from "./utils/notify";
 import ErrorBoundary from "./components/ErrorBoundary";
 import GlobalErrorNotice from "./components/GlobalErrorNotice";
 import { clearCrashCount } from "./utils/crashRecovery";
 import { identifyPerson, registerContext, setPerson, track } from "./utils/telemetry";
 import {
+  beginPatreonSignIn,
   exchangeCode,
   fetchSupporterState,
   forgetLegacyCode,
-  patreonAuthorizeUrl,
+  signOut,
   supporterPrompt,
+  takeReturnedCode,
   type SupporterState,
 } from "./utils/patreonSession";
 import ConsentBanner from "./components/ConsentBanner";
+import { forgetIdentity } from "./utils/consent";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import BTLogo from "./assets/draftsvgs_v2/logo.svg";
 import Backdrop from "./utils/backdrop";
@@ -170,6 +173,9 @@ function App() {
      deploy, no network. Kept apart from `isSupporter` because "we cannot check"
      and "you never paid" are different things to say to a patron. */
   const [gateAvailable, setGateAvailable] = useState(true);
+  /* Signed in with Patreon at all, pledge or not — which is what decides
+     whether Options offers a way to sign out. */
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -178,6 +184,7 @@ function App() {
       if (cancelled) return;
       setIsSupporter(state.isSupporter);
       setGateAvailable(state.available);
+      setSignedIn(state.personId !== null);
       /* The prompt waits for the answer instead of racing it. Defaulting it to
          visible meant every returning supporter got a flash of "support us"
          before the session came back and took it away again. What it waits
@@ -200,13 +207,24 @@ function App() {
     };
 
     const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
 
-    if (code) {
+    if (params.has("code")) {
       /* Off the URL before anything else can read it — the address bar, the
          referrer on the next outbound link, and any analytics pageview. */
       window.history.replaceState({}, document.title, window.location.pathname);
-      exchangeCode(code).then((state) => settle(state, true));
+      const code = takeReturnedCode(params);
+      if (code) {
+        exchangeCode(code).then((state) => settle(state, true));
+      } else {
+        /* A code this tab never asked for: from somebody's link, or a sign-in
+           started in another tab. Not traded in — see beginPatreonSignIn. */
+        void notify(
+          "That Patreon sign-in didn't start on this page, so it wasn't used. To sign in, use " +
+            "Support us on Patreon.",
+          { title: "Sign-in not used", tone: "warning" },
+        );
+        fetchSupporterState().then(settle);
+      }
     } else {
       fetchSupporterState().then(settle);
     }
@@ -246,7 +264,24 @@ function App() {
 
   const handlePatreonLogin = () => {
     track("supporter_prompt_clicked", { reason: "header" });
-    window.location.href = patreonAuthorizeUrl();
+    beginPatreonSignIn();
+  };
+
+  /* The session cookie is HttpOnly and lasts 30 days, so without this a
+     supporter who signed in on somebody else's laptop stayed signed in there
+     for a month. No prompt afterwards: somebody who just signed out does not
+     need inviting straight back in. */
+  const handlePatreonSignOut = async () => {
+    const ok = await confirmDialog(
+      "The supporter perks switch off on this device until you sign in again. Your heroes, " +
+        "monsters and battles stay exactly as they are.",
+      { title: "Sign out of Patreon?", confirmLabel: "Sign out", cancelLabel: "Stay signed in" },
+    );
+    if (!ok) return;
+    const state = await signOut();
+    setIsSupporter(state.isSupporter);
+    setSignedIn(false);
+    forgetIdentity();
   };
 
   const panelContent: Record<PanelName, ReactNode> = {
@@ -259,6 +294,7 @@ function App() {
         onClose={handleClosePanel}
         isSupporter={isSupporter}
         onLockedPick={() => setLockedOverlayVisible(true)}
+        onPatreonSignOut={ENABLE_PATREON && signedIn ? handlePatreonSignOut : undefined}
       />
     ),
   };

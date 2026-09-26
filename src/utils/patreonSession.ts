@@ -75,17 +75,73 @@ async function readJson(response: Response): Promise<SupporterState> {
  * redirect to match the authorize request *exactly*, and hand-built query
  * strings are exactly where that stops being true. URLSearchParams encodes it.
  */
-export function patreonAuthorizeUrl(): string {
+export function patreonAuthorizeUrl(state: string): string {
   const query = new URLSearchParams({
     response_type: "code",
     client_id: import.meta.env.VITE_PATREON_CLIENT_ID,
     redirect_uri: import.meta.env.VITE_PATREON_REDIRECT_URI,
     scope: "identity identity.memberships",
+    state,
   });
   /* URLSearchParams writes a space as "+", which is correct for form encoding
      and not universally accepted in an OAuth `scope`. "%20" is accepted
      everywhere, so the separator is normalised rather than left to chance. */
   return `https://www.patreon.com/oauth2/authorize?${query.toString().replace(/\+/g, "%20")}`;
+}
+
+/** Where a sign-in keeps its one-time state while this tab is away at Patreon. */
+const SIGN_IN_STATE = "patreonSignInState";
+
+/**
+ * Send this tab to Patreon to sign in.
+ *
+ * With a one-time `state`, which Patreon hands straight back on the redirect
+ * and which is remembered in this tab's sessionStorage until then. Without it
+ * the page traded in any `?code=` it landed on — so anybody could send a link
+ * carrying the code from THEIR sign-in, and whoever opened it would be signed
+ * in as them (a login CSRF). Now only the answer to a sign-in this tab started
+ * is used. See takeReturnedCode.
+ */
+export function beginPatreonSignIn(): void {
+  window.location.href = newSignInUrl();
+}
+
+/** The authorize link for a new sign-in, its state remembered for the return. */
+export function newSignInUrl(): string {
+  return patreonAuthorizeUrl(rememberSignInState());
+}
+
+function rememberSignInState(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  const state = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  try {
+    window.sessionStorage.setItem(SIGN_IN_STATE, state);
+  } catch {
+    /* Storage refused. The return then matches nothing and is turned away,
+       which is the safe way for this to fail. */
+  }
+  return state;
+}
+
+/**
+ * The code Patreon sent back — but only if it answers the sign-in this tab
+ * started, i.e. its `state` is the one beginPatreonSignIn remembered.
+ *
+ * Single use: the remembered state is dropped whether it matched or not, so a
+ * reload of the redirect cannot trade the same answer in twice.
+ */
+export function takeReturnedCode(params: URLSearchParams): string | null {
+  const code = params.get("code");
+  const state = params.get("state");
+  let expected: string | null = null;
+  try {
+    expected = window.sessionStorage.getItem(SIGN_IN_STATE);
+    window.sessionStorage.removeItem(SIGN_IN_STATE);
+  } catch {
+    /* Nothing remembered means nothing matches. */
+  }
+  if (!code || !state || !expected || state !== expected) return null;
+  return code;
 }
 
 /**

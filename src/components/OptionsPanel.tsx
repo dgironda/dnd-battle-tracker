@@ -17,9 +17,16 @@ interface OptionsPanelProps {
   isSupporter: boolean;
   /** Raised when a locked paper is picked, so App can put the prompt up. */
   onLockedPick: () => void;
+  /** Given only while signed in with Patreon; the control is not shown otherwise. */
+  onPatreonSignOut?: () => void;
 }
 
-export default function OptionsPanel({ onClose, isSupporter, onLockedPick }: OptionsPanelProps) {
+export default function OptionsPanel({
+  onClose,
+  isSupporter,
+  onLockedPick,
+  onPatreonSignOut,
+}: OptionsPanelProps) {
   const { settings, updateSetting } = useGlobalContext();
 
   /* Picking a paper also sets the theme, because only one of them is dark.
@@ -77,6 +84,13 @@ export default function OptionsPanel({ onClose, isSupporter, onLockedPick }: Opt
             <li>
               <button onClick={() => updateSetting("tourReady", !settings.tourReady)} id="buttonTourReady">
                 {settings.tourReady ? "Tour Available" : "Reset Tour"}
+              </button>
+            </li>
+          )}
+          {onPatreonSignOut && (
+            <li>
+              <button onClick={onPatreonSignOut} id="buttonPatreonSignOut">
+                Sign out of Patreon
               </button>
             </li>
           )}

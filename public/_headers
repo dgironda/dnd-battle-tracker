@@ -1,7 +1,16 @@
+# Security headers for every static page. (Pages Functions set their own.)
+#
+# Nothing here loads from Patreon: sign-in is a full-page redirect and the
+# Patreon buttons are our own drawings, so patreon.com is in no directive.
+# PostHog normally goes through /relay on this origin; its hosts stay in
+# connect-src for the parts of posthog-js that talk to PostHog directly, such
+# as its toolbar. Nothing uses geolocation. COOP severs the link to any window
+# that opened this one, which the Patreon redirect does not need.
 /*
-  Content-Security-Policy: default-src 'self'; img-src 'self' data: blob: *.patreon.com; script-src 'self' *.patreon.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; connect-src 'self' *.posthog.com *.i.posthog.com; frame-src *.patreon.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; connect-src 'self' *.posthog.com *.i.posthog.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: geolocation=(self), microphone=(), camera=()
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Cross-Origin-Opener-Policy: same-origin
   X-Frame-Options: DENY

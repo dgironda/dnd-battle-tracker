@@ -74,6 +74,24 @@ export function applyConsent(consent: Consent): void {
 }
 
 /** True when the bar should be on screen. */
+/**
+ * Forget who this browser was identified as — for a Patreon sign-out — without
+ * forgetting what it said about analytics.
+ *
+ * posthog-js's `reset()` wipes its own stored consent along with the identity,
+ * which would quietly switch capturing off for somebody who said yes. So the
+ * answer kept here is put straight back.
+ */
+export function forgetIdentity(): void {
+  if (!ANALYTICS_ENABLED) return;
+  try {
+    posthog.reset();
+  } catch {
+    /* Analytics must never be the thing that breaks a page. */
+  }
+  applyConsent(readConsent());
+}
+
 export function needsDecision(): boolean {
   return REQUIRE_CONSENT && readConsent() === "unset";
 }

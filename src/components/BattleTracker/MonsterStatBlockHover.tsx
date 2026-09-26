@@ -8,6 +8,7 @@ import ConditionMark from './ConditionMark';
 import { roundsHeld } from '../../utils/conditionRounds';
 import { useGlobalContext } from '../../hooks/optionsContext';
 import { useConditionTip } from './useConditionTip';
+import { safeLink } from '../../utils/links';
 
 interface MonsterStatBlockHoverProps {
   monster: Monster;
@@ -73,7 +74,9 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
 
   // Safe fields
   const name = safe(monster.name, 'Unknown Creature');
-  const link = safe(monster.link, '');
+  /* Filtered, not just defaulted: this goes straight into an href, and the
+     link came from whoever typed it — see safeLink. */
+  const link = safeLink(monster.link);
   const ac = safe(monster.ac, 10);
   const baseHp = safe(currentHp ?? monster.currHp ?? monster.maxHp ?? 1, 1);
   const initiative = safe(monster.init, 0);

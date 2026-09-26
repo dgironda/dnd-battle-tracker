@@ -28,12 +28,45 @@
 /** Where events, feature flags and session data go. */
 const API_HOST = "us.i.posthog.com";
 
-/** Where posthog-js fetches its own extra bundles from. */
+/** Where posthog-js fetches its own extra bundles and remote config from. */
 const ASSET_HOST = "us-assets.i.posthog.com";
+
+/*
+ * The only paths posthog-js calls, by first segment — read out of posthog-js
+ * itself (its `endpointFor` calls). Anything else is refused.
+ *
+ * This used to forward any path with any method, which made it an open door
+ * to the whole of PostHog's API from this domain, and a way for a script to
+ * spend this project's Functions quota — shared with Patreon sign-in and the
+ * player link — on traffic that has nothing to do with the tracker.
+ *
+ * If PostHog stops receiving something after a posthog-js upgrade, look for
+ * 404s under /relay in the browser's network tab: a new endpoint goes here.
+ */
+const INGEST = new Set(["e", "i", "s", "flags", "decide", "batch"]);
+/* The public, token-keyed reads under /api/. Not the rest of PostHog's API,
+   which is keyed by personal API keys and has no business coming through. */
+const PUBLIC_API = new Set(["surveys", "early_access_features", "product_tours", "web_experiments"]);
+/* CDN files: the extension bundles (/static/) and remote config (/array/). */
+const ASSETS = new Set(["static", "array"]);
+
+const METHODS = new Set(["GET", "HEAD", "POST"]);
+
+/** Which PostHog host a path belongs to, or null for one posthog-js never asks for. */
+function destination(segments: string[]): string | null {
+  const [first, second] = segments;
+  if (ASSETS.has(first)) return ASSET_HOST;
+  if (INGEST.has(first)) return API_HOST;
+  if (first === "api" && PUBLIC_API.has(second)) return API_HOST;
+  return null;
+}
 
 export const onRequest: PagesFunction = async (context) => {
   const { request, params, waitUntil } = context;
-  const url = new URL(request.url);
+
+  if (!METHODS.has(request.method)) {
+    return new Response("Method not allowed", { status: 405, headers: { Allow: "GET, HEAD, POST" } });
+  }
 
   /* `[[path]]` is a catch-all, so this arrives as an array of segments. */
   const segments = Array.isArray(params.path)
@@ -41,15 +74,13 @@ export const onRequest: PagesFunction = async (context) => {
     : params.path
       ? [params.path]
       : [];
-  const path = segments.map(encodeURIComponent).join("/");
+  const host = destination(segments);
+  if (!host) return new Response("Not found", { status: 404 });
 
-  /* Everything under /static/ is a CDN file — the surveys, web-vitals and
-     dead-click bundles posthog-js pulls in at runtime. The rest is ingestion. */
-  const isStatic = segments[0] === "static" || segments[0] === "array";
-  const host = isStatic ? ASSET_HOST : API_HOST;
-  const upstream = `https://${host}/${path}${url.search}`;
+  const url = new URL(request.url);
+  const upstream = `https://${host}/${segments.map(encodeURIComponent).join("/")}${url.search}`;
 
-  if (isStatic) {
+  if (host === ASSET_HOST) {
     return retrieveStatic(request, upstream, waitUntil);
   }
   return forward(request, upstream);
@@ -62,11 +93,15 @@ export const onRequest: PagesFunction = async (context) => {
  * example: PostHog identifies a visitor from the payload, not from a cookie, so
  * forwarding this origin's cookies would send them data they neither need nor
  * asked for. The `Host` header goes too — the runtime sets it from the URL, and
- * leaving ours on it makes the upstream request inconsistent.
+ * leaving ours on it makes the upstream request inconsistent. And
+ * `Authorization`: posthog-js never sends one (the project token rides in the
+ * payload), so a request carrying one is somebody using this domain to reach
+ * PostHog with a key of their own.
  */
 async function forward(request: Request, upstream: string): Promise<Response> {
   const headers = new Headers(request.headers);
   headers.delete("cookie");
+  headers.delete("authorization");
   headers.delete("host");
 
   return fetch(upstream, {

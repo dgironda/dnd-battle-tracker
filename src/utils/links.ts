@@ -15,3 +15,21 @@ export const DISCORD_BUG_CHANNEL_URL =
 
 /** Named on the card, so it is findable even if the deep link is not followed. */
 export const DISCORD_BUG_CHANNEL = "#bt-bug-reports";
+
+/**
+ * A link that is safe to put in an href we render, or "" if it is not.
+ *
+ * Only http(s). A monster's stat-block link comes from whoever typed it — the
+ * DM, a shared encounter, a backup file somebody sent — and a `javascript:`
+ * one would run as this site when clicked. The CSP already refuses to run
+ * those; this makes the link itself never reach the page either.
+ */
+export function safeLink(link: unknown): string {
+  if (typeof link !== "string" || link === "") return "";
+  try {
+    const url = new URL(link, window.location.origin);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.href : "";
+  } catch {
+    return "";
+  }
+}

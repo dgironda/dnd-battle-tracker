@@ -1,4 +1,5 @@
 import type { Monster } from "../types";
+import { safeLink } from "./links";
 
 /**
  * Sharing a prepared encounter as a link.
@@ -82,18 +83,7 @@ function decodePayload(value: string): string {
   return new TextDecoder().decode(bytes);
 }
 
-/** Only http(s) links are safe to put in an href we render. */
-function safeLink(link: unknown): string {
-  if (typeof link !== "string" || link === "") return "";
-  try {
-    const url = new URL(link, window.location.origin);
-    return url.protocol === "https:" || url.protocol === "http:" ? url.href : "";
-  } catch {
-    return "";
-  }
-}
-
-const num = (value: unknown, fallback: number): number => {
+const num =(value: unknown, fallback: number): number => {
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
 };
