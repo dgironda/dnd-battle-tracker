@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from "react";
-import type { Hero } from "../../types/Hero";
 import AddHero from "../HeroManager/AddHero";
 import { createAddHero, createUpdateHero, createDeleteHero } from "../../utils/Utils";
 import { EditableCell } from "../../utils/Utils";
 import { useHeroes } from "../../hooks/useHeroes";
 import Icon from "../Icon";
+import { AbilityStats } from "../AbilityStats";
 import { checkboxStyle, checkboxVariant } from "../../utils/handArt";
 import { useCombat } from "../BattleTracker/CombatContext";
 import HeartIcon from "../../assets/draftsvgs_v2/icon_hp.svg";
@@ -157,21 +157,12 @@ const HeroManager: React.FC<HeroManagerProps> = ({ onClose }) => {
 
               <tr key={`${hero.id}-stats`} className="statsRow">
                 <td colSpan={6}>
-                  <div className="heroStats">
-                    {["str", "dex", "con", "int", "wis", "cha", "pp", "init"].map((stat) => (
-                      <span className="heroStat" key={stat}>
-                        <span className="heroStatLabel">{stat.toUpperCase()}</span>
-                        <EditableCell
-                          entity={hero}
-                          field={stat as keyof Hero}
-                          type="number"
-                          editingField={editingField}
-                          setEditingField={setEditingField}
-                          updateEntity={updateHero}
-                        />
-                      </span>
-                    ))}
-                  </div>
+                  <AbilityStats
+                    entity={hero}
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    updateEntity={updateHero}
+                  />
                 </td>
               </tr>
 

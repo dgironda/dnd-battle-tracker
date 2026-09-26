@@ -3,6 +3,7 @@ import { Hero, Monster, Combatant } from "../types/index";
 import { confirmDialog, notify } from "../utils/notify";
 import { ASK_FOR_GROUP_INITIATIVE } from "../utils/experiments";
 import { baseMonsterName, groupByKind } from "../utils/monsterNaming";
+import { monsterCombatant } from "../utils/newCombatant";
 import { track } from "../utils/telemetry";
 
 interface UseBattleManagerProps {
@@ -130,32 +131,7 @@ export const useBattleManager = (props: UseBattleManagerProps) => {
 
         for (const monster of group) {
           const initiative = shared ?? (await askForInitiative(monster));
-
-          newCombatants.push({
-            id: monster.id,
-            name: monster.name,
-            link: monster.link,
-            type: "monster",
-            currHp: monster.hp,
-            maxHp: monster.hp,
-            tHp: 0,
-            initiative,
-            action: false,
-            bonus: false,
-            move: false,
-            reaction: false,
-            conditions: monster.conditions ?? [],
-            init: monster.init,
-            deathsaves: [],
-            ac: monster.ac,
-            str: monster.str,
-            dex: monster.dex,
-            con: monster.con,
-            int: monster.int,
-            wis: monster.wis,
-            cha: monster.cha,
-            pp: monster.pp,
-          });
+          newCombatants.push(monsterCombatant(monster, initiative));
         }
       }
       /* --- EXPERIMENT: group initiative ends here --------------------- */

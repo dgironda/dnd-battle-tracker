@@ -12,6 +12,7 @@ import {
 } from '../../utils/LocalStorage';
 import { appendEntry, makeEntry, type LogEntry, type LogKind } from '../../utils/battleLog';
 import { stampConditionRounds } from '../../utils/conditionRounds';
+import { monsterCombatant } from '../../utils/newCombatant';
 import { useMonsters } from "../../hooks/useMonsters";
 
 interface CombatContextType {
@@ -175,31 +176,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       return; // cancelled - leave the monster in the manager
     }
 
-    const newCombatant: Combatant = {
-      id: monster.id,
-      name: monster.name,
-      link: monster.link,
-      type: 'monster',
-      currHp: monster.hp,
-      maxHp: monster.hp,
-      tHp: 0,
-      initiative,
-      action: false,
-      bonus: false,
-      move: false,
-      reaction: false,
-      conditions: monster.conditions ?? [],
-      init: monster.init,
-      deathsaves: [],
-      ac: monster.ac,
-      str: monster.str,
-      dex: monster.dex,
-      con: monster.con,
-      int: monster.int,
-      wis: monster.wis,
-      cha: monster.cha,
-      pp: monster.pp,
-    };
+    const newCombatant = monsterCombatant(monster, initiative);
 
     logEvent("joined", newCombatant.name);
 

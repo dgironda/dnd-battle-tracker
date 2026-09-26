@@ -7,6 +7,7 @@ import { planMonsterNames } from "../../utils/monsterNaming";
 import { useGlobalContext } from "../../hooks/optionsContext";
 import { useCombat } from "../BattleTracker/CombatContext";
 import Icon from "../Icon";
+import { AbilityStats } from "../AbilityStats";
 import { checkboxStyle, checkboxVariant } from "../../utils/handArt";
 import HeartIcon from "../../assets/draftsvgs_v2/icon_hp.svg";
 import ShieldIcon from "../../assets/draftsvgs_v2/icon_shield.svg";
@@ -336,14 +337,12 @@ const MonsterManager: React.FC<MonsterManagerProps> = ({ onClose }) => {
               </tr>
               <tr className="statsRow">
                 <td colSpan={6}>
-                  <div className="heroStats">
-                    {["str", "dex", "con", "int", "wis", "cha", "pp", "init"].map((stat) => (
-                      <span className="heroStat" key={stat}>
-                        <span className="heroStatLabel">{stat.toUpperCase()}</span>
-                        <EditableCell entity={m} field={stat as keyof Monster} type="number" editingField={editingField} setEditingField={setEditingField} updateEntity={updateMonster} />
-                      </span>
-                    ))}
-                  </div>
+                  <AbilityStats
+                    entity={m}
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    updateEntity={updateMonster}
+                  />
                 </td>
               </tr>
             </React.Fragment>

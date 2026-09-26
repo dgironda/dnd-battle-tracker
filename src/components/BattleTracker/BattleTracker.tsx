@@ -25,6 +25,7 @@ import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
 import { useCombat } from "./CombatContext";
 import { useGlobalContext } from "../../hooks/optionsContext";
+import { isShortcut } from "../../utils/shortcuts";
 import RoundNumberSpan from "./RoundNumber";
 import { HeroStatBlockHover } from "./HeroStatBlockHover";
 import { MonsterStatBlockHover } from "./MonsterStatBlockHover";
@@ -767,16 +768,7 @@ const BattleTracker: React.FC = () => {
   // Action, Bonus, Movement keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement ||
-        target?.isContentEditable
-      ) {
-        return;
-      }
-      if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
+      if (!isShortcut(e)) return;
       if (!activeCombatant) return;
       if (
         activeCombatant.conditions.includes("Dead") ||

@@ -5,6 +5,7 @@ import { RosterProvider } from "./hooks/rosterContext";
 import PatreonOverlay from "./components/PatreonOverlay";
 import { DEVMODE, TOUR_ENABLED } from "./utils/devmode";
 import { DISCORD_URL } from "./utils/links";
+import { isShortcut } from "./utils/shortcuts";
 import AdSlot from "./components/AdSlot";
 import { useGlobalContext } from "./hooks/optionsContext";
 import { Helmet } from "react-helmet-async";
@@ -121,19 +122,7 @@ function App() {
   // Manager Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement ||
-        target?.isContentEditable
-      ) {
-        return;
-      }
-
-      if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) {
-        return;
-      }
+      if (!isShortcut(e)) return;
 
       switch (e.key.toLowerCase()) {
         case "w":
