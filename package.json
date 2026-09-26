@@ -6,6 +6,8 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc -b && vite build",
+		"predeploy": "node tools/check-release.mjs",
+		"release": "node tools/release.mjs",
 		"lint": "eslint .",
 		"preview": "npm run build && vite preview",
 		"deploy": "npm run build && wrangler pages deploy",

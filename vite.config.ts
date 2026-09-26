@@ -32,9 +32,13 @@ function buildId(): string {
   const fromPages = process.env.CF_PAGES_COMMIT_SHA
   if (fromPages) return fromPages.slice(0, 7)
   try {
-    return execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] })
-      .toString()
-      .trim()
+    const git = (args: string) =>
+      execSync(`git ${args}`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim()
+    const head = git('rev-parse --short HEAD')
+    /* Built from uncommitted changes: say so, or the About panel and crash
+       reports name a commit this build is not. `npm run deploy` refuses to
+       ship one (tools/check-release.mjs). */
+    return git('status --porcelain') ? `${head}-dirty` : head
   } catch {
     return 'unknown'
   }
