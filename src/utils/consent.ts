@@ -17,7 +17,7 @@
 import { ANALYTICS_ENABLED, resetIdentity, startAnalytics, stopAnalytics } from "./telemetry";
 
 /** Opt-in (true) or opt-out (false). The whole decision is made in applyConsent. */
-export const REQUIRE_CONSENT = true;
+const REQUIRE_CONSENT = true;
 
 export type Consent = "granted" | "denied" | "unset";
 
