@@ -15,8 +15,8 @@ const ToggleComponent: React.FC = () => {
 
   return (
     <>
-      <h2>D&amp;D 5e version</h2>
-      <div className="versionToggle" role="radiogroup" aria-label="D&D 5e rules version">
+      <h2>5e version</h2>
+      <div className="versionToggle" role="radiogroup" aria-label="5e rules version">
         <button
           type="button"
           role="radio"

@@ -1,8 +1,8 @@
-# D&D Battle Tracker
+# Battle Tracker
 
 ## About
 
-A battle tracker for D&D 5e that supports both the 2014 and 2024 rulesets. It includes hero and monster managers, an initiative tracker, condition reminders, and a guided tour to help new users get started.
+A free initiative and combat tracker for 5e that supports both the 2014 and 2024 rulesets. It includes hero and monster managers, an initiative tracker, condition reminders, and a guided tour to help new users get started.
 
 ## Quick Start
 
@@ -19,7 +19,7 @@ A typical first battle, mirroring the in-app tour:
 ## Instructions
 
 - Add your party's heroes in the **Hero Manager** and monsters in the **Monster Manager**.
-- Toggle your D&D edition (5e 2014 / 2024) using the rules version button in **Options**. This affects concentration checks, condition definitions, and which monsters appear in the Monster Manager dropdown.
+- Choose the 5e rules (2014 / 2024) using the rules version button in **Options**. This affects concentration checks, condition definitions, and which monsters appear in the Monster Manager dropdown.
 - In **Options** you can also toggle turn condition reminders, the time display, and reset the tour.
 - Only heroes and monsters **checked Ready For Next Battle** are added when a battle starts.
 - Monsters are **removed from the Monster Manager** when added to a battle.
@@ -45,3 +45,7 @@ A typical first battle, mirroring the in-app tour:
 - **Art by:** [Aether Ilo - Emily](https://bio.site/aetherillo)
 - **QA Testers:** Danny Cullen, Jayme Andrews, Zach Dender
 - **Special Thanks:** Wolf Harrington
+
+## Legal
+
+Battle Tracker is independent and isn't affiliated with or endorsed by Wizards of the Coast. It includes material from the [System Reference Document 5.1](https://dnd.wizards.com/resources/systems-reference-document) and [System Reference Document 5.2](https://www.dndbeyond.com/srd) by Wizards of the Coast LLC, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode).

@@ -93,6 +93,24 @@ export default function AboutPanel({ onClose }: AboutPanelProps) {
             </li>
           ))}
         </ul>
+        {/* The credit the SRD's CC BY 4.0 license asks for, and a plain word
+            that this is nobody's official product. */}
+        <p className="aboutLegal">
+          Battle Tracker is independent and isn&apos;t affiliated with or endorsed by
+          Wizards of the Coast. It includes material from the{" "}
+          <a href="https://dnd.wizards.com/resources/systems-reference-document" target="_blank" rel="noreferrer">
+            System Reference Document 5.1
+          </a>{" "}
+          and{" "}
+          <a href="https://www.dndbeyond.com/srd" target="_blank" rel="noreferrer">
+            5.2
+          </a>{" "}
+          by Wizards of the Coast LLC, licensed under{" "}
+          <a href="https://creativecommons.org/licenses/by/4.0/legalcode" target="_blank" rel="noreferrer">
+            CC BY 4.0
+          </a>
+          .
+        </p>
         {/* The release, and the exact build: the same id a crash card prints,
             so a bug report can quote both. */}
         <p className="aboutVersion">

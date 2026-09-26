@@ -1,5 +1,4 @@
 import { applyConsent, readConsent } from "./utils/consent";
-import { HelmetProvider } from "react-helmet-async";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
@@ -28,7 +27,6 @@ applyConsent(readConsent());
    React unmounts the whole tree and the DM gets a blank page mid-combat. */
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <ErrorBoundary variant="page">
-    <HelmetProvider>
       <React.StrictMode>
         <GlobalProvider>
             <Tour />
@@ -37,6 +35,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             </div>
         </GlobalProvider>
       </React.StrictMode>
-    </HelmetProvider>
   </ErrorBoundary>
 );

@@ -208,6 +208,15 @@
   color: var(--panel-ink-soft);
 }
 
+/* The small print: who this isn't, and whose material it uses. */
+#about .aboutLegal {
+  margin: 1em 0 0;
+  max-width: 48rem;
+  font-size: 0.82em;
+  line-height: 1.45;
+  color: var(--panel-ink-soft);
+}
+
 /* The edition line at the back of a rulebook: small, set like the credit
    roles, and there to be quoted when something needs reporting. The build id
    is a commit hash, so it drops the small caps that would mangle it. */

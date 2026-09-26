@@ -10,9 +10,59 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Caudex:wght@400;700&family=New+Rocker&family=Germania+One&family=Balthazar&display=swap"
     >
-    <title>D&D Battle Tracker</title>
+    <title>Battle Tracker · Free 5e Initiative &amp; Combat Tracker</title>
+
+    <!-- Everything from here down is for readers that never run the page:
+         search engines, and the link previews in Discord, Reddit and iMessage.
+         It is static on purpose. Tags added by JavaScript never reach them. -->
+    <meta name="description" content="A free initiative and combat tracker for 5e, with the 2014 and 2024 rules. Track turns, hit points, conditions, concentration and death saves in your browser." />
+    <link rel="canonical" href="https://battletracker.simulacrumtechnologies.com/" />
+    <meta name="theme-color" content="#efe1c1" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Battle Tracker" />
+    <meta property="og:title" content="Battle Tracker · Free 5e Initiative &amp; Combat Tracker" />
+    <meta property="og:description" content="Track turns, hit points, conditions, concentration and death saves, with the 2014 and 2024 rules. Free, in your browser." />
+    <meta property="og:url" content="https://battletracker.simulacrumtechnologies.com/" />
+    <meta property="og:image" content="https://battletracker.simulacrumtechnologies.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Battle Tracker: a free initiative and combat tracker for 5e" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Battle Tracker",
+        "url": "https://battletracker.simulacrumtechnologies.com/",
+        "description": "A free initiative and combat tracker for 5e, with the 2014 and 2024 rules. Track turns, hit points, conditions, concentration and death saves in your browser.",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Simulacrum Technologies",
+          "url": "https://www.simulacrumtechnologies.com"
+        }
+      }
+    </script>
   </head>
   <body>
+    <noscript>
+      <h1>Battle Tracker</h1>
+      <p>A free initiative and combat tracker for 5e, with the 2014 and 2024 rules.</p>
+      <ul>
+        <li>Initiative order and turns, with a turn timer</li>
+        <li>Hit points, conditions, concentration checks and death saves</li>
+        <li>Hero and monster managers, and a battle log</li>
+      </ul>
+      <p>Battle Tracker runs in your browser and needs JavaScript turned on.</p>
+    </noscript>
     <div id="root"></div>
     <div id="header-root"></div>
     <script type="module" src="/src/main.tsx"></script>

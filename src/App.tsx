@@ -8,7 +8,6 @@ import { DISCORD_URL } from "./utils/links";
 import { isShortcut } from "./utils/shortcuts";
 import AdSlot from "./components/AdSlot";
 import { useGlobalContext } from "./hooks/optionsContext";
-import { Helmet } from "react-helmet-async";
 import monsterShareURL from "./utils/monsterShareURL";
 import { startTour } from "./components/Tour";
 import { DialogHost } from "./utils/notify";
@@ -178,30 +177,10 @@ function App() {
 
   return (
     <>
-      <Helmet>
-        <title>D&D Battle Tracker | Automated Combat and Initiative Management</title>
-        <meta
-          name="description"
-          content="Keep your combat clean and simple with the D&D Battle Tracker. Featuring automatic turn advancement, integrated Hero/Monster managers, and instant condition reminders for faster gameplay"
-        />
-        <meta property="og:title" content="D&D Battle Tracker" />
-        <meta property="og:description" content="Keep your combat clean and simple with the D&D Battle Tracker." />
-        <meta name="keywords" content="D&D, 2014, 2024, 5e, initiative, battle, combat" />
-        <meta property="og:url" content="https://battletracker.simulacrumtechnologies.com/" />
-        <link rel="canonical" href="https://battletracker.simulacrumtechnologies.com/" />
-        <meta property="og:type" content="website" />
-        <meta name="author" content="Simulacrum Technologies" />
-        <meta name="language" content="English" />
-        <meta property="og:image" content="https://battletracker.simulacrumtechnologies.com/og-image.png" />
-        {/*
-          Security headers live in public/_headers, which Cloudflare Pages serves
-          as real HTTP headers. HSTS, X-Content-Type-Options, Referrer-Policy and
-          Permissions-Policy are ignored entirely when set as <meta http-equiv>,
-          so having them here did nothing. The CSP that used to sit here also
-          blocked PostHog outright: it declared no connect-src, so every
-          analytics request fell back to default-src 'self' and was refused.
-        */}
-      </Helmet>
+      {/* The title, description and link-preview tags are static, in
+          index.html. Set from here, they never reached search engines' first
+          pass or the link previews in Discord and Reddit, which don't run
+          JavaScript. Security headers are in public/_headers. */}
       <RosterProvider>
         <CombatProvider>
           {inviteVisible && <PatreonOverlay reason="first_visit" onClose={closeInvite} />}
@@ -224,7 +203,7 @@ function App() {
           )}
 
           <div id="header">
-            <img id="logo" src={BTLogo} alt="D&D Battle Tracker" />
+            <img id="logo" src={BTLogo} alt="Battle Tracker" />
 
             {/* Folds the masthead away — logo, the four managers, the support
                 note, Start the Battle, Edit Battle and the log — so the roster
