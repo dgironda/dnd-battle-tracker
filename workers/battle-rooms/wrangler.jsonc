@@ -7,7 +7,7 @@
  */
 {
 	"$schema": "../../node_modules/wrangler/config-schema.json",
-	"name": "dnd-battle-tracker-rooms",
+	"name": "battle-tracker-rooms",
 	"main": "index.ts",
 	"compatibility_date": "2025-09-20",
 	/* No public URL: every connection comes through the site's /api/room. */

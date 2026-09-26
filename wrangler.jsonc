@@ -20,7 +20,7 @@
 			{
 				"name": "BATTLE_ROOMS",
 				"class_name": "BattleRoom",
-				"script_name": "dnd-battle-tracker-rooms"
+				"script_name": "battle-tracker-rooms"
 			}
 		]
 	}
