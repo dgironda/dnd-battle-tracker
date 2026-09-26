@@ -54,8 +54,9 @@ export default function PrivacyPolicy({ onClose }: PrivacyPolicyProps) {
 
         <h2>Privacy</h2>
         <p className="privacyLede">
-          The short version: your heroes, your monsters and your battles never leave
-          your browser. We count how the tracker is used, and only if you say yes.
+          The short version: your heroes, your monsters and your battles stay in
+          your browser, unless you share a fight with your players. We count how the
+          tracker is used, and only if you say yes.
         </p>
 
         <h3>What stays on your device</h3>
@@ -64,7 +65,8 @@ export default function PrivacyPolicy({ onClose }: PrivacyPolicyProps) {
           turn, your saved battles, the battle log and your settings all live in your
           browser&apos;s own storage. Photos you attach go into IndexedDB on the same
           machine. None of it is uploaded, none of it reaches us, and clearing your
-          browser data deletes it for good — we have no copy to restore.
+          browser data deletes it for good — we have no copy to restore. The one
+          exception is a battle you choose to share with your players, below.
         </p>
 
         <h3>What we measure, if you agree</h3>
@@ -110,11 +112,27 @@ export default function PrivacyPolicy({ onClose }: PrivacyPolicyProps) {
           anonymous to us.
         </p>
 
+        <h3>If you share a battle with your players</h3>
+        <p>
+          <em>Share encounter with players</em> sends what your players&apos; page
+          shows to our server: each combatant&apos;s name, place in the turn order,
+          conditions and a rough band for how hurt they look. Never hit point
+          numbers, armour class, stats or notes, and nothing at all about a monster
+          you have hidden. Your rosters, saved battles and photos are never sent.
+        </p>
+        <p>
+          It is kept only so their page can show it, and deleted a day after you stop
+          sharing — or a week after your last change, if you never do. Anyone holding
+          the link can see it while it is shared, so treat the link like the battle
+          map on the table.
+        </p>
+
         <h3>Who else is involved</h3>
         <ul>
           <li>
             <strong>Cloudflare</strong> hosts the site and sees the ordinary request
-            information any web host does.
+            information any web host does. A battle you share with your players is
+            stored with them, as above.
           </li>
           <li>
             <strong>PostHog</strong> stores the analytics above. Requests go through

@@ -28,6 +28,7 @@ import {
   blobToDataUrl,
 } from '../../utils/photoStore';
 import { notify, confirmDialog } from '../../utils/notify';
+import ShareWithPlayers from './ShareWithPlayers';
 import Icon from '../Icon';
 
 interface SavedBattle {
@@ -838,6 +839,11 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
             <p className="no-battle-warning">No active battle to save. Start a battle first!</p>
           )}
         </div>
+
+        {/* Sharing the LIVE fight with the table — as opposed to Share
+            encounter under Your Data, which sends a set of monsters for
+            another DM to run. */}
+        <ShareWithPlayers />
 
         {/* Export/Import */}
         <div id="exportImportBattles">

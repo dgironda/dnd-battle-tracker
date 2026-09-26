@@ -21,4 +21,4 @@ interface Hero {
   notes?: string;
 }
 
-export {Hero}
+export type { Hero }

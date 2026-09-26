@@ -30,6 +30,8 @@ import { HeroStatBlockHover } from "./HeroStatBlockHover";
 import { MonsterStatBlockHover } from "./MonsterStatBlockHover";
 import { useBattleManager } from "../../hooks/useStartBattle";
 import { track } from "../../utils/telemetry";
+import { usePlayerLinkContext } from "../../hooks/usePlayerLink";
+import { toPlayerView } from "../../utils/playerView";
 import { ConditionReminder } from "./ConditionReminder";
 import SBPopup from "./SBPopup";
 import { EditBattleDialog } from "./EditBattleDialog";
@@ -284,6 +286,20 @@ const BattleTracker: React.FC = () => {
       ? 0
       : Math.min(Math.max(currentTurnIndex, 0), sortedCombatants.length - 1);
   const activeCombatant: Combatant | undefined = sortedCombatants[safeTurnIndex];
+
+  /* Players watching a shared battle see it change as the DM changes it. Only
+     ever the projection from toPlayerView — no hit point numbers, AC, stats or
+     notes, and no monster the DM has hidden — so nothing else about the fight
+     can reach the table even by mistake. The connection throttles, and skips
+     changes players could not see (utils/roomHost.ts). */
+  const playerLink = usePlayerLinkContext();
+  const publishToPlayers = playerLink?.publish;
+  const sharingWithPlayers = playerLink?.room != null;
+  const turnForPlayers = activeCombatant?.id ?? null;
+  useEffect(() => {
+    if (!sharingWithPlayers || !publishToPlayers) return;
+    publishToPlayers(toPlayerView(combatants, roundNumber, turnForPlayers));
+  }, [sharingWithPlayers, publishToPlayers, combatants, roundNumber, turnForPlayers]);
 
   const conditionDescriptions =
     settings.version === "twentyFourteen"

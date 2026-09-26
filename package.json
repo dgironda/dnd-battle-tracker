@@ -5,12 +5,18 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
+		"dev:share": "node tools/dev-share.mjs",
+		"dev:player": "vite --port 5174 --strictPort",
+		"dev:rooms": "wrangler dev -c workers/battle-rooms/wrangler.jsonc",
+		"dev:api": "wrangler pages dev",
+		"dev:pages": "npm run build && wrangler pages dev",
 		"build": "tsc -b && vite build",
 		"lint": "eslint .",
 		"preview": "npm run build && vite preview",
+		"test": "vitest run",
 		"deploy": "npm run build && wrangler pages deploy",
-		"cf-typegen": "wrangler types",
-		"test": "vitest run"
+		"deploy:rooms": "wrangler deploy -c workers/battle-rooms/wrangler.jsonc",
+		"cf-typegen": "wrangler types"
 	},
 	"dependencies": {
 		"driver.js": "^1.4.0",

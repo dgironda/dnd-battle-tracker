@@ -23,5 +23,16 @@
      needs to be — tests/conditionIcons.test.ts imports it on master now. */
   "ignoreExports": [
     { "file": "src/components/AdSlot.tsx", "exports": ["AdSlotName"] }
+  ],
+
+  /* A Durable Object's lifecycle methods are called by the Workers runtime,
+     never by our code, so nothing in the repo "uses" them — see
+     server/battleRoom.ts. Scoped to classes extending DurableObject, so an
+     unused `fetch` anywhere else is still reported. */
+  "usedClassMembers": [
+    {
+      "extends": "DurableObject",
+      "members": ["fetch", "alarm", "webSocketMessage", "webSocketClose", "webSocketError"]
+    }
   ]
 }

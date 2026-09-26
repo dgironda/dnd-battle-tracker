@@ -9,6 +9,20 @@
 	"pages_build_output_dir": "./dist",
 	"observability": {
 		"enabled": true
+	},
+	/* Shared battles. The BattleRoom class lives in its own Worker
+	   (workers/battle-rooms) because a Pages project cannot define a Durable
+	   Object; this binds functions/api/room to it by that Worker's name. Deploy
+	   the rooms Worker first (`npm run deploy:rooms`) — the site cannot bind to
+	   a class that does not exist yet. */
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "BATTLE_ROOMS",
+				"class_name": "BattleRoom",
+				"script_name": "dnd-battle-tracker-rooms"
+			}
+		]
 	}
 	/**
 	 * Smart Placement

@@ -12,6 +12,7 @@ import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import { Tour } from "./components/Tour";
 import ErrorBoundary from "./components/ErrorBoundary";
+import PlayerLinkProvider from "./components/PlayerLinkProvider";
 import { installNumberFieldSelection } from "./utils/numberFields";
 
 /* Every number field in the app opens with its number selected — see
@@ -80,7 +81,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <PostHogProvider client={posthog}>
             <Tour />
             <div id="page">
-              <App />
+              {/* Sharing the battle with players — one room for the whole
+                  app, so the tracker publishing and the Battle Manager's
+                  share button are talking about the same one. */}
+              <PlayerLinkProvider>
+                <App />
+              </PlayerLinkProvider>
             </div>
           </PostHogProvider>
         </GlobalProvider>

@@ -1,0 +1,34 @@
+/**
+ * The shared-battle Worker. See index.ts.
+ *
+ * Deployed on its own (`npm run deploy:rooms`), separately from the Pages site.
+ * The site binds to the class by this Worker's name, so renaming it means
+ * changing `script_name` in the root wrangler.jsonc as well.
+ */
+{
+	"$schema": "../../node_modules/wrangler/config-schema.json",
+	"name": "dnd-battle-tracker-rooms",
+	"main": "index.ts",
+	"compatibility_date": "2025-09-20",
+	/* No public URL: every connection comes through the site's /api/room. */
+	"workers_dev": false,
+	"observability": {
+		"enabled": true
+	},
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "BATTLE_ROOMS",
+				"class_name": "BattleRoom"
+			}
+		]
+	},
+	/* SQLite-backed, which is what the Workers Free plan allows. A migration
+	   tag is permanent once deployed: never edit this one, add a new one. */
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": ["BattleRoom"]
+		}
+	]
+}
