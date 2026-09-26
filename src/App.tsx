@@ -283,7 +283,7 @@ function App() {
               <button
                 id="buttonStartTour"
                 onClick={() => {
-                  startTour();
+                  void startTour();
                   handleClosePanel();
                 }}
               >

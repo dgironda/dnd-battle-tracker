@@ -16,19 +16,184 @@
  * event means adding a line to it, and a typo is a build error.
  */
 
-import posthog from "posthog-js";
+import type { PostHog } from "posthog-js";
 import { DEVMODE } from "./devmode";
 import { BUILD_ID, describeError, errorKey, type CaughtError } from "./errorReport";
 
 /**
  * Whether anything is sent at all.
  *
- * Exported so main.tsx gates `posthog.init` on the same condition rather than
- * restating it — the two drifting apart would mean events queued against an
- * uninitialised client, which fails silently and is miserable to diagnose.
+ * Exported so utils/consent.ts can tell whether there is anything to switch on
+ * or off, on the same condition rather than a restated one.
  */
 export const ANALYTICS_ENABLED =
   !DEVMODE && !!import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
+
+/* ------------------------------------------------------------------------ */
+/* The client                                                                */
+/* ------------------------------------------------------------------------ */
+
+/*
+ * posthog-js, loaded only once somebody has said yes.
+ *
+ * It used to be bundled and started on every page load, opted out until
+ * consent. That kept it from capturing, but not from downloading, fetching its
+ * remote config and extension bundles, and asking /flags with an anonymous
+ * device id — all before the visitor had answered the banner. Now nothing of
+ * PostHog's is loaded, and nothing goes to PostHog, until utils/consent.ts
+ * calls startAnalytics.
+ */
+let client: PostHog | null = null;
+let starting: Promise<PostHog | null> | null = null;
+
+/* Calls made while posthog-js is still arriving, played in order once it has.
+   Capped: past this a slow load drops events rather than holding them all. */
+let waiting: ((ph: PostHog) => void)[] = [];
+const MAX_WAITING = 100;
+
+/* The latest context, person properties and identity. Kept whenever the app
+   knows them, consent or not, and handed over when analytics starts — so
+   somebody who says yes halfway through a session is described fully from
+   then on, not just from the next page load. */
+let context: Record<string, unknown> | null = null;
+let person: PersonProperties = {};
+let identity: string | null = null;
+
+/** Run a call against the client: now if it is running, once it is if it is on its way. */
+function withClient(call: (ph: PostHog) => void): void {
+  if (client) {
+    try {
+      call(client);
+    } catch {
+      /* Analytics must never be the thing that breaks a page. */
+    }
+  } else if (starting && waiting.length < MAX_WAITING) {
+    waiting.push(call);
+  }
+}
+
+async function load(): Promise<PostHog | null> {
+  try {
+    const { default: posthog } = await import("posthog-js");
+    posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
+      /* Our own origin, not us.i.posthog.com — see functions/relay/[[path]].ts.
+         PostHog's hostnames are on every mainstream blocklist, so a real share
+         of events never left the browser and the numbers under-reported. */
+      api_host: "/relay",
+      /* Where the toolbar and "view in PostHog" links point. It is the app URL,
+         which is NOT the ingestion host in VITE_PUBLIC_POSTHOG_HOST: with only
+         a relative api_host set, those links would resolve against our own
+         domain and 404. */
+      ui_host: "https://us.posthog.com",
+      defaults: "2025-05-24",
+      /* Started only once capturing is allowed, and the opt-in below is what
+         switches it on — which also overrides an opt-out posthog-js may have
+         remembered for itself. */
+      opt_out_capturing_by_default: true,
+      /* Nothing leaves without going past this. See scrubSecrets. */
+      before_send: (event) => {
+        if (!event?.properties) return event;
+        for (const [key, value] of Object.entries(event.properties)) {
+          if (typeof value === "string") event.properties[key] = scrubSecrets(value);
+        }
+        return event;
+      },
+    });
+    posthog.opt_in_capturing();
+
+    /* A console handle, on purpose. posthog is imported as an ES module, so
+       unlike the old script-snippet install it never lands on `window` — and
+       then there is no way to run `posthog.opt_out_capturing()` or
+       `posthog.identify(...)` on the live site, or to check from the console
+       whether analytics is even alive. That cost an hour of wrongly concluding
+       nothing was being collected. It grants nobody anything new: the project
+       key ships in the bundle already and is designed to be public. */
+    (window as unknown as { posthog: PostHog }).posthog = posthog;
+
+    if (context) posthog.register(context);
+    if (Object.keys(person).length > 0) posthog.setPersonProperties(person);
+    if (identity) posthog.identify(identity);
+
+    client = posthog;
+    const calls = waiting;
+    waiting = [];
+    for (const call of calls) withClient(call);
+    return posthog;
+  } catch {
+    /* A blocked or failed download is not the page's problem. */
+    waiting = [];
+    return null;
+  }
+}
+
+/**
+ * Load and start analytics. Called by utils/consent.ts when capturing is
+ * allowed, and never before; safe to call again.
+ */
+export function startAnalytics(): Promise<PostHog | null> {
+  if (!ANALYTICS_ENABLED) return Promise.resolve(null);
+  if (client) {
+    /* Already running: this is a yes being said again, after a sign-out made
+       posthog-js forget the last one (see resetIdentity). */
+    try {
+      client.opt_in_capturing();
+    } catch {
+      /* see withClient */
+    }
+    return Promise.resolve(client);
+  }
+  starting ??= load();
+  return starting;
+}
+
+/**
+ * Stop, and forget what PostHog kept about this browser. For a no — and for
+ * somebody who has not answered, since an older version of the tracker ran
+ * posthog-js before asking and may have left its identifiers behind.
+ */
+export function stopAnalytics(): void {
+  waiting = [];
+  if (client) {
+    try {
+      client.opt_out_capturing();
+      /* Drops the stored distinct_id and person properties. Without this,
+         declining stops new events but leaves the identifiers behind. */
+      client.reset(true);
+    } catch {
+      /* see withClient */
+    }
+  }
+  forgetStoredAnalytics();
+}
+
+/** Forget who this browser was identified as — a Patreon sign-out. */
+export function resetIdentity(): void {
+  identity = null;
+  person = {};
+  withClient((ph) => ph.reset());
+}
+
+/** posthog-js's own storage: its `ph_` keys and cookie, and its opt-in marker. */
+function forgetStoredAnalytics(): void {
+  const ours = (key: string) => key.startsWith("ph_") || key.startsWith("__ph_opt_in_out_");
+  for (const store of [window.localStorage, window.sessionStorage]) {
+    try {
+      for (const key of Object.keys(store)) if (ours(key)) store.removeItem(key);
+    } catch {
+      /* Storage refused: there is nothing in it to forget either. */
+    }
+  }
+  /* The cookie is set on the site's parent domain as well as this host, so
+     both have to be told it has expired. */
+  const labels = window.location.hostname.split(".");
+  const domains = labels.length > 1 ? labels.map((_, i) => labels.slice(i).join(".")).slice(0, -1) : [];
+  for (const pair of document.cookie.split(";")) {
+    const name = pair.split("=")[0].trim();
+    if (!name.startsWith("ph_")) continue;
+    document.cookie = `${name}=; Max-Age=0; path=/`;
+    for (const domain of domains) document.cookie = `${name}=; Max-Age=0; path=/; domain=.${domain}`;
+  }
+}
 
 /**
  * The events, and what each one carries.
@@ -143,11 +308,8 @@ export function track<K extends keyof EventMap>(name: K, properties: EventMap[K]
      it keeps test events out of the real project. */
   if (import.meta.env.DEV) console.debug("[telemetry]", name, properties);
   if (!ANALYTICS_ENABLED) return;
-  try {
-    posthog.capture(name, properties);
-  } catch {
-    /* Deliberately silent. See above. */
-  }
+  /* Before anybody has said yes this goes nowhere, which is the point. */
+  withClient((ph) => ph.capture(name, properties));
 }
 
 /**
@@ -157,7 +319,7 @@ export function track<K extends keyof EventMap>(name: K, properties: EventMap[K]
  * answers — "does anybody actually run a fight from a phone?" — has to be
  * askable of *all* the other events, not just its own.
  */
-export function registerContext(context: {
+export function registerContext(facts: {
   orientation: "portrait" | "landscape";
   wallpaper: string;
   /** Which motifs the paper carries — see constants/Wallpapers.ts. */
@@ -165,11 +327,9 @@ export function registerContext(context: {
   theme: string;
 }): void {
   if (!ANALYTICS_ENABLED) return;
-  try {
-    posthog.register({ build_id: BUILD_ID, ...context });
-  } catch {
-    /* see track() */
-  }
+  const registered = { build_id: BUILD_ID, ...facts };
+  context = registered;
+  withClient((ph) => ph.register(registered));
 }
 
 /**
@@ -198,11 +358,8 @@ export interface PersonProperties {
 export function setPerson(properties: PersonProperties): void {
   if (import.meta.env.DEV) console.debug("[telemetry] person", properties);
   if (!ANALYTICS_ENABLED) return;
-  try {
-    posthog.setPersonProperties(properties);
-  } catch {
-    /* see track() */
-  }
+  person = { ...person, ...properties };
+  withClient((ph) => ph.setPersonProperties(properties));
 }
 
 /**
@@ -245,7 +402,8 @@ export function looksLikeACredential(id: string): boolean {
  * functions/api/patreon/exchange.ts. The raw code is not that id, and
  * looksLikeACredential refuses it.
  *
- * Returns whether it went through, so a caller is told rather than guessing.
+ * Returns whether it was accepted, so a caller is told rather than guessing. An
+ * accepted id reaches PostHog now if analytics is running, or as soon as it is.
  */
 export function identifyPerson(id: string, properties: PersonProperties = {}): boolean {
   const trimmed = id.trim();
@@ -262,12 +420,10 @@ export function identifyPerson(id: string, properties: PersonProperties = {}): b
 
   if (import.meta.env.DEV) console.debug("[telemetry] identify", trimmed, properties);
   if (!ANALYTICS_ENABLED) return false;
-  try {
-    posthog.identify(trimmed, properties);
-    return true;
-  } catch {
-    return false;
-  }
+  identity = trimmed;
+  person = { ...person, ...properties };
+  withClient((ph) => ph.identify(trimmed, properties));
+  return true;
 }
 
 /** Faults already sent this page load, so a render loop is not a thousand events. */
@@ -300,12 +456,14 @@ export function reportCrash(caught: CaughtError): void {
     const error =
       caught.error instanceof Error ? caught.error : new Error(`${name}: ${message}`);
 
-    posthog.captureException(error, {
-      where,
-      source: caught.source,
-      build_id: BUILD_ID,
-      component_stack: caught.componentStack?.slice(0, 2000),
-    });
+    withClient((ph) =>
+      ph.captureException(error, {
+        where,
+        source: caught.source,
+        build_id: BUILD_ID,
+        component_stack: caught.componentStack?.slice(0, 2000),
+      }),
+    );
 
     track("app_crashed", {
       where,

@@ -1,10 +1,16 @@
 import { useEffect } from 'react';
-import { driver } from 'driver.js';
-import 'driver.js/dist/driver.css'; 
+import type { driver as DriverFactory } from 'driver.js';
 import { getCombatants } from '../utils/LocalStorage';
 import { useGlobalContext } from '../hooks/optionsContext';
 
-let driverObj: ReturnType<typeof driver> | null = null
+type TourDriver = ReturnType<typeof DriverFactory>;
+
+/* The tour is built the first time it is started, not when this mounts, and
+   driver.js (with its stylesheet) is downloaded only then. It used to be built
+   on mount, so every visit downloaded driver.js for a tour that is switched off
+   (TOUR_ENABLED in utils/devmode.ts). */
+let buildTour: ((driver: typeof DriverFactory) => TourDriver) | null = null;
+let driverObj: TourDriver | null = null
 let tourCompletedNormally = false;
 
 export function Tour() {
@@ -12,6 +18,7 @@ export function Tour() {
 const { updateSetting } = useGlobalContext();
 
 useEffect(() => {
+ buildTour = (driver) => {
  const instance = driver({
   showProgress: true,
 //   overlayClickBehavior: "none",
@@ -262,14 +269,17 @@ onDestroyed: () => {
 }
 });
 
-  driverObj = instance;
+  return instance;
+ };
+  /* Rebuilt on the next start, with this render's updateSetting. */
+  driverObj = null;
 }, [updateSetting]);
     return null;
 }
 
 
 
-export function startTour() {
+export async function startTour() {
   // Warm lazy chunks while the user reads step 0 (Hero Manager button).
   void import("./HeroManager/HeroManager");
   void import("./MonsterManager/MonsterManager");
@@ -277,7 +287,9 @@ export function startTour() {
   void import("./AboutPanel");
   void import("./OptionsPanel");
 
-  if (!driverObj) return;
+  if (!buildTour) return;
+  const [{ driver }] = await Promise.all([import('driver.js'), import('driver.js/dist/driver.css')]);
+  driverObj ??= buildTour(driver);
 
   driverObj.destroy();
   const buttons = document.querySelectorAll('[data-driver-element]');

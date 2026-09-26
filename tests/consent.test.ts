@@ -4,20 +4,20 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 /**
  * The cookie bar's answer, and what it does to analytics.
  *
- * This is the switch between "nothing is captured" and "events are sent", so a
- * regression here would quietly start collecting from people who said no — or
- * who never answered.
+ * This is the switch between "nothing is loaded or sent" and "events are
+ * sent", so a regression here would quietly start collecting from people who
+ * said no — or who never answered.
  */
 
-const posthog = vi.hoisted(() => ({
-  opt_in_capturing: vi.fn(),
-  opt_out_capturing: vi.fn(),
-  reset: vi.fn(),
+const telemetry = vi.hoisted(() => ({
+  ANALYTICS_ENABLED: true,
+  startAnalytics: vi.fn(async () => null),
+  stopAnalytics: vi.fn(),
+  resetIdentity: vi.fn(),
 }));
 
-vi.mock("posthog-js", () => ({ default: posthog }));
-/* Analytics is off in tests (dev mode); switch it on so the calls are made. */
-vi.mock("../src/utils/telemetry", () => ({ ANALYTICS_ENABLED: true }));
+/* Analytics is off in tests (dev mode); stand in for it so the calls are made. */
+vi.mock("../src/utils/telemetry", () => telemetry);
 
 import { applyConsent, forgetIdentity, needsDecision, readConsent, setConsent } from "../src/utils/consent";
 
@@ -40,24 +40,23 @@ describe("analytics consent", () => {
     getItem.mockRestore();
   });
 
-  it("opts in on a yes, and remembers it", () => {
+  it("starts analytics on a yes, and remembers it", () => {
     setConsent("granted");
-    expect(posthog.opt_in_capturing).toHaveBeenCalledTimes(1);
+    expect(telemetry.startAnalytics).toHaveBeenCalledTimes(1);
+    expect(telemetry.stopAnalytics).not.toHaveBeenCalled();
     expect(readConsent()).toBe("granted");
     expect(needsDecision()).toBe(false);
   });
 
-  it("opts out on a no, and drops the identifiers already stored", () => {
+  it("stops it on a no, which also clears what it kept", () => {
     setConsent("denied");
-    expect(posthog.opt_out_capturing).toHaveBeenCalledTimes(1);
-    expect(posthog.reset).toHaveBeenCalledWith(true);
-    expect(posthog.opt_in_capturing).not.toHaveBeenCalled();
+    expect(telemetry.stopAnalytics).toHaveBeenCalledTimes(1);
+    expect(telemetry.startAnalytics).not.toHaveBeenCalled();
   });
 
-  it("does nothing either way for somebody who has not answered", () => {
+  it("does not start anything for somebody who has not answered", () => {
     applyConsent("unset");
-    expect(posthog.opt_in_capturing).not.toHaveBeenCalled();
-    expect(posthog.opt_out_capturing).not.toHaveBeenCalled();
+    expect(telemetry.startAnalytics).not.toHaveBeenCalled();
   });
 
   describe("forgetting who signed in", () => {
@@ -66,23 +65,23 @@ describe("analytics consent", () => {
          re-apply a supporter who agreed would stop being counted. */
       window.localStorage.setItem("analyticsConsent", "granted");
       forgetIdentity();
-      expect(posthog.reset).toHaveBeenCalled();
-      expect(posthog.opt_in_capturing).toHaveBeenCalledTimes(1);
-      expect(posthog.reset.mock.invocationCallOrder[0]).toBeLessThan(
-        posthog.opt_in_capturing.mock.invocationCallOrder[0],
+      expect(telemetry.resetIdentity).toHaveBeenCalled();
+      expect(telemetry.startAnalytics).toHaveBeenCalledTimes(1);
+      expect(telemetry.resetIdentity.mock.invocationCallOrder[0]).toBeLessThan(
+        telemetry.startAnalytics.mock.invocationCallOrder[0],
       );
     });
 
     it("keeps a no a no", () => {
       window.localStorage.setItem("analyticsConsent", "denied");
       forgetIdentity();
-      expect(posthog.opt_out_capturing).toHaveBeenCalled();
-      expect(posthog.opt_in_capturing).not.toHaveBeenCalled();
+      expect(telemetry.stopAnalytics).toHaveBeenCalled();
+      expect(telemetry.startAnalytics).not.toHaveBeenCalled();
     });
 
-    it("does not opt anybody in who never answered", () => {
+    it("does not start anything for somebody who never answered", () => {
       forgetIdentity();
-      expect(posthog.opt_in_capturing).not.toHaveBeenCalled();
+      expect(telemetry.startAnalytics).not.toHaveBeenCalled();
     });
   });
 });

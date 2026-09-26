@@ -2,8 +2,9 @@
  * Whether we are allowed to measure anything.
  *
  * A banner that does not actually gate capture is decoration, so this one does:
- * `posthog.init` runs with `opt_out_capturing_by_default`, and nothing at all
- * is sent until somebody says yes. Declining is a real answer that sticks.
+ * posthog-js is not even downloaded until somebody says yes (startAnalytics in
+ * utils/telemetry), so nothing at all goes to PostHog before then. Declining is
+ * a real answer that sticks.
  *
  * Be aware of the trade this makes. Consent means fewer numbers — every visitor
  * who ignores the bar is a visitor you cannot see, and on a small audience that
@@ -13,16 +14,9 @@
  * analytics that now carries a real Patreon user id.
  */
 
-import posthog from "posthog-js";
-import { ANALYTICS_ENABLED } from "./telemetry";
+import { ANALYTICS_ENABLED, resetIdentity, startAnalytics, stopAnalytics } from "./telemetry";
 
-/**
- * Opt-in (true) or opt-out (false).
- *
- * Flipping this to false also means changing `opt_out_capturing_by_default` in
- * main.tsx — they are two halves of one decision, which is why the constant
- * lives here and the comment says so out loud.
- */
+/** Opt-in (true) or opt-out (false). The whole decision is made in applyConsent. */
 export const REQUIRE_CONSENT = true;
 
 export type Consent = "granted" | "denied" | "unset";
@@ -56,24 +50,19 @@ export function setConsent(consent: Exclude<Consent, "unset">): void {
   applyConsent(consent);
 }
 
-/** Push a decision into PostHog. Safe to call before init and in dev. */
+/**
+ * Act on an answer: start analytics for a yes, stop it (and clear what it kept)
+ * for a no. Runs on every page load with the stored answer, so somebody who
+ * accepted last week is measured again and somebody who declined stays out.
+ * Safe to call in dev, where there is nothing to start.
+ */
 export function applyConsent(consent: Consent): void {
   if (!ANALYTICS_ENABLED) return;
-  try {
-    if (consent === "granted") {
-      posthog.opt_in_capturing();
-    } else if (consent === "denied") {
-      posthog.opt_out_capturing();
-      /* Drops the stored distinct_id and person properties. Without this,
-         declining stops new events but leaves the identifiers behind. */
-      posthog.reset(true);
-    }
-  } catch {
-    /* Analytics must never be the thing that breaks a page. */
-  }
+  const allowed = consent === "granted" || (consent === "unset" && !REQUIRE_CONSENT);
+  if (allowed) void startAnalytics();
+  else stopAnalytics();
 }
 
-/** True when the bar should be on screen. */
 /**
  * Forget who this browser was identified as — for a Patreon sign-out — without
  * forgetting what it said about analytics.
@@ -84,14 +73,11 @@ export function applyConsent(consent: Consent): void {
  */
 export function forgetIdentity(): void {
   if (!ANALYTICS_ENABLED) return;
-  try {
-    posthog.reset();
-  } catch {
-    /* Analytics must never be the thing that breaks a page. */
-  }
+  resetIdentity();
   applyConsent(readConsent());
 }
 
+/** True when the bar should be on screen. */
 export function needsDecision(): boolean {
   return REQUIRE_CONSENT && readConsent() === "unset";
 }
