@@ -43,7 +43,7 @@ A typical first battle, mirroring the in-app tour:
 - **Created by:** DM Dave
 - **Additional coding by:** [Jason Peterson](https://madmilliner.github.io/jasonPeterson/)
 - **Art by:** [Aether Ilo - Emily](https://bio.site/aetherillo)
-- **QA Testers:** Danny Cullen, Jayme Andrews, Zach Dender
+- **QA Testers:** Danny Cullen, Jayme Andrews, Zach Dender, Morrison Keddie
 - **Special Thanks:** Wolf Harrington
 
 ## Legal

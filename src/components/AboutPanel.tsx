@@ -29,7 +29,7 @@ const CREDITS: { role: string; name: string; href?: string }[] = [
   { role: "Created by", name: "DM Dave" },
   { role: "Additional code", name: "Jason Peterson", href: "https://madmilliner.github.io/jasonPeterson/" },
   { role: "Art", name: "Aether Ilo — Emily", href: "https://bio.site/aetherillo" },
-  { role: "QA", name: "Danny Cullen, Jayme Andrews, Zach Dender" },
+  { role: "QA", name: "Danny Cullen, Jayme Andrews, Zach Dender, Morrison Keddie" },
   { role: "Special thanks", name: "Wolf Harrington" },
 ];
 
