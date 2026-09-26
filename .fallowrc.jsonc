@@ -11,6 +11,14 @@
      being read. */
   "entry": ["tools/*.mjs"],
 
+  /* worker-configuration.d.ts is written by `wrangler types` (npm run
+     cf-typegen) and repeats the same Workers declarations for every
+     compatibility flag it covers. It made up 13 of the 25 duplicate groups,
+     burying the real ones; nobody edits it, so there is nothing to act on. */
+  "duplicates": {
+    "ignore": ["worker-configuration.d.ts"]
+  },
+
   /* An export that is unused HERE and used on a branch that has not landed.
      Verified with `git grep` against it:
 
