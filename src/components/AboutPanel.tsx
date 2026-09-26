@@ -5,6 +5,8 @@ import KeyW from "../assets/draftsvgs_v2/key_w.svg";
 import KeyE from "../assets/draftsvgs_v2/key_e.svg";
 import KeyR from "../assets/draftsvgs_v2/key_r.svg";
 import KeyX from "../assets/draftsvgs_v2/key_x.svg";
+import { APP_VERSION } from "../utils/version";
+import { BUILD_ID } from "../utils/errorReport";
 
 interface AboutPanelProps {
   onClose: () => void;
@@ -91,6 +93,12 @@ export default function AboutPanel({ onClose }: AboutPanelProps) {
             </li>
           ))}
         </ul>
+        {/* The release, and the exact build: the same id a crash card prints,
+            so a bug report can quote both. */}
+        <p className="aboutVersion">
+          Version {APP_VERSION}
+          <span className="aboutBuild"> · build {BUILD_ID}</span>
+        </p>
       </section>
     </div>
   );
