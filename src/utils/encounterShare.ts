@@ -83,7 +83,7 @@ function decodePayload(value: string): string {
   return new TextDecoder().decode(bytes);
 }
 
-const num =(value: unknown, fallback: number): number => {
+const num = (value: unknown, fallback: number): number => {
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
 };

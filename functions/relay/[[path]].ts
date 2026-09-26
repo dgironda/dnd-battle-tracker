@@ -17,8 +17,8 @@
  * The route is `/relay/*`. The prefix is arbitrary and is deliberately not
  * "ingest" or "ph", which are conventional enough that blocklists have started
  * matching the path as well as the host. If this one ever gets listed, change
- * the directory name and `api_host` in main.tsx together — nothing else knows
- * about it.
+ * the directory name and `api_host` in src/utils/telemetry.ts together —
+ * nothing else knows about it.
  *
  * Note the cost side: every capture now goes through a Pages Function, so
  * analytics traffic counts against the project's function invocations rather

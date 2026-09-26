@@ -258,10 +258,11 @@ export interface EventMap {
  * Query parameters that must never leave the browser.
  *
  * `code` is a Patreon OAuth authorization code. The redirect lands back on the
- * site as `/?code=<code>`, and PostHog's pageview capture puts the whole href
- * in `$current_url`. PatreonOverlay does clear the query with replaceState —
- * but that runs in an effect after React mounts, and `posthog.init` fires its
- * pageview before that, so the code was going out in the clear on every
+ * site as `/?code=<code>&state=<state>`, and PostHog's pageview capture puts
+ * the whole href in `$current_url`. useSupporter does clear the query with
+ * replaceState, but in an effect after React mounts, and nothing orders that
+ * against PostHog's first pageview. When posthog-js started with the page, the
+ * pageview came first every time, so the code went out in the clear on every
  * successful Patreon return.
  */
 const SECRET_PARAMS = ["code", "state"];
@@ -274,7 +275,8 @@ const SECRET_PARAMS = ["code", "state"];
  * break the one thing analytics is usually bought for.
  *
  * Anything that is not a URL comes back untouched, so this is safe to run over
- * every string property on every event — which is what main.tsx does.
+ * every string property on every event — which is what `before_send` in load()
+ * does.
  */
 export function scrubSecrets(value: string): string {
   if (!SECRET_PARAMS.some((param) => value.includes(`${param}=`))) return value;
