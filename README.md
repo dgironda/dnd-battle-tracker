@@ -46,7 +46,7 @@ The About panel shows the version from `package.json` and the commit it was buil
 - `npm run release -- minor` for new features (0.4.2 → 0.5.0)
 - `npm run release -- major` for the big one (1.0.0)
 
-It runs lint and the tests, raises the version, commits it as "Release x.y.z" and deploys to production. It doesn't push. Commit your work first; it won't run with uncommitted changes.
+First it shows the version it will make (0.4.1 → 0.5.0 for a minor, say) and waits for a yes. Then it runs lint and the tests, raises the version, commits it as "Release x.y.z" and deploys to production. It doesn't push. Commit your work first; it won't run with uncommitted changes.
 
 A plain `npm run deploy` checks first (`tools/check-release.mjs`). It refuses uncommitted changes, and it refuses a version that's already live with different code. Set `SKIP_RELEASE_CHECK=1` to skip the check, for a preview deploy say. A build made with uncommitted changes shows `-dirty` after its build ID.
 
