@@ -25,12 +25,18 @@ const SHORTCUTS: { art: string; key: string; does: string }[] = [
   { art: KeyX, key: "X", does: "Close an open stat block" },
 ];
 
-const CREDITS: { role: string; name: string; href?: string }[] = [
-  { role: "Created by", name: "DM Dave" },
-  { role: "Additional code", name: "Jason Peterson", href: "https://madmilliner.github.io/jasonPeterson/" },
-  { role: "Art", name: "Aether Ilo — Emily", href: "https://bio.site/aetherillo" },
-  { role: "QA", name: "Danny Cullen, Jayme Andrews, Zach Dender, Morrison Keddie" },
-  { role: "Special thanks", name: "Wolf Harrington" },
+/* Set like the credits page of a rulebook: the people who built it on one
+   centered line, the people who helped it along on the next. */
+const CREDITS: { role: string; name: string; href?: string }[][] = [
+  [
+    { role: "Created by", name: "DM Dave" },
+    { role: "Additional code", name: "Jason Peterson", href: "https://madmilliner.github.io/jasonPeterson/" },
+    { role: "Art", name: "Aether Ilo — Emily", href: "https://bio.site/aetherillo" },
+  ],
+  [
+    { role: "QA", name: "Danny Cullen, Jayme Andrews, Zach Dender, Morrison Keddie" },
+    { role: "Special thanks", name: "Wolf Harrington" },
+  ],
 ];
 
 export default function AboutPanel({ onClose }: AboutPanelProps) {
@@ -77,22 +83,27 @@ export default function AboutPanel({ onClose }: AboutPanelProps) {
 
       <section id="credits">
         <h3>Who made this</h3>
-        <ul>
-          {CREDITS.map(({ role, name, href }) => (
-            <li key={role}>
-              <span className="creditRole">{role}</span>
-              <span className="creditName">
-                {href ? (
-                  <a href={href} target="_blank" rel="noreferrer">
-                    {name}
-                  </a>
-                ) : (
-                  name
-                )}
-              </span>
-            </li>
-          ))}
-        </ul>
+        {CREDITS.map((row, i) => (
+          <dl className="creditRow" key={i}>
+            {row.map(({ role, name, href }) => (
+              <div className="credit" key={role}>
+                <dt>{role}</dt>
+                <dd>
+                  {href ? (
+                    <a href={href} target="_blank" rel="noreferrer">
+                      {name}
+                    </a>
+                  ) : (
+                    name
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        ))}
+      </section>
+
+      <footer className="aboutFoot">
         {/* The credit the SRD's CC BY 4.0 license asks for, and a plain word
             that this is nobody's official product. */}
         <p className="aboutLegal">
@@ -117,7 +128,7 @@ export default function AboutPanel({ onClose }: AboutPanelProps) {
           Version {APP_VERSION}
           <span className="aboutBuild"> · build {BUILD_ID}</span>
         </p>
-      </section>
+      </footer>
     </div>
   );
 }

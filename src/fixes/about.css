@@ -130,7 +130,7 @@
 
 #about #instructions li {
   position: relative;
-  margin: 0 0 0.5em;
+  margin: 0 0 0.42em;
   padding-left: 1.1em;
   list-style: none;
 }
@@ -177,56 +177,114 @@
   color: var(--panel-ink-soft);
 }
 
+/* index.css gives #instructions its own 1.1rem, from before this panel had a
+   type scale, so How it works read a size larger than the shortcuts beside it.
+   Both columns take the panel's size now. */
+#about #instructions {
+  font-size: inherit;
+  line-height: inherit;
+}
+
 /* -- credits --------------------------------------------------------------
-   Role and name in two columns so the names line up, rather than five
-   sentences each starting with a different word. */
-#credits {
-  margin-top: 0.5em;
+   The credits page at the back of a rulebook: centered under both columns,
+   each role in small caps over its names. The people who built it share one
+   line and the people who helped share the next, so nothing is left to read
+   in a zigzag or sit alone at the end of a grid. */
+#about #credits {
+  margin-top: 0.55em;
+  text-align: center;
+  /* index.css sets the block in italic, left from the first About page. */
+  font-style: normal;
 }
 
-#about #credits ul {
-  display: grid;
-  /* 15rem fitted three columns into the panel and left the names ~160px, so
-     every multi-name credit wrapped to three lines. Two columns give the name
-     column room to hold its line. */
-  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
-  gap: 0.1em 1.8em;
-  align-items: baseline;
+#about #credits h3::after {
+  width: 11em;
+  margin: -8px auto 0;
 }
 
-#about #credits li {
-  display: grid;
-  grid-template-columns: 8.5em 1fr;
-  gap: 0.6em;
-  margin: 0;
-  padding: 0.1em 0;
+#about .creditRow {
+  /* #about dl is a column, for the shortcuts; these run across. */
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8em 3.2em;
+  margin-top: 0.4em;
 }
 
-#about .creditRole {
-  font-variant: small-caps;
-  letter-spacing: 0.4px;
-  color: var(--panel-ink-soft);
+/* Rows sit further apart than a role sits from its names, so each credit
+   reads as one thing. */
+#about .creditRow + .creditRow {
+  margin-top: 0.8em;
 }
 
-/* The small print: who this isn't, and whose material it uses. */
-#about .aboutLegal {
-  margin: 1em 0 0;
-  max-width: 48rem;
-  font-size: 0.82em;
-  line-height: 1.45;
-  color: var(--panel-ink-soft);
+#about .credit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  max-width: 100%;
 }
 
-/* The edition line at the back of a rulebook: small, set like the credit
-   roles, and there to be quoted when something needs reporting. The build id
-   is a commit hash, so it drops the small caps that would mangle it. */
-#about .aboutVersion {
-  margin: 0.9em 0 0;
+#about .credit dt {
   font-size: 0.85em;
+  line-height: 1.25;
   font-variant: small-caps;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.12em;
   color: var(--panel-ink-soft);
-  text-align: right;
+}
+
+#about .credit dd {
+  margin: 0;
+  line-height: 1.3;
+  /* A long list of names wraps into even lines, not one stranded name. */
+  text-wrap: balance;
+}
+
+/* -- the imprint -----------------------------------------------------------
+   The small print and the version, centered under a short pencil stroke, the
+   way a book closes on its colophon. */
+#about .aboutFoot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2em;
+  max-width: 46em;
+  margin: 0.5em auto 0;
+  text-align: center;
+}
+
+#about .aboutFoot::before {
+  content: "";
+  width: 7em;
+  height: 14px;
+  margin-bottom: 0.15em;
+  background: url('../assets/draftsvgs_v2/underline_pencil-3.svg') center / 100% 100% no-repeat;
+  opacity: 0.35;
+}
+
+/* Who this isn't, and whose material it uses. */
+#about .aboutLegal {
+  margin: 0;
+  font-size: 0.78em;
+  line-height: 1.5;
+  color: var(--panel-ink-soft);
+  text-wrap: balance;
+}
+
+/* A link broken over two lines reads as two links. */
+#about .aboutLegal a {
+  white-space: nowrap;
+}
+
+/* The release and the exact build, there to be quoted when something needs
+   reporting. The build id is a commit hash, so it drops the small caps that
+   would mangle it. */
+#about .aboutVersion {
+  margin: 0;
+  font-size: 0.82em;
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  color: var(--panel-ink-soft);
 }
 
 #about .aboutBuild {
