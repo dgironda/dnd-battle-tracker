@@ -40,7 +40,7 @@ export default function PatreonOverlay({ onClose, reason }: PatreonOverlayProps)
             id="patreonOverlayDiv"
         >
             <h1>
-                Thank you for using our Battle Tracker!
+                Thank you for using BattleTracker!
             </h1>
             <p>
                 Support Simulacrum Technologies on Patreon to help us keep improving, or just continue to your tracker.

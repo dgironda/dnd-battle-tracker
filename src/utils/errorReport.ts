@@ -162,7 +162,7 @@ export function buildReport(caught: CaughtError, context: ReportContext = {}): s
   const when = new Date(caught.at ?? Date.now());
 
   const lines: string[] = [
-    "Battle Tracker — crash report",
+    "BattleTracker — crash report",
     `When:    ${when.toISOString()}`,
     `Where:   ${whereLabel(caught)}`,
     `Build:   ${context.buildId ?? BUILD_ID}`,

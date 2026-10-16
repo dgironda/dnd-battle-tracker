@@ -203,7 +203,7 @@ function App() {
           )}
 
           <div id="header">
-            <img id="logo" src={BTLogo} alt="Battle Tracker" />
+            <img id="logo" src={BTLogo} alt="BattleTracker" />
 
             {/* Folds the masthead away — logo, the four managers, the support
                 note, Start the Battle, Edit Battle and the log — so the roster

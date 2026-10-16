@@ -398,7 +398,7 @@ export function looksLikeACredential(id: string): boolean {
  * until then the user count is inflated and retention is measuring the wrong
  * thing.
  *
- * Battle Tracker has no accounts, so today there are exactly two callers worth
+ * BattleTracker has no accounts, so today there are exactly two callers worth
  * having: claiming your own browser so you can filter yourself out of the
  * numbers, and the Patreon user id returned by the exchange in
  * functions/api/patreon/exchange.ts. The raw code is not that id, and

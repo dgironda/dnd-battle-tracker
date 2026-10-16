@@ -115,8 +115,8 @@ useEffect(() => {
       popover: {
         side: "bottom",
         align: 'center',
-        title: 'Return to Battle Tracker',
-        description: 'Click here to close the Monster Manager and return to the Battle Tracker.',
+        title: 'Return to BattleTracker',
+        description: 'Click here to close the Monster Manager and return to BattleTracker.',
         onNextClick: () => {
           instance.moveTo(6);
           const buttons = document.querySelectorAll('[data-driver-element]');

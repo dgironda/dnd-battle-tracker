@@ -284,12 +284,12 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
 
     const allData: ExportedData = {
       _header: {
-        application: "Battle Tracker",
+        application: "BattleTracker",
         website: "https://battletracker.simulacrumtechnologies.com/",
         exportDate,
         exportFrom: navigator.userAgent,
         disclaimer:
-          "This data belongs to the user who exported it. Battle Tracker and Simulacrum Technologies make no claim to ownership of user-generated content.",
+          "This data belongs to the user who exported it. BattleTracker and Simulacrum Technologies make no claim to ownership of user-generated content.",
       },
       heroes: getHeroes() ?? [],
       // The monster roster used to be read here and then left out of the
@@ -377,7 +377,7 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
     if (!file) return;
 
     if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
-      notify('Choose a .json file exported from the Battle Tracker.', { title: 'Wrong file type' });
+      notify('Choose a .json file exported from BattleTracker.', { title: 'Wrong file type' });
       return;
     }
 

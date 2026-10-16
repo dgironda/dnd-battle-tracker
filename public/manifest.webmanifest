@@ -1,6 +1,6 @@
 {
-  "name": "Battle Tracker",
-  "short_name": "Battle Tracker",
+  "name": "BattleTracker",
+  "short_name": "BattleTracker",
   "description": "A free initiative and combat tracker for 5e, with the 2014 and 2024 rules.",
   "start_url": "/",
   "scope": "/",

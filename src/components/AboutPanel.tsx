@@ -107,7 +107,7 @@ export default function AboutPanel({ onClose }: AboutPanelProps) {
         {/* The credit the SRD's CC BY 4.0 license asks for, and a plain word
             that this is nobody's official product. */}
         <p className="aboutLegal">
-          Battle Tracker is independent and isn&apos;t affiliated with or endorsed by
+          BattleTracker is independent and isn&apos;t affiliated with or endorsed by
           Wizards of the Coast. It includes material from the{" "}
           <a href="https://dnd.wizards.com/resources/systems-reference-document" target="_blank" rel="noreferrer">
             System Reference Document 5.1
