@@ -7,9 +7,21 @@ import { compareVersions, decideRelease } from "../tools/check-release.mjs";
  * gone, or could go, wrong.
  */
 
-const clean = { dirtyFiles: [] as string[], version: "0.4.1", head: "abc1234" };
+const clean = { branch: "master", dirtyFiles: [] as string[], version: "0.4.1", head: "abc1234" };
 
 describe("the release check", () => {
+  it("stops a deploy from any branch but master", () => {
+    /* battle-link shares this folder, and would otherwise go live as it stands. */
+    const result = decideRelease({ ...clean, branch: "battle-link", live: null });
+    expect(result.ok).toBe(false);
+    expect(result.message).toContain("goes out from master, and this is battle-link");
+    expect(result.message).toContain("git switch master");
+
+    const detached = decideRelease({ ...clean, branch: "HEAD", live: null });
+    expect(detached.ok).toBe(false);
+    expect(detached.message).toContain("a detached HEAD");
+  });
+
   it("stops a deploy with uncommitted changes, and says which", () => {
     const result = decideRelease({ ...clean, dirtyFiles: [" M src/App.tsx"], live: null });
     expect(result.ok).toBe(false);
@@ -19,6 +31,7 @@ describe("the release check", () => {
 
   it("stops a version that is already live with different code: the 0.4.0 mistake", () => {
     const result = decideRelease({
+      branch: "master",
       dirtyFiles: [],
       version: "0.4.0",
       head: "190dfb1",
