@@ -14,6 +14,7 @@ import {
 import { appendEntry, makeEntry, type LogEntry, type LogKind } from '../../utils/battleLog';
 import { stampConditionRounds } from '../../utils/conditionRounds';
 import { monsterCombatant } from '../../utils/newCombatant';
+import { byInitiative, followTurn } from '../../utils/turnOrder';
 import { useMonsters } from "../../hooks/useMonsters";
 
 interface CombatContextType {
@@ -95,6 +96,14 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
   /* Kept current every render, so logEvent can stamp the round without taking
      it as a dependency. */
   roundRef.current = roundNumber;
+
+  /* The fight and the turn as they stand, for joining below. A join finishes
+     after the initiative prompt has been answered, by which point the values
+     it closed over can be a render old. */
+  const combatantsRef = useRef(combatants);
+  combatantsRef.current = combatants;
+  const turnIndexRef = useRef(currentTurnIndex);
+  turnIndexRef.current = currentTurnIndex;
 
   /* Every write to the roster goes through here, so a condition is stamped
      with the round it began in whichever path applied it — the picker, a hero
@@ -185,6 +194,25 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
   );
 
   /**
+   * Put someone into the running fight without taking the turn off whoever
+   * is acting.
+   *
+   * The turn is a position in initiative order, so a newcomer sorted in above
+   * the active combatant used to push the turn onto the wrong person. Now the
+   * turn stays put; a newcomer whose place in this round has already gone by
+   * takes their turn as soon as the one in progress ends (see useTurnFlow).
+   * Returns false, and changes nothing, if they are already in it.
+   */
+  const joinFight = useCallback((newcomer: Combatant) => {
+    const before = combatantsRef.current;
+    if (before.some((c) => c.id === newcomer.id)) return false;
+    const after = [...before, newcomer].sort(byInitiative);
+    setCombatants(after);
+    setCurrentTurnIndex(followTurn(before, turnIndexRef.current, after));
+    return true;
+  }, [setCombatants]);
+
+  /**
    * Adds a monster into an *existing combat*, with initiative dialog
    */
   const addMonsterToCombat = useCallback(async (monster: Monster) => {
@@ -199,17 +227,13 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
 
     const newCombatant = monsterCombatant(monster, initiative);
 
-    logEvent("joined", newCombatant.name);
-
-    setCombatants((prev) =>
-      [...prev, newCombatant].sort((a, b) => b.initiative - a.initiative)
-    );
+    if (joinFight(newCombatant)) logEvent("joined", newCombatant.name);
 
     // Remove from the selection pool through the shared roster so the manager
     // updates too. This used to write localStorage directly, leaving every
     // mounted copy of the monster list stale.
     setMonsters((prev) => prev.filter((m) => m.id !== monster.id));
-  }, [askForInitiative, setMonsters, logEvent, setCombatants]);
+  }, [askForInitiative, setMonsters, logEvent, joinFight]);
 
   /**
    * Adds a hero into an *existing combat*, with the initiative dialog.
@@ -256,14 +280,8 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       pp: hero.pp,
     };
 
-    logEvent("joined", newCombatant.name);
-
-    setCombatants((prev) =>
-      prev.some((c) => c.id === hero.id)
-        ? prev
-        : [...prev, newCombatant].sort((a, b) => b.initiative - a.initiative)
-    );
-  }, [askForInitiative, combatants, logEvent, setCombatants]);
+    if (joinFight(newCombatant)) logEvent("joined", newCombatant.name);
+  }, [askForInitiative, combatants, logEvent, joinFight]);
 
   const value = useMemo(
     () => ({
