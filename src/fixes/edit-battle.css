@@ -1,0 +1,218 @@
+/* ==========================================================================
+   EDIT BATTLE
+
+   A button at the end of the round line, and a list you can take people out
+   of. Adding stays with the two managers — this is only for the roster
+   changing mid-fight, which is a once-a-session thing and does not earn a
+   delete control on every row of the tracker.
+   ========================================================================== */
+
+#round {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1.4em;
+  flex-wrap: wrap;
+}
+
+/* The round and the timer keep the middle; this sits out at the end of the
+   line so it reads as a tool rather than as part of the readout.
+
+   It takes the CUTOUT art rather than the rounded one every other button in
+   the app uses: it is the only drawn button that sits on the bare page instead
+   of inside a panel, and the notched shape tells it apart. The art carries its
+   own ground, so it reads on the dark paper as well as the light ones with
+   nothing theme-specific here. */
+/* Both buttons on the round row take the same size. The row's own type is
+   large (it is the round number and the timer), and a button set at that size
+   is a slab — 0.72em brings them back to a control. */
+#buttonEditBattle,
+#buttonBattleLog {
+  --btn-h: 2em;
+  font-size: 0.72em;
+  margin: 0;
+}
+
+/* -- the window ----------------------------------------------------------- */
+.editBattleOuter {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.editBattleInner {
+  box-sizing: border-box;
+  width: min(30rem, 92vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.2rem 0.9rem 0.9rem;
+
+  background: none;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 20px 35px;
+  border-image-source: url('../assets/draftsvgs_v2/container_monster-manager.svg');
+  border-image-slice: 6% fill;
+  border-image-width: 20px 35px;
+  border-image-repeat: stretch;
+
+  color-scheme: light;
+  color: var(--panel-ink);
+  --panel-ink: #2b1a0c;
+  --panel-ink-soft: #56391d;
+  --panel-rule: rgba(43, 26, 12, 0.30);
+  --panel-inset: rgba(107, 72, 36, 0.15);
+
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.92rem, 1.05vw, 1.3rem);
+  line-height: 1.35;
+  text-align: center;
+}
+
+.editBattleInner h3 {
+  font-size: 1.5em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.1em;
+  color: var(--panel-ink);
+}
+
+.editBattleInner h3::after {
+  content: "";
+  display: block;
+  height: 24px;
+  width: 62%;
+  margin: -9px auto -2px;
+  background-image: url('../assets/draftsvgs_v2/underline_pencil-5.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.5;
+}
+
+.editBattleNote {
+  margin: 0.2em 0 0.6em;
+  font-size: 0.92em;
+  color: var(--panel-ink-soft);
+}
+
+.editBattleEmpty {
+  margin: 1.2em 0;
+  font-style: italic;
+  color: var(--panel-ink-soft);
+}
+
+.editBattleList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  text-align: left;
+}
+
+/* Initiative, name, hit points, and the way out — the tracker's own columns in
+   the tracker's own order, so the list reads as that table. */
+.editBattleRow {
+  display: grid;
+  grid-template-columns: 2.4em 1fr auto auto;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.28em 0.5em;
+  background-color: var(--panel-inset);
+}
+
+.editBattleInit {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--panel-ink-soft);
+}
+
+/* The name wraps rather than being cut. This is the window you open to tell
+   two goblins apart, so "Adult Amethy..." is the one thing it must not do —
+   and the rows are short enough that a name taking a second line costs
+   nothing. The other three columns are a number, a number and a bin, so the
+   name is the only thing here that can be long. */
+.editBattleName {
+  min-width: 0;
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/* The rename box takes the column it is in rather than the browser's default
+   twenty-character width, which on a narrow window cut the name it was
+   supposed to be showing you. */
+.editBattleName .editableCellTxt,
+.editBattleName input[type="text"] {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Monsters in the softer ink, as the Battle Manager's saved rosters do it. */
+.editBattleRow.is-monster .editBattleName {
+  font-style: italic;
+  color: var(--panel-ink-soft);
+}
+
+.editBattleTurn {
+  font-style: italic;
+  font-size: 0.85em;
+  color: #7a2f12;
+}
+
+.editBattleHp {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9em;
+  color: var(--panel-ink-soft);
+}
+
+/* A bin, as in both managers — a labelled button on every row made the list
+   read as a column of buttons rather than as the battle. */
+.editBattleRemove {
+  margin: 0;
+  padding: 0.15rem;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--panel-ink);
+  cursor: pointer;
+  opacity: 0.75;
+  display: inline-flex;
+  align-items: center;
+  transition: opacity 0.13s ease, color 0.13s ease;
+}
+
+.editBattleRemove:hover,
+.editBattleRemove:focus-visible {
+  opacity: 1;
+  color: #9e0000;
+  filter: none;
+}
+
+.editBattleActions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7em;
+  margin-top: 0.8em;
+}
+
+.editBattleDone,
+.editBattleClear {
+  margin: 0;
+  min-width: 8em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editBattleRemove {
+    transition: none;
+  }
+}

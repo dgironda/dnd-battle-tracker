@@ -1,4 +1,5 @@
 import type { Monster } from "../types";
+import { safeLink } from "./links";
 
 /**
  * Sharing a prepared encounter as a link.
@@ -29,7 +30,7 @@ export const LEGACY_MONSTERS_PARAM = "monsters";
 /** Browsers start refusing URLs somewhere past this. */
 export const MAX_URL_LENGTH = 30000;
 
-export const MAX_ENCOUNTER_MONSTERS = 200;
+const MAX_ENCOUNTER_MONSTERS = 200;
 export const MAX_ENCOUNTER_NAME = 80;
 
 /**
@@ -80,17 +81,6 @@ function decodePayload(value: string): string {
   const binary = atob(padded);
   const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
   return new TextDecoder().decode(bytes);
-}
-
-/** Only http(s) links are safe to put in an href we render. */
-function safeLink(link: unknown): string {
-  if (typeof link !== "string" || link === "") return "";
-  try {
-    const url = new URL(link, window.location.origin);
-    return url.protocol === "https:" || url.protocol === "http:" ? url.href : "";
-  } catch {
-    return "";
-  }
 }
 
 const num = (value: unknown, fallback: number): number => {

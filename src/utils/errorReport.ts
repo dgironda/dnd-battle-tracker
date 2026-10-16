@@ -162,7 +162,7 @@ export function buildReport(caught: CaughtError, context: ReportContext = {}): s
   const when = new Date(caught.at ?? Date.now());
 
   const lines: string[] = [
-    "D&D Battle Tracker — crash report",
+    "BattleTracker — crash report",
     `When:    ${when.toISOString()}`,
     `Where:   ${whereLabel(caught)}`,
     `Build:   ${context.buildId ?? BUILD_ID}`,
@@ -334,9 +334,4 @@ export function wasHandled(error: unknown): boolean {
     return false;
   }
   return true;
-}
-
-/** Test seam: drop every outstanding claim. */
-export function resetHandled(): void {
-  claims.clear();
 }

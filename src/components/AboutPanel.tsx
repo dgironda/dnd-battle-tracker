@@ -5,6 +5,8 @@ import KeyW from "../assets/draftsvgs_v2/key_w.svg";
 import KeyE from "../assets/draftsvgs_v2/key_e.svg";
 import KeyR from "../assets/draftsvgs_v2/key_r.svg";
 import KeyX from "../assets/draftsvgs_v2/key_x.svg";
+import { APP_VERSION } from "../utils/version";
+import { BUILD_ID } from "../utils/errorReport";
 
 interface AboutPanelProps {
   onClose: () => void;
@@ -23,12 +25,18 @@ const SHORTCUTS: { art: string; key: string; does: string }[] = [
   { art: KeyX, key: "X", does: "Close an open stat block" },
 ];
 
-const CREDITS: { role: string; name: string; href?: string }[] = [
-  { role: "Created by", name: "DM Dave" },
-  { role: "Additional code", name: "Jason Peterson", href: "https://madmilliner.github.io/jasonPeterson/" },
-  { role: "Art", name: "Aether Ilo — Emily", href: "https://bio.site/aetherillo" },
-  { role: "QA", name: "Danny Cullen, Jayme Andrews, Zach Dender" },
-  { role: "Special thanks", name: "Wolf Harrington" },
+/* Set like the credits page of a rulebook: the people who built it on one
+   centered line, the people who helped it along on the next. */
+const CREDITS: { role: string; name: string; href?: string }[][] = [
+  [
+    { role: "Created by", name: "DM Dave" },
+    { role: "Additional code", name: "Jason Peterson", href: "https://madmilliner.github.io/jasonPeterson/" },
+    { role: "Art", name: "Aether Ilo — Emily", href: "https://bio.site/aetherillo" },
+  ],
+  [
+    { role: "QA", name: "Danny Cullen, Jayme Andrews, Zach Dender, Morrison Keddie" },
+    { role: "Special thanks", name: "Wolf Harrington" },
+  ],
 ];
 
 export default function AboutPanel({ onClose }: AboutPanelProps) {
@@ -75,23 +83,52 @@ export default function AboutPanel({ onClose }: AboutPanelProps) {
 
       <section id="credits">
         <h3>Who made this</h3>
-        <ul>
-          {CREDITS.map(({ role, name, href }) => (
-            <li key={role}>
-              <span className="creditRole">{role}</span>
-              <span className="creditName">
-                {href ? (
-                  <a href={href} target="_blank" rel="noreferrer">
-                    {name}
-                  </a>
-                ) : (
-                  name
-                )}
-              </span>
-            </li>
-          ))}
-        </ul>
+        {CREDITS.map((row, i) => (
+          <dl className="creditRow" key={i}>
+            {row.map(({ role, name, href }) => (
+              <div className="credit" key={role}>
+                <dt>{role}</dt>
+                <dd>
+                  {href ? (
+                    <a href={href} target="_blank" rel="noreferrer">
+                      {name}
+                    </a>
+                  ) : (
+                    name
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        ))}
       </section>
+
+      <footer className="aboutFoot">
+        {/* The credit the SRD's CC BY 4.0 license asks for, and a plain word
+            that this is nobody's official product. */}
+        <p className="aboutLegal">
+          BattleTracker is independent and isn&apos;t affiliated with or endorsed by
+          Wizards of the Coast. It includes material from the{" "}
+          <a href="https://dnd.wizards.com/resources/systems-reference-document" target="_blank" rel="noreferrer">
+            System Reference Document 5.1
+          </a>{" "}
+          and{" "}
+          <a href="https://www.dndbeyond.com/srd" target="_blank" rel="noreferrer">
+            5.2
+          </a>{" "}
+          by Wizards of the Coast LLC, licensed under{" "}
+          <a href="https://creativecommons.org/licenses/by/4.0/legalcode" target="_blank" rel="noreferrer">
+            CC BY 4.0
+          </a>
+          .
+        </p>
+        {/* The release, and the exact build: the same id a crash card prints,
+            so a bug report can quote both. */}
+        <p className="aboutVersion">
+          Version {APP_VERSION}
+          <span className="aboutBuild"> · build {BUILD_ID}</span>
+        </p>
+      </footer>
     </div>
   );
 }

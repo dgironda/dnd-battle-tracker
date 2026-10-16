@@ -41,7 +41,7 @@ const RosterContext = createContext<RosterContextType | null>(null);
  * Fill in every field a Hero is expected to have. Older saves and imported
  * files predate some of them, and the UI assumes numbers rather than undefined.
  */
-export function normalizeHero(h: Partial<Hero> & { id: string; name: string }): Hero {
+function normalizeHero(h: Partial<Hero> & { id: string; name: string }): Hero {
   const hp = h.hp ?? 10;
   return {
     ...h,
@@ -69,7 +69,7 @@ export function normalizeHero(h: Partial<Hero> & { id: string; name: string }): 
 }
 
 /** Same idea for monsters. */
-export function normalizeMonster(m: Partial<Monster> & { id: string; name: string }): Monster {
+function normalizeMonster(m: Partial<Monster> & { id: string; name: string }): Monster {
   const hp = m.hp ?? m.maxHp ?? 1;
   return {
     ...m,

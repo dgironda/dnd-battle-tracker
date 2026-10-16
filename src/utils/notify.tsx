@@ -229,5 +229,3 @@ export function DialogHost() {
     </div>
   );
 }
-
-export default DialogHost;

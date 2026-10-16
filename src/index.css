@@ -510,8 +510,8 @@ sup {
 
 #preBattleCombatants tbody {
   /* No ground of its own: the window is a banner now and the rows are tinted
-     against it in fixes.css. A solid fill here put the window's cream ink on
-     white, where it could not be read at all. */
+     against it in fixes/modal-windows.css. A solid fill here put the window's
+     cream ink on white, where it could not be read at all. */
   background-color: transparent;
 }
 
@@ -553,8 +553,8 @@ sup {
   text-decoration: underline;
 }
 
-/* The marker is drawn art now (see fixes.css); nothing here should try to
-   colour or size a glyph that no longer exists. */
+/* The marker is drawn art now (see fixes/battle-table.css); nothing here
+   should try to colour or size a glyph that no longer exists. */
 .currentTurnIndicator {
   position: relative;
 }
@@ -1101,7 +1101,8 @@ sup {
 /* The opened photo used to be styled from here: a white box pinned to the
    top-left of the document, under the Battle Manager, with its close button
    off the edge of the screen. It is a framed window now, sitting in the app's
-   own stack of layers — see `.photoViewerOuter` in fixes.css. */
+   own stack of layers — see `.photoViewerOuter` in
+   fixes/saved-battle-photos.css. */
 
 /* Ensure battle card has clearfix for floated thumbnail */
 .battle-card {
@@ -1172,9 +1173,9 @@ sup {
      the RAIL and the rail only exists in the wide layout. Left ungated it also
      applied to the narrow one — and `:has()` carries the specificity of its
      argument, so `#page:has(.adSlot-tower)` scores (1,1,0) and beat the plain
-     `#page` card rule in fixes.css: a non-supporter on a narrow window kept
-     the three-column desktop template, and every row of the stacked page came
-     out 328px wide in a 900px window. */
+     `#page` card rule in fixes/portrait.css: a non-supporter on a narrow
+     window kept the three-column desktop template, and every row of the
+     stacked page came out 328px wide in a 900px window. */
   @media (min-width: 63rem) {
     #page:has(.adSlot-tower) {
       grid-template-columns: minmax(min(21rem, max(27vw, 20.5rem)), 18%) auto minmax(0, 1fr);
@@ -1304,8 +1305,8 @@ sup {
 
      Gated on the table's own width for the same reason the tower rule is:
      `:has()` takes its argument's specificity, so ungated this (1,1,0) rule
-     would beat the plain `#page` card layout in fixes.css and impose a
-     four-row template on the seven-row stacked page. */
+     would beat the plain `#page` card layout in fixes/portrait.css and impose
+     a four-row template on the seven-row stacked page. */
   @media (min-width: 63rem) {
     #page:has(.adSlot-banner) {
       grid-template-rows: auto auto 1fr auto;

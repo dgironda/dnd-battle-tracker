@@ -1,7 +1,7 @@
 {
 	"name": "dnd-battle-tracker",
 	"private": true,
-	"version": "0.0.0",
+	"version": "0.5.1",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
@@ -11,6 +11,8 @@
 		"dev:api": "wrangler pages dev",
 		"dev:pages": "npm run build && wrangler pages dev",
 		"build": "tsc -b && vite build",
+		"predeploy": "node tools/check-release.mjs",
+		"release": "node tools/release.mjs",
 		"lint": "eslint .",
 		"preview": "npm run build && vite preview",
 		"test": "vitest run",
@@ -22,8 +24,7 @@
 		"driver.js": "^1.4.0",
 		"posthog-js": "^1.429.3",
 		"react": "^18.3.1",
-		"react-dom": "^18.3.1",
-		"react-helmet-async": "^2.0.5"
+		"react-dom": "^18.3.1"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.33.0",

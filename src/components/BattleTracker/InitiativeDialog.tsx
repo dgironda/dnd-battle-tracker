@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import InitIcon from '../../assets/draftsvgs_v2/icon_init.svg';
+import { formatModifier, rollInitiative } from '../../utils/initiative';
 
 interface InitiativeDialogProps {
   combatantName: string;
@@ -49,13 +50,9 @@ export function InitiativeDialog({
     onSubmit(value);
   };
 
-  const handleRandom = () => {
-    const roll = Math.floor(Math.random() * 20) + 1;
-    onSubmit(roll + initiativeModifier);
-  };
+  const handleRandom = () => onSubmit(rollInitiative(initiativeModifier));
 
-  const modifierLabel =
-    initiativeModifier === 0 ? '' : initiativeModifier > 0 ? `+${initiativeModifier}` : `${initiativeModifier}`;
+  const modifierLabel = formatModifier(initiativeModifier);
 
   return (
     <div id="initiativeDialogOuter" role="presentation" onClick={onCancel}>

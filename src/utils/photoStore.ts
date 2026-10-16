@@ -98,7 +98,7 @@ export function deletePhoto(id: string): Promise<unknown> {
   return tx("readwrite", (store) => store.delete(id));
 }
 
-export async function listPhotoIds(): Promise<string[]> {
+async function listPhotoIds(): Promise<string[]> {
   const keys = await tx<IDBValidKey[]>("readonly", (store) => store.getAllKeys());
   return (keys ?? []).map(String);
 }
@@ -154,12 +154,35 @@ export function blobToDataUrl(blob: Blob): Promise<string> {
 }
 
 /**
- * A blob URL for display, and the function to release it.
+ * Records arriving from a backup file, their photos moved into this store.
  *
- * Object URLs live until revoked or the document goes away, so a list that
- * mints one per card and never lets go leaks the whole set.
+ * A file carries each battle's photo inline, as a data URL. Each one goes in
+ * under the record's own id and is stripped from the record, which points at
+ * it instead — importing a backup with a dozen photos would otherwise blow the
+ * localStorage budget on the spot. A photo that does not decode is dropped and
+ * the record kept.
+ *
+ * Unlike the load-time migration in the Battle Manager, an existing `photoId`
+ * does not count: in a file it names a photo in somebody else's browser.
  */
-export function objectUrl(blob: Blob): { url: string; release: () => void } {
-  const url = URL.createObjectURL(blob);
-  return { url, release: () => URL.revokeObjectURL(url) };
+export async function takeInPhotos<T extends { id: string; photo?: string; photoId?: string }>(
+  records: T[],
+): Promise<T[]> {
+  const taken: T[] = [];
+  for (const record of records) {
+    if (!record.photo) {
+      taken.push(record);
+      continue;
+    }
+    const blob = dataUrlToBlob(record.photo);
+    const { photo: _inline, ...rest } = record;
+    void _inline;
+    if (blob) {
+      await putPhoto(record.id, { full: blob, thumb: blob });
+      taken.push({ ...rest, photoId: record.id } as T);
+    } else {
+      taken.push(rest as T);
+    }
+  }
+  return taken;
 }

@@ -1,0 +1,137 @@
+/* ==========================================================================
+   AD SLOTS
+
+   House promos for now (see AD_PROVIDER in AdSlot.tsx). The box holds its
+   reserved size whether or not anything fills it, so swapping in a network
+   later cannot shift the tracker; and the whole element is absent for
+   supporters, so they get the space back rather than an empty frame.
+   ========================================================================== */
+.adSlot {
+  /* A fixed reservation, not a flexible one. An `aspect-ratio` box gets
+     squeezed by whatever room the grid has left — the tower came out 107px
+     against the 250px it is meant to hold — and a box that changes size with
+     its surroundings is not reserved space at all. Network creatives are fixed
+     sizes anyway, so the slot is too. */
+  width: min(100%, var(--ad-w));
+  height: var(--ad-h);
+  flex: 0 0 auto;
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.adSlot-banner {
+  grid-area: adbanner;
+  /* It sits in the band above the round and the timer, so it hangs from the
+     top of that band and leaves its breathing room underneath. */
+  align-self: start;
+  justify-self: center;
+  margin: 0.5rem 0 0.35rem;
+}
+
+.adSlot-tower {
+  grid-area: adtower;
+  align-self: end;
+  /* The rail is a fixed 100vh column with barely any slack under the patreon
+     block, so this sits close to the bottom edge. */
+  margin-bottom: 0.25rem;
+}
+
+/* The house creative, in the app's own hand rather than looking bolted on. */
+.adHouse {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  width: 100%;
+  height: 100%;
+  padding: 0.6em 1em;
+  box-sizing: border-box;
+
+  border: none;
+  border-radius: 0;
+  background-color: rgba(150, 97, 45, 0.1);
+  color: #5c3a17;
+  font-family: 'Caudex', serif;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.adHouse:hover,
+.adHouse:focus-visible {
+  background-color: rgba(150, 97, 45, 0.2);
+}
+
+/* The house creative is the one piece of the page that is neither drawn art
+   nor inside a panel, so it is the only thing here that has to follow the
+   theme: on the dark page its brown ink on a brown wash came out at about
+   1.5:1 and the promos were effectively invisible. */
+html[data-theme="dark"] .adHouse,
+html[style*="color-scheme: dark"] .adHouse {
+  background-color: rgba(226, 185, 100, 0.09);
+  color: #e6d5b8;
+}
+
+html[data-theme="dark"] .adHouse:hover,
+html[data-theme="dark"] .adHouse:focus-visible,
+html[style*="color-scheme: dark"] .adHouse:hover,
+html[style*="color-scheme: dark"] .adHouse:focus-visible {
+  background-color: rgba(226, 185, 100, 0.17);
+}
+
+.adHouseTitle {
+  font-size: 1.15rem;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+}
+
+.adHouseBody {
+  font-size: 0.92rem;
+  line-height: 1.35;
+  max-width: 34ch;
+  opacity: 0.85;
+}
+
+/* The banner is wide and short, so its promo reads as one line, not a stack. */
+.adSlot-banner {
+  container-type: inline-size;
+}
+
+.adSlot-banner .adHouse {
+  flex-direction: row;
+  gap: 0.9em;
+  text-align: left;
+}
+
+.adSlot-banner .adHouseBody {
+  max-width: 52ch;
+}
+
+/* The slot sits in the column beside the Start Battle ribbon, and that column
+   is narrower than the 728px reservation below about 1400px — at 1024 it is
+   ~417px. The house creative is fluid, so it goes back to a stack rather than
+   squeezing the one-line version into a third of its width. A network creative
+   could not do this: see the note on SLOTS in AdSlot.tsx. */
+@container (max-width: 34rem) {
+  .adSlot-banner .adHouse {
+    flex-direction: column;
+    gap: 0.15em;
+    text-align: center;
+    padding: 0.4em 0.8em;
+  }
+
+  .adSlot-banner .adHouseTitle {
+    font-size: 1rem;
+  }
+
+  .adSlot-banner .adHouseBody {
+    font-size: 0.82rem;
+    line-height: 1.25;
+    max-width: none;
+  }
+}

@@ -17,7 +17,7 @@ const HAND_BOXES = 8;
  * ticks one box, crosses the next and scribbles out the third — they settle
  * into a habit and keep it.
  */
-export const MARK_KINDS = ["Check", "Cross", "Fill"] as const;
+const MARK_KINDS = ["Check", "Cross", "Fill"] as const;
 export type MarkKind = (typeof MARK_KINDS)[number];
 
 /* Fill is 8 because each of the four scribbles exists both ways up: 1-4 comb
@@ -25,7 +25,7 @@ export type MarkKind = (typeof MARK_KINDS)[number];
    horizontal set every filled box on the page combed the same way. */
 const MARK_COUNTS: Record<MarkKind, number> = { Check: 6, Cross: 4, Fill: 8 };
 
-export function hash32(key: string): number {
+function hash32(key: string): number {
   let h = 0x811c9dc5;
   for (let i = 0; i < key.length; i++) {
     h ^= key.charCodeAt(i);
@@ -35,7 +35,7 @@ export function hash32(key: string): number {
 }
 
 /** Hash to a value in [min, max], quantised so it stays stable and readable. */
-export function hashRange(
+function hashRange(
   id: string,
   salt: string,
   min: number,
@@ -59,7 +59,7 @@ export function turnCircleVariant(id: string): string {
 }
 
 /** The mark this combatant uses, the same one down their whole row. */
-export function markKind(id: string): MarkKind {
+function markKind(id: string): MarkKind {
   return MARK_KINDS[hash32(`${id}:markkind`) % MARK_KINDS.length];
 }
 

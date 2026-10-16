@@ -1,0 +1,97 @@
+/* ==========================================================================
+   LONG NAMES IN THE MANAGERS
+
+   "Adult Amethyst Dragon" wants 317px of the monster roster's 208px name
+   column, and "Ancient Sapphire Greatwyrm" wants 376 — so an ellipsis hides
+   40-50% of the name, which is exactly the half that tells two dragons apart.
+   The Hero Manager had it worse: its table was `auto`, so one long name pushed
+   the whole thing 248px past the panel and the Ready box and the bin went off
+   the right-hand edge.
+
+   Both now do the same thing: the table's widths are declared, and the name
+   WRAPS rather than truncating. A monster is already a two-row block (name,
+   then the stat strip) and a hero likewise, so a name taking a second line
+   costs a few pixels of row height and nothing else — every other cell in the
+   row is vertically centred and stays where it is.
+   ========================================================================== */
+
+/* Wider, like the Monster Manager: the roster carries a name, a player, two
+   figures, a Ready box and now two action controls, and every one of them was
+   working to the millimetre at the old width. */
+#heroAddManage {
+  width: min(84vw, max(56vw, 48rem));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* -- the roster tables ---------------------------------------------------- */
+#heroAddManage .managerTableScroll table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Measured at 1366x768, where the roster table is 632px: the name column was
+   135px of it and "Bartholomew" — one word, 95px — did not fit, so it broke
+   mid-word and the hero's name came out as six lines of fragments. Meanwhile
+   the actions column was 190px holding 141px of button and bin. The player's
+   name pays the same way — "Christopher" is another single word that has to
+   fit — so both take their share out of the actions column, which is the only
+   one here with room to give: Ready looks roomy at 64px but its own heading
+   needs every pixel of that.
+
+   HP then took two points back from the player, when the heart went in after
+   it: a level-20 hero's three digits and the heart are 62px, and at 9% the
+   column held 52. "Christopher" is 104px, and the player's 20 holds 113. */
+#heroAddManage .managerTableScroll thead th:nth-child(1) { width: 27%; }
+#heroAddManage .managerTableScroll thead th:nth-child(2) { width: 20%; }
+#heroAddManage .managerTableScroll thead th:nth-child(3) { width: 11%; }
+#heroAddManage .managerTableScroll thead th:nth-child(4) { width: 9%; }
+/* Ready? stays at 9: its own heading is 64px and it has exactly that. */
+#heroAddManage .managerTableScroll thead th:nth-child(5) { width: 9%; }
+#heroAddManage .managerTableScroll thead th:nth-child(6) { width: 24%; }
+
+/* The monster roster's shares, rebalanced: the two icon columns were 11% each
+   for a 24px eye and a 24px tick, and the name needed it more. HP has since
+   taken two of those points back for its heart — monsters are where the
+   three-digit hit points are. */
+#monsterAddManage .managerTableScroll thead th:nth-child(1) { width: 33%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(2) { width: 12%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(3) { width: 10%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(4) { width: 8%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(5) { width: 8%; }
+#monsterAddManage .managerTableScroll thead th:nth-child(6) { width: 29%; }
+
+/* -- the name itself ------------------------------------------------------ */
+#monsterAddManage tr.monsterManagerMonster > td:first-child,
+#heroAddManage tr.heroManagerHero > td:first-child,
+#heroAddManage tr.heroManagerHero > td:nth-child(2) {
+  white-space: normal;
+}
+
+#monsterAddManage tr.monsterManagerMonster > td:first-child .setEditingField,
+#heroAddManage tr.heroManagerHero > td:first-child .setEditingField,
+#heroAddManage tr.heroManagerHero > td:nth-child(2) .setEditingField {
+  display: inline;
+  max-width: 100%;
+  /* Was `overflow: hidden; text-overflow: ellipsis`, which needs one line to
+     work on and so cut the name off. */
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  /* Break inside a word only when a single word is itself too long — normal
+     names still break at their spaces. */
+  overflow-wrap: break-word;
+  line-height: 1.15;
+}
+
+/* No line cap: EditableCell renders the value as a bare text node, with no
+   element to clamp. Names wrap as far as they need and the row grows, which
+   for a two-row block is a few pixels. */
+
+/* Editing a long name needs the whole column, not the width the text had. */
+#monsterAddManage tr.monsterManagerMonster > td:first-child input[type="text"],
+#heroAddManage tr.heroManagerHero > td:first-child input[type="text"],
+#heroAddManage tr.heroManagerHero > td:nth-child(2) input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+}

@@ -1,0 +1,97 @@
+/* ==========================================================================
+   AN X IS TWO STROKES
+
+   Every other mark is one continuous movement, so a single wipe along its
+   length reads as somebody drawing it. A cross is not: it is one stroke, then
+   another across it. Revealed as one shape it looked like a stamp sliding out
+   from behind a curtain, whichever way the curtain went.
+
+   So the cross paints as two layers on the mark's own pseudo-elements — the
+   generator writes each stroke on its own (cross_hand-N-a/-b) under the same
+   filter and seed — and the second one starts after the first has finished.
+   The element's own mask is dropped, because it would paint the whole X
+   underneath the pair.
+   ========================================================================== */
+
+#battleTracker [class*="handMarkCross"] .tickMark,
+#heroAddManage [class*="handMarkCross"] .tickMark,
+#monsterAddManage [class*="handMarkCross"] .tickMark {
+  /* The strokes carry the ink; this element is only their box. */
+  background-color: transparent;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+#battleTracker [class*="handMarkCross"] .tickMark::before,
+#battleTracker [class*="handMarkCross"] .tickMark::after,
+#heroAddManage [class*="handMarkCross"] .tickMark::before,
+#heroAddManage [class*="handMarkCross"] .tickMark::after,
+#monsterAddManage [class*="handMarkCross"] .tickMark::before,
+#monsterAddManage [class*="handMarkCross"] .tickMark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--mark-ink, #3c8a24);
+
+  -webkit-mask-repeat: no-repeat, no-repeat;
+  mask-repeat: no-repeat, no-repeat;
+  -webkit-mask-position: center, left center;
+  mask-position: center, left center;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  -webkit-mask-size: 100% 100%, 0% 100%;
+  mask-size: 100% 100%, 0% 100%;
+}
+
+#battleTracker [class*="handMarkCross"] .tickMark::before,
+#heroAddManage [class*="handMarkCross"] .tickMark::before,
+#monsterAddManage [class*="handMarkCross"] .tickMark::before {
+  -webkit-mask-image: var(--cross-a), linear-gradient(#000, #000);
+  mask-image: var(--cross-a), linear-gradient(#000, #000);
+  transition:
+    mask-size 0.3s cubic-bezier(0.4, 0.7, 0.5, 1),
+    -webkit-mask-size 0.3s cubic-bezier(0.4, 0.7, 0.5, 1);
+}
+
+/* The second stroke waits for the first, with the smallest pause in between —
+   the hand lifting and coming back down. */
+#battleTracker [class*="handMarkCross"] .tickMark::after,
+#heroAddManage [class*="handMarkCross"] .tickMark::after,
+#monsterAddManage [class*="handMarkCross"] .tickMark::after {
+  -webkit-mask-image: var(--cross-b), linear-gradient(#000, #000);
+  mask-image: var(--cross-b), linear-gradient(#000, #000);
+  transition:
+    mask-size 0.3s cubic-bezier(0.4, 0.7, 0.5, 1) 0.34s,
+    -webkit-mask-size 0.3s cubic-bezier(0.4, 0.7, 0.5, 1) 0.34s;
+}
+
+#battleTracker [class*="handMarkCross"] input[type="checkbox"]:checked + .tickMark::before,
+#battleTracker [class*="handMarkCross"] input[type="checkbox"]:checked + .tickMark::after,
+#heroAddManage [class*="handMarkCross"] input[type="checkbox"]:checked + .tickMark::before,
+#heroAddManage [class*="handMarkCross"] input[type="checkbox"]:checked + .tickMark::after,
+#monsterAddManage [class*="handMarkCross"] input[type="checkbox"]:checked + .tickMark::before,
+#monsterAddManage [class*="handMarkCross"] input[type="checkbox"]:checked + .tickMark::after {
+  -webkit-mask-size: 100% 100%, 100% 100%;
+  mask-size: 100% 100%, 100% 100%;
+}
+
+/* Rubbing out takes both strokes off together, as the other marks do. */
+#battleTracker [class*="handMarkCross"] input[type="checkbox"]:not(:checked) + .tickMark::before,
+#battleTracker [class*="handMarkCross"] input[type="checkbox"]:not(:checked) + .tickMark::after,
+#heroAddManage [class*="handMarkCross"] input[type="checkbox"]:not(:checked) + .tickMark::before,
+#heroAddManage [class*="handMarkCross"] input[type="checkbox"]:not(:checked) + .tickMark::after,
+#monsterAddManage [class*="handMarkCross"] input[type="checkbox"]:not(:checked) + .tickMark::before,
+#monsterAddManage [class*="handMarkCross"] input[type="checkbox"]:not(:checked) + .tickMark::after {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #battleTracker [class*="handMarkCross"] .tickMark::before,
+  #battleTracker [class*="handMarkCross"] .tickMark::after,
+  #heroAddManage [class*="handMarkCross"] .tickMark::before,
+  #heroAddManage [class*="handMarkCross"] .tickMark::after,
+  #monsterAddManage [class*="handMarkCross"] .tickMark::before,
+  #monsterAddManage [class*="handMarkCross"] .tickMark::after {
+    transition: none;
+  }
+}

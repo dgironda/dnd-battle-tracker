@@ -1,0 +1,426 @@
+/* ==========================================================================
+   THE REST OF THE FIRST REVIEW
+
+   Smaller fixes from the same review as the battle table, in the order they
+   were made: the wrappers taking over #page's grid areas, EditableCell as a
+   plain button, where Start Battle sits, panels kept inside the viewport
+   (B8), the initiative prompt (B4), the alert() / confirm() replacements
+   (B11), the storage warning (B10), death save marks, the Options theme
+   toggle, the header rail's spacing (B9), keyboard focus and reduced motion,
+   and the drawn keyboard hints.
+   ========================================================================== */
+
+/* The table and the Start/End buttons are now wrapped, so the wrappers have to
+   take over the named grid areas their contents used to occupy — #page is a
+   grid, and an unplaced item collapses into an auto column. */
+#battleTrackerScroll {
+  grid-area: battletracker;
+  width: 100%;
+  min-width: 0;
+  /* A grid item's automatic minimum size is its content, so a long roster made
+     this box grow past its row instead of scrolling inside it — nineteen
+     combatants came out 1634px tall in a 713px row, ran straight over the
+     footer and pushed the page into scrolling. Zeroing the minimum lets the
+     row bound it and hands the overflow to the scroller below. */
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+  /* Everything in the tracker is sized from the table's own width (cqw), so
+     the whole thing keeps one set of proportions at any viewport instead of
+     mixing fixed rem with fluid widths. The reference proportions are a 53px
+     row and 20px text on a 1495px table. */
+  container-type: inline-size;
+  /* The rule that boxes the tracker off from the rest of the page. No padding
+     at the top: the sticky header pins to the scrollport's top edge, and any
+     padding above it is a strip where scrolling rows show through above the
+     header. The table carries that space instead. */
+  padding: 0 0.6cqw 0.5cqw;
+  box-sizing: border-box;
+  /* Fills its grid area, the way it did in v.0.3.1. The old 1100px cap only
+     existed to hold the cells at the artwork's aspect ratio; 9-slicing the
+     plaques removed that constraint.
+
+     The bottom margin is 0, not auto: an auto margin in the block axis turns
+     off a grid item's stretch, so the box sized itself to its content and ran
+     past the row — and over the footer — however tall the roster got. */
+  margin: 2vh 1vw 0 auto;
+}
+
+#battleControls {
+  grid-area: sbbutt;
+}
+
+#battleTrackerScroll #battleTracker {
+  grid-area: auto;
+  margin: 0;
+}
+
+/* --- EditableCell is a <button> now, so strip the UA chrome -------------- */
+.setEditingField {
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.editConditions {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* --- Start Battle placement ---------------------------------------------- */
+#battleControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+  margin-left: 5vw;
+  align-self: center;
+}
+
+#battleControls #buttonStartBattle {
+  grid-area: auto;
+  margin: 0;
+  /* Nudged off its grid slot rather than re-margined: relative offsets do not
+     change the space it reserves, so the round number and timer beside it stay
+     where they are. */
+  position: relative;
+  left: -50px;
+  top: 12px;
+}
+
+/* --- B8: panels must not overflow the viewport --------------------------- */
+/* The three manager panels are sized to their container artwork in
+   managers.css; these two have no artwork, so they keep a plain cap. */
+#about,
+#options {
+  max-width: min(96vw, 1100px);
+  max-height: 88vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+#monsterManagerTable,
+#heroAddManage table,
+#battleAddManage table {
+  max-width: 100%;
+}
+
+#instructions {
+  overflow-x: auto;
+}
+
+/* The close button belongs to the panel, not the viewport corner.
+   (The managers place theirs against the artwork instead - managers.css.) */
+.saveClose,
+#aboutCloseButton,
+#optionsCloseButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+}
+
+#about,
+#options {
+  position: fixed;
+}
+
+/* --- B4: initiative prompt, in the app's own colours --------------------- */
+#initiativeDialogOuter#initiativeDialogOuter {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1100;
+}
+
+#initiativeDialogInner.initiativeDialogInner {
+  /* Ground, ink, edge and shadow all come from the scroll artwork now — see
+     the modal frames in modal-windows.css. Only the sizing is left here. */
+  padding: 1.5rem 1.75rem;
+  min-width: min(24rem, 92vw);
+  max-width: 92vw;
+  font-family: 'Caudex', serif;
+  text-align: center;
+}
+
+#initiativeDialogInner.initiativeDialogInner > h3 {
+  color: var(--panel-ink);
+  margin: 0 0 1rem;
+  font-family: 'Germania One', 'Caudex', serif;
+  font-size: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+#initiativeDialogInner .initiativeFormula {
+  font-family: 'Caudex', serif;
+  font-size: 0.95rem;
+  /* The table's tan reads on its cream plaques but not on the darker parchment
+     of the scroll — 2.5:1. The panel's own softened ink is the right one here. */
+  color: var(--panel-ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+#initiativeDialogInner > input[type="number"] {
+  width: 100%;
+  padding: 0.55rem;
+  font-size: 1.05rem;
+  text-align: center;
+  border-radius: 3px;
+  background-color: var(--color-bg1);
+  color: var(--color-fg);
+  font-family: 'Caudex', serif;
+}
+
+.initiativeDialogButtons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+#initiativeDialogInner #randomInit img {
+  height: 1.9rem;
+  width: auto;
+}
+
+#initiativeDialogInner #cancelInit {
+  margin-top: 0.85rem;
+  background: none;
+  border: none;
+  color: var(--color-chk1);
+  font-family: 'Caudex', serif;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+#initiativeDialogInner #cancelInit:hover {
+  color: var(--color-fg);
+}
+
+/* --- B11: themed replacements for alert() / confirm() -------------------- */
+.appDialogOuter {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1200;
+}
+
+.appDialogInner {
+  background-color: var(--color-hl1);
+  color: var(--color-fg);
+  border-radius: 4px;
+  padding: 1.35rem 1.6rem;
+  min-width: min(23rem, 92vw);
+  max-width: min(34rem, 92vw);
+  box-shadow: 0 8px 30px -8px var(--color-shadow);
+  font-family: 'Caudex', serif;
+}
+
+.appDialogInner.tone-warning {}
+.appDialogInner.tone-danger  {}
+.appDialogInner.tone-info    {}
+
+.appDialogTitle {
+  margin: 0 0 0.5rem;
+  font-family: 'Germania One', 'Caudex', serif;
+  font-size: 1.25rem;
+}
+
+.appDialogMessage {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.appDialogButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+/* --- B10: storage warning, themed instead of a hardcoded light palette --- */
+.storage-warning-container {
+  padding: 0.75rem 0;
+}
+
+.storage-warning-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-bg2);
+  border-radius: 4px;
+  color: var(--color-fg);
+}
+
+.storage-warning-banner .warning-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-redwarn);
+}
+
+.storage-warning-banner .warning-title {
+  margin: 0 0 0.25rem;
+  font-weight: 700;
+}
+
+.storage-warning-banner .warning-message {
+  margin: 0 0 0.4rem;
+  line-height: 1.45;
+}
+
+.storage-warning-banner .storage-info {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- death save marks, moved out of inline styles ------------------------ */
+.deathSaveMark {
+  font-size: 1.5rem;
+  font-weight: bold;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.deathSaveMark.removable {
+  cursor: pointer;
+  opacity: 1;
+}
+
+/* --- theme toggle in Options -------------------------------------------- */
+#buttonThemeToggle {
+  background-color: var(--color-btn2);
+  color: var(--color-bg1);
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Caudex', serif;
+}
+
+/* --- B9: even spacing down the header rail ------------------------------- */
+#header > button {
+  margin-bottom: 0.75rem;
+}
+
+/* --- visible keyboard focus everywhere ----------------------------------- */
+:focus-visible {
+  outline: 3px solid var(--color-chk2);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --- v.0.3.1 parity: the keyboard shortcut is visible again --------------
+   v.0.3.1 wrote it into the button label as a superscript. The SVG art has no
+   room for that, so it sits as a small badge in the corner of the button. */
+.panelButton {
+  position: relative;
+}
+
+/* --- keyboard hints, drawn ------------------------------------------------
+   The letters beside the manager buttons and in the Action/Bonus/Move headers
+   were typeset characters in a tinted box. They are Emily's key_*.svg now, so
+   the shortcut reads as a drawn key like everything else on the page. The
+   character stays in the DOM (the image replaces it visually, and it is the
+   fallback if the art fails to load). Art is 219x180. */
+.panelButtonKey,
+.colKey {
+  background-image: var(--key-art);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  color: transparent;
+}
+
+.colKey {
+  display: inline-block;
+  width: 1.5em;
+  aspect-ratio: 219 / 180;
+  vertical-align: super;
+  margin-left: 0.15em;
+  /* sup already shrinks it; this keeps the drawn key legible */
+  font-size: 0.62em;
+
+  /* The column headings are flex containers, so this is a flex ITEM and its
+     1.5em was only a basis to shrink from. Each heading is the same width but
+     its label is not — Action 48px, Bonus 45px, Move 40px — so each key was
+     squeezed by a different amount and the three drawn caps came out visibly
+     different sizes. The artwork is identical in all of them: 97-98% of a
+     219x180 box in every file.
+
+     The key holds its size; the label is what gives way if a column ever gets
+     tight, which is the right way round — a keycap that is not the size of the
+     other keycaps reads as a mistake, a heading that wraps does not. */
+  flex: 0 0 auto;
+}
+
+[data-key="a"] { --key-art: url('../assets/draftsvgs_v1/key_a.svg'); }
+[data-key="d"] { --key-art: url('../assets/draftsvgs_v1/key_d.svg'); }
+[data-key="e"] { --key-art: url('../assets/draftsvgs_v1/key_e.svg'); }
+[data-key="r"] { --key-art: url('../assets/draftsvgs_v1/key_r.svg'); }
+[data-key="s"] { --key-art: url('../assets/draftsvgs_v1/key_s.svg'); }
+[data-key="w"] { --key-art: url('../assets/draftsvgs_v1/key_w.svg'); }
+[data-key="x"] { --key-art: url('../assets/draftsvgs_v1/key_x.svg'); }
+
+.panelButtonKey {
+  position: absolute;
+  /* no tinted pill behind the art */
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+  /* A proportion of the button, not a fixed 2.5rem: the rail buttons scale
+     with the column, and a badge that does not scale with them crowds the art
+     as soon as the window narrows. */
+  width: clamp(1.4rem, 10.5%, 2.1rem);
+  aspect-ratio: 219 / 180;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  /* Full strength. It was faded to 0.6 when it was a typeset letter in a
+     tinted pill; the drawn keycap is meant to read as a key, not a hint. */
+  pointer-events: none;
+}
+
+/* Where the badge sits.
+
+   It used to be 0.35rem from the right and 0.15rem from the bottom of every
+   one of them, which is what made them look cramped: the ink of all three runs
+   to within 3-9px of the box, so the keycap was pressed onto the ribbon's own
+   outline with no margin at all. There is no room to simply move it inwards —
+   the labels are part of the artwork and run to within ~12px of the right edge
+   on the monster scroll and the battle sign — so it keeps the corner and takes
+   a real margin there instead, at a size that leaves one.
+
+   Percentages, not rem, because the rail buttons scale with their column. */
+.panelButtonKey {
+  right: 5%;
+  bottom: 11%;
+}
+
+/* The scroll's lower edge curves up under its right-hand rod, so this one
+   needs a little more clearance than the ribbon and the sign. */
+#monsterManagerButton .panelButtonKey {
+  bottom: 17%;
+}

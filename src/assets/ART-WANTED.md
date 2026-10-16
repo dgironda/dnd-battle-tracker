@@ -9,7 +9,7 @@ it can be drawn properly.
 should stay that way — they are invisible scaffolding that `border-image` needs
 in order to paint an SVG at all:
 
-- the battle tracker's row plaques (`src/fixes.css`)
+- the battle tracker's row plaques (`src/fixes/battle-table.css`)
 - the manager panels' container art (`src/managers.css`)
 
 ## What the existing hand-drawn art looks like

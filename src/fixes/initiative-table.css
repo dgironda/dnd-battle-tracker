@@ -1,0 +1,288 @@
+/* ==========================================================================
+   INITIATIVE TABLE (manual mode)
+
+   Everyone's initiative in one window, typed in whatever order the table
+   calls the totals out, so one player away from the table no longer holds up
+   the rest. The frame is the other dialogs' parchment (modal-windows.css) and
+   the actions are the drawn buttons; this is the window's own layout.
+   ========================================================================== */
+
+.initTableOuter {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Wide enough for a name, a modifier, a box and a die side by side. The rows
+   scroll inside the frame once the party and the monsters outgrow the screen,
+   and the frame, being the border, stays put while they do. */
+.initTableInner {
+  width: min(34rem, 94vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--panel-rule) transparent;
+  padding: 0.2rem 0.9rem 0.8rem;
+
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.92rem, 1.05vw, 1.3rem);
+  line-height: 1.35;
+  text-align: center;
+}
+
+/* The single prompt's heading face: this is the same moment of the game. */
+.initTableInner h3 {
+  margin: 0 0 0.1em;
+  font-family: 'Germania One', 'Caudex', serif;
+  font-size: 1.5em;
+  font-weight: normal;
+  color: var(--panel-ink);
+}
+
+.initTableInner h3::after {
+  content: "";
+  display: block;
+  height: 24px;
+  width: 62%;
+  margin: -6px auto -2px;
+  background-image: url('../assets/draftsvgs_v2/underline_pencil-5.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.5;
+}
+
+.initTableIntro {
+  margin: 0.15em 0 0.6em;
+  font-size: 0.92em;
+  color: var(--panel-ink-soft);
+  text-wrap: balance;
+}
+
+/* -- the table ------------------------------------------------------------ */
+.initTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.2em;
+  text-align: left;
+}
+
+/* Column labels, small and quiet: it is the rows that get read. */
+.initTable thead th {
+  padding: 0 0.5em;
+  background: none;
+  font-size: 0.8em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  text-align: center;
+  color: var(--panel-ink-soft);
+}
+
+.initTable thead th:first-child {
+  text-align: left;
+}
+
+.initTable tbody th,
+.initTable tbody td {
+  padding: 0.25em 0.5em;
+  background-color: var(--panel-inset);
+  vertical-align: middle;
+}
+
+/* The name is the one thing here that can be long. It wraps rather than
+   pushing the box and the die off the side of a phone. */
+.initTable tbody th {
+  font-weight: normal;
+  text-align: left;
+  color: var(--panel-ink);
+  overflow-wrap: anywhere;
+}
+
+/* Heroes and monsters are two bodies; a gap above the second makes them read
+   as the two sides of the fight. The border is the gap, so the tint stops at
+   the padding. */
+.initTable tbody + tbody tr:first-child > * {
+  border-top: 0.6em solid transparent;
+  background-clip: padding-box;
+}
+
+.initName {
+  cursor: pointer;
+}
+
+/* Who plays them: the name a DM calls across the table for the total. */
+.initPlayer {
+  display: block;
+  font-size: 0.78em;
+  color: var(--panel-ink-soft);
+}
+
+/* Monsters in the softer ink, as Edit Battle and the saved rosters do it. */
+.initRow.is-monster th {
+  font-style: italic;
+  color: var(--panel-ink-soft);
+}
+
+/* A group's own row sets every one of them, so it reads as their heading: a
+   deeper tint, in full ink, with the members indented under it. */
+.initTable .initGroupRow th,
+.initTable .initGroupRow td {
+  background-color: rgba(107, 72, 36, 0.26);
+}
+
+.initGroupRow th {
+  font-style: normal;
+}
+
+.initGroupCount {
+  display: block;
+  font-size: 0.78em;
+  font-style: italic;
+  color: var(--panel-ink-soft);
+}
+
+.initTable .initRow.is-member th {
+  padding-left: 1.6em;
+}
+
+.initMod {
+  text-align: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--panel-ink-soft);
+}
+
+.initTotal {
+  width: 5em;
+  text-align: center;
+}
+
+.initTotal input {
+  box-sizing: border-box;
+  width: 4.4em;
+  margin: 0;
+  padding: 0.15em 0.3em;
+  border: none;
+  border-radius: 2px;
+  background-color: var(--panel-field);
+  color: var(--panel-field-ink);
+  font: inherit;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.initTotal input::placeholder {
+  color: var(--panel-ink-soft);
+  font-style: italic;
+  opacity: 0.75;
+}
+
+/* A die per row, at the size of the text. A drawn button on every line made
+   a column of buttons out of the table, as Edit Battle found with its bins. */
+.initRoll {
+  width: 2.2em;
+  text-align: center;
+}
+
+.initRollOne {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0.1em;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--panel-ink);
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.13s ease, transform 0.13s ease;
+}
+
+.initRollOne img {
+  display: block;
+  height: 1.6em;
+  width: auto;
+}
+
+/* index.css brightens every button on hover, which would wash the die out.
+   It tips instead, as a die does. */
+.initRollOne:hover,
+.initRollOne:focus-visible {
+  opacity: 1;
+  filter: none;
+  background: none;
+  transform: rotate(-14deg);
+}
+
+.initRollOne:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* -- under the table ------------------------------------------------------ */
+.initTableNote {
+  margin: 0.5em 0 0;
+  min-height: 1.35em;
+  font-size: 0.9em;
+  font-style: italic;
+  color: var(--panel-ink-soft);
+}
+
+.initTableActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6em;
+  margin-top: 0.5em;
+}
+
+.initTableActions .drawnBtn {
+  margin: 0;
+  min-width: 8em;
+}
+
+.initTableRollRest img {
+  height: 1.4em;
+  width: auto;
+}
+
+/* The way out is a plain link, as on the single prompt: a third drawn button
+   would read as a third equal choice. */
+.initTableCancel {
+  margin: 0.7em 0 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--panel-ink-soft);
+  font-family: 'Caudex', serif;
+  font-size: 0.85em;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.initTableCancel:hover,
+.initTableCancel:focus-visible {
+  color: var(--panel-ink);
+  filter: none;
+  background: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .initRollOne {
+    transition: none;
+  }
+
+  .initRollOne:hover,
+  .initRollOne:focus-visible {
+    transform: none;
+  }
+}

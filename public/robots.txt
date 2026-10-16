@@ -1,0 +1,8 @@
+# Every page a visitor can open is open to crawlers. /api/ and /relay/ are
+# not pages: crawling them finds nothing and spends the Functions quota that
+# sign-in and analytics share.
+User-agent: *
+Disallow: /api/
+Disallow: /relay/
+
+Sitemap: https://battletracker.simulacrumtechnologies.com/sitemap.xml

@@ -1,0 +1,343 @@
+/* ==========================================================================
+   WALLPAPER CHOICES
+
+   A paper is two choices: a STYLE (which motifs) and a COLOUR (what they are
+   drawn on), both stamped on the root by optionsContext. Fourteen tiles come
+   out of that pairing, so the image itself arrives as `--paper-tile` rather
+   than as fourteen rules here that would have to be kept in step with
+   constants/Wallpapers.ts by hand.
+
+   What is left is the one thing that genuinely differs between papers: how
+   hard the tile is painted. Every light paper runs at the same 0.7 the cream
+   one always did. That is not a legibility ceiling — measured against the
+   body ink, even the strongest of these grounds stays above 9.5:1 at FULL
+   opacity — it is just where the colour reads as a tint of the page rather
+   than as a slab of paint.
+
+   Midnight is the odd one: its tiles carry no ground at all, so the page
+   colour shows through and the opacity governs only the drawn motifs.
+   ========================================================================== */
+
+html[data-wallpaper="midnight"] body::before {
+  opacity: 0.2;
+}
+
+
+/* ==========================================================================
+   THE PAPER PICKER
+
+   This replaced the "Switch to Dark Mode" button. A row of swatches says what
+   the choice actually is — the colour of the page — where the button only
+   named the two ends of it, and the tile is painted on each one so the
+   pattern is part of what you are picking rather than a surprise afterwards.
+   ========================================================================== */
+
+/* `#colorMode` is a flex ROW in index.css — it was laid out for the page's
+   own light/dark control, and this list item borrows the id. Left as a row the
+   heading sat beside the swatches instead of over them. */
+#options li#colorMode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+#options #wallpaperHeading {
+  font-size: 1.05em;
+  margin-top: 0.35em;
+}
+
+#options #wallpaperHeading::after {
+  height: 20px;
+  margin: -7px auto -2px;
+  width: 46%;
+}
+
+#options .wallpaperGrid {
+  /* Flex, not grid: `repeat(auto-fit, minmax(2.6em, max-content))` is not a
+     valid auto-repeat track — max-content cannot size one — so the whole
+     template was dropped and the seven swatches stacked into a single column.
+     A wrapping flex row is what this actually wants anyway. */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45em;
+  margin-top: 0.15em;
+}
+
+#options .wallpaperSwatch {
+  flex: 0 0 auto;
+}
+
+#options .wallpaperSwatch {
+  /* Each row sets this and everything else follows from it, so the colour
+     swatches and the style tiles show the SAME window of the artwork at two
+     sizes rather than two crops that drift apart.
+
+     2.7em was enough when a swatch showed one motif; carrying the full window
+     it left each mark about 14px, which the paler papers lose entirely. */
+  --paper-box: 3.4em;
+
+  width: var(--paper-box);
+  height: var(--paper-box);
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+
+  /* A ZOOMED CROP of the tile rather than the whole thing shrunk into the
+     square. Shrunk, the armoury art disappears completely: its ink sits about
+     25 luminance levels off its own ground, so at a few pixels a stroke
+     anti-aliases into the paper and every swatch reads as a flat colour — the
+     two styles looked identical, which is the one thing a preview must not do.
+
+     The window is 350 of the armoury tile's 482 pixels, centred on (415, 235)
+     of the artwork: its motifs sit on a lattice about 230px apart, and that is
+     the smallest window holding one shield, one sword and one arrow. Hence the
+     numbers — 482/350 and 466/350 draw the tile at that zoom, and the offsets
+     are `half the box, less where that centre lands`, which is negative and
+     wraps because the background repeats. */
+  background-repeat: repeat;
+  background-size:
+    calc(var(--paper-box) * 482 / 350)
+    calc(var(--paper-box) * 466 / 350);
+  background-position:
+    calc(var(--paper-box) * (0.5 - 415.15 / 350))
+    calc(var(--paper-box) * (0.5 - 234.5 / 350));
+
+  /* A drawn edge rather than a CSS one would be better, but there is no art
+     for a swatch — this is the panel's own ink at low alpha, which reads as a
+     pencil box rather than a UI border. */
+  box-shadow: inset 0 0 0 1px rgba(43, 26, 12, 0.45);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+#options .wallpaperSwatch:hover {
+  transform: translateY(-2px);
+  filter: none;
+  box-shadow: inset 0 0 0 1px rgba(43, 26, 12, 0.7);
+}
+
+#options .wallpaperSwatch:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 2px;
+}
+
+/* The chosen one is ringed, not merely darkened: on seven colours a brightness
+   change is not a state anyone can read. */
+#options .wallpaperSwatch.isChosen {
+  box-shadow:
+    inset 0 0 0 1px rgba(43, 26, 12, 0.55),
+    0 0 0 2px #7a2f12;
+  transform: none;
+}
+
+#options .wallpaperSwatch.is-parchment {
+  background-color: #ebddcc;
+}
+
+#options .wallpaperSwatch.is-moss {
+  background-color: #b0d883;
+}
+
+#options .wallpaperSwatch.is-ember {
+  background-color: #f8be87;
+}
+
+#options .wallpaperSwatch.is-rose {
+  background-color: #f1aebc;
+}
+
+#options .wallpaperSwatch.is-amethyst {
+  background-color: #e0d3ee;
+}
+
+#options .wallpaperSwatch.is-slate {
+  background-color: #d7d7d7;
+}
+
+/* Midnight's tile is motifs on transparency, so the swatch supplies the dark
+   ground the page would. */
+/* Which tile any of these shows is the panel's to say — it paints the pairing
+   you would get, so the previews change as the other half of the choice does.
+   What stays here is each colour's ground, which the tile sits on. */
+#options .wallpaperSwatch.is-midnight {
+  background-color: #1d1f21;
+  box-shadow: inset 0 0 0 1px rgba(251, 243, 231, 0.45);
+}
+
+#options .wallpaperSwatch.is-midnight:hover {
+  box-shadow: inset 0 0 0 1px rgba(251, 243, 231, 0.75);
+}
+
+#options .wallpaperSwatch.is-midnight.isChosen {
+  box-shadow:
+    inset 0 0 0 1px rgba(251, 243, 231, 0.55),
+    0 0 0 2px #7a2f12;
+}
+
+/* -- locked papers --------------------------------------------------------
+   Shown, not hidden: a locked colour is still a colour you can see you could
+   have, and a grid of two would not say that. The swatch keeps its colour and
+   takes a lock over it; clicking raises the Patreon prompt rather than
+   silently doing nothing. */
+#options .wallpaperSwatch.isLocked {
+  position: relative;
+}
+
+/* The lock needs a ground of its own to read against seven different colours,
+   so it sits in a disc rather than straight on the paper. */
+#options .wallpaperLock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fbf3e7;
+  pointer-events: none;
+}
+
+#options .wallpaperLock::before {
+  content: "";
+  position: absolute;
+  width: 1.55em;
+  height: 1.55em;
+  border-radius: 50%;
+  background-color: rgba(43, 26, 12, 0.62);
+}
+
+#options .wallpaperLock .icon {
+  position: relative;
+  width: 1em;
+  height: 1em;
+}
+
+#options .wallpaperSwatch.isLocked:hover .wallpaperLock::before {
+  background-color: rgba(43, 26, 12, 0.78);
+}
+
+/* -- style, above the colours ---------------------------------------------
+   The two styles are named where the colours are not: nobody can read
+   "Armoury" off a 2.7em square, and with only two of them there is room to
+   say it. Each one is painted in the colour you are already on, so the pair
+   reads as a choice between two versions of YOUR paper rather than as a
+   catalogue of art you have to imagine recoloured. */
+#options .paperSubheading {
+  margin: 0.55em 0 0.1em;
+  font-size: 0.92em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.6px;
+  color: var(--panel-ink-soft);
+}
+
+#options .paperStyleGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.9em;
+  margin-top: 0.15em;
+}
+
+/* Not a drawn button: it is a swatch with its name under it, and the drawn
+   art would fight the tile it is showing. */
+#options .paperStyleChoice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.28em;
+  margin: 0;
+  padding: 0.1em;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: var(--panel-ink);
+  font-family: 'Caudex', serif;
+  font-size: 0.92em;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* index.css lights every button on hover; these lift like the swatches do. */
+#options .paperStyleChoice:hover {
+  filter: none;
+  background: none;
+}
+
+#options .paperStyleChoice:hover .paperStyleTile {
+  transform: translateY(-2px);
+  box-shadow: inset 0 0 0 1px rgba(43, 26, 12, 0.7);
+}
+
+#options .paperStyleChoice:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 2px;
+}
+
+/* The trinkets bitmap is square where the armoury one is 482x466, and its
+   motifs cluster elsewhere — (365, 375) of 500 is where its densest window
+   sits. The same 350px window, so the two styles are shown at one scale: the
+   armoury has three motifs in it and the trinkets a dozen, which is the real
+   difference between them. Keyed off the pairing each preview already carries,
+   so it covers the colour swatches and the style tiles alike. */
+#options .wallpaperSwatch[data-tile^="trinkets-"] {
+  background-size:
+    calc(var(--paper-box) * 500 / 350)
+    calc(var(--paper-box) * 500 / 350);
+  background-position:
+    calc(var(--paper-box) * (0.5 - 365 / 350))
+    calc(var(--paper-box) * (0.5 - 375 / 350));
+}
+
+/* A span rather than the button itself, so the name can sit beneath it. Much
+   larger than a colour swatch and zoomed further in: a colour reads at a
+   glance from any scrap of paper, but a STYLE is the motifs, and one drawn at
+   the size the page draws it is the only honest way to show which set you are
+   choosing. */
+/* A span rather than the button itself, so the name can sit beneath it. It
+   shows the same window as the colour swatches, just over twice the size: a
+   colour reads at a glance from any scrap of paper, but a STYLE is its motifs,
+   and they have to be big enough to tell apart. */
+#options .paperStyleTile {
+  --paper-box: 6em;
+  display: block;
+}
+
+#options .paperStyleChoice.isChosen .paperStyleTile {
+  box-shadow:
+    inset 0 0 0 1px rgba(43, 26, 12, 0.55),
+    0 0 0 2px #7a2f12;
+  transform: none;
+}
+
+/* On Midnight the ground is dark, so the edge takes the cream ink — the same
+   swap the colour swatches make. */
+#options .paperStyleChoice:hover .paperStyleTile.is-midnight {
+  box-shadow: inset 0 0 0 1px rgba(251, 243, 231, 0.75);
+}
+
+#options .paperStyleChoice.isChosen .paperStyleTile.is-midnight {
+  box-shadow:
+    inset 0 0 0 1px rgba(251, 243, 231, 0.55),
+    0 0 0 2px #7a2f12;
+}
+
+/* Seven swatches wrap 3 + 3 + 1 in a phone's panel, which leaves Midnight
+   sitting alone on a row looking like an afterthought. A little smaller fits
+   four across, so the row reads as 4 + 3. */
+@media (max-width: 30rem) {
+  #options .wallpaperGrid .wallpaperSwatch {
+    --paper-box: 3em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #options .wallpaperSwatch,
+  #options .paperStyleTile {
+    transition: none;
+    transform: none !important;
+  }
+}

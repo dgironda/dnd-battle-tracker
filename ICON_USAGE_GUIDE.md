@@ -209,7 +209,7 @@ Current built-in icons:
 
 ## 🎯 Real-World Usage Examples
 
-### Example 1: HP Display in Battle Tracker
+### Example 1: HP Display in BattleTracker
 
 ```tsx
 <td>

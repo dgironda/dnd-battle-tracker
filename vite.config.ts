@@ -1,7 +1,25 @@
+import { readFileSync } from 'node:fs'
 import { execSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, type Connect, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
+
+/**
+ * Which release is this? package.json's "version", which the About panel
+ * shows. Raising it is the release step — `npm version patch` (or `minor`)
+ * with `--no-git-tag-version` changes package.json and the lockfile and
+ * commits nothing.
+ */
+function appVersion(): string {
+  try {
+    const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
+      version?: string
+    }
+    return pkg.version ?? 'unknown'
+  } catch {
+    return 'unknown'
+  }
+}
 
 /**
  * Which build is this?
@@ -15,9 +33,13 @@ function buildId(): string {
   const fromPages = process.env.CF_PAGES_COMMIT_SHA
   if (fromPages) return fromPages.slice(0, 7)
   try {
-    return execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] })
-      .toString()
-      .trim()
+    const git = (args: string) =>
+      execSync(`git ${args}`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim()
+    const head = git('rev-parse --short HEAD')
+    /* Built from uncommitted changes: say so, or the About panel and crash
+       reports name a commit this build is not. `npm run deploy` refuses to
+       ship one (tools/check-release.mjs). */
+    return git('status --porcelain') ? `${head}-dirty` : head
   } catch {
     return 'unknown'
   }
@@ -67,6 +89,7 @@ const roomsProxy = {
 export default defineConfig({
   define: {
     __BUILD_ID__: JSON.stringify(buildId()),
+    __APP_VERSION__: JSON.stringify(appVersion()),
   },
   plugins: [react(), playerRoute()],
   server: { proxy: roomsProxy },

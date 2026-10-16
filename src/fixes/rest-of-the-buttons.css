@@ -1,0 +1,305 @@
+/* ==========================================================================
+   THE REST OF THE BUTTONS
+
+   Everything below was still a flat fill with a 3-8px radius: the initiative
+   prompt, the concentration check, the alert/confirm replacements, the Patreon
+   calls to action. They join the drawn set.
+
+   These are listed separately from drawn-buttons.css only because they
+   arrived later; the vocabulary is the same. Green is the affirmative action, beige
+   the neutral one, red the destructive or the headline call to action.
+   ========================================================================== */
+
+#initiativeDialogInner #submitInit,
+#initiativeDialogInner #randomInit,
+#conCheckInner #conPassButton,
+#conCheckInner #conFailButton,
+.appDialogConfirm,
+.appDialogCancel,
+#patreonLogin,
+#patreonContinue,
+#patreonLink > button {
+  --btn-h: 2.5em;
+  --btn-pad-x: 1.15em;
+  --btn-slice-x: 11.23%;
+  --btn-slice-y: 40%;
+  --btn-edge-x: calc(var(--btn-h) * 52 / 120);
+  --btn-edge-y: calc(var(--btn-h) * 48 / 120);
+  --btn-art: url('../assets/draftsvgs_v2/button_rounded-beige-med.svg');
+  --btn-ink: #3a2a18;
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  min-height: var(--btn-h);
+  padding: 0.15em var(--btn-pad-x);
+  margin: 0.2em;
+
+  border-style: solid;
+  border-color: transparent;
+  border-width: 0;
+  border-image-source: var(--btn-art);
+  border-image-slice: var(--btn-slice-y) var(--btn-slice-x) fill;
+  border-image-width: var(--btn-edge-y) var(--btn-edge-x);
+  border-image-repeat: stretch;
+  border-radius: 0;
+
+  background: none;
+  background-color: transparent;
+  box-shadow: none;
+  color: var(--btn-ink);
+
+  font-family: 'Caudex', serif;
+  font-size: 1em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  line-height: 1.1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.12s ease, transform 0.06s ease;
+}
+
+#initiativeDialogInner #submitInit,
+#conCheckInner #conPassButton,
+.appDialogConfirm {
+  --btn-art: url('../assets/draftsvgs_v2/button_rounded-green-med.svg');
+  --btn-ink: #23301a;
+}
+
+/* The Patreon calls to action have their own drawn button now
+   (button_patreon.svg, 706x272): the plaque, the logo and "Support Us On
+   PATREON" are all in the artwork, so this is a whole background rather than
+   the nine-sliced frame the other buttons use, and the label in the DOM is
+   left in place for screen readers with nothing of it painted.
+
+   That means undoing the generic button above rather than re-colouring it: no
+   border-image scaffolding, no padding, and a box in the artwork's own ratio
+   so the drawing is never squashed. */
+#patreonLogin,
+#patreonLink > button {
+  --btn-art: none;
+  border: none;
+  border-image: none;
+  padding: 0;
+  min-height: 0;
+  height: auto;
+  /* A fixed width with a cap, not `min(100%, 14rem)`: `font-size: 0` leaves
+     the button with no intrinsic width, and as a flex item with nothing to
+     size from it shrank to 12px. `flex: 0 0 auto` stops it giving way. */
+  width: 14rem;
+  max-width: 100%;
+  flex: 0 0 auto;
+  aspect-ratio: 706 / 272;
+
+  background-color: transparent;
+  background-image: url('../assets/draftsvgs_v2/button_patreon.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+
+  /* The words are drawn. Kept in the DOM and out of sight, so the button still
+     announces itself; `font-size: 0` rather than `display: none` on a child,
+     because the text node is the accessible name. */
+  font-size: 0;
+  color: transparent;
+}
+
+/* It is the widest thing in the rail, so it takes the rail's own width rather
+   than a share of the text around it. */
+#patreonLink > button {
+  width: var(--button-width, 14rem);
+}
+
+/* "Lost it" is the destructive half of the concentration check, but that
+   window sits on the red banner — a red button on it disappears. Beige with
+   the panel's red ink says the same thing and stays readable. */
+#conCheckInner #conFailButton {
+  --btn-ink: #7a1414;
+}
+
+#initiativeDialogInner #submitInit,
+#initiativeDialogInner #randomInit,
+#conCheckInner #conPassButton,
+#conCheckInner #conFailButton {
+  flex: 1 1 0;
+  margin: 0;
+}
+
+#initiativeDialogInner #submitInit:hover,
+#initiativeDialogInner #randomInit:hover,
+#conCheckInner #conPassButton:hover,
+#conCheckInner #conFailButton:hover,
+.appDialogConfirm:hover,
+.appDialogCancel:hover,
+#patreonLogin:hover,
+#patreonContinue:hover,
+#patreonLink > button:hover {
+  filter: brightness(1.07) saturate(1.05);
+  transform: translateY(-1px);
+  background: none;
+  background-color: transparent;
+}
+
+#initiativeDialogInner #submitInit:active,
+#initiativeDialogInner #randomInit:active,
+#conCheckInner #conPassButton:active,
+#conCheckInner #conFailButton:active,
+.appDialogConfirm:active,
+.appDialogCancel:active,
+#patreonLogin:active,
+#patreonContinue:active,
+#patreonLink > button:active {
+  filter: brightness(0.94);
+  transform: translateY(1px);
+}
+
+#initiativeDialogInner #submitInit:focus-visible,
+#initiativeDialogInner #randomInit:focus-visible,
+#conCheckInner #conPassButton:focus-visible,
+#conCheckInner #conFailButton:focus-visible,
+.appDialogConfirm:focus-visible,
+.appDialogCancel:focus-visible,
+#patreonLogin:focus-visible,
+#patreonContinue:focus-visible,
+#patreonLink > button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  filter: brightness(1.07) saturate(1.05);
+}
+
+/* The d20 that rides in the Roll button. */
+#initiativeDialogInner #randomInit img {
+  height: 1.5em;
+  width: auto;
+}
+
+/* -- the concentration check ---------------------------------------------- */
+/* It said "check Yes - Maintained" and "cross No - Lost Concentration" with
+   the tick and cross as typed glyphs. The marks are the drawn ones now, and
+   the labels are the two things a DM actually says out loud. */
+#conCheckInner #conPassButton::before,
+#conCheckInner #conFailButton::before {
+  content: "";
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+#conCheckInner #conPassButton::before {
+  -webkit-mask-image: url('../assets/draftsvgs_v2/check_hand-4.svg');
+  mask-image: url('../assets/draftsvgs_v2/check_hand-4.svg');
+}
+
+#conCheckInner #conFailButton::before {
+  -webkit-mask-image: url('../assets/draftsvgs_v2/cross_hand-3.svg');
+  mask-image: url('../assets/draftsvgs_v2/cross_hand-3.svg');
+}
+
+#conCheckInner h3 {
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+}
+
+/* Both of these were set when this window was a light card. On the red banner
+   the DC came out at 2.1:1 against its own ground and the question at 1.7:1 —
+   the two things the window exists to say were the two hardest to read.
+   Measured against the banner's mid red (#8a1414): gold 6.7:1, soft ink 6.9:1. */
+#conCheckInner #conCheckDC {
+  color: #f6d47a;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+}
+
+#conCheckInner #passConCheck {
+  color: var(--panel-ink-soft);
+}
+
+/* -- the alert / confirm replacements ------------------------------------- */
+.appDialogButtons {
+  align-items: center;
+}
+
+.appDialogConfirm,
+.appDialogCancel {
+  font-size: 0.95em;
+  margin: 0;
+}
+
+/* -- the initiative prompt ------------------------------------------------ */
+/* "Cancel battle" stays a plain underlined link: it is the way out, not one of
+   the two things the window is for, and a third drawn button would read as a
+   third equal choice. */
+#initiativeDialogInner #cancelInit {
+  border-image-source: none;
+}
+
+/* -- the Patreon overlay -------------------------------------------------- */
+#patreonOverlayDiv > div {
+  gap: 0.8rem;
+  align-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #initiativeDialogInner #submitInit,
+  #initiativeDialogInner #randomInit,
+  #conCheckInner #conPassButton,
+  #conCheckInner #conFailButton,
+  .appDialogConfirm,
+  .appDialogCancel,
+  #patreonLogin,
+  #patreonContinue,
+  #patreonLink > button {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+
+/* -- the Patreon buttons' states -----------------------------------------
+   The shared :hover above ends with `background: none`, which for every other
+   drawn button is harmless — their artwork is a `border-image`, and the
+   shorthand only clears a background they never had. These two carry their
+   artwork AS the background, so that one line erased the button on hover.
+
+   Declared after all of it so the image survives every state, and so the
+   `font-size: 0` that hides the DOM label is not undone by a later rule. The
+   feedback stays what it was: a touch brighter and a pixel up, which reads
+   just as well on a painted button as on a nine-sliced one. */
+/* The artwork is 136x52 and the DOM label is hidden (`font-size: 0` below),
+   so nothing inside this button gives it an intrinsic size — put it in a
+   container that squeezes and it collapses to a sliver of orange. It keeps its
+   own size and its own ratio, wherever it is placed. */
+#patreonLink > button {
+  flex: 0 0 auto;
+  width: 8.5rem;
+  min-width: 8.5rem;
+  aspect-ratio: 136 / 52;
+  height: auto;
+}
+
+#patreonLogin,
+#patreonLink > button,
+#patreonLogin:hover,
+#patreonLink > button:hover,
+#patreonLogin:focus-visible,
+#patreonLink > button:focus-visible,
+#patreonLogin:active,
+#patreonLink > button:active {
+  background-image: url('../assets/draftsvgs_v2/button_patreon.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-color: transparent;
+  font-size: 0;
+  color: transparent;
+}

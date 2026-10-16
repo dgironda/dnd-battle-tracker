@@ -86,7 +86,7 @@ export async function shareEncounter(
  * — especially as the roster is what the Monster Manager shows and what the
  * next battle draws from.
  */
-export async function loadEncounterFromURL(): Promise<void> {
+async function loadEncounterFromURL(): Promise<void> {
   const params = new URLSearchParams(window.location.search);
   const encoded = params.get(ENCOUNTER_PARAM);
   const legacy = params.get(LEGACY_MONSTERS_PARAM);

@@ -1,0 +1,117 @@
+/* ==========================================================================
+   THE PENCIL AND THE ERASER
+
+   The pointer is part of the fiction. A DM with a character sheet in front of
+   them picks up a pencil to change a number and turns it over to rub a mark
+   out, and there is no reason the pointer should not say so.
+
+   Both drawings are the same pencil — cursor_eraser.svg is cursor_pencil.svg
+   rotated 180° so the blunt end leads (tools/make-cursors.mjs). The hotspot
+   sits on whichever end is doing the work: the point at 1 30, the blunt end
+   at 1 26.
+
+   Three things worth knowing before touching these:
+
+   - **The keyword after the url is not optional.** It is the fallback, it is
+     required by the spec, and it is what Safari gets: Safari does not render
+     SVG cursors, so it quietly keeps `text` or `pointer` and nothing breaks.
+     Chrome and Firefox draw the pencil.
+   - **Chrome needs the SVG to have an intrinsic size.** icon_edit.svg is
+     `width="100%"`, which is why the cursors are generated at an explicit 32
+     rather than pointed at the icon directly.
+   - **Keep the hotspot inside the image.** Out-of-range coordinates are
+     handled inconsistently across browsers, so both of these sit well within
+     the 32px box rather than relying on anyone's clamping.
+
+   Deliberately not on the input you are typing in. Once the field is live the
+   I-beam is carrying real information — where the caret will land — and a
+   pencil sitting on top of it is a decoration that costs you the thing the
+   cursor is for. The pencil belongs on the affordance, the I-beam on the text.
+   ========================================================================== */
+
+:root {
+  --cursor-pencil: url('../assets/draftsvgs_v2/cursor_pencil.svg') 1 30;
+  --cursor-eraser: url('../assets/draftsvgs_v2/cursor_eraser.svg') 1 26;
+  /* The blade's point, not the middle of the drawing and not the corner of the
+     box: the sword is mirrored so it aims up and left like a cursor, and the
+     tip lands 11px in and 1px down. Measured off the rendered 32px art rather
+     than guessed — the nearest ink to the top-left corner is one of the green
+     sparks, which is not the thing you are pointing with. */
+  --cursor-action: url('../assets/draftsvgs_v2/cursor_action.svg') 11 1;
+}
+
+/* Every "click this to change it" affordance: the tracker's own cells, and the
+   hero and monster managers, which all render EditableCell's button. */
+.setEditingField,
+.editConditions {
+  cursor: var(--cursor-pencil), pointer;
+}
+
+/* ...except the hit points, which are not a correction.
+   Every other editable cell is a fact being fixed — a name, an initiative, an
+   ability score. Hit points are the one that changes because something just
+   happened to somebody, so the pointer is the action icon rather than the
+   pencil: what follows the click is a blow landing, not a typo being tidied.
+   Listed after the rule above at the same specificity, which is what carries
+   it — .hpButton also carries .setEditingField. */
+#battleTracker .setEditingField.hpButton {
+  cursor: var(--cursor-action), pointer;
+}
+
+/* A cell that cannot be edited should not offer a pencil. */
+.setEditingField:disabled,
+.setEditingField[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* ---- the eraser: a mark that is already there ---------------------------
+   An empty box gets the pencil — this is where a mark goes — and a ticked one
+   gets the eraser, because the only thing left to do to it is take it off.
+
+   Every selector comes in three parts, and all three are needed, because what
+   is under the pointer is not the same element in both layouts. `.checkOverlay`
+   is a portrait affordance: it is a full-cell transparent <label> there and
+   `display: none` in landscape, where the thing you actually hover is the
+   <input> itself. The cell is in the list as well so the pointer does not
+   change back to an arrow in the margin around the drawn box, which is most of
+   the cell. Setting only the overlay — as this first did — meant the whole
+   thing worked on a phone and did nothing at all on a desktop. */
+#battleTracker td:has(> input[type="checkbox"]:not(:checked):not(:disabled)),
+#battleTracker td > input[type="checkbox"]:not(:checked):not(:disabled),
+#battleTracker td > input[type="checkbox"]:not(:checked):not(:disabled) ~ .checkOverlay,
+.managerCheck:has(> input[type="checkbox"]:not(:checked)),
+.managerCheck > input[type="checkbox"]:not(:checked) {
+  cursor: var(--cursor-pencil), pointer;
+}
+
+#battleTracker td:has(> input[type="checkbox"]:checked:not(:disabled)),
+#battleTracker td > input[type="checkbox"]:checked:not(:disabled),
+#battleTracker td > input[type="checkbox"]:checked:not(:disabled) ~ .checkOverlay,
+.managerCheck:has(> input[type="checkbox"]:checked),
+.managerCheck > input[type="checkbox"]:checked {
+  cursor: var(--cursor-eraser), pointer;
+}
+
+/* Dead and dying combatants have their action economy locked; offering either
+   tool there would promise something the click will not do. */
+#battleTracker td:has(> input[type="checkbox"]:disabled),
+#battleTracker td > input[type="checkbox"]:disabled,
+#battleTracker td > input[type="checkbox"]:disabled ~ .checkOverlay {
+  cursor: not-allowed;
+}
+
+/* Nothing to point with on a touch screen — there is no pointer at all — and
+   a 32px drawing is a needless download on the device least able to spare it.
+   Hover is the honest test here rather than orientation: it asks whether the
+   device has a pointing device that can hover, which is exactly the question. */
+@media (hover: none) {
+  .setEditingField,
+  .editConditions,
+  #battleTracker td,
+  #battleTracker td > input[type="checkbox"],
+  #battleTracker td > input[type="checkbox"] ~ .checkOverlay,
+  .managerCheck,
+  .managerCheck > input[type="checkbox"] {
+    cursor: pointer;
+  }
+}

@@ -17,9 +17,16 @@ interface OptionsPanelProps {
   isSupporter: boolean;
   /** Raised when a locked paper is picked, so App can put the prompt up. */
   onLockedPick: () => void;
+  /** Given only while signed in with Patreon; the control is not shown otherwise. */
+  onPatreonSignOut?: () => void;
 }
 
-export default function OptionsPanel({ onClose, isSupporter, onLockedPick }: OptionsPanelProps) {
+export default function OptionsPanel({
+  onClose,
+  isSupporter,
+  onLockedPick,
+  onPatreonSignOut,
+}: OptionsPanelProps) {
   const { settings, updateSetting } = useGlobalContext();
 
   /* Picking a paper also sets the theme, because only one of them is dark.
@@ -70,6 +77,15 @@ export default function OptionsPanel({ onClose, isSupporter, onLockedPick }: Opt
               Current Turn Time Display: {settings.currentTurnTime ? "On" : "Off"}
             </button>
           </li>
+          <li>
+            <button
+              onClick={() => updateSetting("manualInitiative", !settings.manualInitiative)}
+              id="buttonManualInitiative"
+              title="On: everyone's initiative goes into one table, in any order. Off: one prompt per combatant."
+            >
+              Manual Initiative: {settings.manualInitiative ? "On" : "Off"}
+            </button>
+          </li>
           {/* The tour is off (see TOUR_ENABLED in App.tsx); its control would
               only offer to reset something nobody can reach. The setting and
               this markup stay for when it comes back. */}
@@ -77,6 +93,13 @@ export default function OptionsPanel({ onClose, isSupporter, onLockedPick }: Opt
             <li>
               <button onClick={() => updateSetting("tourReady", !settings.tourReady)} id="buttonTourReady">
                 {settings.tourReady ? "Tour Available" : "Reset Tour"}
+              </button>
+            </li>
+          )}
+          {onPatreonSignOut && (
+            <li>
+              <button onClick={onPatreonSignOut} id="buttonPatreonSignOut">
+                Sign out of Patreon
               </button>
             </li>
           )}

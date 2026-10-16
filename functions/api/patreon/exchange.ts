@@ -15,12 +15,20 @@ import {
   signSession,
   type PatreonEnv,
 } from "../../../server/patreon";
+import { fromAnotherSite } from "../../../server/origin";
 
 interface Env extends PatreonEnv {
   PATREON_SESSION_SECRET?: string;
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+  /* A page on another site must not be able to sign a visitor in — with the
+     other site's own Patreon code, say. The browser half of that defence is the
+     `state` check in utils/patreonSession; this is the server half. */
+  if (fromAnotherSite(request)) {
+    return json({ error: "Sign-in has to start on this site." }, 403);
+  }
+
   const secret = env.PATREON_SESSION_SECRET;
   if (!secret) {
     console.error("[patreon] PATREON_SESSION_SECRET is not set — cannot sign a session.");

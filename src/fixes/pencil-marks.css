@@ -1,0 +1,247 @@
+/* ==========================================================================
+   PENCIL MARKS IN THE TRACKER
+
+   The pencil underline under each name, and the action checkboxes with the
+   hand-drawn marks that fill them (which mark a row gets is handArt.ts).
+   ========================================================================== */
+
+/* --- the name's pencil underline ------------------------------------------
+   Hovering a combatant's name slides its stat block in from the left edge
+   (`left: -380px -> 0` over 0.35s ease-out, in HeroStatBlockHover). The line
+   is drawn on the same curve, in the same direction, over very nearly the
+   same time, so the two read as one gesture. It follows the block's open
+   state rather than the pointer, so a stat block clicked open keeps its line.
+
+   The stroke is graphite: a filled outline warped by fractal noise so its
+   edges are never clean, then knocked through by a second noise so the lead
+   skips and pools the way it does on paper (see underline_pencil-*.svg). It
+   is applied as a mask over a flat near-black, so the grain comes from the
+   mask's own alpha.
+
+   Everything that varies between names — which of the three strokes, the
+   tilt, how far it sits below the word, where it starts and stops, how heavy
+   it is, how long it takes — comes from custom properties BattleTracker
+   hashes off the combatant's id (underlineStyle). Same name, same line, every
+   render; no two names alike. */
+.statBlockTrigger {
+  position: relative;
+  cursor: pointer;
+}
+
+.statBlockTrigger::after {
+  content: "";
+  --ul-box: var(--ul-weight, 0.5em);
+  position: absolute;
+  left: var(--ul-start, 0);
+  right: var(--ul-end, 0);
+  /* Positioned by where the ink lands, not by the box's bottom edge. The
+     stroke runs down the middle of its box, so anchoring the bottom made a
+     heavy stroke sit lower than a light one; this keeps every stroke on the
+     same line just under the word, whatever its weight, and lets --ul-drop
+     jitter it from there. */
+  height: var(--ul-box);
+  bottom: calc(0.52em - (var(--ul-box) / 2) + var(--ul-drop, 0em));
+
+  /* Two mechanisms, each doing the one job it is good at.
+
+     The stroke is a background image rather than a mask over a flat colour.
+     Masking with the stroke drew a thin rectangle around the whole underline:
+     the box's height is an em of a cqw-scaled font, so it always lands on a
+     fractional pixel, and a mask resampled into fractional bounds leaves faint
+     alpha along the box's own edges. Painting the artwork directly skips that
+     resample - and it is already black, so nothing is lost.
+
+     The reveal is then a single flat gradient in the mask, grown from nothing
+     to full width. It cannot be `clip-path`: that property applies here when
+     set outright but never transitions on this pseudo-element (checked with
+     getAnimations - no transition is ever created). `mask-size` does animate,
+     and a uniform gradient has no detail to resample, so it does not bring the
+     rectangle back. */
+  background-image: var(--ul-stroke);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: var(--ul-press, 0.9);
+
+  -webkit-mask-image: linear-gradient(#000, #000);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: left center;
+  -webkit-mask-size: 0% 100%;
+  mask-image: linear-gradient(#000, #000);
+  mask-repeat: no-repeat;
+  mask-position: left center;
+  mask-size: 0% 100%;
+
+  /* A hand does not draw a level line. */
+  transform: rotate(var(--ul-tilt, 0deg));
+  transform-origin: left center;
+
+  transition:
+    mask-size var(--ul-time, 0.35s) ease-out,
+    -webkit-mask-size var(--ul-time, 0.35s) ease-out;
+  pointer-events: none;
+}
+
+/* Which stroke this name gets. They are not all straight, and some of them are
+   not even sensible: 2 sags, 3 swooshes, 4 waves, 5 rises across the word,
+   6 squiggles, 7 loses patience and scribbles the second half, 8 bounces, and
+   9 and 10 throw an actual loop. */
+.pencil1  .statBlockTrigger { --ul-stroke: url('../assets/draftsvgs_v2/underline_pencil-1.svg'); }
+.pencil2  .statBlockTrigger { --ul-stroke: url('../assets/draftsvgs_v2/underline_pencil-2.svg'); }
+.pencil3  .statBlockTrigger { --ul-stroke: url('../assets/draftsvgs_v2/underline_pencil-3.svg'); }
+.pencil4  .statBlockTrigger { --ul-stroke: url('../assets/draftsvgs_v2/underline_pencil-4.svg'); }
+.pencil5  .statBlockTrigger { --ul-stroke: url('../assets/draftsvgs_v2/underline_pencil-5.svg'); }
+.pencil6  .statBlockTrigger { --ul-stroke: url('../assets/draftsvgs_v2/underline_pencil-6.svg'); }
+.pencil7  .statBlockTrigger { --ul-stroke: url('../assets/draftsvgs_v2/underline_pencil-7.svg'); }
+.pencil8  .statBlockTrigger { --ul-stroke: url('../assets/draftsvgs_v2/underline_pencil-8.svg'); }
+
+/* The looping two need more height than the rest — a loop squashed into a
+   5px band just reads as a smudge. */
+.pencil9  .statBlockTrigger { --ul-stroke: url('../assets/draftsvgs_v2/underline_pencil-9.svg'); }
+.pencil10 .statBlockTrigger { --ul-stroke: url('../assets/draftsvgs_v2/underline_pencil-10.svg'); }
+.pencil9  .statBlockTrigger::after,
+.pencil10 .statBlockTrigger::after {
+  /* Setting the box rather than the height keeps the looping pair on the same
+     line as everything else. */
+  --ul-box: calc(var(--ul-weight, 0.5em) * 1.5);
+}
+
+.statBlockTrigger.isOpen::after,
+.statBlockTrigger:focus-within::after {
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+/* A dead combatant's name is already struck through; a second line underneath
+   just reads as noise. */
+.statBlockTrigger:has(.strike)::after {
+  content: none;
+}
+
+/* --- the action checkboxes -------------------------------------------------
+   Action, Bonus, Move and Reaction are all the same control, so all four get
+   the same treatment: a box someone drew rather than one the browser drew.
+
+   The native input is kept and only its painting replaced (`appearance: none`
+   plus background layers). That keeps the checkbox a real checkbox — tabbable,
+   toggled with space, announced as a checkbox, and still driving React's
+   onChange — where a div dressed up as one would have to reimplement all of
+   that, badly.
+
+   Checked state adds the tick as a second background layer above the box
+   rather than swapping the image, so the box does not flicker on toggle. Which
+   box and which tick come from a hash per combatant and column, so a column of
+   them never looks stamped. */
+#battleTracker input[type="checkbox"],
+#heroAddManage .managerCheck input[type="checkbox"],
+#monsterAddManage .managerCheck input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  border: none;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  background-image: var(--hand-box);
+
+  /* An input does not inherit font-size, so `em` here was resolving against
+     the browser's own 13.33px default — the box stayed 23px however large the
+     table's type got, and the mark drawn over it grew to two and a half times
+     its size. */
+  font-size: inherit;
+  width: 1.2em;
+  height: 1.2em;
+  cursor: pointer;
+  /* The drawn boxes are near-black; this lets the ink follow the theme's own
+     opacity conventions without washing the line out. */
+  opacity: 0.82;
+
+  /* On top of picking from eight drawn boxes, each one is tilted, scaled and
+     nudged a little of its own, so a column of them reads as individually
+     scrawled rather than as eight stamps. The artwork is drawn inset in its
+     own square, which is what lets a tick's tail run outside the box without
+     being clipped. */
+  transform: rotate(var(--cb-tilt, 0deg)) scale(var(--cb-scale, 1))
+             translateY(var(--cb-nudge, 0));
+  transition: opacity 0.15s ease, transform 0.12s ease;
+}
+
+#battleTracker input[type="checkbox"]:hover:not(:disabled),
+#heroAddManage .managerCheck input[type="checkbox"]:hover:not(:disabled),
+#monsterAddManage .managerCheck input[type="checkbox"]:hover:not(:disabled) {
+  opacity: 1;
+}
+
+#battleTracker input[type="checkbox"]:active:not(:disabled),
+#heroAddManage .managerCheck input[type="checkbox"]:active:not(:disabled),
+#monsterAddManage .managerCheck input[type="checkbox"]:active:not(:disabled) {
+  /* A pen pressing down. */
+  transform: rotate(var(--cb-tilt, 0deg)) scale(calc(var(--cb-scale, 1) * 0.93))
+             translateY(var(--cb-nudge, 0));
+}
+
+#battleTracker input[type="checkbox"]:focus-visible,
+#heroAddManage .managerCheck input[type="checkbox"]:focus-visible,
+#monsterAddManage .managerCheck input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--color-chk2);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+#battleTracker input[type="checkbox"]:checked,
+#heroAddManage .managerCheck input[type="checkbox"]:checked,
+#monsterAddManage .managerCheck input[type="checkbox"]:checked {
+  opacity: 1;
+}
+
+#battleTracker input[type="checkbox"]:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.handBox1 { --hand-box: url('../assets/draftsvgs_v2/checkbox_hand-1.svg'); }
+.handBox2 { --hand-box: url('../assets/draftsvgs_v2/checkbox_hand-2.svg'); }
+.handBox3 { --hand-box: url('../assets/draftsvgs_v2/checkbox_hand-3.svg'); }
+.handBox4 { --hand-box: url('../assets/draftsvgs_v2/checkbox_hand-4.svg'); }
+.handBox5 { --hand-box: url('../assets/draftsvgs_v2/checkbox_hand-5.svg'); }
+.handBox6 { --hand-box: url('../assets/draftsvgs_v2/checkbox_hand-6.svg'); }
+.handBox7 { --hand-box: url('../assets/draftsvgs_v2/checkbox_hand-7.svg'); }
+.handBox8 { --hand-box: url('../assets/draftsvgs_v2/checkbox_hand-8.svg'); }
+
+/* The three kinds of mark. Which one a row uses is decided in handArt.ts;
+   these just say what each one is drawn from. */
+.handMarkCheck1 { --hand-tick: url('../assets/draftsvgs_v2/check_hand-1.svg'); }
+.handMarkCheck2 { --hand-tick: url('../assets/draftsvgs_v2/check_hand-2.svg'); }
+.handMarkCheck3 { --hand-tick: url('../assets/draftsvgs_v2/check_hand-3.svg'); }
+.handMarkCheck4 { --hand-tick: url('../assets/draftsvgs_v2/check_hand-4.svg'); }
+.handMarkCheck5 { --hand-tick: url('../assets/draftsvgs_v2/check_hand-5.svg'); }
+.handMarkCheck6 { --hand-tick: url('../assets/draftsvgs_v2/check_hand-6.svg'); }
+
+/* A cross names its two strokes as well as the pair, because it is drawn one
+   stroke at a time — see the .handMarkCross rules in cross-mark.css. */
+.handMarkCross1 { --hand-tick: url('../assets/draftsvgs_v2/cross_hand-1.svg'); --cross-a: url('../assets/draftsvgs_v2/cross_hand-1-a.svg'); --cross-b: url('../assets/draftsvgs_v2/cross_hand-1-b.svg'); }
+.handMarkCross2 { --hand-tick: url('../assets/draftsvgs_v2/cross_hand-2.svg'); --cross-a: url('../assets/draftsvgs_v2/cross_hand-2-a.svg'); --cross-b: url('../assets/draftsvgs_v2/cross_hand-2-b.svg'); }
+.handMarkCross3 { --hand-tick: url('../assets/draftsvgs_v2/cross_hand-3.svg'); --cross-a: url('../assets/draftsvgs_v2/cross_hand-3-a.svg'); --cross-b: url('../assets/draftsvgs_v2/cross_hand-3-b.svg'); }
+.handMarkCross4 { --hand-tick: url('../assets/draftsvgs_v2/cross_hand-4.svg'); --cross-a: url('../assets/draftsvgs_v2/cross_hand-4-a.svg'); --cross-b: url('../assets/draftsvgs_v2/cross_hand-4-b.svg'); }
+
+/* A scribble fills the box in the direction its passes stack, so the reveal
+   goes that way too: the horizontal ones comb across and stack downwards, so
+   they are uncovered top to bottom, and the turned ones left to right. Wiped
+   the other way it reads as a card being slid out from behind something
+   rather than as somebody colouring a box in. */
+/* Colouring a box in takes longer than flicking a tick: a scribble is a dozen
+   passes of the pencil and at the tick's own speed it read as a wipe rather
+   than as someone filling the box. All eight share it. */
+[class*="handMarkFill"] { --mark-wipe-dur: 1.15s; }
+
+.handMarkFill1 { --hand-tick: url('../assets/draftsvgs_v2/fill_hand-1.svg'); --mark-wipe-from: 100% 0%; --mark-wipe-pos: center top; }
+.handMarkFill2 { --hand-tick: url('../assets/draftsvgs_v2/fill_hand-2.svg'); --mark-wipe-from: 100% 0%; --mark-wipe-pos: center top; }
+.handMarkFill3 { --hand-tick: url('../assets/draftsvgs_v2/fill_hand-3.svg'); --mark-wipe-from: 100% 0%; --mark-wipe-pos: center top; }
+.handMarkFill4 { --hand-tick: url('../assets/draftsvgs_v2/fill_hand-4.svg'); --mark-wipe-from: 100% 0%; --mark-wipe-pos: center top; }
+
+/* The same four, a quarter turn over — their passes run down the box and
+   stack across it, so these uncover left to right. */
+.handMarkFill5 { --hand-tick: url('../assets/draftsvgs_v2/fill_hand-1v.svg'); }
+.handMarkFill6 { --hand-tick: url('../assets/draftsvgs_v2/fill_hand-2v.svg'); }
+.handMarkFill7 { --hand-tick: url('../assets/draftsvgs_v2/fill_hand-3v.svg'); }
+.handMarkFill8 { --hand-tick: url('../assets/draftsvgs_v2/fill_hand-4v.svg'); }

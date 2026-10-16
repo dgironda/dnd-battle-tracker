@@ -196,7 +196,7 @@ export function cookieFrom(header: string | null, name: string): string | undefi
   return undefined;
 }
 
-export function expiry(): number {
+function expiry(): number {
   return Math.floor(Date.now() / 1000) + SESSION_DAYS * 24 * 60 * 60;
 }
 

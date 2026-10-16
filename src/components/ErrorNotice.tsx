@@ -12,7 +12,7 @@ import {
   type CaughtError,
 } from "../utils/errorReport";
 
-export type NoticeVariant = "page" | "panel" | "toast";
+type NoticeVariant = "page" | "panel" | "toast";
 
 interface ErrorNoticeProps {
   caught: CaughtError;

@@ -7,7 +7,8 @@
  *
  * This is the one list. The settings type, the picker and the CSS all follow
  * it: adding a colour means an entry here, a tile for it in each style, and a
- * rule in fixes.css keyed on `html[data-wallpaper="<id>"]` for its opacity.
+ * rule in fixes/paper-picker.css keyed on `html[data-wallpaper="<id>"]` for its
+ * opacity.
  *
  * `swatch` is the tile's own ground colour, sampled from the artwork. It sits
  * behind the tile in the picker, so a preview shows the colour the page will

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { InitiativeDialog } from './InitiativeDialog';
+import { InitiativeTable, type InitiativeEntry } from './InitiativeTable';
 import { Hero, Monster, Combatant } from "../../types/index";
 import {
   getCombatants,
@@ -12,6 +13,7 @@ import {
 } from '../../utils/LocalStorage';
 import { appendEntry, makeEntry, type LogEntry, type LogKind } from '../../utils/battleLog';
 import { stampConditionRounds } from '../../utils/conditionRounds';
+import { monsterCombatant } from '../../utils/newCombatant';
 import { useMonsters } from "../../hooks/useMonsters";
 
 interface CombatContextType {
@@ -26,6 +28,11 @@ interface CombatContextType {
   currentCombatant: Hero | Monster | null;
   /** Prompt for one combatant's initiative. Rejects if the user cancels. */
   askForInitiative: (entity: Hero | Monster) => Promise<number>;
+  /**
+   * Ask for everyone's initiative at once, in one table (manual mode).
+   * Resolves with each entry's initiative by id; rejects if the user cancels.
+   */
+  askForInitiatives: (groups: InitiativeEntry[][]) => Promise<Record<string, number>>;
   /** Abort a pending initiative prompt, rejecting whoever is awaiting it. */
   cancelInitiative: () => void;
 
@@ -52,7 +59,7 @@ interface CombatContextType {
 const CombatContext = createContext<CombatContextType | null>(null);
 
 /** Thrown into the start-battle loop when the user cancels an initiative roll. */
-export const INITIATIVE_CANCELLED = "INITIATIVE_CANCELLED";
+const INITIATIVE_CANCELLED = "INITIATIVE_CANCELLED";
 
 export function CombatProvider({ children }: { children: React.ReactNode }) {
   const { setMonsters } = useMonsters();
@@ -69,6 +76,11 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
   const [roundNumber, setRoundNumber] = useState(() => getRoundNumber());
   const [currentCombatant, setCurrentCombatant] = useState<Hero | Monster | null>(null);
   const [initiativeResolver, setInitiativeResolver] = useState<((init: number) => void) | null>(null);
+  /* The table's equivalent of the two above: who is in it, and who to answer. */
+  const [tablePrompt, setTablePrompt] = useState<{
+    groups: InitiativeEntry[][];
+    resolve: (initiatives: Record<string, number>) => void;
+  } | null>(null);
   const [battleLog, setBattleLog] = useState<LogEntry[]>(() => getBattleLog());
 
   /* The round is read through a ref rather than taken as a dependency: every
@@ -151,6 +163,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
     initiativeRejecter.current = null;
     setInitiativeResolver(null);
     setCurrentCombatant(null);
+    setTablePrompt(null);
     reject?.(INITIATIVE_CANCELLED);
   }, []);
 
@@ -161,6 +174,15 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       setInitiativeResolver(() => resolve);
     });
   }, []);
+
+  const askForInitiatives = useCallback(
+    (groups: InitiativeEntry[][]): Promise<Record<string, number>> =>
+      new Promise<Record<string, number>>((resolve, reject) => {
+        initiativeRejecter.current = reject;
+        setTablePrompt({ groups, resolve });
+      }),
+    [],
+  );
 
   /**
    * Adds a monster into an *existing combat*, with initiative dialog
@@ -175,31 +197,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       return; // cancelled - leave the monster in the manager
     }
 
-    const newCombatant: Combatant = {
-      id: monster.id,
-      name: monster.name,
-      link: monster.link,
-      type: 'monster',
-      currHp: monster.hp,
-      maxHp: monster.hp,
-      tHp: 0,
-      initiative,
-      action: false,
-      bonus: false,
-      move: false,
-      reaction: false,
-      conditions: monster.conditions ?? [],
-      init: monster.init,
-      deathsaves: [],
-      ac: monster.ac,
-      str: monster.str,
-      dex: monster.dex,
-      con: monster.con,
-      int: monster.int,
-      wis: monster.wis,
-      cha: monster.cha,
-      pp: monster.pp,
-    };
+    const newCombatant = monsterCombatant(monster, initiative);
 
     logEvent("joined", newCombatant.name);
 
@@ -279,6 +277,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       addHeroToCombat,
       currentCombatant,
       askForInitiative,
+      askForInitiatives,
       cancelInitiative,
       battleLog,
       logEvent,
@@ -296,6 +295,7 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
       addHeroToCombat,
       currentCombatant,
       askForInitiative,
+      askForInitiatives,
       cancelInitiative,
     ]
   );
@@ -319,6 +319,20 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
             setInitiativeResolver(null);
             setCurrentCombatant(null);
             resolve(initiative);
+          }}
+          onCancel={cancelInitiative}
+        />
+      )}
+
+      {/* Manual mode's table: everyone at once, in any order. */}
+      {tablePrompt && (
+        <InitiativeTable
+          groups={tablePrompt.groups}
+          onSubmit={(initiatives) => {
+            initiativeRejecter.current = null;
+            const { resolve } = tablePrompt;
+            setTablePrompt(null);
+            resolve(initiatives);
           }}
           onCancel={cancelInitiative}
         />

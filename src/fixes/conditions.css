@@ -1,0 +1,353 @@
+/* ==========================================================================
+   CONDITIONS
+
+   One chip for a condition, resting and editing alike: its drawn mark, its
+   size on a touch screen, how long it has been held, the description that
+   opens from it, and the picker that adds one.
+   ========================================================================== */
+
+/* --- conditions: one chip, resting and editing alike ----------------------
+   The cell and its editor were two different objects. At rest the conditions
+   were grey pills with tan text on them; open the editor and the same
+   conditions came back as bright red pills, beside a stock white <select> and
+   a bright green Done button — none of which belong to the rest of the page.
+
+   Everything below is the one chip: the row's own ink laid over the plaque at
+   low alpha, so it reads as something written on the parchment rather than
+   stuck to it. Red is kept for the one thing that is actually destructive —
+   hovering a chip in the editor, which removes it. */
+.conditionName,
+.conditionNameEditing {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3em;
+  margin: 0;
+  padding: 0.12em 0.62em 0.18em;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(150, 97, 45, 0.16);
+  color: #5c3a17;
+  font-family: 'Caudex', serif;
+  /* Deliberately not scaled with the row: the type around them went up 1.42x
+     and these read better small. 0.55em of the larger row is the size they
+     were at 0.78em of the smaller one. */
+  font-size: 0.55em;
+  line-height: 1.25;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background-color 0.13s ease, color 0.13s ease;
+}
+
+/* Only the chip under the pointer lights up. The cell is a single button
+   wrapping every chip, so the blanket `button:hover { filter: brightness() }`
+   was brightening all of them at once. */
+.editConditions:hover,
+.editConditions:focus-visible {
+  filter: none;
+}
+
+.conditionName:hover {
+  background-color: rgba(150, 97, 45, 0.3);
+}
+
+/* How many conditions a combatant is carrying is unpredictable, and past two
+   the chips wrapped to more rows than the cell could show — so the last of
+   them were sliced in half along the bottom edge.
+
+   The row is a little taller now, and beyond that the chips step down a size
+   as they multiply, the way you write smaller to get the rest of a list into
+   the margin. Each step is a quantity query: `:has(.conditionName:nth-child(n))`
+   is true only once there are at least n of them. Padding is in em, so it
+   tightens with the type and the chips stay in proportion. */
+.editConditions:has(.conditionName:nth-child(3)) .conditionName {
+  font-size: 0.49em;
+}
+
+.editConditions:has(.conditionName:nth-child(5)) .conditionName {
+  font-size: 0.42em;
+}
+
+.editConditions:has(.conditionName:nth-child(7)) .conditionName {
+  font-size: 0.37em;
+}
+
+.editConditions:has(.conditionName:nth-child(9)) .conditionName {
+  font-size: 0.33em;
+}
+
+/* The editor steps down on the same idea, but stops early and one notch
+   behind: these chips are the remove buttons, so they have to stay big enough
+   to hit. */
+.conditionEditOuter > div:has(.conditionNameEditing:nth-child(5)) .conditionNameEditing {
+  font-size: 0.44em;
+}
+
+.conditionEditOuter > div:has(.conditionNameEditing:nth-child(8)) .conditionNameEditing {
+  font-size: 0.40em;
+}
+
+/* In the editor a chip is a remove button, so hovering it says so. It also
+   sits a size below the resting chip: the editor packs the same conditions
+   plus a picker and a Done button into one row, and at full size that read as
+   a crowd of objects rather than one control. */
+.conditionNameEditing {
+  cursor: pointer;
+  font-size: 0.49em;
+  gap: 0.2em;
+  padding: 0.1em 0.5em 0.15em;
+}
+
+.conditionNameEditing:hover,
+.conditionNameEditing:focus-visible {
+  background-color: #a12b1c;
+  color: #f6efe3;
+  filter: none;
+}
+
+/* The × is an affordance, not a label — it only needs to be legible enough to
+   say the chip can be taken off. */
+.conditionRemove {
+  font-size: 0.95em;
+  line-height: 1;
+  opacity: 0.42;
+}
+
+.conditionNameEditing:hover .conditionRemove,
+.conditionNameEditing:focus-visible .conditionRemove {
+  opacity: 1;
+}
+
+/* --- the chip's mark ------------------------------------------------------
+   A condition is its drawn icon now rather than its name: a DM reads "prone"
+   off the shape faster than off six letters set at 0.49em, and a row of five
+   conditions stops being a paragraph.
+
+   The name has not gone anywhere — the tooltip that already opened on hover
+   still names it, the picker that adds them is still a list of words, and
+   ConditionMark keeps one in a hidden span, because a mask carries no text for
+   a screen reader.
+
+   Painted as a MASK filled with `currentColor`, not dropped in as an image:
+   the art is black line work, and the chip goes cream-on-red when it is
+   hovered in the editor. A background image can only be tinted by filter, and
+   no filter yields a chosen colour — the tracker's tick marks are masks for
+   exactly this reason.
+
+   Sized in em, so the quantity queries above carry the marks down with the
+   type as a combatant collects more conditions; nothing needs to know about
+   both. */
+.conditionMark {
+  display: inline-block;
+  width: 1.75em;
+  height: 1.75em;
+  flex: 0 0 auto;
+  /* For the reminder, where a mark sits in a line of prose rather than in a
+     flex chip. The chips centre their own. */
+  vertical-align: -0.3em;
+
+  /* The image itself is set on the element by ConditionMark — see the note
+     there about React and custom properties. What stays here is everything
+     every mark shares. */
+  background-color: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* The chip was cut for a word — wide at the sides, tight top and bottom. A
+   mark wants the same room on all four, and the baseline it used to line the
+   text up on means nothing to a square. */
+.conditionName:has(.conditionMark),
+.conditionNameEditing:has(.conditionMark) {
+  align-items: center;
+  gap: 0.1em;
+  padding: 0.15em 0.3em;
+}
+
+/* In the editor every chip is a button that removes something, so its mark is
+   bigger than a resting one: dropping the word took the chip from about 45px
+   wide to 23, and a 23px target for a destructive click is too mean. The cell
+   has the room — it grows to fit its editor. */
+.conditionNameEditing .conditionMark {
+  width: 2.3em;
+  height: 2.3em;
+}
+
+
+
+/* The picker and its Done button, in the same hand as the chips. */
+.conditionEditOuter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem 0.25rem;
+  min-width: 0;
+  padding: 0.1rem 0;
+}
+
+.conditionEditOuter > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.15rem;
+  margin-bottom: 0;
+  width: 100%;
+}
+
+/* --- and on a touch screen, big enough to actually hit --------------------
+   Shrinking a chip to its icon took the editor's remove buttons to 28x21 on a
+   phone, under even the 24x24 CSS pixels WCAG 2.2 asks for at AA — Apple wants
+   44pt and Material 48dp. So the editor's controls take a floor, and the chips
+   get the spacing between targets that goes with it.
+
+   A RESTING chip is deliberately left alone: it is not a target at all there,
+   because the whole cell is one button and it is the size of a card row.
+
+   `hover: none` rather than a width query — a phone held sideways has the same
+   fingers as one held upright, which is the question being asked. */
+@media (hover: none) {
+  .conditionEditOuter > div {
+    gap: 0.45rem;
+  }
+
+  .conditionNameEditing {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.3em 0.45em;
+  }
+
+  .conditionNameEditing .conditionMark {
+    width: 26px;
+    height: 26px;
+  }
+
+  /* Both were already under the floor before the marks arrived. */
+  .conditionSelect,
+  .editConditionsDone {
+    min-height: 44px;
+  }
+}
+
+/* In the reminder the mark is teaching rather than labelling, so it keeps its
+   name beside it — that dialog is where the two get introduced. */
+.conditionMarkName {
+  margin-left: 0.4em;
+}
+
+/* --- how long it has been held -------------------------------------------
+   "He has been raging three rounds" is a thing a DM asks and the chip alone
+   cannot answer. The count rides beside the mark from the second round on;
+   ConditionMark says why one is never shown.
+
+   Quiet on purpose: the mark is what is being read at a glance, and the number
+   is a note on it. Tabular figures so a column of chips does not jitter as a
+   fight runs from 9 into 10. */
+.conditionRounds {
+  font-size: 0.9em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.72;
+}
+
+/* In the reminder there is room for words, and a bare "3" next to Exhausted
+   would read as its level rather than its age. */
+.conditionRoundsWords {
+  margin-left: 0.35em;
+  font-size: 0.92em;
+  font-style: italic;
+  opacity: 0.75;
+}
+
+/* The tooltip has the room to spell it out, on its own line between the name
+   and the rules text. */
+.conditionTipHeld {
+  display: block;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  opacity: 0.82;
+}
+
+.conditionSelect {
+  width: auto;
+  max-width: 100%;
+  margin-bottom: 0;
+  padding: 0.1em 0.35em;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(150, 97, 45, 0.16);
+  color: #5c3a17;
+  font-family: 'Caudex', serif;
+  font-size: 0.48em;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editConditionsDone {
+  padding: 0.12em 0.7em 0.17em;
+  border: none;
+  border-radius: 999px;
+  background-color: #6b4824;
+  color: #f6efe3;
+  font-family: 'Caudex', serif;
+  font-size: 0.48em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.13s ease;
+}
+
+/* The picker is a chip like the conditions beside it, so it lifts on hover the
+   way they do. */
+.conditionSelect:hover,
+.conditionSelect:focus-visible {
+  background-color: rgba(150, 97, 45, 0.3);
+}
+
+.editConditionsDone:hover,
+.editConditionsDone:focus-visible {
+  background-color: #4e341a;
+  filter: none;
+}
+
+/* The description, in an element we own so it can appear at once instead of
+   waiting out the browser's own delay on `title`. Portalled to <body>, so it
+   is positioned in viewport coordinates. */
+.conditionTip {
+  position: fixed;
+  z-index: 10050;
+  /* max-content first: a fixed box otherwise shrinks to the room left between
+     its own `left` and the viewport edge, so a chip near the right-hand side
+     got a narrow column of text instead of the same card as everywhere else.
+     The x is clamped in JS to half this width, so it always fits. */
+  width: max-content;
+  max-width: 20rem;
+  padding: 0.5rem 0.7rem;
+  transform: translateX(-50%);
+  background-color: #2b1a0c;
+  color: #f6efe3;
+  font-family: 'Caudex', serif;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  text-align: left;
+  white-space: normal;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(43, 26, 12, 0.32);
+  pointer-events: none;
+}
+
+/* flipped when there is no room below */
+.conditionTip.isAbove {
+  transform: translate(-50%, -100%);
+}
+
+.conditionTipName {
+  display: block;
+  margin-bottom: 0.15rem;
+  color: #e2b964;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+  font-weight: 700;
+}

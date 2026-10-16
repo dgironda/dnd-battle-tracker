@@ -1,0 +1,38 @@
+/* ==========================================================================
+   WRITE-IN LINES — a trial. Delete this whole block to take them away; nothing
+   outside it depends on it.
+
+   Every value in the hero and monster managers sits on a faint pencil line,
+   the way a figure on a paper character sheet is written on a printed blank.
+   It says "you can write here" at rest, which is what the pencil after every
+   number used to say, in the sheet's own terms instead.
+
+   The line is the value button's own ::after: a block under its text, so it
+   runs as wide as what is written (never shorter than a short blank), sits
+   under the last line of a name that wraps, clicks as part of the value, and
+   is gone while the field is open. Its margins net to zero, so no row grows.
+   (The touch target above is the button's ::before, which is why it is not
+   that one.)
+
+   The strokes are the tracker's name underlines, black as drawn: graphite on
+   the monsters' parchment, inverted to chalk on the heroes' red scroll the way
+   the drawn checkboxes are.
+   ========================================================================== */
+#heroAddManage .setEditingField::after,
+#monsterAddManage .setEditingField::after {
+  content: "";
+  display: block;
+  min-width: 1.4em;
+  /* The stroke is about a sixth of its box. Any shorter and the grain in the
+     drawing, shrunk that far, reads as a dotted rule instead of lead. */
+  height: 0.85em;
+  /* Up onto the baseline, and the same amount given back underneath. */
+  margin: -0.57em -0.12em -0.28em;
+  background: url('../assets/draftsvgs_v2/underline_pencil-1.svg') center / 100% 100% no-repeat;
+  opacity: 0.38;
+}
+
+#heroAddManage .setEditingField::after {
+  filter: invert(1);
+}
+/* ---- end of WRITE-IN LINES ---- */

@@ -1,0 +1,128 @@
+/* ==========================================================================
+   CONFIRM BATTLE START
+
+   This window moved from the red banner to the parchment with the rest of the
+   forms, and its roster tables were tinted for the banner — black at 34% for
+   the headings, cream at 6% for the rows. On parchment those read as grey
+   slabs, so the tints are restated in the parchment's own ink, matching the
+   monster manager's roster.
+   ========================================================================== */
+
+.popup-container {
+  font-family: 'Caudex', serif;
+  font-size: clamp(0.92rem, 1.05vw, 1.3rem);
+  line-height: 1.35;
+}
+
+.popup-container .popup-title {
+  margin: 0 0 0.15em;
+  font-size: 1.5em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.popup-container .popup-title::after {
+  content: "";
+  display: block;
+  height: 24px;
+  width: 60%;
+  margin: -9px auto -2px;
+  background-image: url('../assets/draftsvgs_v2/underline_pencil-4.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.5;
+}
+
+.popup-container .popup-message {
+  margin: 0 0 0.35em;
+  font-size: 1em;
+  color: var(--panel-ink-soft);
+  text-align: center;
+}
+
+.popup-container th {
+  background-color: rgba(107, 72, 36, 0.22);
+  color: var(--panel-ink);
+  border: none;
+  border-bottom: 1px solid var(--panel-rule);
+  padding: 0.3em 0.6em;
+  font-weight: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.4px;
+}
+
+/* The two section headings (Heroes / Monsters) span the table and want to read
+   as headings rather than as another column row. */
+.popup-container th[colspan] {
+  background-color: rgba(107, 72, 36, 0.34);
+  font-size: 1.1em;
+}
+
+.popup-container td {
+  background-color: rgba(255, 250, 240, 0.34);
+  color: var(--panel-ink);
+  border: none;
+  border-bottom: 1px solid var(--panel-rule-soft, rgba(43, 26, 12, 0.15));
+  padding: 0.28em 0.6em;
+}
+
+.popup-container tr:nth-of-type(even) td {
+  background-color: rgba(107, 72, 36, 0.12);
+}
+
+.popup-container .setEditingField:hover {
+  background-color: rgba(107, 72, 36, 0.16);
+}
+
+/* -- ready for battle -----------------------------------------------------
+   Was a tick or cross emoji. Drawn marks, painted as masks so they can take a
+   colour — the same pair the death-save tally and the concentration check use. */
+.readyMark {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  cursor: pointer;
+}
+
+.readyMark.is-yes {
+  color: #2f6b1f;
+  -webkit-mask-image: url('../assets/draftsvgs_v2/check_hand-1.svg');
+  mask-image: url('../assets/draftsvgs_v2/check_hand-1.svg');
+}
+
+.readyMark.is-no {
+  color: #9e0000;
+  -webkit-mask-image: url('../assets/draftsvgs_v2/cross_hand-1.svg');
+  mask-image: url('../assets/draftsvgs_v2/cross_hand-1.svg');
+}
+
+.readyMark:hover {
+  opacity: 0.65;
+}
+
+.readyMark:focus-visible {
+  outline: 2px solid var(--panel-ink);
+  outline-offset: 2px;
+}
+
+.popup-container .popup-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.7em;
+  margin-top: 0.7em;
+}
+
+.popup-container .popup-buttons button {
+  min-width: 8em;
+  margin: 0;
+}

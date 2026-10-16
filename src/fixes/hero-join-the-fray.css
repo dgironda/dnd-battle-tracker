@@ -1,0 +1,59 @@
+/* ==========================================================================
+   HERO MANAGER — Join the Fray
+
+   The same control the Monster Manager has, in the same place, styled the same
+   way. The one difference is what happens after: a monster leaves the manager
+   when it joins a fight, a hero does not, so this button has a spent state
+   rather than disappearing with the row.
+   ========================================================================== */
+
+#heroAddManage .managerTableScroll tbody td.heroActions {
+  text-align: right;
+  white-space: nowrap;
+  padding-left: 0;
+  padding-right: 0.7em;
+}
+
+#heroAddManage .heroActions > * {
+  vertical-align: middle;
+  /* `button { margin: .3rem }` otherwise sets the gap, not the rule below. */
+  margin: 0;
+}
+
+#heroAddManage .heroActions > * + * {
+  margin-left: 0.8em;
+}
+
+/* The hero scroll is the red banner, so the chip takes the light ink it uses
+   everywhere else on that ground rather than the monster panel's brown. */
+#heroAddManage .buttonJoinFray {
+  padding: 0.16em 0.8em 0.22em;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(251, 243, 231, 0.9);
+  color: #5c1a1a;
+  font-family: 'Caudex', serif;
+  font-size: 0.8em;
+  font-variant: small-caps;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.13s ease;
+}
+
+#heroAddManage .buttonJoinFray:hover,
+#heroAddManage .buttonJoinFray:focus-visible {
+  background-color: #fff;
+  filter: none;
+}
+
+/* Already fighting: still legible, plainly not a button any more. */
+#heroAddManage .buttonJoinFray:disabled {
+  background-color: rgba(251, 243, 231, 0.16);
+  color: var(--panel-ink-soft);
+  cursor: default;
+}
+
+#heroAddManage .buttonJoinFray:disabled:hover {
+  background-color: rgba(251, 243, 231, 0.16);
+}

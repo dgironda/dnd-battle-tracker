@@ -9,7 +9,7 @@ interface StorageWarningProps {
 /** Rough per-origin localStorage budget in most browsers. */
 const ASSUMED_LIMIT = 5 * 1024 * 1024;
 
-export const StorageWarning: React.FC<StorageWarningProps> = ({
+const StorageWarning: React.FC<StorageWarningProps> = ({
   threshold = 3 * 1024 * 1024,
   onWarningChange,
 }) => {

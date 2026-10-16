@@ -122,7 +122,7 @@ ${inner}
 
 /* The hotspot goes at the leading corner of the ink — the pencil's point, the
    eraser's blunt end — which after the crop is the bottom-left of the box. The
-   CSS in fixes.css carries these numbers. */
+   CSS in fixes/pencil-and-eraser.css carries these numbers. */
 console.log("\nhotspots for the CSS:");
 console.log("  pencil: 1 30");
 console.log("  eraser: 1 26");
