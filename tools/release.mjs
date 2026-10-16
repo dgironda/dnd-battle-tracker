@@ -5,11 +5,12 @@
  *   npm run release -- minor    new features      0.4.2 -> 0.5.0
  *   npm run release -- major    the big one       0.9.3 -> 1.0.0
  *
- * Commit your work first: the release commit carries the new version and
- * nothing else. Before anything runs it shows the version it will make and
- * waits for a yes, because the level is an easy slip (0.5.0 was meant to be a
- * patch). Lint and tests run before the version is touched, so a failure
- * leaves nothing to undo. It doesn't push; that stays your call.
+ * It runs on master and nowhere else, since branches like battle-link share
+ * this folder. Commit your work first: the release commit carries the new
+ * version and nothing else. Before anything runs it shows the version it will
+ * make and waits for a yes, because the level is an easy slip (0.5.0 was meant
+ * to be a patch). Lint and tests run before the version is touched, so a
+ * failure leaves nothing to undo. It doesn't push; that stays your call.
  */
 
 import { execSync } from "node:child_process";
@@ -52,6 +53,12 @@ async function main() {
   const level = process.argv[2];
   if (!Object.hasOwn(LEVELS, level)) {
     console.error("Usage: npm run release -- patch | minor | major");
+    return 1;
+  }
+
+  const branch = read("git rev-parse --abbrev-ref HEAD");
+  if (branch !== "master") {
+    console.error(`\nReleases go out from master, and this is ${branch}. Switch first:\n  git switch master\n`);
     return 1;
   }
 

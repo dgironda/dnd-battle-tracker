@@ -1,7 +1,8 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { Combatant } from "../../types/index";
 import { READIED_CONDITION } from "../../constants/Conditions";
 import { DEVMODE } from "../../utils/devmode";
+import { hasActed } from "../../utils/turnOrder";
 import type { useCombat } from "./CombatContext";
 
 type Combat = ReturnType<typeof useCombat>;
@@ -60,21 +61,19 @@ export function useTurnFlow({
       return;
     }
 
-    // Where the current combatant sits among the living. If they just died they
-    // are not in the list at all, so fall back to the next living index after
-    // them rather than snapping to the top of the order.
-    let nextPosition: number;
-    const currentPosition = livingIndices.indexOf(safeTurnIndex);
-    if (currentPosition === -1) {
-      const after = livingIndices.findIndex((i) => i > safeTurnIndex);
-      nextPosition = after === -1 ? 0 : after;
-    } else {
-      nextPosition = (currentPosition + 1) % livingIndices.length;
-    }
-
-    const nextIndex = livingIndices[nextPosition];
-    // A new round starts only when we actually wrap past the end of the order.
-    const isNewRound = nextPosition === 0;
+    /* The turn goes to whoever is first in initiative order and has not had
+       their turn this round. Nearly always that is simply the next one down,
+       since everyone above has acted. It is somebody higher up only when they
+       joined the fight, or had their total corrected, after their place in
+       the order had gone by: they go as soon as the turn in progress ends,
+       rather than cutting into it or losing the round. The one acting now is
+       left out by position, since the HP window can end a turn before its
+       boxes are ticked. When nobody is waiting, the round turns over. */
+    const waiting = livingIndices.find(
+      (i) => i !== safeTurnIndex && !hasActed(sortedCombatants[i]),
+    );
+    const isNewRound = waiting === undefined;
+    const nextIndex = waiting ?? livingIndices[0];
 
     /* A readied action is held for a trigger "before the start of your next
        turn", so the chip comes off at exactly the moment the reaction refreshes
@@ -167,17 +166,33 @@ export function useTurnFlow({
     }
   }, [activeCombatant, hpWindowOpen, handleNextTurn]);
 
-  // Unchecking an action hands the turn back to that combatant
+  /* Unchecking a box hands the turn back to that combatant, when they come
+     before whoever is acting: the DM taking a turn back to put it right.
+
+     Only a box going from ticked to clear counts. This used to hand the turn
+     to the first combatant with ANY box clear, on every change to the fight,
+     so somebody arriving above the active combatant with their boxes still
+     clear (a newcomer, or a corrected total) took the turn mid-way through
+     someone else's. They wait for it to end now; see handleNextTurn. */
+  const lastSeen = useRef<Combatant[] | null>(null);
   useEffect(() => {
-    if (sortedCombatants.length === 0) return;
+    const before = lastSeen.current;
+    lastSeen.current = combatants;
+    if (!before || sortedCombatants.length === 0) return;
 
-    const uncheckedIndex = sortedCombatants.findIndex(
-      (c) => !c.conditions.includes("Dead") && (!c.action || !c.bonus || !c.move)
-    );
+    const was = new Map(before.map((c) => [c.id, c]));
+    const takenBack = sortedCombatants.findIndex((c) => {
+      const old = was.get(c.id);
+      return (
+        old !== undefined &&
+        !c.conditions.includes("Dead") &&
+        ((old.action && !c.action) || (old.bonus && !c.bonus) || (old.move && !c.move))
+      );
+    });
 
-    if (uncheckedIndex !== -1 && uncheckedIndex !== currentTurnIndex) {
+    if (takenBack !== -1 && takenBack < safeTurnIndex) {
       if (DEVMODE) console.log("Switching turn because of an uncheck");
-      setCurrentTurnIndex(uncheckedIndex);
+      setCurrentTurnIndex(takenBack);
     }
     // Deliberately keyed on combatants only: this reacts to edits, not to the
     // turn pointer moving.

@@ -129,7 +129,13 @@ const BattleTracker: React.FC = () => {
   const showConditionReminders = settings.conditionReminderOn !== false;
 
   const { updateCombatant, patchCombatant, logHpChange, addCondition, removeCondition } =
-    useCombatantEdits({ combatants, setCombatants, logEvent });
+    useCombatantEdits({
+      combatants,
+      setCombatants,
+      logEvent,
+      turnIndex: safeTurnIndex,
+      setTurnIndex: setCurrentTurnIndex,
+    });
   const { reminderCombatant, reminderOpen, closeReminder } = useConditionReminder(activeCombatant);
   const { hpModalCombatant, openHpWindow, dismissHpWindow, closeHpWindow } = useHpWindow({
     combatants,

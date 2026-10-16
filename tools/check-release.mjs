@@ -2,8 +2,11 @@
  * Stops a deploy that would put the wrong version on the site.
  *
  * It is the `predeploy` script, so `npm run deploy` runs it first and gives up
- * if it fails. It catches two mistakes, both of which have happened:
+ * if it fails. It catches three mistakes:
  *
+ * - A branch other than master. Work in progress, Battle Link waiting on its
+ *   art say, sits in this same folder on its own branch, and a deploy from
+ *   there would put it on the live site.
  * - Uncommitted changes. A deploy builds this folder as it stands, but the
  *   About panel and crash reports name the last commit, so the site would
  *   claim to be code it is not.
@@ -45,7 +48,20 @@ function sameCommit(a, b) {
  * `version` null when this clone doesn't have that commit; `live` itself is
  * null when Cloudflare couldn't be asked.
  */
-export function decideRelease({ dirtyFiles, version, head, live }) {
+export function decideRelease({ branch, dirtyFiles, version, head, live }) {
+  if (branch !== "master") {
+    return {
+      ok: false,
+      message: [
+        `Not deploying: the site goes out from master, and this is ${branch === "HEAD" ? "a detached HEAD" : branch}.`,
+        "",
+        "Merge what's ready into master and release from there:",
+        "  git switch master",
+        "To put this branch up as a preview instead, set SKIP_RELEASE_CHECK=1.",
+      ].join("\n"),
+    };
+  }
+
   if (dirtyFiles.length > 0) {
     const shown = dirtyFiles.slice(0, 12).map((line) => `  ${line}`);
     if (dirtyFiles.length > shown.length) shown.push(`  ...and ${dirtyFiles.length - shown.length} more`);
@@ -138,10 +154,11 @@ function main() {
     .filter(Boolean);
   const version = JSON.parse(readFileSync("package.json", "utf8")).version;
   const head = run("git rev-parse --short HEAD");
+  const branch = run("git rev-parse --abbrev-ref HEAD");
   const project = readFileSync("wrangler.jsonc", "utf8").match(/"name"\s*:\s*"([^"]+)"/)?.[1];
-  const live = dirtyFiles.length === 0 && project ? readLive(project) : null;
+  const live = branch === "master" && dirtyFiles.length === 0 && project ? readLive(project) : null;
 
-  const { ok, message } = decideRelease({ dirtyFiles, version, head, live });
+  const { ok, message } = decideRelease({ branch, dirtyFiles, version, head, live });
   if (ok) console.log(message);
   else console.error(`\n${message}\n`);
   return ok ? 0 : 1;

@@ -1,6 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import type { Combatant } from "../../types/index";
 import { track } from "../../utils/telemetry";
+import { byInitiative, followTurn } from "../../utils/turnOrder";
 import type { useCombat } from "./CombatContext";
 
 type Combat = ReturnType<typeof useCombat>;
@@ -15,7 +16,11 @@ const numericFields: (keyof Combatant)[] = [
   "hp", "currHp", "maxHp", "ac", "str", "dex", "con", "int", "wis", "cha", "pp", "init", "tHp",
 ];
 
-const byInitiative = (a: Combatant, b: Combatant) => b.initiative - a.initiative;
+interface CombatantEditsInputs extends Pick<Combat, "combatants" | "setCombatants" | "logEvent"> {
+  /** Whose turn it is, as a position in initiative order (clamped). */
+  turnIndex: number;
+  setTurnIndex: (index: number) => void;
+}
 
 /**
  * The edits the tracker makes to combatants in a running fight, and what each
@@ -25,10 +30,17 @@ export function useCombatantEdits({
   combatants,
   setCombatants,
   logEvent,
-}: Pick<Combat, "combatants" | "setCombatants" | "logEvent">) {
+  turnIndex,
+  setTurnIndex,
+}: CombatantEditsInputs) {
+  /* Read at the moment of an edit rather than taken as dependencies, so
+     updateCombatant keeps one identity for every row it is handed to. */
+  const latest = useRef({ combatants, turnIndex });
+  latest.current = { combatants, turnIndex };
+
   const updateCombatant = useCallback<UpdateCombatant>((combatantId, field, value) => {
-    setCombatants((prev) =>
-      prev
+    const edit = (list: Combatant[]) =>
+      list
         .map((c) =>
           c.id === combatantId
             ? {
@@ -42,9 +54,23 @@ export function useCombatantEdits({
               }
             : c
         )
-        .sort(byInitiative)
-    );
-  }, [setCombatants]);
+        .sort(byInitiative);
+
+    /* A corrected total moves its row, and the turn is a position in this
+       order, so it moves with the person it points at. Without that, fixing
+       a late roll mid-round handed the turn to whoever slid into the slot.
+       The box saves on every keystroke, so typing "16" moves the row twice;
+       the turn follows both times. */
+    if (field === "initiative") {
+      const before = latest.current.combatants;
+      const after = edit(before);
+      setCombatants(after);
+      setTurnIndex(followTurn(before, latest.current.turnIndex, after));
+      return;
+    }
+
+    setCombatants((prev) => edit(prev));
+  }, [setCombatants, setTurnIndex]);
 
   /** Set several fields on one combatant at once, keeping the initiative order. */
   const patchCombatant = useCallback((combatantId: string, patch: Partial<Combatant>) => {
