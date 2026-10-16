@@ -216,6 +216,11 @@ export interface EventMap {
      * the decision to keep it or drop it.
      */
     grouped_initiative: boolean;
+    /**
+     * How initiative was asked for: everyone in one table (manual mode), or
+     * one prompt per combatant. The number behind keeping the table or not.
+     */
+    initiative_entry: "table" | "one_at_a_time";
   };
   /**
    * The fight ended — cleared, or a new one started over it.

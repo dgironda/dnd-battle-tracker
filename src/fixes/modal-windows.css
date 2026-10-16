@@ -20,6 +20,7 @@
    inflates the window; and the old background, radius and shadow all go,
    since the artwork now supplies the edge. */
 #initiativeDialogInner,
+.initTableInner,
 #conditionReminderContent,
 .appDialogInner,
 .hpChangeModalInner,
@@ -49,6 +50,7 @@
    the damage button vanished into its ground. The banner is kept for the one
    window that is a single dramatic prompt rather than a form. */
 #initiativeDialogInner,
+.initTableInner,
 #conditionReminderContent,
 .appDialogInner,
 .hpChangeModalInner,

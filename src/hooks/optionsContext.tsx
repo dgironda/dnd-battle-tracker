@@ -17,6 +17,11 @@ interface Settings {
   /** True shows the reminder when a combatant's turn starts. */
   conditionReminderOn: boolean;
   currentTurnTime: boolean;
+  /**
+   * Manual mode: starting a battle asks for everyone's initiative in one
+   * table, filled in any order, instead of one prompt per combatant.
+   */
+  manualInitiative: boolean;
   tourReady: boolean;
   /** Which tile the page is papered with. See constants/Wallpapers.ts. */
   wallpaper: WallpaperId;
@@ -35,6 +40,7 @@ const DEFAULT_SETTINGS: Settings = {
   theme: "light",
   conditionReminderOn: true,
   currentTurnTime: true,
+  manualInitiative: true,
   tourReady: true,
   wallpaper: DEFAULT_WALLPAPER,
   paperStyle: DEFAULT_PAPER_STYLE,

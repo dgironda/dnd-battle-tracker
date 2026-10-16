@@ -33,12 +33,17 @@ export const CROSS_OUT_SLAIN_MONSTERS = true;
  * When several monsters of the same kind are joining a battle, offer one
  * initiative roll for the lot instead of asking once per monster.
  *
+ * In manual mode (the initiative table) the same offer is a row of its own
+ * above each group, whose total goes to every monster in it.
+ *
  * TO REMOVE COMPLETELY:
- *   1. src/hooks/useStartBattle.ts — the block marked "EXPERIMENT: group
- *      initiative"; restore the plain `for (const monster of presentMonsters)`
- *      loop kept in the comment there.
- *   2. src/utils/monsterNaming.ts — `baseMonsterName` and `groupByKind`, plus
+ *   1. src/hooks/useStartBattle.ts — the two places marked "EXPERIMENT: group
+ *      initiative": make `monsterGroups` one monster per group, and take out
+ *      the "one roll for all" question.
+ *   2. src/components/BattleTracker/InitiativeTable.tsx — the group row,
+ *      marked the same way. With one monster per group it is never reached.
+ *   3. src/utils/monsterNaming.ts — `baseMonsterName` and `groupByKind`, plus
  *      their tests in tests/monsterNaming.test.ts.
- *   3. this constant.
+ *   4. this constant.
  */
 export const ASK_FOR_GROUP_INITIATIVE = true;

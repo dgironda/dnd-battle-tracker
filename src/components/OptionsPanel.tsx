@@ -77,6 +77,15 @@ export default function OptionsPanel({
               Current Turn Time Display: {settings.currentTurnTime ? "On" : "Off"}
             </button>
           </li>
+          <li>
+            <button
+              onClick={() => updateSetting("manualInitiative", !settings.manualInitiative)}
+              id="buttonManualInitiative"
+              title="On: everyone's initiative goes into one table, in any order. Off: one prompt per combatant."
+            >
+              Manual Initiative: {settings.manualInitiative ? "On" : "Off"}
+            </button>
+          </li>
           {/* The tour is off (see TOUR_ENABLED in App.tsx); its control would
               only offer to reset something nobody can reach. The setting and
               this markup stay for when it comes back. */}

@@ -1296,6 +1296,7 @@
   .appDialogInner,
   .popup-container,
   #initiativeDialogInner,
+  .initTableInner,
   #conditionReminderContent,
   #conCheckInner,
   .editBattleDialog {
@@ -1488,6 +1489,7 @@
   .appDialogInner,
   .popup-container,
   #initiativeDialogInner,
+  .initTableInner,
   #conditionReminderContent,
   #conCheckInner {
     --frame-y: clamp(13px, 3.4vw, 30px);
