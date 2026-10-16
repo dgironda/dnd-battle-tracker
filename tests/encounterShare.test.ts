@@ -70,6 +70,24 @@ describe('encounter links', () => {
     expect(out!.monsters[0].link).toBe('https://5e.tools/goblin');
   });
 
+  it('mends a 2014 stat block link saved before the list was fixed', () => {
+    const out = roundTrip('Bones', [
+      monster({ link: "https://5e.tools/bestiary.html#skeleton_['creature', 'mm', 'undead', 'cr 1/4', 'medium']" }),
+    ]);
+    expect(out!.monsters[0].link).toBe('https://5e.tools/bestiary.html#skeleton_mm');
+  });
+
+  it('mends one arriving in an old share, escaped as the browser sent it', () => {
+    const legacy = btoa(JSON.stringify([
+      {
+        name: 'Skeleton',
+        hp: 13,
+        link: "https://5e.tools/bestiary.html#skeleton_['creature',%20'mm',%20'undead',%20'cr%201/4',%20'medium']",
+      },
+    ]));
+    expect(parseLegacyMonstersParam(legacy)?.monsters[0].link).toBe('https://5e.tools/bestiary.html#skeleton_mm');
+  });
+
   it('survives names outside Latin-1', () => {
     const out = roundTrip('Ambush', [monster({ name: 'Dæmon — Ogre’s Bane' })]);
     expect(out!.monsters[0].name).toBe('Dæmon — Ogre’s Bane');

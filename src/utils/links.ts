@@ -33,3 +33,26 @@ export function safeLink(link: unknown): string {
     return "";
   }
 }
+
+/* The broken tail of an old 5e.tools link: `_['creature', 'mm', ...]`, as the
+   list stored it or as a browser escapes it (%20 for a space, %27 for a quote).
+   The book is the second item. */
+const BROKEN_BESTIARY_BOOK =
+  /_\[(?:\s|%20)*(?:'|%27)creature(?:'|%27),(?:\s|%20)*(?:'|%27)([a-z0-9]+)(?:'|%27)[^\]]*\]$/i;
+
+/**
+ * A monster's "full stat block" link, mended if it needs it, and made safe.
+ *
+ * Monsters taken from the 2014 list before 0.5.3 carry a broken 5e.tools link.
+ * Whatever built the list wrote the creature's whole tag list where its book
+ * belongs, "#skeleton_['creature', 'mm', 'undead', ...]" rather than
+ * "#skeleton_mm", so 5e.tools opened without finding the monster. The list is
+ * fixed now; this mends the copies already saved in rosters, battles, backups
+ * and shared encounters. Every other link goes through to safeLink untouched.
+ */
+export function statBlockLink(link: unknown): string {
+  if (typeof link !== "string" || !/^https?:\/\/5e\.tools\/bestiary\.html#/i.test(link)) {
+    return safeLink(link);
+  }
+  return safeLink(link.replace(BROKEN_BESTIARY_BOOK, (_, book: string) => `_${book.toLowerCase()}`));
+}

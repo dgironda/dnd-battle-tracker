@@ -88,6 +88,20 @@ describe("the stat panels", () => {
     expect(screen.queryByRole("link", { name: /View Full Stat Block/ })).toBeNull();
   });
 
+  it("sends a monster saved with an old broken 5e.tools link to its own page", () => {
+    /* Added from the 2014 list before its links were fixed, and still in a roster. */
+    const old = "https://5e.tools/bestiary.html#skeleton_['creature', 'mm', 'undead', 'cr 1/4', 'medium']";
+    render(providers(
+      <MonsterStatBlockHover monster={monster({ name: "Skeleton", link: old })} updateCombatant={() => {}}>
+        <span>Skeleton name</span>
+      </MonsterStatBlockHover>,
+    ));
+    expect(screen.getByRole("link", { name: /View Full Stat Block/ })).toHaveAttribute(
+      "href",
+      "https://5e.tools/bestiary.html#skeleton_mm",
+    );
+  });
+
   it("prints a hero's sheet, and says none when there are no conditions", () => {
     render(providers(
       <HeroStatBlockHover hero={hero}>

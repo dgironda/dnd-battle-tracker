@@ -1,5 +1,5 @@
 import type { Monster } from "../types";
-import { safeLink } from "./links";
+import { statBlockLink } from "./links";
 
 /**
  * Sharing a prepared encounter as a link.
@@ -106,7 +106,7 @@ function toWire(m: Monster): WireMonster {
   const h = trim(m.cha, 10); if (h !== undefined) wire.h = h;
   const p = trim(m.pp, 0); if (p !== undefined) wire.p = p;
   const v = trim(m.init, 0); if (v !== undefined) wire.v = v;
-  const l = safeLink(m.link); if (l) wire.l = l;
+  const l = statBlockLink(m.link); if (l) wire.l = l;
   return wire;
 }
 
@@ -128,7 +128,7 @@ function fromWire(raw: unknown): Monster | null {
   return {
     id: crypto.randomUUID(),
     name: name.slice(0, 100),
-    link: safeLink(m.l),
+    link: statBlockLink(m.l),
     hp,
     maxHp: hp,
     currHp: hp,
