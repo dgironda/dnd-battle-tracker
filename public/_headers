@@ -6,11 +6,15 @@
 # connect-src for the parts of posthog-js that talk to PostHog directly, such
 # as its toolbar. Nothing uses geolocation. COOP severs the link to any window
 # that opened this one, which the Patreon redirect does not need.
+#
+# Only dmOS may frame BattleTracker: it shows the app in a window and talks to
+# /bridge (src/bridge.ts) in a hidden frame. frame-ancestors names it; there
+# is no X-Frame-Options, whose DENY would win over the allowance in older
+# browsers and has no way to name a single site.
 /*
-  Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; connect-src 'self' *.posthog.com *.i.posthog.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; connect-src 'self' *.posthog.com *.i.posthog.com; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://dmos.simulacrumtechnologies.com; object-src 'none'
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), microphone=(), camera=()
   Cross-Origin-Opener-Policy: same-origin
-  X-Frame-Options: DENY

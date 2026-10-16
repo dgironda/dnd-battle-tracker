@@ -10,10 +10,16 @@ import { GlobalProvider } from "./hooks/optionsContext";
 import { Tour } from "./components/Tour";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { installNumberFieldSelection } from "./utils/numberFields";
+import { CampaignBadge } from "./components/CampaignBadge";
+import { reloadOnCampaignSwitch } from "./utils/LocalStorage";
 
 /* Every number field in the app opens with its number selected — see
    numberFields.ts. Installed once, for the life of the page. */
 installNumberFieldSelection();
+
+/* dmOS can switch campaign from another frame; the page follows by reloading,
+   since everything it holds belongs to the old one. See utils/LocalStorage. */
+reloadOnCampaignSwitch();
 
 /* Analytics runs only for somebody who has said yes: posthog-js is not even
    downloaded before that, and in dev or without a key there is nothing to
@@ -30,6 +36,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <React.StrictMode>
         <GlobalProvider>
             <Tour />
+            <CampaignBadge />
             <div id="page">
               <App />
             </div>

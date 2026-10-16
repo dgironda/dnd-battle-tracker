@@ -12,6 +12,7 @@ import {
   storeCombatants,
   writeKey,
   STORAGE_KEYS,
+  otherCampaignPhotoIds,
   StorageQuotaError,
 } from "../../utils/LocalStorage";
 import { useReloadRosters } from "../../hooks/rosterContext";
@@ -120,8 +121,12 @@ const BattleManager: React.FC<BattleManagerProps> = ({ onClose }) => {
     if (migrated > 0) {
       await persistBattles(cleaned);
     }
-    // Photos whose battle is long gone are just occupying space.
-    void pruneOrphans(cleaned.map((b) => b.photoId).filter((id): id is string => !!id));
+    // Photos whose battle is long gone are just occupying space. Other
+    // campaigns' battles still count: their photos share this store.
+    void pruneOrphans([
+      ...cleaned.map((b) => b.photoId).filter((id): id is string => !!id),
+      ...otherCampaignPhotoIds(),
+    ]);
   };
 
   /** Persist the battle list, reporting a full quota instead of throwing. */

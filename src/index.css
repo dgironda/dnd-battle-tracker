@@ -1527,3 +1527,24 @@ sup {
 }
 
 
+
+/* The campaign dmOS picked (components/CampaignBadge.tsx). Small and out of
+   the way: it labels the page, it isn't something to work with. */
+#campaignBadge {
+  position: fixed;
+  top: 0.35rem;
+  right: 0.5rem;
+  z-index: 1000;
+  max-width: 40vw;
+  padding: 0.15rem 0.7rem;
+  overflow: hidden;
+  border: 1px solid var(--color-btn1);
+  border-radius: 0.3rem;
+  background: var(--color-hl1);
+  color: var(--color-hl2);
+  font-family: 'Germania One', 'Caudex', serif;
+  font-size: 1rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}

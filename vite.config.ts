@@ -52,5 +52,9 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: 'dist',  // MUST be exactly 'dist'
+    rollupOptions: {
+      // bridge.html is the page dmOS loads to reach BattleTracker's storage.
+      input: { main: 'index.html', bridge: 'bridge.html' },
+    },
   },
 })
