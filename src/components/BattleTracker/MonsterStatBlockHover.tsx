@@ -1,6 +1,6 @@
 import { Monster, Combatant } from '../../types/index';
 import { useCombat } from './CombatContext';
-import { safeLink } from '../../utils/links';
+import { statBlockLink } from '../../utils/links';
 import { StatConditions, StatNotes, StatPanel } from './StatPanel';
 import { abilityModifier, orDefault } from './statValues';
 
@@ -26,8 +26,9 @@ export function MonsterStatBlockHover({ monster, currentHp, children, updateComb
   // Safe fields
   const name = orDefault(monster.name, 'Unknown Creature');
   /* Filtered, not just defaulted: this goes straight into an href, and the
-     link came from whoever typed it — see safeLink. */
-  const link = safeLink(monster.link);
+     link came from whoever typed it (see safeLink). An old 2014 link with a
+     broken book is mended on the way (see statBlockLink). */
+  const link = statBlockLink(monster.link);
   const ac = orDefault(monster.ac, 10);
   const baseHp = orDefault(currentHp ?? monster.currHp ?? monster.maxHp ?? 1, 1);
   const initiative = orDefault(monster.init, 0);
