@@ -6,9 +6,10 @@ import {
   clearCampaign,
   otherCampaignPhotoIds,
   readActiveCampaign,
+  storeHeroes,
   unpinCampaign,
 } from '../src/utils/LocalStorage';
-import { handleRequest, heroesKeyCampaign, isAllowedOrigin } from '../src/bridge';
+import { eventFor, handleRequest, isAllowedOrigin } from '../src/bridge';
 
 function memoryStorage() {
   const map = new Map<string, string>();
@@ -66,6 +67,16 @@ describe('campaign storage keys', () => {
     expect(STORAGE_KEYS.heroes).toBe('campaign:strahd:storedHeroes');
     setActive('phandelver');
     expect(STORAGE_KEYS.heroes).toBe('campaign:strahd:storedHeroes');
+  });
+
+  it('writes nothing once dmOS has moved the page to another campaign', () => {
+    setActive('strahd');
+    storeHeroes([]);
+    expect(storage.getItem('campaign:strahd:storedHeroes')).toBe('[]');
+    storage.removeItem('campaign:strahd:storedHeroes');
+    setActive('other');
+    storeHeroes([]);
+    expect(storage.getItem('campaign:strahd:storedHeroes')).toBeNull();
   });
 
   it('ignores an active campaign with a malformed id', () => {
@@ -147,10 +158,71 @@ describe('dmOS bridge', () => {
     expect(isAllowedOrigin('https://evil.example', true)).toBe(false);
   });
 
-  it('recognises which campaign a heroes key belongs to', () => {
-    expect(heroesKeyCampaign('storedHeroes')).toBe('default');
-    expect(heroesKeyCampaign('campaign:strahd:storedHeroes')).toBe('strahd');
-    expect(heroesKeyCampaign('storedMonsters')).toBeNull();
-    expect(heroesKeyCampaign(null)).toBeNull();
+  it('says which change a storage key is', () => {
+    expect(eventFor('storedHeroes')).toEqual({ event: 'heroesChanged', campaignId: 'default' });
+    expect(eventFor('campaign:strahd:storedHeroes')).toEqual({ event: 'heroesChanged', campaignId: 'strahd' });
+    expect(eventFor('campaign:strahd:storedCombatants')).toEqual({ event: 'battleChanged', campaignId: 'strahd' });
+    expect(eventFor('battleLog')).toEqual({ event: 'battleChanged', campaignId: 'default' });
+    expect(eventFor('monsterAttacks')).toEqual({ event: 'monstersChanged' });
+    expect(eventFor('appSettings')).toBeNull();
+    expect(eventFor(null)).toBeNull();
+  });
+});
+
+describe('dmOS bridge: battles and attacks', () => {
+  const combatant = (id: string, type: 'hero' | 'monster', currHp: number, tHp = 0) => ({
+    id, name: id === 'g1' ? 'Goblin 1' : 'Kessa', type, currHp, maxHp: currHp, tHp, conditions: [] as string[],
+  });
+  const seedBattle = (campaign: string, combatants: object[]) => {
+    const key = (k: string) => (campaign === 'default' ? k : `campaign:${campaign}:${k}`);
+    storage.setItem(key('storedCombatants'), JSON.stringify(combatants));
+    storage.setItem(key('roundNumber'), '3');
+    storage.setItem(key('currentTurnIndex'), '1');
+  };
+
+  it('reads the fight in progress', () => {
+    seedBattle('strahd', [combatant('h1', 'hero', 20), combatant('g1', 'monster', 7)]);
+    expect(handleRequest('getBattle', { campaignId: 'strahd' })).toMatchObject({
+      result: { round: 3, turnIndex: 1, combatants: [{ id: 'h1' }, { id: 'g1' }] },
+    });
+  });
+
+  it('applies damage temp HP first and logs it like the tracker does', () => {
+    seedBattle('default', [combatant('h1', 'hero', 20, 5)]);
+    const res = handleRequest('applyDamage', { campaignId: 'default', targetId: 'h1', amount: 8, note: 'Scimitar from Goblin 1' });
+    expect(res).toMatchObject({ result: { currHp: 17, tHp: 0 } });
+    const log = JSON.parse(storage.getItem('battleLog')!);
+    expect(log.map((e: { kind: string }) => e.kind)).toEqual(['damage', 'temp-hp']);
+    expect(log[0]).toMatchObject({ who: 'Kessa', amount: 3, from: 20, to: 17, round: 3, detail: 'Scimitar from Goblin 1' });
+  });
+
+  it('marks a monster dead when it drops to 0', () => {
+    seedBattle('default', [combatant('g1', 'monster', 7)]);
+    const res = handleRequest('applyDamage', { campaignId: 'default', targetId: 'g1', amount: 12 });
+    expect(res).toMatchObject({ result: { currHp: 0, conditions: ['Dead'] } });
+    const kinds = JSON.parse(storage.getItem('battleLog')!).map((e: { kind: string }) => e.kind);
+    expect(kinds).toEqual(['damage', 'down']);
+  });
+
+  it('refuses damage to nobody, or of nothing sensible', () => {
+    seedBattle('default', [combatant('g1', 'monster', 7)]);
+    expect(handleRequest('applyDamage', { campaignId: 'default', targetId: 'nope', amount: 3 })).toHaveProperty('error');
+    expect(handleRequest('applyDamage', { campaignId: 'default', targetId: 'g1', amount: -3 })).toHaveProperty('error');
+  });
+
+  it('keeps a hero\'s class and cleaned-up attacks', () => {
+    const hero = {
+      id: 'h1', name: 'Kessa', class: 'Rogue',
+      attacks: [{ id: 'a1', name: 'Rapier', toHit: '7', damage: [{ dice: '1d8+4', type: 'piercing' }], junk: true }, { name: 'no id' }],
+    };
+    const res = handleRequest('saveHero', { campaignId: 'default', hero }) as { result: Record<string, unknown>[] };
+    expect(res.result[0]).toMatchObject({ class: 'Rogue', attacks: [{ id: 'a1', name: 'Rapier', toHit: 7, damage: [{ dice: '1d8+4', type: 'piercing' }] }] });
+    expect((res.result[0].attacks as object[])[0]).not.toHaveProperty('junk');
+  });
+
+  it('saves monster attacks by kind, and forgets a kind left with none', () => {
+    const attacks = [{ id: 'a1', name: 'Scimitar', toHit: 4, damage: [{ dice: '1d6+2', type: 'slashing' }] }];
+    expect(handleRequest('saveMonsterAttacks', { kind: 'Goblin 2', attacks })).toEqual({ result: { goblin: attacks } });
+    expect(handleRequest('saveMonsterAttacks', { kind: 'goblin', attacks: [] })).toEqual({ result: {} });
   });
 });

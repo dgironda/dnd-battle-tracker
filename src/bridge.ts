@@ -9,28 +9,45 @@
  * Messages are plain objects tagged `dmos: 1`:
  *   dmOS -> bridge  { dmos: 1, id, method, params }
  *   bridge -> dmOS  { dmos: 1, id, result } or { dmos: 1, id, error }
- *   bridge -> dmOS  { dmos: 1, event: "heroesChanged", campaignId }
+ *   bridge -> dmOS  { dmos: 1, event: "heroesChanged" | "battleChanged", campaignId }
+ *   bridge -> dmOS  { dmos: 1, event: "monstersChanged" }
+ *
+ * Damage from dmOS (jFight) goes through resolveDamage, the same rule the
+ * tracker's own HP window uses, and is written to the battle log the same
+ * way, so a hit from jFight is indistinguishable from one typed in here.
  *
  * The open BattleTracker app needs no telling: it already reloads its roster
  * on the `storage` event these writes fire (hooks/rosterContext.tsx), and
  * reloads itself when the active campaign changes (reloadOnCampaignSwitch).
  */
 
-import type { Hero } from "./types/index";
+import type { Attack, Hero } from "./types/index";
+import { appendEntry, makeEntry, type LogEntry } from "./utils/battleLog";
+import { resolveDamage } from "./utils/damage";
 import {
   campaignKey,
   clearCampaign,
   DEFAULT_CAMPAIGN_ID,
+  getCampaignBattle,
+  getCampaignBattleLog,
   getCampaignHeroes,
+  getMonsterAttacks,
+  getMonsters,
   isCampaignId,
+  MONSTER_ATTACKS_KEY,
+  monsterKind,
   readActiveCampaign,
+  STORAGE_KEYS,
   storeActiveCampaign,
+  storeCampaignBattleLog,
+  storeCampaignCombatants,
   storeCampaignHeroes,
+  storeMonsterAttacks,
 } from "./utils/LocalStorage";
 import { normalizeHero } from "./utils/roster";
 
 /** Bumped when a method changes shape, so dmOS can tell what it's talking to. */
-export const BRIDGE_VERSION = 1;
+export const BRIDGE_VERSION = 2;
 
 const DMOS_ORIGINS = ["https://dmos.simulacrumtechnologies.com"];
 const LOCAL_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
@@ -48,12 +65,34 @@ function campaignParam(params: Params): string {
   return id;
 }
 
+const text = (value: unknown, max: number) => (typeof value === "string" ? value.slice(0, max) : "");
+
+/** Attacks as dmOS sent them, cut down to the fields an Attack has. */
+export function cleanAttacks(value: unknown): Attack[] {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 30).flatMap((a) => {
+    if (!a || typeof a !== "object" || typeof a.id !== "string" || !a.id) return [];
+    const toHit = Number(a.toHit);
+    const damage: unknown[] = Array.isArray(a.damage) ? a.damage : [];
+    return [{
+      id: a.id.slice(0, 64),
+      name: text(a.name, 60),
+      toHit: Number.isFinite(toHit) ? Math.trunc(toHit) : 0,
+      damage: damage.slice(0, 6).map((d) => {
+        const part = (d ?? {}) as Record<string, unknown>;
+        return { dice: text(part.dice, 40), type: text(part.type, 30) };
+      }),
+    }];
+  });
+}
+
 function heroParam(params: Params): Hero {
   const hero = params.hero as Partial<Hero> | undefined;
   if (!hero || typeof hero.id !== "string" || !hero.id || typeof hero.name !== "string") {
     throw new Error("A hero needs an id and a name.");
   }
-  return normalizeHero(hero as Partial<Hero> & { id: string; name: string });
+  const normal = normalizeHero(hero as Partial<Hero> & { id: string; name: string });
+  return { ...normal, class: text(hero.class, 30) || undefined, attacks: cleanAttacks(hero.attacks) };
 }
 
 const METHODS: Record<string, (params: Params) => unknown> = {
@@ -87,6 +126,62 @@ const METHODS: Record<string, (params: Params) => unknown> = {
     return null;
   },
 
+  /** The fight in progress: everyone in it, the round, and whose turn it is. */
+  getBattle: (params) => getCampaignBattle(campaignParam(params)),
+
+  /**
+   * Hit a combatant for `amount`, temp HP first, exactly as the tracker's HP
+   * window would, and log it. `note` says what did it ("Longsword, slashing,
+   * from Kessa"). Returns the combatant as they now stand.
+   */
+  applyDamage: (params) => {
+    const campaignId = campaignParam(params);
+    const amount = Math.trunc(Number(params.amount));
+    if (!Number.isFinite(amount) || amount < 0) throw new Error("Damage must be a whole number, 0 or more.");
+    const battle = getCampaignBattle(campaignId);
+    const target = battle.combatants.find((c) => c.id === params.targetId);
+    if (!target) throw new Error("That combatant isn't in the battle.");
+
+    const result = resolveDamage(amount, target.currHp, target.tHp, target.conditions, target.type);
+    const updated = { ...target, currHp: result.newHp, tHp: result.newtHp, conditions: result.conditions };
+    storeCampaignCombatants(campaignId, battle.combatants.map((c) => (c.id === target.id ? updated : c)));
+
+    let log: LogEntry[] = getCampaignBattleLog(campaignId);
+    const note = text(params.note, 120) || undefined;
+    const add = (...entry: Parameters<typeof makeEntry>) => {
+      log = appendEntry(log, makeEntry(...entry));
+    };
+    if (result.newHp < target.currHp) {
+      add("damage", target.name, battle.round, {
+        amount: target.currHp - result.newHp,
+        from: target.currHp,
+        to: result.newHp,
+        detail: note,
+      });
+    }
+    if (result.newtHp !== target.tHp) add("temp-hp", target.name, battle.round, { amount: result.newtHp });
+    if (target.currHp > 0 && result.newHp <= 0) add("down", target.name, battle.round);
+    storeCampaignBattleLog(campaignId, log);
+    return updated;
+  },
+
+  /** The monster library (shared by every campaign). */
+  getMonsters: () => getMonsters(),
+
+  /** Saved attacks for every kind of monster, keyed by kind ("goblin"). */
+  getMonsterAttacks: () => getMonsterAttacks(),
+
+  saveMonsterAttacks: (params) => {
+    const kind = monsterKind(text(params.kind, 60));
+    if (!kind) throw new Error("A monster kind is required.");
+    const all = getMonsterAttacks();
+    const attacks = cleanAttacks(params.attacks);
+    if (attacks.length) all[kind] = attacks;
+    else delete all[kind];
+    storeMonsterAttacks(all);
+    return all;
+  },
+
   deleteCampaign: (params) => {
     const campaignId = campaignParam(params);
     if (campaignId === DEFAULT_CAMPAIGN_ID) throw new Error("The default campaign can't be deleted.");
@@ -106,11 +201,26 @@ export function handleRequest(method: unknown, params: unknown): { result: unkno
   }
 }
 
-/** Which campaign a storage key holds heroes for, if it holds heroes at all. */
-export function heroesKeyCampaign(key: string | null): string | null {
-  if (key === campaignKey("storedHeroes", DEFAULT_CAMPAIGN_ID)) return DEFAULT_CAMPAIGN_ID;
-  const match = key?.match(/^campaign:([a-z0-9-]+):storedHeroes$/);
-  return match ? match[1] : null;
+/** Which campaign a storage key holds `baseKey` for, or null if it isn't that key. */
+export function keyCampaign(key: string | null, baseKey: string): string | null {
+  if (key === campaignKey(baseKey, DEFAULT_CAMPAIGN_ID)) return DEFAULT_CAMPAIGN_ID;
+  const match = key?.match(/^campaign:([a-z0-9-]+):(.+)$/);
+  return match && match[2] === baseKey ? match[1] : null;
+}
+
+/** The keys that make up a fight, by their unprefixed names. */
+const BATTLE_KEYS = ["storedCombatants", "roundNumber", "currentTurnIndex", "battleLog"];
+
+/** What a change to `key` means to dmOS, if anything. */
+export function eventFor(key: string | null): { event: string; campaignId?: string } | null {
+  const heroes = keyCampaign(key, "storedHeroes");
+  if (heroes) return { event: "heroesChanged", campaignId: heroes };
+  for (const base of BATTLE_KEYS) {
+    const battle = keyCampaign(key, base);
+    if (battle) return { event: "battleChanged", campaignId: battle };
+  }
+  if (key === MONSTER_ATTACKS_KEY || key === STORAGE_KEYS.monsters) return { event: "monstersChanged" };
+  return null;
 }
 
 function start(): void {
@@ -128,10 +238,8 @@ function start(): void {
 
   // Edits made in BattleTracker itself (another tab, or its window in dmOS).
   window.addEventListener("storage", (e) => {
-    const campaignId = heroesKeyCampaign(e.key);
-    if (campaignId && dmosOrigin) {
-      window.parent.postMessage({ dmos: 1, event: "heroesChanged", campaignId }, dmosOrigin);
-    }
+    const change = eventFor(e.key);
+    if (change && dmosOrigin) window.parent.postMessage({ dmos: 1, ...change }, dmosOrigin);
   });
 }
 

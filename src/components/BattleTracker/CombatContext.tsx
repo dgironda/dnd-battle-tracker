@@ -10,6 +10,7 @@ import {
   storeTurnIndex,
   getBattleLog,
   storeBattleLog,
+  STORAGE_KEYS,
 } from '../../utils/LocalStorage';
 import { appendEntry, makeEntry, type LogEntry, type LogKind } from '../../utils/battleLog';
 import { stampConditionRounds } from '../../utils/conditionRounds';
@@ -152,6 +153,20 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
     }
     lastLoggedRound.current = roundNumber;
   }, [roundNumber, logEvent]);
+
+  /* The fight can change from outside this page: dmOS's jFight applies damage
+     through the bridge, which writes storage directly. Pick that up, the way
+     the roster picks up hero edits. Writing it back afterwards changes
+     nothing, so this can't loop. */
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEYS.combatants) setCombatants(getCombatants() || []);
+      else if (e.key === STORAGE_KEYS.battleLog) setBattleLog(getBattleLog());
+      else if (e.key === STORAGE_KEYS.turnIndex) setCurrentTurnIndex(getTurnIndex());
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [setCombatants]);
 
   // Persist on change.
   //

@@ -1,4 +1,4 @@
-import { Hero, Monster, Combatant } from '../types/index';
+import { Hero, Monster, Combatant, Attack } from '../types/index';
 import type { LogEntry } from "./battleLog";
 
 /**
@@ -93,6 +93,17 @@ function activeKey(baseKey: string): string {
 }
 
 /** Reload the page when dmOS (in another frame or tab) switches campaign. */
+/**
+ * True once dmOS has moved this page's campaign on, until the page reloads.
+ *
+ * Nothing should be written then: the page still holds the old campaign's
+ * fight, and when dmOS deletes a campaign, writing it back would bring the
+ * deleted campaign's keys straight back.
+ */
+function campaignMovedOn(): boolean {
+  return pinnedCampaignId !== null && (readActiveCampaign()?.id ?? DEFAULT_CAMPAIGN_ID) !== pinnedCampaignId;
+}
+
 export function reloadOnCampaignSwitch(): void {
   window.addEventListener("storage", (e) => {
     if (e.key !== ACTIVE_CAMPAIGN_KEY || pinnedCampaignId === null) return;
@@ -149,6 +160,52 @@ export function storeCampaignHeroes(campaignId: string, heroes: Hero[]): void {
   writeKey(campaignKey("storedHeroes", campaignId), JSON.stringify(heroes));
 }
 
+/** Any campaign's fight in progress, for the bridge (dmOS's jFight acts on it). */
+export function getCampaignBattle(campaignId: string): { combatants: Combatant[]; round: number; turnIndex: number } {
+  return {
+    combatants: readJSON<Combatant[]>(campaignKey("storedCombatants", campaignId), []),
+    round: readInt(campaignKey("roundNumber", campaignId), 0),
+    turnIndex: Math.max(0, readInt(campaignKey("currentTurnIndex", campaignId), 0)),
+  };
+}
+
+export function storeCampaignCombatants(campaignId: string, combatants: Combatant[]): void {
+  writeKey(campaignKey("storedCombatants", campaignId), JSON.stringify(combatants));
+}
+
+export function getCampaignBattleLog(campaignId: string): LogEntry[] {
+  return readJSON<LogEntry[]>(campaignKey("battleLog", campaignId), []);
+}
+
+export function storeCampaignBattleLog(campaignId: string, log: LogEntry[]): void {
+  writeKey(campaignKey("battleLog", campaignId), JSON.stringify(log));
+}
+
+/* -------------------------------------------------------- monster attacks */
+
+/**
+ * Saved attacks for each kind of monster, edited in dmOS's Bestiary.
+ *
+ * Kept by kind ("Goblin"), not by monster: the roster holds one entry per
+ * goblin, and every goblin should swing the same scimitar. Shared by every
+ * campaign, like the monster library.
+ */
+export const MONSTER_ATTACKS_KEY = "monsterAttacks";
+
+/** "Goblin 3" and "goblin" are both the kind "goblin". */
+export function monsterKind(name: string): string {
+  return name.replace(/\s+\d+$/, "").trim().toLowerCase();
+}
+
+export function getMonsterAttacks(): Record<string, Attack[]> {
+  const stored = readJSON<Record<string, Attack[]>>(MONSTER_ATTACKS_KEY, {});
+  return stored && typeof stored === "object" && !Array.isArray(stored) ? stored : {};
+}
+
+export function storeMonsterAttacks(attacks: Record<string, Attack[]>): void {
+  writeKey(MONSTER_ATTACKS_KEY, JSON.stringify(attacks));
+}
+
 /** Raised when a write fails because the origin's storage quota is full. */
 export class StorageQuotaError extends Error {
   constructor(message: string) {
@@ -172,6 +229,7 @@ function isQuotaError(error: unknown): boolean {
  * blocked-storage browser doesn't take the whole app down.
  */
 export function writeKey(key: string, value: string): void {
+  if (campaignMovedOn()) return;
   try {
     localStorage.setItem(key, value);
   } catch (error) {

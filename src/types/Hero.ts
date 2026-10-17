@@ -1,3 +1,5 @@
+import type { Attack } from "./Attack";
+
 interface Hero {
   id: string;
   name: string;
@@ -19,6 +21,10 @@ interface Hero {
   currHp: number;
   link: string;
   notes?: string;
+  /** "Wizard", "Fighter"… set in dmOS; jFight draws the hero to match. */
+  class?: string;
+  /** Saved attacks, edited in dmOS's Hero Manager. */
+  attacks?: Attack[];
 }
 
 export {Hero}

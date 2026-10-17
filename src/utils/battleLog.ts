@@ -91,7 +91,8 @@ export function describe(entry: LogEntry): string {
 
   switch (entry.kind) {
     case "damage":
-      return `${who} took ${amount}${swing}`;
+      /* `detail` says what did it, when dmOS's jFight knows: "Longsword from Kessa". */
+      return `${who} took ${amount}${detail ? ` (${detail})` : ""}${swing}`;
     case "heal":
       return `${who} healed ${amount}${swing}`;
     case "temp-hp":
