@@ -23,6 +23,8 @@ export const STORAGE_KEYS = {
   settings: "appSettings",
   get savedBattles() { return activeKey("savedBattles"); },
   get battleLog() { return activeKey("battleLog"); },
+  /** The whole fight in one value, written by the dmOS bridge: see BattleSync. */
+  get battleSync() { return activeKey("battleSync"); },
 };
 
 /* --------------------------------------------------------------- campaigns */
@@ -55,6 +57,7 @@ const CAMPAIGN_SCOPED = [
   "turnStartedAt",
   "savedBattles",
   "battleLog",
+  "battleSync",
 ];
 
 export function isCampaignId(id: unknown): id is string {
@@ -171,6 +174,49 @@ export function getCampaignBattle(campaignId: string): { combatants: Combatant[]
 
 export function storeCampaignCombatants(campaignId: string, combatants: Combatant[]): void {
   writeKey(campaignKey("storedCombatants", campaignId), JSON.stringify(combatants));
+}
+
+/**
+ * The fight as the dmOS bridge just left it, in one value.
+ *
+ * The bridge writes the fight's keys one by one, and another tab hears about
+ * them one by one too, over a channel that can deliver them some time apart.
+ * A tracker that reloaded on the first of them could read the new turn with
+ * the old combatants, and then save those back over the bridge's work. So the
+ * bridge also writes this, last, and an open tracker takes the fight from it
+ * alone: one value, so it always arrives whole.
+ */
+export interface BattleSync {
+  combatants: Combatant[];
+  round: number;
+  turnIndex: number;
+  turnStartedAt: number | null;
+  log: LogEntry[];
+  /** When it was written, so writing the same fight twice still announces it. */
+  at: number;
+}
+
+export function storeCampaignBattleSync(campaignId: string): void {
+  const battle = getCampaignBattle(campaignId);
+  const startedAt = readInt(campaignKey("turnStartedAt", campaignId), 0);
+  const sync: BattleSync = {
+    ...battle,
+    turnStartedAt: startedAt > 0 ? startedAt : null,
+    log: getCampaignBattleLog(campaignId),
+    at: Date.now(),
+  };
+  writeKey(campaignKey("battleSync", campaignId), JSON.stringify(sync));
+}
+
+/** A whole turn change for any campaign: whose turn, the round, when it began, and the fight. */
+export function storeCampaignTurn(
+  campaignId: string,
+  turn: { combatants: Combatant[]; round: number; turnIndex: number; startedAt: number },
+): void {
+  writeKey(campaignKey("currentTurnIndex", campaignId), String(turn.turnIndex));
+  writeKey(campaignKey("roundNumber", campaignId), String(turn.round));
+  writeKey(campaignKey("turnStartedAt", campaignId), String(turn.startedAt));
+  writeKey(campaignKey("storedCombatants", campaignId), JSON.stringify(turn.combatants));
 }
 
 export function getCampaignBattleLog(campaignId: string): LogEntry[] {

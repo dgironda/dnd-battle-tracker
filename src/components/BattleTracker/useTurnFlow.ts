@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import type { Combatant } from "../../types/index";
 import { READIED_CONDITION } from "../../constants/Conditions";
 import { DEVMODE } from "../../utils/devmode";
-import { hasActed } from "../../utils/turnOrder";
+import { nextTurn, passTurn } from "../../utils/turnOrder";
 import type { useCombat } from "./CombatContext";
 
 type Combat = ReturnType<typeof useCombat>;
@@ -49,90 +49,23 @@ export function useTurnFlow({
   const handleNextTurn = useCallback(() => {
     setLastRun(Date.now());
 
-    if (sortedCombatants.length === 0) return;
-
-    const livingIndices = sortedCombatants
-      .map((c, idx) => ({ combatant: c, index: idx }))
-      .filter(({ combatant }) => !combatant.conditions.includes("Dead"))
-      .map(({ index }) => index);
-
-    if (livingIndices.length === 0) {
-      if (DEVMODE) console.warn("All combatants are dead. Battle is over.");
+    /* Who goes next, and whether the round turns over: see nextTurn, which
+       the dmOS bridge's endTurn shares so jFight passes turns the same way. */
+    const turn = nextTurn(sortedCombatants, safeTurnIndex);
+    if (!turn) {
+      if (DEVMODE && sortedCombatants.length) console.warn("All combatants are dead. Battle is over.");
       return;
     }
-
-    /* The turn goes to whoever is first in initiative order and has not had
-       their turn this round. Nearly always that is simply the next one down,
-       since everyone above has acted. It is somebody higher up only when they
-       joined the fight, or had their total corrected, after their place in
-       the order had gone by: they go as soon as the turn in progress ends,
-       rather than cutting into it or losing the round. The one acting now is
-       left out by position, since the HP window can end a turn before its
-       boxes are ticked. When nobody is waiting, the round turns over. */
-    const waiting = livingIndices.find(
-      (i) => i !== safeTurnIndex && !hasActed(sortedCombatants[i]),
-    );
-    const isNewRound = waiting === undefined;
-    const nextIndex = waiting ?? livingIndices[0];
+    const { index: nextIndex, isNewRound } = turn;
 
     /* A readied action is held for a trigger "before the start of your next
        turn", so the chip comes off at exactly the moment the reaction refreshes
-       below — not at the top of the round, and not while somebody else acts.
-       Read out here, and logged after the update, because the updater runs
-       twice under StrictMode and a log entry is a side effect. */
+       (passTurn). Read out here, and logged after the update, because the
+       updater runs twice under StrictMode and a log entry is a side effect. */
     const startingTurn = sortedCombatants[nextIndex];
-    const readiedExpired = startingTurn?.conditions.includes(READIED_CONDITION) ?? false;
+    const readiedExpired = startingTurn.conditions.includes(READIED_CONDITION);
 
-    setCombatants((prev) =>
-      prev
-        .map((c) => {
-          if (c.conditions.includes("Dead")) return c;
-
-          let next = c;
-
-          // Action, bonus and move are cleared once a round, when the order
-          // wraps — never on entering a turn. Clearing them on entry meant
-          // that stepping back to an earlier combatant (done by unticking one
-          // of their boxes, which hands the turn back) and then coming forward
-          // again wiped whatever the later combatant had already marked. The
-          // marks are the DM's record of what has happened this round, so they
-          // survive moving around in it.
-          if (isNewRound) {
-            next = { ...next, action: false, bonus: false, move: false };
-          }
-
-          // A reaction refreshes at the start of its owner's turn, which is
-          // the rule as written — and ONLY then. It is not part of the
-          // walk-the-order record above, and nothing hands the turn back on
-          // the strength of it.
-          //
-          // It used to be cleared in the round-wrap branch as well, for
-          // everybody, and that branch returned early. So a combatant who took
-          // an opportunity attack after their own turn got the reaction back
-          // at the top of the next round, before their turn came round again:
-          // Brannoc acts, spends his reaction on Cressa's turn, and has it
-          // back while Aldric is still opening round two. No early return
-          // now, so at a wrap the first combatant gets both resets and
-          // everyone else keeps a reaction they have not yet earned back.
-          if (c.id === sortedCombatants[nextIndex].id) {
-            next = { ...next, reaction: false };
-
-            /* And the readied action goes with it. The trigger it was being
-               held for never came, and nothing in the rules lets you carry it
-               past your own turn — so the chip clears itself rather than
-               waiting for a DM to notice it is stale. */
-            if (next.conditions.includes(READIED_CONDITION)) {
-              next = {
-                ...next,
-                conditions: next.conditions.filter((x) => x !== READIED_CONDITION),
-              };
-            }
-          }
-
-          return next;
-        })
-        .sort((a, b) => b.initiative - a.initiative)
-    );
+    setCombatants((prev) => passTurn(prev, startingTurn.id, isNewRound));
 
     /* The log says why the chip went, since nobody clicked it off. */
     if (readiedExpired) {

@@ -21,6 +21,7 @@
  * reloads itself when the active campaign changes (reloadOnCampaignSwitch).
  */
 
+import { READIED_CONDITION } from "./constants/Conditions";
 import type { Attack, Hero } from "./types/index";
 import { appendEntry, makeEntry, type LogEntry } from "./utils/battleLog";
 import { resolveDamage } from "./utils/damage";
@@ -40,14 +41,17 @@ import {
   STORAGE_KEYS,
   storeActiveCampaign,
   storeCampaignBattleLog,
+  storeCampaignBattleSync,
   storeCampaignCombatants,
   storeCampaignHeroes,
+  storeCampaignTurn,
   storeMonsterAttacks,
 } from "./utils/LocalStorage";
 import { normalizeHero } from "./utils/roster";
+import { byInitiative, nextTurn, passTurn } from "./utils/turnOrder";
 
 /** Bumped when a method changes shape, so dmOS can tell what it's talking to. */
-export const BRIDGE_VERSION = 2;
+export const BRIDGE_VERSION = 3;
 
 const DMOS_ORIGINS = ["https://dmos.simulacrumtechnologies.com"];
 const LOCAL_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
@@ -162,7 +166,38 @@ const METHODS: Record<string, (params: Params) => unknown> = {
     if (result.newtHp !== target.tHp) add("temp-hp", target.name, battle.round, { amount: result.newtHp });
     if (target.currHp > 0 && result.newHp <= 0) add("down", target.name, battle.round);
     storeCampaignBattleLog(campaignId, log);
+    storeCampaignBattleSync(campaignId);
     return updated;
+  },
+
+  /**
+   * End the acting combatant's turn as ticking Action, Bonus and Move would:
+   * mark them done and pass the turn on by the tracker's own rule (nextTurn,
+   * passTurn), logging a new round and any readied action that lapses.
+   * Returns the battle as it now stands.
+   */
+  endTurn: (params) => {
+    const campaignId = campaignParam(params);
+    const battle = getCampaignBattle(campaignId);
+    const sorted = [...battle.combatants].sort(byInitiative);
+    if (!sorted.length) throw new Error("There's no battle in progress.");
+    const current = Math.min(battle.turnIndex, sorted.length - 1);
+    const acted = sorted.map((c, i) => (i === current ? { ...c, action: true, bonus: true, move: true } : c));
+    const turn = nextTurn(acted, current);
+    if (!turn) throw new Error("Everyone in the battle is dead.");
+
+    const starting = acted[turn.index];
+    const round = turn.isNewRound ? battle.round + 1 : battle.round;
+    let log: LogEntry[] = getCampaignBattleLog(campaignId);
+    if (turn.isNewRound) log = appendEntry(log, makeEntry("round", "", round));
+    if (starting.conditions.includes(READIED_CONDITION)) {
+      log = appendEntry(log, makeEntry("condition-off", starting.name, round, { detail: READIED_CONDITION }));
+    }
+    const combatants = passTurn(acted, starting.id, turn.isNewRound);
+    storeCampaignTurn(campaignId, { combatants, round, turnIndex: turn.index, startedAt: Date.now() });
+    storeCampaignBattleLog(campaignId, log);
+    storeCampaignBattleSync(campaignId);
+    return { combatants, round, turnIndex: turn.index };
   },
 
   /** The monster library (shared by every campaign). */

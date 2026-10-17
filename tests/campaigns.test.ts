@@ -226,3 +226,63 @@ describe('dmOS bridge: battles and attacks', () => {
     expect(handleRequest('saveMonsterAttacks', { kind: 'goblin', attacks: [] })).toEqual({ result: {} });
   });
 });
+
+describe('dmOS bridge: ending turns', () => {
+  const fighter = (id: string, initiative: number, extra: object = {}) => ({
+    id, name: id, type: 'hero', initiative, currHp: 10, maxHp: 10, tHp: 0,
+    action: false, bonus: false, move: false, reaction: true, conditions: [] as string[], ...extra,
+  });
+  const seed = (combatants: object[], turnIndex: number, round = 2) => {
+    storage.setItem('storedCombatants', JSON.stringify(combatants));
+    storage.setItem('currentTurnIndex', String(turnIndex));
+    storage.setItem('roundNumber', String(round));
+  };
+  const stored = () => JSON.parse(storage.getItem('storedCombatants')!) as Record<string, unknown>[];
+  const log = () => JSON.parse(storage.getItem('battleLog') ?? '[]') as { kind: string; round: number; detail?: string }[];
+
+  it('marks the acting combatant done and hands the turn to the next', () => {
+    seed([fighter('a', 20), fighter('b', 15), fighter('c', 10)], 0);
+    expect(handleRequest('endTurn', { campaignId: 'default' })).toMatchObject({ result: { turnIndex: 1, round: 2 } });
+    expect(stored()[0]).toMatchObject({ id: 'a', action: true, bonus: true, move: true });
+    expect(stored()[1]).toMatchObject({ id: 'b', reaction: false });
+    expect(storage.getItem('currentTurnIndex')).toBe('1');
+    expect(Number(storage.getItem('turnStartedAt'))).toBeGreaterThan(0);
+    expect(log()).toEqual([]);
+  });
+
+  it('turns the round over after the last combatant, clearing the boxes and logging it', () => {
+    const done = { action: true, bonus: true, move: true };
+    seed([fighter('a', 20, done), fighter('b', 15, done), fighter('c', 10)], 2, 3);
+    expect(handleRequest('endTurn', { campaignId: 'default' })).toMatchObject({ result: { turnIndex: 0, round: 4 } });
+    expect(stored().every((c) => !c.action && !c.bonus && !c.move)).toBe(true);
+    expect(storage.getItem('roundNumber')).toBe('4');
+    expect(log()).toMatchObject([{ kind: 'round', round: 4 }]);
+  });
+
+  it('skips the dead', () => {
+    seed([fighter('a', 20), fighter('b', 15, { conditions: ['Dead'] }), fighter('c', 10)], 0);
+    expect(handleRequest('endTurn', { campaignId: 'default' })).toMatchObject({ result: { turnIndex: 2 } });
+  });
+
+  it('lets a readied action lapse when its owner\'s turn comes round', () => {
+    seed([fighter('a', 20), fighter('b', 15, { conditions: ['Ready'] })], 0);
+    handleRequest('endTurn', { campaignId: 'default' });
+    expect(stored()[1].conditions).toEqual([]);
+    expect(log()).toMatchObject([{ kind: 'condition-off', detail: 'Ready' }]);
+  });
+
+  it('leaves the whole fight in one snapshot, for a tracker open in another tab', () => {
+    seed([fighter('a', 20), fighter('b', 15)], 0);
+    handleRequest('endTurn', { campaignId: 'default' });
+    const sync = JSON.parse(storage.getItem('battleSync')!);
+    expect(sync).toMatchObject({ turnIndex: 1, round: 2, combatants: [{ id: 'a', action: true }, { id: 'b' }] });
+    expect(sync.turnStartedAt).toBeGreaterThan(0);
+
+    handleRequest('applyDamage', { campaignId: 'default', targetId: 'b', amount: 4 });
+    expect(JSON.parse(storage.getItem('battleSync')!)).toMatchObject({ combatants: [{}, { id: 'b', currHp: 6 }], log: [{ kind: 'damage' }] });
+  });
+
+  it('refuses when there is no battle', () => {
+    expect(handleRequest('endTurn', { campaignId: 'default' })).toHaveProperty('error');
+  });
+});

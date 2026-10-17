@@ -5,7 +5,7 @@ import {
   conditionDescriptionsTwentyFourteen,
 } from "../../constants/Conditions";
 import { HpChangeModal } from "../../utils/dmg-heal";
-import { getTurnStart, storeTurnStart } from "../../utils/LocalStorage";
+import { getTurnStart, storeTurnStart, STORAGE_KEYS, type BattleSync } from "../../utils/LocalStorage";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
 import { useCombat } from "./CombatContext";
@@ -83,6 +83,21 @@ const BattleTracker: React.FC = () => {
   const setLastRun = useCallback((startedAt: number | null) => {
     setLastRunState(startedAt);
     storeTurnStart(startedAt);
+  }, []);
+
+  /* A turn can also start from outside this page: dmOS's jFight ends turns
+     through the bridge. Keep the timer on whichever turn that began. */
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== STORAGE_KEYS.battleSync || !e.newValue) return;
+      try {
+        setLastRunState((JSON.parse(e.newValue) as BattleSync).turnStartedAt);
+      } catch {
+        // A snapshot that won't parse changes nothing.
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   const { settings } = useGlobalContext();

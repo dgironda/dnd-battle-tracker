@@ -11,6 +11,7 @@ import {
   getBattleLog,
   storeBattleLog,
   STORAGE_KEYS,
+  type BattleSync,
 } from '../../utils/LocalStorage';
 import { appendEntry, makeEntry, type LogEntry, type LogKind } from '../../utils/battleLog';
 import { stampConditionRounds } from '../../utils/conditionRounds';
@@ -160,9 +161,22 @@ export function CombatProvider({ children }: { children: React.ReactNode }) {
      nothing, so this can't loop. */
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEYS.combatants) setCombatants(getCombatants() || []);
-      else if (e.key === STORAGE_KEYS.battleLog) setBattleLog(getBattleLog());
-      else if (e.key === STORAGE_KEYS.turnIndex) setCurrentTurnIndex(getTurnIndex());
+      /* From the bridge's snapshot only, never its separate keys: they can
+         arrive apart, and a tracker that saw the new turn with the old boxes
+         would act on it, or save the old boxes back. See BattleSync. The
+         bridge logs any new round itself, so the heading isn't added again. */
+      if (e.key !== STORAGE_KEYS.battleSync || !e.newValue) return;
+      let sync: BattleSync;
+      try {
+        sync = JSON.parse(e.newValue) as BattleSync;
+      } catch {
+        return;
+      }
+      lastLoggedRound.current = sync.round;
+      setRoundNumber(sync.round);
+      setCurrentTurnIndex(sync.turnIndex);
+      setCombatants(sync.combatants);
+      setBattleLog(sync.log);
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
