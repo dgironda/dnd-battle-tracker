@@ -9,7 +9,8 @@ import {
   storeHeroes,
   unpinCampaign,
 } from '../src/utils/LocalStorage';
-import { answer, eventFor, handleRequest, isAllowedOrigin } from '../src/bridge';
+import { answer, eventFor, handleRequest } from '../src/bridge';
+import { isAllowedOrigin, rememberDmosReturn, takeDmosReturn } from '../src/utils/dmos';
 
 function memoryStorage() {
   const map = new Map<string, string>();
@@ -287,15 +288,45 @@ describe('dmOS bridge: ending turns', () => {
   });
 });
 
+describe('dmOS bridge: patrons only', () => {
+  const yes = async () => true;
+  const no = async () => false;
+
+  it('refuses a non-supporter everything but hello and getSupporter', async () => {
+    expect(await answer('getHeroes', { campaignId: 'default' }, no)).toEqual({
+      error: expect.stringContaining('patrons'),
+    });
+    expect(await answer('hello', {}, no)).toHaveProperty('result');
+    expect(await answer('getHeroes', { campaignId: 'default' }, yes)).toEqual({ result: [] });
+  });
+});
+
+describe("dmOS sign-in, round trip through BattleTracker", () => {
+  const ask = (q: string) => new URLSearchParams(q);
+  beforeEach(() => vi.stubGlobal('sessionStorage', memoryStorage()));
+
+  it('remembers a dmOS origin and hands it back once', () => {
+    expect(rememberDmosReturn(ask('signin=dmos&return=https://dmos.simulacrumtechnologies.com'), false)).toBe(true);
+    expect(takeDmosReturn(false)).toBe('https://dmos.simulacrumtechnologies.com');
+    expect(takeDmosReturn(false)).toBeNull();
+  });
+
+  it('never sends anybody anywhere else', () => {
+    expect(rememberDmosReturn(ask('signin=dmos&return=https://evil.example'), true)).toBe(false);
+    expect(rememberDmosReturn(ask('signin=dmos&return=http://localhost:5180'), false)).toBe(false);
+    expect(takeDmosReturn(false)).toBeNull();
+  });
+});
+
 describe('dmOS bridge: the bestiary', () => {
   it('serves the edition BattleTracker is set to, or the one asked for', async () => {
-    const asIs = await answer('getBestiary', {});
+    const asIs = await answer('getBestiary', {}, async () => true);
     expect(asIs).toMatchObject({ result: { edition: '2014', settingsEdition: '2014' } });
     storage.setItem(STORAGE_KEYS.settings, JSON.stringify({ version: 'twentyTwentyFour' }));
-    const set = (await answer('getBestiary', {})) as { result: { edition: string; monsters: { name: string }[] } };
+    const set = (await answer('getBestiary', {}, async () => true)) as { result: { edition: string; monsters: { name: string }[] } };
     expect(set.result.edition).toBe('2024');
     expect(set.result.monsters.length).toBeGreaterThan(100);
-    expect(await answer('getBestiary', { edition: '2014' })).toMatchObject({ result: { edition: '2014', settingsEdition: '2024' } });
+    expect(await answer('getBestiary', { edition: '2014' }, async () => true)).toMatchObject({ result: { edition: '2014', settingsEdition: '2024' } });
   });
 
   it('adds monsters to the library, numbered as the Monster Manager numbers them', () => {

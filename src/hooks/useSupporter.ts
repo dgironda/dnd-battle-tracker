@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
+  beginPatreonSignIn,
   exchangeCode,
   fetchSupporterState,
   forgetLegacyCode,
@@ -9,6 +10,7 @@ import {
   type SupporterState,
 } from "../utils/patreonSession";
 import { confirmDialog, notify } from "../utils/notify";
+import { rememberDmosReturn, takeDmosReturn } from "../utils/dmos";
 import { identifyPerson, setPerson } from "../utils/telemetry";
 import { forgetIdentity } from "../utils/consent";
 
@@ -71,6 +73,30 @@ export function useSupporter(prompting: boolean) {
     };
 
     const params = new URLSearchParams(window.location.search);
+    const dev = import.meta.env.DEV;
+
+    /* dmOS sent this tab to sign in (see utils/dmos): straight on to Patreon,
+       and back to dmOS once it's over. */
+    if (params.get("signin") === "dmos") {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      if (rememberDmosReturn(params, dev)) {
+        beginPatreonSignIn();
+        return () => {
+          cancelled = true;
+        };
+      }
+    }
+
+    /* Back from Patreon, cancelled or refused, on a sign-in dmOS started: home. */
+    if (params.has("error") && params.has("state")) {
+      const home = takeDmosReturn(dev);
+      if (home) {
+        window.location.replace(home);
+        return () => {
+          cancelled = true;
+        };
+      }
+    }
 
     if (params.has("code")) {
       /* Off the URL before anything else can read it — the address bar, the
@@ -78,7 +104,12 @@ export function useSupporter(prompting: boolean) {
       window.history.replaceState({}, document.title, window.location.pathname);
       const code = takeReturnedCode(params);
       if (code) {
-        exchangeCode(code).then((state) => settle(state, true));
+        exchangeCode(code).then((state) => {
+          /* dmOS asks the bridge for itself, and says so if there's no pledge. */
+          const home = takeDmosReturn(dev);
+          if (home) window.location.replace(home);
+          else settle(state, true);
+        });
       } else {
         /* A code this tab never asked for: from somebody's link, or a sign-in
            started in another tab. Not traded in — see beginPatreonSignIn. */

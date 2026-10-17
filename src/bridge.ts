@@ -21,6 +21,12 @@
  * dmOS lands in the library named by the Monster Manager's rule
  * (planMonsterNames), ready for the next battle.
  *
+ * dmOS is for Patreon supporters, and this is where that's enforced: every
+ * method but hello and getSupporter is refused unless BattleTracker's own
+ * server says this browser's Patreon session is a supporter's (the signed
+ * session cookie, sent because dmOS is same-site). dmOS shows its own gate
+ * from getSupporter; this makes sure the data stays behind it.
+ *
  * The open BattleTracker app needs no telling: it already reloads its roster
  * on the `storage` event these writes fire (hooks/rosterContext.tsx), and
  * reloads itself when the active campaign changes (reloadOnCampaignSwitch).
@@ -30,6 +36,7 @@ import { READIED_CONDITION } from "./constants/Conditions";
 import type { Attack, Hero, Monster } from "./types/index";
 import { appendEntry, makeEntry, type LogEntry } from "./utils/battleLog";
 import { resolveDamage } from "./utils/damage";
+import { isAllowedOrigin } from "./utils/dmos";
 import { statBlockLink } from "./utils/links";
 import {
   campaignKey,
@@ -55,19 +62,27 @@ import {
   storeMonsters,
 } from "./utils/LocalStorage";
 import { planMonsterNames } from "./utils/monsterNaming";
+import { fetchSupporterState, type SupporterState } from "./utils/patreonSession";
 import { normalizeHero } from "./utils/roster";
 import { byInitiative, nextTurn, passTurn } from "./utils/turnOrder";
 
 /** Bumped when a method changes shape, so dmOS can tell what it's talking to. */
-export const BRIDGE_VERSION = 4;
+export const BRIDGE_VERSION = 5;
 
-const DMOS_ORIGINS = ["https://dmos.simulacrumtechnologies.com"];
-const LOCAL_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+/** Open to everyone, so dmOS can tell a stranger what it is. */
+const OPEN_METHODS = new Set(["hello", "getSupporter"]);
 
-/** Only dmOS may ask; any local origin may too while developing. */
-export function isAllowedOrigin(origin: string, dev: boolean): boolean {
-  return DMOS_ORIGINS.includes(origin) || (dev && LOCAL_ORIGIN.test(origin));
+const NOT_A_SUPPORTER = "dmOS is for Simulacrum Technologies patrons. Sign in with Patreon to use it.";
+
+let supporter: Promise<SupporterState> | null = null;
+
+/** What the server says about this browser: asked once per page, and afresh by getSupporter. */
+function supporterState(fresh = false): Promise<SupporterState> {
+  if (fresh || !supporter) supporter = fetchSupporterState();
+  return supporter;
 }
+
+const isSupporter = async () => (await supporterState()).isSupporter;
 
 type Params = Record<string, unknown>;
 
@@ -163,6 +178,16 @@ function heroParam(params: Params): Hero {
 
 const METHODS: Record<string, (params: Params) => unknown> = {
   hello: () => ({ version: BRIDGE_VERSION, activeCampaign: readActiveCampaign() }),
+
+  /**
+   * Whether this browser may use dmOS: signed in with Patreon, with a pledge.
+   * `available` is false when the server can't check at all, which is not the
+   * same as "no" (see patreonSession). Asks the server afresh.
+   */
+  getSupporter: async () => {
+    const state = await supporterState(true);
+    return { isSupporter: state.isSupporter, signedIn: state.personId !== null, available: state.available };
+  },
 
   getHeroes: (params) => getCampaignHeroes(campaignParam(params)).map(normalizeHero),
 
@@ -325,8 +350,17 @@ export function handleRequest(method: unknown, params: unknown): { result: unkno
   }
 }
 
-/** Run one request, waiting for it if it answers later (getBestiary). */
-export async function answer(method: unknown, params: unknown): Promise<{ result: unknown } | { error: string }> {
+/**
+ * Run one request from dmOS, waiting for it if it answers later
+ * (getBestiary), and only for a supporter unless it's one of the open ones.
+ * `allowed` is the supporter check; the tests stand it in.
+ */
+export async function answer(
+  method: unknown,
+  params: unknown,
+  allowed: () => Promise<boolean> = isSupporter,
+): Promise<{ result: unknown } | { error: string }> {
+  if (!OPEN_METHODS.has(String(method)) && !(await allowed())) return { error: NOT_A_SUPPORTER };
   const reply = handleRequest(method, params);
   if (!("result" in reply) || !(reply.result instanceof Promise)) return reply;
   try {
