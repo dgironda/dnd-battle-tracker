@@ -12,11 +12,11 @@
  */
 
 import {
-  clearedCookie,
   cookieFrom,
   countsAsSupporter,
   readSession,
   SESSION_COOKIE,
+  signOutCookies,
   type PatreonEnv,
 } from "../../../server/patreon";
 
@@ -57,19 +57,16 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 };
 
 export const onRequestDelete: PagesFunction<Env> = async ({ request }) => {
-  const secure = new URL(request.url).protocol === "https:";
-  return json(ANONYMOUS, { "Set-Cookie": clearedCookie(secure) });
+  return json(ANONYMOUS, signOutCookies(new URL(request.url)));
 };
 
-function json(body: unknown, headers: Record<string, string> = {}): Response {
-  return new Response(JSON.stringify(body), {
-    status: 200,
-    headers: {
-      "Content-Type": "application/json",
-      /* Never cached: a shared cache holding one visitor's answer and serving
-         it to the next would hand out somebody else's supporter status. */
-      "Cache-Control": "no-store, private",
-      ...headers,
-    },
+function json(body: unknown, cookies: string[] = []): Response {
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    /* Never cached: a shared cache holding one visitor's answer and serving
+       it to the next would hand out somebody else's supporter status. */
+    "Cache-Control": "no-store, private",
   });
+  for (const cookie of cookies) headers.append("Set-Cookie", cookie);
+  return new Response(JSON.stringify(body), { status: 200, headers });
 }

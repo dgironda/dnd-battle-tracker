@@ -183,3 +183,38 @@ describe("/api/patreon/session", () => {
     expect(await response.json()).toMatchObject({ isSupporter: false, personId: null });
   });
 });
+
+describe("on the live site", () => {
+  const LIVE = "https://battletracker.simulacrumtechnologies.com";
+  const LIVE_ENV = { ...ENV, PATREON_REDIRECT_URI: `${LIVE}/` };
+
+  beforeEach(() => vi.spyOn(console, "error").mockImplementation(() => {}));
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("shares the session with dmOS, and clears the old host-only cookie", async () => {
+    patreon();
+    const request = new Request(`${LIVE}/api/patreon/exchange`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Origin: LIVE },
+      body: JSON.stringify({ code: "the-code" }),
+    });
+    const response = (await exchange({ request, env: LIVE_ENV } as never)) as Response;
+    const [set, clearOld] = response.headers.getSetCookie();
+    expect(set).toMatch(/^bt_supporter=[\w-]+\.[\w-]+;/);
+    expect(set).toContain("Domain=simulacrumtechnologies.com");
+    expect(clearOld).toMatch(/^bt_supporter=;/);
+    expect(clearOld).not.toContain("Domain=");
+  });
+
+  it("signs out of the shared cookie and the host-only one", async () => {
+    const request = new Request(`${LIVE}/api/patreon/session`, { method: "DELETE" });
+    const response = (await signOutRoute({ request, env: LIVE_ENV } as never)) as Response;
+    const cookies = response.headers.getSetCookie();
+    expect(cookies).toHaveLength(2);
+    expect(cookies.every((c) => c.startsWith("bt_supporter=;") && c.includes("Max-Age=0"))).toBe(true);
+    expect(cookies.some((c) => c.includes("Domain=simulacrumtechnologies.com"))).toBe(true);
+  });
+});

@@ -167,7 +167,26 @@ export async function readSession(
   }
 }
 
-export function sessionCookie(token: string, secure: boolean): string {
+/**
+ * The domain the session is shared across, so dmOS (dmos.simulacrumtechnologies
+ * .com) can check it on its own server before it serves a single file to a
+ * non-patron. Every subdomain is ours, none run by a third party, which is
+ * what makes sending them all this cookie acceptable.
+ */
+const SHARED_DOMAIN = "simulacrumtechnologies.com";
+
+/**
+ * The Domain to set the cookie on for this request, or undefined for a
+ * host-only cookie. Only on our own domain: a browser refuses a cookie whose
+ * Domain the page isn't under, which would break sign-in on localhost and on
+ * *.pages.dev preview deployments.
+ */
+export function sharedDomain(url: URL): string | undefined {
+  const host = url.hostname;
+  return host === SHARED_DOMAIN || host.endsWith(`.${SHARED_DOMAIN}`) ? SHARED_DOMAIN : undefined;
+}
+
+export function sessionCookie(token: string, secure: boolean, domain?: string): string {
   const parts = [
     `${SESSION_COOKIE}=${token}`,
     "Path=/",
@@ -177,14 +196,35 @@ export function sessionCookie(token: string, secure: boolean): string {
     "SameSite=Lax",
     `Max-Age=${SESSION_DAYS * 24 * 60 * 60}`,
   ];
+  if (domain) parts.push(`Domain=${domain}`);
   if (secure) parts.push("Secure");
   return parts.join("; ");
 }
 
-export function clearedCookie(secure: boolean): string {
+export function clearedCookie(secure: boolean, domain?: string): string {
   const parts = [`${SESSION_COOKIE}=`, "Path=/", "HttpOnly", "SameSite=Lax", "Max-Age=0"];
+  if (domain) parts.push(`Domain=${domain}`);
   if (secure) parts.push("Secure");
   return parts.join("; ");
+}
+
+/**
+ * The Set-Cookie headers that sign this browser in. On the shared domain that
+ * is the shared cookie, plus clearing the host-only one sessions used to be
+ * set as: left behind, it would sit next to the shared one under the same name.
+ */
+export function signInCookies(token: string, url: URL): string[] {
+  const secure = url.protocol === "https:";
+  const domain = sharedDomain(url);
+  if (!domain) return [sessionCookie(token, secure)];
+  return [sessionCookie(token, secure, domain), clearedCookie(secure)];
+}
+
+/** The Set-Cookie headers that sign this browser out: the shared cookie and any host-only one. */
+export function signOutCookies(url: URL): string[] {
+  const secure = url.protocol === "https:";
+  const domain = sharedDomain(url);
+  return domain ? [clearedCookie(secure, domain), clearedCookie(secure)] : [clearedCookie(secure)];
 }
 
 export function cookieFrom(header: string | null, name: string): string | undefined {

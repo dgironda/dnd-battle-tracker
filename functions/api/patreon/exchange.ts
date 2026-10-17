@@ -11,7 +11,7 @@ import {
   countsAsSupporter,
   exchangeCode,
   PatreonError,
-  sessionCookie,
+  signInCookies,
   signSession,
   type PatreonEnv,
 } from "../../../server/patreon";
@@ -55,7 +55,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   const token = await signSession(session, secret);
-  const secure = new URL(request.url).protocol === "https:";
 
   return json(
     {
@@ -67,18 +66,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       personId: `patreon:${session.userId}`,
     },
     200,
-    { "Set-Cookie": sessionCookie(token, secure) },
+    signInCookies(token, new URL(request.url)),
   );
 };
 
-function json(body: unknown, status: number, headers: Record<string, string> = {}): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      "Content-Type": "application/json",
-      /* A session answer must never be held by a cache, ours or a proxy's. */
-      "Cache-Control": "no-store",
-      ...headers,
-    },
+function json(body: unknown, status: number, cookies: string[] = []): Response {
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    /* A session answer must never be held by a cache, ours or a proxy's. */
+    "Cache-Control": "no-store",
   });
+  for (const cookie of cookies) headers.append("Set-Cookie", cookie);
+  return new Response(JSON.stringify(body), { status, headers });
 }

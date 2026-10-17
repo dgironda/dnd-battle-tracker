@@ -104,7 +104,9 @@ export default function PrivacyPolicy({ onClose }: PrivacyPolicyProps) {
         <p>
           We then set one cookie, <code>bt_supporter</code>, which holds your Patreon
           user ID and supporter status, signed so it cannot be forged and readable
-          only by our server. It lasts 30 days. That user ID is also attached to your
+          only by our servers. It is shared across our own sites on
+          simulacrumtechnologies.com, so dmOS can tell you are a patron too. It
+          lasts 30 days. That user ID is also attached to your
           analytics record, so we can tell whether supporters use the tracker
           differently — which means that if you sign in, your analytics stop being
           anonymous to us.

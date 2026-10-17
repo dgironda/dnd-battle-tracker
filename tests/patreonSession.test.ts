@@ -7,11 +7,16 @@ import {
   readSession,
   SESSION_COOKIE,
   sessionCookie,
+  sharedDomain,
+  signInCookies,
+  signOutCookies,
   signSession,
   type PatreonSession,
 } from "../server/patreon";
 
 const SECRET = "a-long-random-string-that-signs-the-session";
+const DMOS_FIXTURE_TOKEN =
+  "eyJ1c2VySWQiOiI0NDcxMjM5IiwiaXNTdXBwb3J0ZXIiOnRydWUsImV4cCI6NDEwMjQ0NDgwMH0.fdshQ8aOf6LS--2dSN5-weHIzlYw79xILF3auwc9e3k";
 const soon = () => Math.floor(Date.now() / 1000) + 3600;
 
 function session(over: Partial<PatreonSession> = {}): PatreonSession {
@@ -75,6 +80,54 @@ suite("cookie plumbing", () => {
 
   it("clears by expiring immediately", () => {
     expect(clearedCookie(true)).toContain("Max-Age=0");
+  });
+
+  it("is shared across simulacrumtechnologies.com, so dmOS's server can read it", () => {
+    const live = new URL("https://battletracker.simulacrumtechnologies.com/api/patreon/exchange");
+    expect(sharedDomain(live)).toBe("simulacrumtechnologies.com");
+    const [set, clearOld] = signInCookies("token-value", live);
+    expect(set).toMatch(/^bt_supporter=token-value;/);
+    expect(set).toContain("Domain=simulacrumtechnologies.com");
+    /* The host-only cookie sessions used to be set as, expired so it can't sit
+       beside the shared one under the same name. */
+    expect(clearOld).toMatch(/^bt_supporter=;/);
+    expect(clearOld).toContain("Max-Age=0");
+    expect(clearOld).not.toContain("Domain=");
+  });
+
+  it("stays host-only anywhere else, where a browser would refuse the Domain", () => {
+    const elsewhere = [
+      "http://localhost:5173/",
+      "https://abc123.dnd-battle-tracker.pages.dev/",
+      "https://notsimulacrumtechnologies.com/",
+    ];
+    for (const site of elsewhere) {
+      const url = new URL(site);
+      expect(sharedDomain(url)).toBeUndefined();
+      const cookies = signInCookies("token-value", url);
+      expect(cookies).toHaveLength(1);
+      expect(cookies[0]).not.toContain("Domain=");
+    }
+  });
+
+  it("signs out of both the shared cookie and any old host-only one", () => {
+    const cookies = signOutCookies(new URL("https://battletracker.simulacrumtechnologies.com/"));
+    expect(cookies).toHaveLength(2);
+    expect(cookies.every((c) => c.includes("Max-Age=0"))).toBe(true);
+    expect(cookies.filter((c) => c.includes("Domain=simulacrumtechnologies.com"))).toHaveLength(1);
+    expect(signOutCookies(new URL("http://localhost:5173/"))).toEqual([clearedCookie(false)]);
+  });
+
+  /* dmOS checks this cookie on its own server with a copy of readSession
+     (dmOS/functions/_lib/session.ts), and its tests verify this exact token.
+     If this fails, the format changed: change dmOS's copy, and its fixture,
+     to match. */
+  it("signs the token dmOS's tests expect", async () => {
+    const token = await signSession(
+      { userId: "4471239", isSupporter: true, exp: 4102444800 },
+      "dmos-fixture-secret",
+    );
+    expect(token).toBe(DMOS_FIXTURE_TOKEN);
   });
 
   it("picks its own cookie out of a crowded header", () => {
