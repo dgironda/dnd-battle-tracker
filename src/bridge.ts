@@ -16,15 +16,21 @@
  * tracker's own HP window uses, and is written to the battle log the same
  * way, so a hit from jFight is indistinguishable from one typed in here.
  *
+ * The bestiaries (2014 and 2024) are the same files the Monster Manager
+ * searches, served to dmOS whole so it can browse them; a monster added from
+ * dmOS lands in the library named by the Monster Manager's rule
+ * (planMonsterNames), ready for the next battle.
+ *
  * The open BattleTracker app needs no telling: it already reloads its roster
  * on the `storage` event these writes fire (hooks/rosterContext.tsx), and
  * reloads itself when the active campaign changes (reloadOnCampaignSwitch).
  */
 
 import { READIED_CONDITION } from "./constants/Conditions";
-import type { Attack, Hero } from "./types/index";
+import type { Attack, Hero, Monster } from "./types/index";
 import { appendEntry, makeEntry, type LogEntry } from "./utils/battleLog";
 import { resolveDamage } from "./utils/damage";
+import { statBlockLink } from "./utils/links";
 import {
   campaignKey,
   clearCampaign,
@@ -46,12 +52,14 @@ import {
   storeCampaignHeroes,
   storeCampaignTurn,
   storeMonsterAttacks,
+  storeMonsters,
 } from "./utils/LocalStorage";
+import { planMonsterNames } from "./utils/monsterNaming";
 import { normalizeHero } from "./utils/roster";
 import { byInitiative, nextTurn, passTurn } from "./utils/turnOrder";
 
 /** Bumped when a method changes shape, so dmOS can tell what it's talking to. */
-export const BRIDGE_VERSION = 3;
+export const BRIDGE_VERSION = 4;
 
 const DMOS_ORIGINS = ["https://dmos.simulacrumtechnologies.com"];
 const LOCAL_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
@@ -88,6 +96,60 @@ export function cleanAttacks(value: unknown): Attack[] {
       }),
     }];
   });
+}
+
+/** A whole number in [min, max], or `fallback` if it isn't a number at all. */
+function whole(value: unknown, fallback: number, min: number, max: number): number {
+  const n = Math.trunc(Number(value));
+  return Number.isFinite(n) ? Math.min(Math.max(n, min), max) : fallback;
+}
+
+type Edition = "2014" | "2024";
+
+/* Loaded on demand, as the Monster Manager does: the 2014 list alone is half
+   a megabyte. Vite shares the chunks between the two. */
+const BESTIARIES: Record<Edition, () => Promise<{ default: unknown }>> = {
+  "2014": () => import("./assets/2014monsters.json"),
+  "2024": () => import("./assets/2024monsters.json"),
+};
+
+/** The edition BattleTracker's own settings are set to (the 2014/2024 switch). */
+function settingsEdition(): Edition {
+  try {
+    const settings = JSON.parse(localStorage.getItem(STORAGE_KEYS.settings) ?? "{}");
+    return settings?.version === "twentyTwentyFour" ? "2024" : "2014";
+  } catch {
+    return "2014";
+  }
+}
+
+/** A bestiary entry as dmOS sent it back, made into a fresh library monster. */
+function monsterParam(params: Params): Omit<Monster, "id"> {
+  const m = (params.monster ?? {}) as Record<string, unknown>;
+  const name = text(m.name, 80).trim();
+  if (!name) throw new Error("A monster needs a name.");
+  const hp = whole(m.hp, 1, 0, 9999);
+  const ability = (value: unknown) => whole(value, 10, 1, 30);
+  return {
+    name,
+    link: statBlockLink(m.link),
+    hp,
+    maxHp: hp,
+    currHp: hp,
+    ac: whole(m.ac, 10, 0, 50),
+    str: ability(m.str),
+    dex: ability(m.dex),
+    con: ability(m.con),
+    int: ability(m.int),
+    wis: ability(m.wis),
+    cha: ability(m.cha),
+    pp: whole(m.pp, 10, 0, 50),
+    init: whole(m.init, 0, -10, 30),
+    hidden: false,
+    // Ready for the next battle, as one added in the Monster Manager is.
+    present: true,
+    conditions: [],
+  };
 }
 
 function heroParam(params: Params): Hero {
@@ -203,6 +265,33 @@ const METHODS: Record<string, (params: Params) => unknown> = {
   /** The monster library (shared by every campaign). */
   getMonsters: () => getMonsters(),
 
+  /**
+   * One edition's bestiary, every entry: `edition` is "2014" or "2024", or
+   * left out for the one BattleTracker's settings use. Returns which it sent.
+   */
+  getBestiary: async (params) => {
+    const edition: Edition = params.edition === "2014" || params.edition === "2024" ? params.edition : settingsEdition();
+    const monsters = (await BESTIARIES[edition]()).default;
+    return { edition, settingsEdition: settingsEdition(), monsters };
+  },
+
+  /**
+   * Add `count` of a monster to the library, numbered as the Monster Manager
+   * numbers them (a second Goblin makes the first "Goblin 1"). Returns the
+   * library and the names given to the new ones.
+   */
+  addMonsters: (params) => {
+    const monster = monsterParam(params);
+    const library = getMonsters();
+    const plan = planMonsterNames(library.map((m) => m.name), monster.name, whole(params.count, 1, 1, 50));
+    const renamed = library.map((m) =>
+      plan.renameFrom !== null && m.name === plan.renameFrom ? { ...m, name: plan.renameTo as string } : m,
+    );
+    const added = plan.newNames.map((name) => ({ ...monster, id: crypto.randomUUID(), name }));
+    storeMonsters([...renamed, ...added]);
+    return { monsters: [...renamed, ...added], added: plan.newNames };
+  },
+
   /** Saved attacks for every kind of monster, keyed by kind ("goblin"). */
   getMonsterAttacks: () => getMonsterAttacks(),
 
@@ -231,6 +320,17 @@ export function handleRequest(method: unknown, params: unknown): { result: unkno
   if (!run) return { error: `Unknown method ${String(method)}.` };
   try {
     return { result: run((params ?? {}) as Params) };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+/** Run one request, waiting for it if it answers later (getBestiary). */
+export async function answer(method: unknown, params: unknown): Promise<{ result: unknown } | { error: string }> {
+  const reply = handleRequest(method, params);
+  if (!("result" in reply) || !(reply.result instanceof Promise)) return reply;
+  try {
+    return { result: await reply.result };
   } catch (error) {
     return { error: error instanceof Error ? error.message : String(error) };
   }
@@ -268,7 +368,8 @@ function start(): void {
     const msg = e.data as { dmos?: unknown; id?: unknown; method?: unknown; params?: unknown };
     if (msg?.dmos !== 1 || typeof msg.id !== "number") return;
     dmosOrigin = e.origin;
-    window.parent.postMessage({ dmos: 1, id: msg.id, ...handleRequest(msg.method, msg.params) }, e.origin);
+    const id = msg.id;
+    void answer(msg.method, msg.params).then((reply) => window.parent.postMessage({ dmos: 1, id, ...reply }, e.origin));
   });
 
   // Edits made in BattleTracker itself (another tab, or its window in dmOS).

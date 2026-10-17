@@ -9,7 +9,7 @@ import {
   storeHeroes,
   unpinCampaign,
 } from '../src/utils/LocalStorage';
-import { eventFor, handleRequest, isAllowedOrigin } from '../src/bridge';
+import { answer, eventFor, handleRequest, isAllowedOrigin } from '../src/bridge';
 
 function memoryStorage() {
   const map = new Map<string, string>();
@@ -284,5 +284,33 @@ describe('dmOS bridge: ending turns', () => {
 
   it('refuses when there is no battle', () => {
     expect(handleRequest('endTurn', { campaignId: 'default' })).toHaveProperty('error');
+  });
+});
+
+describe('dmOS bridge: the bestiary', () => {
+  it('serves the edition BattleTracker is set to, or the one asked for', async () => {
+    const asIs = await answer('getBestiary', {});
+    expect(asIs).toMatchObject({ result: { edition: '2014', settingsEdition: '2014' } });
+    storage.setItem(STORAGE_KEYS.settings, JSON.stringify({ version: 'twentyTwentyFour' }));
+    const set = (await answer('getBestiary', {})) as { result: { edition: string; monsters: { name: string }[] } };
+    expect(set.result.edition).toBe('2024');
+    expect(set.result.monsters.length).toBeGreaterThan(100);
+    expect(await answer('getBestiary', { edition: '2014' })).toMatchObject({ result: { edition: '2014', settingsEdition: '2024' } });
+  });
+
+  it('adds monsters to the library, numbered as the Monster Manager numbers them', () => {
+    const goblin = { name: 'Goblin', hp: 7, ac: 15, dex: 14, link: 'https://5e.tools/bestiary.html#goblin_mm' };
+    handleRequest('addMonsters', { monster: goblin });
+    const res = handleRequest('addMonsters', { monster: goblin, count: 2 }) as { result: { added: string[] } };
+    expect(res.result.added).toEqual(['Goblin 2', 'Goblin 3']);
+    const library = JSON.parse(storage.getItem(STORAGE_KEYS.monsters)!);
+    expect(library.map((m: { name: string }) => m.name)).toEqual(['Goblin 1', 'Goblin 2', 'Goblin 3']);
+    expect(library[0]).toMatchObject({ hp: 7, maxHp: 7, currHp: 7, ac: 15, dex: 14, str: 10, present: true, conditions: [] });
+  });
+
+  it('keeps only safe links, and refuses a nameless monster', () => {
+    handleRequest('addMonsters', { monster: { name: 'Imp', link: 'javascript:alert(1)' } });
+    expect(JSON.parse(storage.getItem(STORAGE_KEYS.monsters)!)[0].link).toBe('');
+    expect(handleRequest('addMonsters', { monster: { name: ' ' } })).toHaveProperty('error');
   });
 });
