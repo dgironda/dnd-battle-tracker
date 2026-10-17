@@ -306,6 +306,17 @@
   background-color: rgba(150, 97, 45, 0.3);
 }
 
+/* The list that drops down from the picker. Chrome draws it in its own
+   form-field colours, light or dark with the theme, whatever the picker looks
+   like. Firefox builds it out of the picker's colours instead: the brown ink,
+   on a tint so faint that the list behind it shows through, and in the dark
+   theme that list is near-black. Each option gets the same field colours
+   Chrome uses, so Firefox draws the list the way Chrome does. */
+.conditionSelect option {
+  background-color: Field;
+  color: FieldText;
+}
+
 .editConditionsDone:hover,
 .editConditionsDone:focus-visible {
   background-color: #4e341a;
