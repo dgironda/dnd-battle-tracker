@@ -16,7 +16,7 @@
  * event means adding a line to it, and a typo is a build error.
  */
 
-import type { PostHog } from "posthog-js";
+import type { PostHog, PostHogConfig } from "posthog-js";
 import { DEVMODE } from "./devmode";
 import { BUILD_ID, describeError, errorKey, type CaughtError } from "./errorReport";
 
@@ -72,6 +72,65 @@ function withClient(call: (ph: PostHog) => void): void {
   }
 }
 
+/*
+ * PostHog, kept to what the tracker uses. Every request posthog-js makes goes
+ * through the relay, and every one of those is a Pages Function invocation,
+ * out of the same free daily allowance as Patreon sign-in and dmOS. When that
+ * runs out, all of them fail until midnight UTC.
+ *
+ * The events are untouched: they still go through the relay, so ad blockers
+ * don't eat them, and they are still batched. telemetryLoading.test.ts pins
+ * all of this.
+ */
+const RELAY_LIMITS = {
+  /* The project has no feature flags and nothing here reads one, but
+     posthog-js still asked /flags after every identify() and reset(). Turn
+     this back on before using a flag. Not `advanced_disable_flags`: that also
+     stops the remote config, which is what switches replay and web vitals on. */
+  advanced_disable_feature_flags: true,
+  /* Batch events for as long as posthog-js allows (it caps this at five
+     seconds) rather than its three-second default. Nothing is lost: whatever
+     is queued goes out with the page when it closes. */
+  request_queue_config: { flush_interval_ms: 5000 },
+  /* Off, which overrides the project setting. They sent a batch every five
+     seconds while the mouse moved, and the replays already show where people
+     click. */
+  capture_heatmaps: false,
+} satisfies Partial<PostHogConfig>;
+
+/* Attributes that can hold a name: screen-reader labels ("Add a condition to
+   Aldric"), tooltips, image descriptions, form values, and a condition mark's
+   own name. */
+const NAMED_ATTRIBUTES = new Set(["aria-label", "title", "alt", "value", "data-condition"]);
+
+/*
+ * What session replay records, and how often it uploads.
+ *
+ * The Privacy Policy promises no character, monster or battle names and no
+ * notes, and the page is full of them. So every word is recorded as asterisks
+ * of the same length, and so is every attribute that can carry a name. A
+ * replay still shows the layout and every click. Photos were never in it:
+ * they are on the page as blob: URLs, which a recording can't open later.
+ */
+const SESSION_RECORDING = {
+  /* Replay uploads within two seconds of anything it records. The cursor's
+     path between clicks kept it doing that whenever the mouse moved, so the
+     path is left out; clicks and everything they change are still recorded.
+     The turn clock, which changes every second, is kept out of recordings
+     too: see RoundNumber.tsx. */
+  sampling: { mousemove: false },
+  maskTextSelector: "*",
+  /* Only the attributes that can carry a name, plus a link's address: a stat
+     block link has the monster in it. Replay's own switch for this,
+     maskAllElementAttributes, masks every attribute, class and style
+     included, and leaves a replay with no styling at all. A stylesheet's
+     address is left alone for the same reason. */
+  maskAttributeFn: (name, value, element) =>
+    NAMED_ATTRIBUTES.has(name) || (name === "href" && element?.tagName === "A")
+      ? "*".repeat(value.length)
+      : value,
+} satisfies PostHogConfig["session_recording"];
+
 async function load(): Promise<PostHog | null> {
   try {
     const { default: posthog } = await import("posthog-js");
@@ -90,6 +149,8 @@ async function load(): Promise<PostHog | null> {
          switches it on — which also overrides an opt-out posthog-js may have
          remembered for itself. */
       opt_out_capturing_by_default: true,
+      ...RELAY_LIMITS,
+      session_recording: SESSION_RECORDING,
       /* Nothing leaves without going past this. See scrubSecrets. */
       before_send: (event) => {
         if (!event?.properties) return event;
