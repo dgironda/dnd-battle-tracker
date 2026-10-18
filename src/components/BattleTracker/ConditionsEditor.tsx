@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import type { Combatant } from "../../types/index";
-import { conditionOptions } from "../../constants/Conditions";
 import ConditionMark from "./ConditionMark";
+import ConditionPicker from "./ConditionPicker";
 import { roundsHeld } from "../../utils/conditionRounds";
 import { useConditionTip } from "./useConditionTip";
 
@@ -87,28 +87,17 @@ export const ConditionsEditor: React.FC<ConditionsEditorProps> = ({
           ))}
         </div>
 
-        <select
-          onChange={(e) => {
-            if (e.target.value) {
-              onAdd(combatant.id, e.target.value);
-              /* Hold the editor open so more can be added; Done closes it.
-                 Without this the cell would flip to the display view the
-                 instant the first condition landed. */
-              onStartEditing(combatant.id);
-              e.target.value = "";
-            }
+        <ConditionPicker
+          name={combatant.name}
+          held={combatant.conditions}
+          onPick={(condition) => {
+            onAdd(combatant.id, condition);
+            /* Hold the editor open so more can be added; Done closes it.
+               Without this the cell would flip to the display view the
+               instant the first condition landed. */
+            onStartEditing(combatant.id);
           }}
-          className="conditionSelect"
-          name="conditionSelect"
-          aria-label={`Add a condition to ${combatant.name}`}
-        >
-          <option className="addConditionBox" value="">+ Add Condition</option>
-          {conditionOptions
-            .filter((condition) => !combatant.conditions.includes(condition))
-            .map((condition) => (
-              <option key={condition} value={condition}>{condition}</option>
-            ))}
-        </select>
+        />
 
         {/* Only once there is something to finish: an empty cell's picker is
             already its resting state, so Done would have nothing to close. */}

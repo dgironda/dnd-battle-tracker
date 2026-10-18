@@ -19,6 +19,8 @@ export const STORAGE_KEYS = {
   settings: "appSettings",
   savedBattles: "savedBattles",
   battleLog: "battleLog",
+  /** Names of the conditions people typed in — see utils/customConditions.ts. */
+  customConditions: "customConditions",
 } as const;
 
 /** Raised when a write fails because the origin's storage quota is full. */
