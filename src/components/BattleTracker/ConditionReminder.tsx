@@ -96,7 +96,10 @@ export const ConditionReminder: React.FC<ConditionReminderProps> = ({
                 name={conditionName}
                 withName
                 rounds={roundsHeld(combatant, conditionName, roundNumber)}
-              /></span>: {conditionDescriptions[conditionName]}
+              /></span>
+              {/* One somebody named has no rules text: just the name, not a
+                  colon pointing at nothing. */}
+              {conditionDescriptions[conditionName] && <>: {conditionDescriptions[conditionName]}</>}
             </p>
           ))}
         </div>

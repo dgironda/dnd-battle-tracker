@@ -25,6 +25,9 @@ export const STORAGE_KEYS = {
   get battleLog() { return activeKey("battleLog"); },
   /** The whole fight in one value, written by the dmOS bridge: see BattleSync. */
   get battleSync() { return activeKey("battleSync"); },
+  /** Names of the conditions people typed in — see utils/customConditions.ts.
+      Shared by every campaign, like the monster library. */
+  customConditions: "customConditions",
 };
 
 /* --------------------------------------------------------------- campaigns */
