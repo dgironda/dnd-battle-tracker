@@ -75,6 +75,61 @@ describe("loading analytics", () => {
     expect(posthog.identify).toHaveBeenCalledWith("patreon:12345");
   });
 
+  /* Every request posthog-js makes is a Pages Function invocation, out of a
+     free daily allowance shared with Patreon sign-in and dmOS. See
+     RELAY_LIMITS in utils/telemetry.ts. */
+  it("keeps what goes through the relay to what the tracker uses", async () => {
+    const t = await telemetry();
+    await t.startAnalytics();
+
+    const config = posthog.init.mock.calls[0][1];
+
+    /* The events still go through our own domain, batched, just less often. */
+    expect(config.api_host).toBe("/relay");
+    expect(config.request_batching).not.toBe(false);
+    expect(config.request_queue_config).toEqual({ flush_interval_ms: 5000 });
+
+    /* No /flags requests, since the project has no flags... */
+    expect(config.advanced_disable_feature_flags).toBe(true);
+    /* ...but the remote config still loads: it switches replay and web vitals on. */
+    expect(config.advanced_disable_flags).toBeUndefined();
+
+    /* Heatmaps off. Replay kept, without the cursor's path. Web vitals kept. */
+    expect(config.capture_heatmaps).toBe(false);
+    expect(config.session_recording.sampling).toEqual({ mousemove: false });
+    expect(config.disable_session_recording).toBeUndefined();
+    expect(config.capture_performance).toBeUndefined();
+  });
+
+  /* The Privacy Policy promises no character, monster or battle names and no
+     notes. A replay records the page, and the page is full of them. */
+  it("keeps names out of session replay, but not the page's styling", async () => {
+    const t = await telemetry();
+    await t.startAnalytics();
+
+    const replay = posthog.init.mock.calls[0][1].session_recording;
+    const mask = (name: string, value: string, element?: Element) => replay.maskAttributeFn(name, value, element);
+
+    /* Every word on the page. */
+    expect(replay.maskTextSelector).toBe("*");
+
+    /* Names in attributes nobody sees, the same length, so the layout holds. */
+    expect(mask("aria-label", "Add a condition to Aldric")).toBe("*".repeat(25));
+    expect(mask("title", "Aldric")).toBe("******");
+    expect(mask("alt", "Reference photo for The Sunken Crypt")).not.toContain("Crypt");
+    expect(mask("value", "Hexed by Grandmother")).not.toContain("Grandmother");
+    expect(mask("data-condition", "Slowed")).toBe("******");
+    /* A stat block link names the monster. */
+    expect(mask("href", "https://5e.tools/bestiary.html#skeleton_mm", document.createElement("a"))).not.toContain(
+      "skeleton",
+    );
+
+    /* What the replay needs to look like the page stays as it is. */
+    expect(mask("class", "conditionName")).toBe("conditionName");
+    expect(mask("style", "width: 20px")).toBe("width: 20px");
+    expect(mask("href", "/assets/index.css", document.createElement("link"))).toBe("/assets/index.css");
+  });
+
   it("drops an event sent before any yes, but keeps one sent while PostHog is on its way", async () => {
     const t = await telemetry();
     t.track("supporter_prompt_shown", { reason: "first_visit" });

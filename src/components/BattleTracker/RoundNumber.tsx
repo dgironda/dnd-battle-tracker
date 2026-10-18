@@ -19,7 +19,11 @@ const RoundNumberSpan: React.FC<RoundNumberSpanProps> = ({roundNumber, timerRef}
         <>
             {(isVisible ? <span>Combat Round {roundNumber}</span> : null)}
             {currentTurnTime && (<div id="turnTimeDisplay">
-                <span ref={timerRef}>Advance the turn to start the timer</span>
+                {/* ph-no-capture keeps the clock out of session replay, which
+                    shows it as a blank box. Its text changes every second, and
+                    each change made the recorder upload through the relay —
+                    see SESSION_RECORDING in utils/telemetry.ts. */}
+                <span ref={timerRef} className="ph-no-capture">Advance the turn to start the timer</span>
             </div>)}
         </>
     );
