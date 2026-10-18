@@ -2,6 +2,7 @@ import { useCallback, useRef } from "react";
 import type { Combatant } from "../../types/index";
 import { track } from "../../utils/telemetry";
 import { byInitiative, followTurn } from "../../utils/turnOrder";
+import { isCustomCondition } from "../../utils/customConditions";
 import type { useCombat } from "./CombatContext";
 
 type Combat = ReturnType<typeof useCombat>;
@@ -122,7 +123,9 @@ export function useCombatantEdits({
        render's combatants. */
     const target = combatants.find((c) => c.id === combatantId);
     if (target && !target.conditions.includes(condition)) {
-      track("condition_applied", { condition });
+      /* A name somebody typed is their words, and the event promises ours, so
+         it is counted without being quoted. */
+      track("condition_applied", { condition: isCustomCondition(condition) ? "custom" : condition });
     }
 
     setCombatants((prev) =>

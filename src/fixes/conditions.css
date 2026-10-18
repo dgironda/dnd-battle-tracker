@@ -310,11 +310,55 @@
    form-field colours, light or dark with the theme, whatever the picker looks
    like. Firefox builds it out of the picker's colours instead: the brown ink,
    on a tint so faint that the list behind it shows through, and in the dark
-   theme that list is near-black. Each option gets the same field colours
-   Chrome uses, so Firefox draws the list the way Chrome does. */
+   theme that list is near-black. Each option, and the "Your conditions"
+   heading over the DM's own, gets the same field colours Chrome uses, so
+   Firefox draws the list the way Chrome does. */
+.conditionSelect optgroup,
 .conditionSelect option {
   background-color: Field;
   color: FieldText;
+}
+
+/* --- naming one we don't ship ---------------------------------------------
+   "New condition…" at the bottom of the list swaps the picker for a text box
+   of the same shape: a chip waiting to be written in. It wears the picker's
+   hover tint, since it is the picker, in use.
+
+   Scoped to the editor for weight: index.css styles every input[type="text"],
+   and that outranks a class on its own. */
+.conditionEditOuter .conditionInput {
+  width: 9em;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.1em 0.6em;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(150, 97, 45, 0.3);
+  color: #5c3a17;
+  font-family: 'Caudex', serif;
+  font-size: 0.48em;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.conditionEditOuter .conditionInput::placeholder {
+  color: inherit;
+  opacity: 0.55;
+}
+
+.conditionEditOuter .conditionInput:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+/* The touch floor the picker and Done already have. And never under 16px: an
+   iPhone zooms the whole page in on any text box set smaller than that, and
+   stays zoomed after the box has gone. */
+@media (hover: none) {
+  .conditionEditOuter .conditionInput {
+    min-height: 44px;
+    font-size: max(16px, 0.48em);
+  }
 }
 
 .editConditionsDone:hover,

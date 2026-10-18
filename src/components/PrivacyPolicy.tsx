@@ -81,7 +81,11 @@ export default function PrivacyPolicy({ onClose }: PrivacyPolicyProps) {
             A fight starting and ending — how many heroes and monsters, how many
             rounds. <em>Never their names.</em>
           </li>
-          <li>Which managers get opened, and which conditions get applied.</li>
+          <li>
+            Which managers get opened, and which conditions get applied. A
+            condition you name yourself is counted as &ldquo;custom&rdquo;,{" "}
+            <em>never by its name.</em>
+          </li>
           <li>Whether the Patreon prompt was shown and whether it was clicked.</li>
           <li>When browser storage is close to full, so we know it is a real problem.</li>
           <li>Crashes: the error, where it happened, and which build you were on.</li>
