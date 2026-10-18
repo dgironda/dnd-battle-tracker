@@ -22,7 +22,10 @@
  *
  * Note the cost side: every capture now goes through a Pages Function, so
  * analytics traffic counts against the project's function invocations rather
- * than PostHog's servers.
+ * than PostHog's servers. That allowance is shared with Patreon sign-in and
+ * dmOS, so `RELAY_LIMITS` in src/utils/telemetry.ts keeps posthog-js to what
+ * the tracker uses. Check it before switching anything on in PostHog's
+ * project settings.
  */
 
 /** Where events, feature flags and session data go. */
