@@ -67,7 +67,7 @@ import { normalizeHero } from "./utils/roster";
 import { byInitiative, nextTurn, passTurn } from "./utils/turnOrder";
 
 /** Bumped when a method changes shape, so dmOS can tell what it's talking to. */
-export const BRIDGE_VERSION = 5;
+export const BRIDGE_VERSION = 6;
 
 /** Open to everyone, so dmOS can tell a stranger what it is. */
 const OPEN_METHODS = new Set(["hello", "getSupporter"]);
@@ -252,6 +252,42 @@ const METHODS: Record<string, (params: Params) => unknown> = {
     }
     if (result.newtHp !== target.tHp) add("temp-hp", target.name, battle.round, { amount: result.newtHp });
     if (target.currHp > 0 && result.newHp <= 0) add("down", target.name, battle.round);
+    storeCampaignBattleLog(campaignId, log);
+    storeCampaignBattleSync(campaignId);
+    return updated;
+  },
+
+  /**
+   * Set a combatant's hit points and temporary hit points outright, as a
+   * player marks them on a sheet linked through dmOS, and log what that was,
+   * the way the tracker's HP window does (useCombatantEdits' logHpChange):
+   * damage or healing, temp HP, going down or coming back. `note` says where
+   * it came from. Conditions are left alone. Returns the combatant as they
+   * now stand.
+   */
+  setVitals: (params) => {
+    const campaignId = campaignParam(params);
+    const battle = getCampaignBattle(campaignId);
+    const target = battle.combatants.find((c) => c.id === params.targetId);
+    if (!target) throw new Error("That combatant isn't in the battle.");
+    const currHp = whole(params.currHp, target.currHp, 0, Math.max(target.maxHp, target.currHp));
+    const tHp = whole(params.tHp, target.tHp, 0, 999);
+    if (currHp === target.currHp && tHp === target.tHp) return target;
+
+    const updated = { ...target, currHp, tHp };
+    storeCampaignCombatants(campaignId, battle.combatants.map((c) => (c.id === target.id ? updated : c)));
+
+    let log: LogEntry[] = getCampaignBattleLog(campaignId);
+    const detail = text(params.note, 120) || undefined;
+    const add = (...entry: Parameters<typeof makeEntry>) => {
+      log = appendEntry(log, makeEntry(...entry));
+    };
+    const moved = { amount: Math.abs(currHp - target.currHp), from: target.currHp, to: currHp, detail };
+    if (currHp < target.currHp) add("damage", target.name, battle.round, moved);
+    else if (currHp > target.currHp) add("heal", target.name, battle.round, moved);
+    if (tHp !== target.tHp) add("temp-hp", target.name, battle.round, { amount: tHp });
+    if (target.currHp > 0 && currHp <= 0) add("down", target.name, battle.round);
+    else if (target.currHp <= 0 && currHp > 0) add("revived", target.name, battle.round);
     storeCampaignBattleLog(campaignId, log);
     storeCampaignBattleSync(campaignId);
     return updated;

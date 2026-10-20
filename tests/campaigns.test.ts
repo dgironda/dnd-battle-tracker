@@ -205,6 +205,26 @@ describe('dmOS bridge: battles and attacks', () => {
     expect(kinds).toEqual(['damage', 'down']);
   });
 
+  it("sets a combatant's hit points outright, logging it like the HP window", () => {
+    seedBattle('default', [combatant('h1', 'hero', 20)]);
+    expect(handleRequest('setVitals', { campaignId: 'default', targetId: 'h1', currHp: 0, tHp: 4, note: 'from their sheet' })).toMatchObject({
+      result: { currHp: 0, tHp: 4 },
+    });
+    expect(handleRequest('setVitals', { campaignId: 'default', targetId: 'h1', currHp: 12, tHp: 4 })).toMatchObject({ result: { currHp: 12 } });
+    const log = JSON.parse(storage.getItem('battleLog')!);
+    expect(log.map((e: { kind: string }) => e.kind)).toEqual(['damage', 'temp-hp', 'down', 'heal', 'revived']);
+    expect(log[0]).toMatchObject({ amount: 20, from: 20, to: 0, detail: 'from their sheet' });
+    expect(JSON.parse(storage.getItem('battleSync')!).combatants[0]).toMatchObject({ currHp: 12, tHp: 4 });
+  });
+
+  it('changes and logs nothing when the vitals are the same, and keeps them in bounds', () => {
+    seedBattle('default', [combatant('h1', 'hero', 20)]);
+    handleRequest('setVitals', { campaignId: 'default', targetId: 'h1', currHp: 20, tHp: 0 });
+    expect(storage.getItem('battleLog')).toBeNull();
+    expect(handleRequest('setVitals', { campaignId: 'default', targetId: 'h1', currHp: 99, tHp: -5 })).toMatchObject({ result: { currHp: 20, tHp: 0 } });
+    expect(handleRequest('setVitals', { campaignId: 'default', targetId: 'nope', currHp: 3 })).toHaveProperty('error');
+  });
+
   it('refuses damage to nobody, or of nothing sensible', () => {
     seedBattle('default', [combatant('g1', 'monster', 7)]);
     expect(handleRequest('applyDamage', { campaignId: 'default', targetId: 'nope', amount: 3 })).toHaveProperty('error');
