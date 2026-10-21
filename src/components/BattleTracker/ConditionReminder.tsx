@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Combatant } from '../../types/index';
 import { conditionDescriptionsTwentyFourteen, conditionDescriptionsTwentyTwentyFour } from '../../constants/Conditions';
+import { conditionDescriptionsFor, useConditionRules } from '../../utils/conditionRules';
 import ConditionMark from './ConditionMark';
 import { roundsHeld } from '../../utils/conditionRounds';
 import { useCombat } from './CombatContext';
@@ -20,6 +21,7 @@ export const ConditionReminder: React.FC<ConditionReminderProps> = ({
   timeout = 10000
 }) => {
   const { settings } = useGlobalContext();
+  const conditionRules = useConditionRules();
   /* Up here with the other hooks, not beside the code that uses it: there is an
      early return below, and a hook after it runs on some renders and not
      others. */
@@ -67,7 +69,10 @@ export const ConditionReminder: React.FC<ConditionReminderProps> = ({
 
   if (!isOpen) return null;
 
-  const conditionDescriptions = settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
+  const conditionDescriptions = conditionDescriptionsFor(
+    conditionRules,
+    settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour,
+  );
   
 
   return (

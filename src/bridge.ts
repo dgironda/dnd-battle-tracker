@@ -36,6 +36,17 @@ import { READIED_CONDITION } from "./constants/Conditions";
 import type { Attack, Hero, Monster } from "./types/index";
 import { appendEntry, makeEntry, type LogEntry } from "./utils/battleLog";
 import { resolveDamage } from "./utils/damage";
+import {
+  cleanConditionRules,
+  getCampaignConditionRules,
+  storeCampaignConditionRules,
+} from "./utils/conditionRules";
+import { getCustomConditions } from "./utils/customConditions";
+import {
+  conditionDescriptionsTwentyFourteen,
+  conditionDescriptionsTwentyTwentyFour,
+  conditionOptions,
+} from "./constants/Conditions";
 import { isAllowedOrigin } from "./utils/dmos";
 import { statBlockLink } from "./utils/links";
 import {
@@ -67,7 +78,7 @@ import { normalizeHero } from "./utils/roster";
 import { byInitiative, nextTurn, passTurn } from "./utils/turnOrder";
 
 /** Bumped when a method changes shape, so dmOS can tell what it's talking to. */
-export const BRIDGE_VERSION = 6;
+export const BRIDGE_VERSION = 7;
 
 /** Open to everyone, so dmOS can tell a stranger what it is. */
 const OPEN_METHODS = new Set(["hello", "getSupporter"]);
@@ -351,6 +362,37 @@ const METHODS: Record<string, (params: Params) => unknown> = {
     const added = plan.newNames.map((name) => ({ ...monster, id: crypto.randomUUID(), name }));
     storeMonsters([...renamed, ...added]);
     return { monsters: [...renamed, ...added], added: plan.newNames };
+  },
+
+  /**
+   * The conditions we ship, in the picker's order, with both editions'
+   * descriptions, and the names the DM has typed in: what dmOS's Rules
+   * Manager starts a campaign's list from.
+   */
+  getConditionDefaults: () => ({
+    conditions: conditionOptions,
+    descriptions: { "2014": conditionDescriptionsTwentyFourteen, "2024": conditionDescriptionsTwentyTwentyFour },
+    edition: settingsEdition(),
+    typed: getCustomConditions(),
+  }),
+
+  /** A campaign's own conditions, or null while it uses what we ship. */
+  getConditionRules: (params) => getCampaignConditionRules(campaignParam(params)),
+
+  /**
+   * Set a campaign's conditions (`rules: { conditions: [{ name, description }] }`),
+   * or with `rules: null` go back to what we ship. Returns what was stored.
+   */
+  setConditionRules: (params) => {
+    const campaignId = campaignParam(params);
+    if (params.rules === null) {
+      storeCampaignConditionRules(campaignId, null);
+      return null;
+    }
+    const rules = cleanConditionRules(params.rules);
+    if (!rules) throw new Error("Condition rules need a list of conditions.");
+    storeCampaignConditionRules(campaignId, rules);
+    return rules;
   },
 
   /** Saved attacks for every kind of monster, keyed by kind ("goblin"). */

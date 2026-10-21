@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { conditionOptions } from "../../constants/Conditions";
+import { conditionChoices, useConditionRules } from "../../utils/conditionRules";
 import {
   CONDITION_NAME_LIMIT,
   isCustomCondition,
@@ -31,7 +31,11 @@ interface ConditionPickerProps {
  * list for it, and Firefox's dark theme keeps the fix in conditions.css.
  */
 export default function ConditionPicker({ name, held, onPick }: ConditionPickerProps) {
-  const made = useCustomConditions();
+  const typed = useCustomConditions();
+  /* The campaign's own list (dmOS's Rules Manager), or what we ship. A name
+     on the campaign's list is a choice above, not one of "Your conditions". */
+  const choices = conditionChoices(useConditionRules());
+  const made = typed.filter((n) => !choices.includes(n));
   const [naming, setNaming] = useState(false);
   const pickerRef = useRef<HTMLSelectElement>(null);
   /* Enter and Escape hand the keyboard back to the picker, ready for the next
@@ -58,7 +62,7 @@ export default function ConditionPicker({ name, held, onPick }: ConditionPickerP
     finished.current = true;
     refocusPicker.current = refocus;
     setNaming(false);
-    const condition = resolveConditionName(typed, made);
+    const condition = resolveConditionName(typed, [...choices, ...made]);
     if (condition) pick(condition);
   };
 
@@ -107,7 +111,7 @@ export default function ConditionPicker({ name, held, onPick }: ConditionPickerP
       aria-label={`Add a condition to ${name}`}
     >
       <option className="addConditionBox" value="">+ Add Condition</option>
-      {conditionOptions
+      {choices
         .filter((condition) => !held.includes(condition))
         .map((condition) => (
           <option key={condition} value={condition}>{condition}</option>

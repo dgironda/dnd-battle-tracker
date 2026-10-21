@@ -28,6 +28,8 @@ export const STORAGE_KEYS = {
   /** Names of the conditions people typed in — see utils/customConditions.ts.
       Shared by every campaign, like the monster library. */
   customConditions: "customConditions",
+  /** The campaign's own conditions, from dmOS's Rules Manager: see utils/conditionRules.ts. */
+  get conditionRules() { return activeKey("conditionRules"); },
 };
 
 /* --------------------------------------------------------------- campaigns */
@@ -61,6 +63,7 @@ const CAMPAIGN_SCOPED = [
   "savedBattles",
   "battleLog",
   "battleSync",
+  "conditionRules",
 ];
 
 export function isCampaignId(id: unknown): id is string {

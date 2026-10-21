@@ -10,6 +10,8 @@ import {
   unpinCampaign,
 } from '../src/utils/LocalStorage';
 import { answer, eventFor, handleRequest } from '../src/bridge';
+import { conditionChoices, conditionDescriptionsFor } from '../src/utils/conditionRules';
+import { conditionOptions } from '../src/constants/Conditions';
 import { isAllowedOrigin, rememberDmosReturn, takeDmosReturn } from '../src/utils/dmos';
 
 function memoryStorage() {
@@ -363,5 +365,56 @@ describe('dmOS bridge: the bestiary', () => {
     handleRequest('addMonsters', { monster: { name: 'Imp', link: 'javascript:alert(1)' } });
     expect(JSON.parse(storage.getItem(STORAGE_KEYS.monsters)!)[0].link).toBe('');
     expect(handleRequest('addMonsters', { monster: { name: ' ' } })).toHaveProperty('error');
+  });
+});
+
+describe('dmOS bridge: campaign conditions', () => {
+  const rules = {
+    conditions: [
+      { name: 'Frightened', description: 'And you drop what you hold.' },
+      { name: '  slowed ', description: 'Half speed.' },
+      { name: 'Slowed', description: 'A duplicate, dropped.' },
+      { name: '', description: 'Nameless, dropped.' },
+    ],
+  };
+
+  it('offers the shipped conditions until a campaign has its own', () => {
+    expect(handleRequest('getConditionRules', { campaignId: 'strahd' })).toEqual({ result: null });
+    const defaults = handleRequest('getConditionDefaults', {}) as { result: { conditions: string[]; descriptions: Record<string, Record<string, string>> } };
+    expect(defaults.result.conditions).toEqual(conditionOptions);
+    expect(defaults.result.descriptions['2024'].Prone).toBeTruthy();
+    expect(conditionChoices(null)).toEqual(conditionOptions);
+  });
+
+  it("stores a campaign's list cleaned, under that campaign only", () => {
+    const res = handleRequest('setConditionRules', { campaignId: 'strahd', rules });
+    const cleaned = {
+      conditions: [
+        { name: 'Frightened', description: 'And you drop what you hold.' },
+        { name: 'Slowed', description: 'Half speed.' },
+      ],
+    };
+    expect(res).toEqual({ result: cleaned });
+    expect(JSON.parse(storage.getItem('campaign:strahd:conditionRules')!)).toEqual(cleaned);
+    expect(storage.getItem('conditionRules')).toBeNull();
+    expect(handleRequest('getConditionRules', { campaignId: 'strahd' })).toEqual({ result: cleaned });
+  });
+
+  it('feeds the picker and the descriptions, and clears back to what we ship', () => {
+    handleRequest('setConditionRules', { campaignId: 'strahd', rules });
+    const stored = (handleRequest('getConditionRules', { campaignId: 'strahd' }) as { result: never }).result;
+    expect(conditionChoices(stored)).toEqual(['Frightened', 'Slowed']);
+    const shipped = { Frightened: 'Shipped text.', Prone: 'Down.' };
+    expect(conditionDescriptionsFor(stored, shipped)).toEqual({
+      Frightened: 'And you drop what you hold.',
+      Prone: 'Down.',
+      Slowed: 'Half speed.',
+    });
+    expect(handleRequest('setConditionRules', { campaignId: 'strahd', rules: null })).toEqual({ result: null });
+    expect(storage.getItem('campaign:strahd:conditionRules')).toBeNull();
+  });
+
+  it('refuses rules that are not a list', () => {
+    expect(handleRequest('setConditionRules', { campaignId: 'strahd', rules: { conditions: 'nope' } })).toHaveProperty('error');
   });
 });

@@ -25,6 +25,7 @@ import { useTurnShortcuts } from "./useTurnShortcuts";
 import { useHeroEditsReachFight } from "./useHeroEditsReachFight";
 import { BattlePrompt } from "./BattlePrompt";
 import { useConditionReminder } from "./useConditionReminder";
+import { conditionDescriptionsFor, useConditionRules } from "../../utils/conditionRules";
 import { useHpWindow } from "./useHpWindow";
 
 /**
@@ -121,10 +122,15 @@ const BattleTracker: React.FC = () => {
       : Math.min(Math.max(currentTurnIndex, 0), sortedCombatants.length - 1);
   const activeCombatant: Combatant | undefined = sortedCombatants[safeTurnIndex];
 
-  const conditionDescriptions =
+  /* The edition's descriptions, with the campaign's own (dmOS's Rules
+     Manager) laid over them. */
+  const conditionRules = useConditionRules();
+  const conditionDescriptions = conditionDescriptionsFor(
+    conditionRules,
     settings.version === "twentyFourteen"
       ? conditionDescriptionsTwentyFourteen
-      : conditionDescriptionsTwentyTwentyFour;
+      : conditionDescriptionsTwentyTwentyFour,
+  );
   const showConditionReminders = settings.conditionReminderOn !== false;
 
   const { updateCombatant, patchCombatant, logHpChange, addCondition, removeCondition } =
