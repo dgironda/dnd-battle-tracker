@@ -8,6 +8,7 @@ import ConditionMark from './ConditionMark';
 import { roundsHeld } from '../../utils/conditionRounds';
 import { useGlobalContext } from '../../hooks/optionsContext';
 import { useConditionTip } from './useConditionTip';
+import { conditionDescriptionsFor, useConditionRules } from '../../utils/conditionRules';
 import { isShortcut } from '../../utils/shortcuts';
 
 /**
@@ -105,8 +106,11 @@ export function StatConditions({
   const { showTip, hideTip, tipNode, tipId, tipName } = useConditionTip(tipKey);
   const { roundNumber } = useCombat();
   const { settings } = useGlobalContext();
-  const descriptions =
-    settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour;
+  /* The campaign's own descriptions (dmOS's Rules Manager) over the edition's. */
+  const descriptions = conditionDescriptionsFor(
+    useConditionRules(),
+    settings.version === 'twentyFourteen' ? conditionDescriptionsTwentyFourteen : conditionDescriptionsTwentyTwentyFour,
+  );
   const held = (name: string) => (holder ? roundsHeld(holder, name, roundNumber) : null);
 
   return (
