@@ -18,3 +18,18 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), microphone=(), camera=()
   Cross-Origin-Opener-Policy: same-origin
+
+# The player page (/play/<code>, rewritten to /play) also opens inside a
+# player's sheet: Simulacrum Sheets shows a campaign's initiative paper there
+# during a fight (src/utils/fightPapers.ts). Only this page; the rest of
+# BattleTracker stays framable by dmOS alone. The policy is detached and
+# restated whole rather than added to, because Pages joins two of the same
+# header with a comma, a browser enforces every policy it is given, and the
+# general one would still forbid Sheets.
+/play/*
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; connect-src 'self' *.posthog.com *.i.posthog.com; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://dmos.simulacrumtechnologies.com https://sheets.simulacrumtechnologies.com; object-src 'none'
+
+/play
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; connect-src 'self' *.posthog.com *.i.posthog.com; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://dmos.simulacrumtechnologies.com https://sheets.simulacrumtechnologies.com; object-src 'none'

@@ -30,6 +30,10 @@ export const STORAGE_KEYS = {
   customConditions: "customConditions",
   /** The campaign's own conditions, from dmOS's Rules Manager: see utils/conditionRules.ts. */
   get conditionRules() { return activeKey("conditionRules"); },
+  /** The campaign's Battle Link room: its public code, and the DM's key to it.
+      See utils/playerRoom.ts. */
+  get playerRoomCode() { return activeKey("playerRoomCode"); },
+  get playerRoomKey() { return activeKey("playerRoomKey"); },
 };
 
 /* --------------------------------------------------------------- campaigns */
@@ -64,6 +68,8 @@ const CAMPAIGN_SCOPED = [
   "battleLog",
   "battleSync",
   "conditionRules",
+  "playerRoomCode",
+  "playerRoomKey",
 ];
 
 export function isCampaignId(id: unknown): id is string {
