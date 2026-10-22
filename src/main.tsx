@@ -9,6 +9,7 @@ import App from "./App";
 import { GlobalProvider } from "./hooks/optionsContext";
 import { Tour } from "./components/Tour";
 import ErrorBoundary from "./components/ErrorBoundary";
+import PlayerLinkProvider from "./components/PlayerLinkProvider";
 import { installNumberFieldSelection } from "./utils/numberFields";
 import { CampaignBadge } from "./components/CampaignBadge";
 import { reloadOnCampaignSwitch } from "./utils/LocalStorage";
@@ -38,7 +39,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Tour />
             <CampaignBadge />
             <div id="page">
-              <App />
+              {/* Sharing the battle with players — one room for the whole
+                  app, so the tracker publishing and the Battle Manager's
+                  share button are talking about the same one. */}
+              <PlayerLinkProvider>
+                <App />
+              </PlayerLinkProvider>
             </div>
         </GlobalProvider>
       </React.StrictMode>

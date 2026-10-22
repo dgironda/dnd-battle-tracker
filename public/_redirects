@@ -1,0 +1,8 @@
+# A shared battle's link is /play/<code>. That is not a file: the player page
+# is play.html, which Pages serves at /play, so every code is rewritten there
+# (200, not a redirect — the address bar keeps the code for the page to read).
+#
+# The target is /play, not /play.html: Pages strips ".html" from paths, and a
+# rule pointing at the ".html" name is treated as a loop and silently dropped.
+# /api/* is served by Functions before this file is consulted.
+/play/* /play 200

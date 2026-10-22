@@ -1,0 +1,429 @@
+/* ==========================================================================
+   THE PLAYER PAGE: a scrap of notepaper
+
+   Its own stylesheet, loaded only by the player route. It shares no selectors
+   with the tracker: the DM gets a notebook full of controls, the table gets a
+   scrap of paper with nothing to press. Keeping them apart means a change to
+   one cannot quietly reshape the other.
+
+   The scrap is torn out of a ruled notebook and left on the DM's desk (the
+   tracker's own wallpaper), with the fight written on it: initiative in the
+   margin, a name to a line, whoever's turn it is circled in red pencil — the
+   same scrawl the tracker draws round them — and the fallen struck through.
+   The party is written in pen and the monsters in pencil, so a player finds
+   their own name at a glance.
+
+   Designed for the worst case it will actually meet: a phone, held at arm's
+   length, in a dim room, by somebody also holding dice. So the hand is a clear
+   one, and every ink clears 4.5:1 on the paper in both themes.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* The desk: the tracker's ground and its wallpaper, at its strength. */
+  --desk: #f8f3e7;
+  --desk-tile: url('../assets/draftsvgs_v2/bg_pattern-weapons-beige.svg');
+  --desk-tile-opacity: 0.7;
+
+  /* The paper. A cooler white than the parchment the tracker is drawn on, so
+     it reads as a notebook page lying on it rather than more of the same. */
+  --paper: #fffdf8;
+  --fibre: #ffffff;
+  --rule-ink: rgb(98 146 201 / 0.55);
+  --margin-ink: rgb(221 104 104 / 0.75);
+  --lift: drop-shadow(0 0 0.6px rgb(70 52 24 / 0.5)) drop-shadow(0 1px 1px rgb(70 52 24 / 0.2))
+    drop-shadow(0 10px 18px rgb(70 52 24 / 0.16));
+
+  /* What it is written in. */
+  --graphite: #34322d;
+  --graphite-soft: #5c584f;
+  --pen: #22386e;
+  --red-pencil: #a41818;
+  --violet-pencil: #5b3a7e;
+
+  /* The five bands, in coloured pencil. Not a rainbow: a ramp from green
+     toward red, so "worse" reads as a direction rather than a set of
+     categories. */
+  --band-unharmed: #2d6a2e;
+  --band-hurt: #6a5f0e;
+  --band-bloodied: #9c4410;
+  --band-critical: #a3170e;
+  --band-down: #5c584f;
+}
+
+/* Paper under a lamp: the desk goes dark, the page stays paper but stops
+   glaring. The inks are dark enough to keep 4.5:1 on the dimmer sheet, so only
+   the ground, the ruling and the shadow change. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --desk: #1d1f21;
+    --desk-tile: url('../assets/draftsvgs_v2/bg_pattern-weapons-dark.svg');
+    --desk-tile-opacity: 0.2;
+
+    --paper: #e4ddcd;
+    --fibre: #ece6d8;
+    --rule-ink: rgb(66 112 168 / 0.55);
+    --margin-ink: rgb(186 72 72 / 0.7);
+    --lift: drop-shadow(0 0 0.6px rgb(0 0 0 / 0.7)) drop-shadow(0 1px 2px rgb(0 0 0 / 0.5))
+      drop-shadow(0 12px 26px rgb(0 0 0 / 0.5));
+  }
+}
+
+/* The ground goes on html alone. A background on body as well would be painted
+   over the wallpaper layer below, which sits at z-index -1. */
+html {
+  background: var(--desk);
+}
+
+body {
+  margin: 0;
+  /* The scrap is turned a fraction of a degree, which pushes its corners a
+     few pixels wide. Never enough to scroll the page sideways. */
+  overflow-x: clip;
+}
+
+/* ---------------------------------------------------------------- the desk */
+
+.pDesk {
+  display: block;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: clamp(1rem, 5vw, 3.5rem) clamp(1rem, 4vw, 2rem) 3rem;
+}
+
+/* Wallpaper that stays put while the page scrolls, as it does in the
+   tracker. A background image cannot be faded on its own, hence the layer. */
+.pDesk::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--desk-tile) 0 0 / 385px 372px repeat;
+  opacity: var(--desk-tile-opacity);
+}
+
+/* ------------------------------------------------------------ the paper
+
+   Everything on the sheet sits on one grid: every line of writing is one
+   --rule tall, and every gap is a whole number of rules, so the text lands on
+   the ruled lines all the way down however long the fight gets.
+
+   Where a line of text puts its baseline depends on the font: with a line box
+   L tall, it is L/2 + (ascent - descent)/2 of the font size. --ink-rise is
+   that (ascent - descent)/2 for Kalam, measured. It is what places the ruling
+   under the names, and it is what nudges any smaller or larger writing (the
+   heading, the conditions, the footnote) back onto the same lines. */
+.pPaper {
+  --hand: clamp(1.15rem, 1.02rem + 1.3vw, 1.4rem);
+  --rule: calc(var(--hand) * 1.7);
+  --ink-rise: 0.26;
+  --baseline: calc(var(--rule) / 2 + var(--ink-rise) * var(--hand));
+  --margin: calc(var(--hand) * 2.4);
+  --indent: calc(var(--hand) * 0.45);
+  --edge: calc(var(--hand) * 0.8);
+  --small: calc(var(--hand) * 0.78);
+  --heading: calc(var(--hand) * 1.6);
+  /* How deep the torn strip along each edge is: the height the tear SVGs are
+     drawn at (1 unit = 1px), so their fibres keep their size at any width. */
+  --tear: 26px;
+
+  position: relative;
+  max-width: 36rem;
+  margin: 0 auto;
+  /* Dropped on the desk, not squared up to it. */
+  rotate: -0.35deg;
+  /* On the wrapper, not the sheet: a mask clips the element's own shadow away
+     along with everything else outside it. */
+  filter: var(--lift);
+  color: var(--graphite);
+  font-family: "Kalam", "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive;
+}
+
+/* The bare fibres along each tear, under the ruled sheet and standing a hair
+   proud of it. When paper tears the surface gives first, so the ruling stops
+   just short of the edge — which is most of what makes this look torn rather
+   than cut. */
+.pPaper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--fibre);
+  -webkit-mask-image: url('../assets/draftsvgs_v2/paper_torn-top-fibres.svg'),
+    linear-gradient(#000 0 0), url('../assets/draftsvgs_v2/paper_torn-bottom-fibres.svg');
+  mask-image: url('../assets/draftsvgs_v2/paper_torn-top-fibres.svg'),
+    linear-gradient(#000 0 0), url('../assets/draftsvgs_v2/paper_torn-bottom-fibres.svg');
+}
+
+.pPaper::before,
+.pSheet {
+  /* Top strip, the solid middle, bottom strip. The middle overlaps each strip
+     by 2px, because two masks that only meet leave a faint seam where they
+     do. */
+  -webkit-mask-position: left top, left calc(var(--tear) - 2px), left bottom;
+  mask-position: left top, left calc(var(--tear) - 2px), left bottom;
+  -webkit-mask-size: auto var(--tear), 100% calc(100% - 2 * var(--tear) + 4px), auto var(--tear);
+  mask-size: auto var(--tear), 100% calc(100% - 2 * var(--tear) + 4px), auto var(--tear);
+  -webkit-mask-repeat: repeat-x, no-repeat, repeat-x;
+  mask-repeat: repeat-x, no-repeat, repeat-x;
+}
+
+.pSheet {
+  /* Where the first ruled line falls. The content starts on a whole rule, so
+     the lines are the names' baselines, pushed a hair down so the writing sits
+     ON them rather than being struck through by them. */
+  --rule-at: calc(var(--tear) + var(--baseline) + 0.1em);
+
+  display: block;
+  padding: calc(var(--tear) + var(--rule)) 0 calc(var(--tear) + var(--rule) * 1.5);
+  font-size: var(--hand);
+  line-height: var(--rule);
+  background-color: var(--paper);
+  background-image:
+    /* the red margin line */
+    linear-gradient(to right,
+      transparent calc(var(--margin) - 1px),
+      var(--margin-ink) calc(var(--margin) - 1px) calc(var(--margin) + 1px),
+      transparent calc(var(--margin) + 1px)),
+    /* the ruling: one gradient over the whole sheet rather than a small tile
+       repeated, because a repeated tile has its size snapped to whole device
+       pixels and the lines would creep off the writing a little per line */
+    repeating-linear-gradient(to bottom,
+      var(--rule-ink) var(--rule-at) calc(var(--rule-at) + 1.25px),
+      transparent calc(var(--rule-at) + 1.25px) calc(var(--rule-at) + var(--rule)));
+  -webkit-mask-image: url('../assets/draftsvgs_v2/paper_torn-top.svg'),
+    linear-gradient(#000 0 0), url('../assets/draftsvgs_v2/paper_torn-bottom.svg');
+  mask-image: url('../assets/draftsvgs_v2/paper_torn-top.svg'),
+    linear-gradient(#000 0 0), url('../assets/draftsvgs_v2/paper_torn-bottom.svg');
+}
+
+/* ------------------------------------------------------------- the heading */
+
+/* Written larger than the rest, and so sitting lower in its line: nudged up by
+   the difference so it lands on the same ruled line as everything else. */
+.pHead {
+  position: relative;
+  top: calc(var(--ink-rise) * (var(--hand) - var(--heading)));
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  margin: 0 0 var(--rule);
+  padding: 0 var(--edge) 0 calc(var(--margin) + var(--indent));
+}
+
+.pTitle {
+  position: relative;
+  margin: 0;
+  font-size: var(--heading);
+  font-weight: 700;
+  line-height: var(--rule);
+}
+
+/* Underlined in pencil, the way the tracker underlines a name. */
+.pTitle::after {
+  content: "";
+  position: absolute;
+  left: -0.1em;
+  right: -0.3em;
+  top: calc(var(--rule) / 2 + var(--ink-rise) * var(--heading) + 0.06em);
+  height: 0.24em;
+  background: url('../assets/draftsvgs_v2/underline_pencil-2.svg') center / 100% 100% no-repeat;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.pStale {
+  margin: 0 0 0 auto;
+  font-size: var(--small);
+  line-height: 1;
+  color: var(--red-pencil);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------- the writing */
+
+.pMessage {
+  margin: 0 0 var(--rule);
+  padding: 0 var(--edge) 0 calc(var(--margin) + var(--indent));
+  color: var(--graphite-soft);
+}
+
+.pList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Initiative in the margin | the name | how hurt, at the end of the line; then
+   any conditions on the line below, free to run on under the band.
+   Baseline-aligned, so the number and the band sit on the name's ruled line
+   whatever size each is written at. */
+.pRow {
+  display: grid;
+  grid-template-columns: var(--margin) minmax(0, 1fr) auto;
+  align-items: baseline;
+}
+
+/* A line box of 1, not a rule: shorter than the row, so aligning it to the
+   name's baseline can never make the row taller than its lines. */
+.pInit {
+  padding-right: 0.45em;
+  line-height: 1;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--graphite-soft);
+}
+
+/* Shrink-wrapped to the writing (justify-self: start), because it is the box
+   the turn's circle is drawn round. Margins rather than padding for the same
+   reason: padding would widen the circle. */
+.pName {
+  position: relative;
+  justify-self: start;
+  min-width: 0;
+  max-width: calc(100% - var(--indent) - 0.6em);
+  margin: 0 0.6em 0 var(--indent);
+  overflow-wrap: anywhere;
+}
+
+.is-hero .pName {
+  color: var(--pen);
+}
+
+.pConditions {
+  position: relative;
+  top: calc(var(--ink-rise) * (var(--hand) - var(--small)));
+  grid-column: 2 / -1;
+  padding: 0 var(--edge) 0 var(--indent);
+  font-size: var(--small);
+  line-height: var(--rule);
+  color: var(--violet-pencil);
+}
+
+/* A condition's own words stay together ("Exhausted 2"); the list breaks
+   between them. */
+.pCondition {
+  white-space: nowrap;
+}
+
+.pCondition + .pCondition::before {
+  content: ", ";
+}
+
+.pHp {
+  position: relative;
+  padding-right: var(--edge);
+  font-size: var(--small);
+  line-height: 1;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--hp-ink);
+}
+
+/* How much of them is left, as one stroke of the same coloured pencil along
+   the line under the word: the glanceable version, with the word as the
+   accessible one. The track is a fixed length, so a longer stroke always means
+   healthier, whatever the word over it happens to be. */
+.pHp::after {
+  content: "";
+  position: absolute;
+  right: var(--edge);
+  top: calc(var(--small) * (0.5 + var(--ink-rise)) + 0.3em);
+  width: 4.2em;
+  /* The stroke is a thin line inside a 20-unit-tall drawing, so the box is
+     several times taller than the mark it leaves. */
+  height: 0.8em;
+  translate: 0 -50%;
+  background-color: currentColor;
+  -webkit-mask: url('../assets/draftsvgs_v2/underline_pencil-3.svg') left center / var(--hp-left) 100% no-repeat;
+  mask: url('../assets/draftsvgs_v2/underline_pencil-3.svg') left center / var(--hp-left) 100% no-repeat;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.hp-unharmed { --hp-ink: var(--band-unharmed); --hp-left: 100%; }
+.hp-hurt     { --hp-ink: var(--band-hurt);     --hp-left: 72%; }
+.hp-bloodied { --hp-ink: var(--band-bloodied); --hp-left: 45%; }
+.hp-critical { --hp-ink: var(--band-critical); --hp-left: 18%; }
+.hp-down     { --hp-ink: var(--band-down);     --hp-left: 0%; }
+
+.hp-critical .pHp {
+  font-weight: 700;
+}
+
+/* Struck through in pencil. On the inline text rather than the box, and cloned
+   per line, so a name that wraps is crossed out on every line of it. */
+.hp-down .pNameText {
+  color: var(--graphite-soft);
+  background: url('../assets/draftsvgs_v2/underline_pencil-1.svg') 0 55% / 100% 0.3em no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* -------------------------------------------------------------- whose turn */
+
+.is-turn .pInit {
+  color: var(--graphite);
+  font-weight: 700;
+}
+
+.is-turn .pName {
+  font-weight: 700;
+}
+
+/* Circled in red pencil, and drawn on the way the tracker draws its circle, so
+   the moment the DM moves the turn on, the next name gets circled in front of
+   the table. */
+.pTurnMark {
+  position: absolute;
+  /* Part fixed, part a share of the name: an ellipse only takes in the corners
+     of the writing it goes round if it grows with it, and a name that wraps
+     onto two lines needs far more room above and below than one that does
+     not. */
+  inset: calc(-0.28em - 22%) calc(-0.45em - 8%);
+  background: var(--turn-circle) center / 100% 100% no-repeat;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(#000 0 0);
+  mask-image: linear-gradient(#000 0 0);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: left center;
+  mask-position: left center;
+  animation: pCircle 0.5s cubic-bezier(0.32, 0.72, 0.4, 1) both;
+}
+
+@keyframes pCircle {
+  from {
+    -webkit-mask-size: 0% 100%;
+    mask-size: 0% 100%;
+  }
+  to {
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pTurnMark {
+    animation: none;
+  }
+}
+
+.turnCircle1 { --turn-circle: url('../assets/draftsvgs_v2/circle_hand-1.svg'); }
+.turnCircle2 { --turn-circle: url('../assets/draftsvgs_v2/circle_hand-2.svg'); }
+.turnCircle3 { --turn-circle: url('../assets/draftsvgs_v2/circle_hand-3.svg'); }
+.turnCircle4 { --turn-circle: url('../assets/draftsvgs_v2/circle_hand-4.svg'); }
+
+/* ------------------------------------------------------------ the footnote */
+
+.pFoot {
+  position: relative;
+  top: calc(var(--ink-rise) * (var(--hand) - var(--small)));
+  margin-top: var(--rule);
+  padding: 0 var(--edge) 0 calc(var(--margin) + var(--indent));
+  font-size: var(--small);
+  color: var(--graphite-soft);
+}

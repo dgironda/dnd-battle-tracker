@@ -27,4 +27,4 @@ interface Hero {
   attacks?: Attack[];
 }
 
-export {Hero}
+export type { Hero }
