@@ -161,11 +161,13 @@ describe('dmOS bridge', () => {
     expect(isAllowedOrigin('https://evil.example', true)).toBe(false);
   });
 
-  it('says which change a storage key is', () => {
-    expect(eventFor('storedHeroes')).toEqual({ event: 'heroesChanged', campaignId: 'default' });
-    expect(eventFor('campaign:strahd:storedHeroes')).toEqual({ event: 'heroesChanged', campaignId: 'strahd' });
-    expect(eventFor('campaign:strahd:storedCombatants')).toEqual({ event: 'battleChanged', campaignId: 'strahd' });
-    expect(eventFor('battleLog')).toEqual({ event: 'battleChanged', campaignId: 'default' });
+  it('says which change a storage key is, and when that part last changed', () => {
+    /* Nothing stamped yet: each part reads 0. */
+    expect(eventFor('storedHeroes')).toEqual({ event: 'heroesChanged', campaignId: 'default', at: 0 });
+    expect(eventFor('campaign:strahd:storedHeroes')).toEqual({ event: 'heroesChanged', campaignId: 'strahd', at: 0 });
+    expect(eventFor('campaign:strahd:storedCombatants')).toEqual({ event: 'battleChanged', campaignId: 'strahd', at: 0 });
+    expect(eventFor('battleLog')).toEqual({ event: 'battleChanged', campaignId: 'default', at: 0 });
+    expect(eventFor('campaign:strahd:conditionRules')).toEqual({ event: 'rulesChanged', campaignId: 'strahd', at: 0 });
     expect(eventFor('monsterAttacks')).toEqual({ event: 'monstersChanged' });
     expect(eventFor('appSettings')).toBeNull();
     expect(eventFor(null)).toBeNull();

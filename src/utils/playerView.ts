@@ -120,3 +120,14 @@ export function toPlayerView(
     })),
   };
 }
+
+/**
+ * The view of a fight as the tracker stores it, where whose turn it is is a
+ * position in initiative order, held inside the list. What dmOS sends to the
+ * sheets linked to a campaign (the bridge's toFightPaper).
+ */
+export function fightPaper(combatants: Combatant[], roundNumber: number, turnIndex: number): PlayerView {
+  const sorted = [...combatants].sort((a, b) => b.initiative - a.initiative);
+  const acting = sorted.length ? sorted[Math.min(Math.max(turnIndex, 0), sorted.length - 1)] : undefined;
+  return toPlayerView(combatants, roundNumber, acting?.id ?? null);
+}

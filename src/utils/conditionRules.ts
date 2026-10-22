@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { conditionOptions } from "../constants/Conditions";
 import { cleanConditionName } from "./customConditions";
-import { campaignKey, STORAGE_KEYS, writeKey } from "./LocalStorage";
+import { campaignKey, removeKey, STORAGE_KEYS, writeKey } from "./LocalStorage";
 
 /**
  * A campaign's own list of conditions, set in dmOS's Rules Manager.
@@ -52,13 +52,7 @@ export function cleanConditionRules(value: unknown): ConditionRules | null {
 export function storeCampaignConditionRules(campaignId: string, rules: ConditionRules | null): void {
   const key = campaignKey("conditionRules", campaignId);
   if (rules) writeKey(key, JSON.stringify(rules));
-  else {
-    try {
-      localStorage.removeItem(key);
-    } catch {
-      /* Storage blocked: nothing was stored to clear. */
-    }
-  }
+  else removeKey(key);
 }
 
 export function getCampaignConditionRules(campaignId: string): ConditionRules | null {

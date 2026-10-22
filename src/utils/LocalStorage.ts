@@ -70,6 +70,8 @@ const CAMPAIGN_SCOPED = [
   "conditionRules",
   "playerRoomCode",
   "playerRoomKey",
+  /* Last: clearing the keys above stamps it, so it has to go after them. */
+  "changeStamps",
 ];
 
 export function isCampaignId(id: unknown): id is string {
@@ -281,6 +283,69 @@ function isQuotaError(error: unknown): boolean {
   );
 }
 
+/* ----------------------------------------------------------- change stamps */
+
+/**
+ * When each part of a campaign last changed here: its party (the heroes), its
+ * fight (the combatants, the round, whose turn it is, the log) and its rules
+ * (dmOS's conditions). dmOS keeps the real copy of all three and keeps this
+ * one in step with it, part by part, the newer side winning
+ * (utils/campaignData.ts).
+ *
+ * Stamped in writeKey and removeKey, which every path goes through: the
+ * tracker, the bridge, a backup import, a crash reset. And only when a value
+ * actually changes, so saving the same thing again can't make a part look
+ * newer than it is.
+ */
+export type CampaignPart = "party" | "fight" | "rules";
+export type CampaignStamps = Record<CampaignPart, number>;
+
+/** Which part each campaign key belongs to, by its unprefixed name. */
+const PART_OF: Record<string, CampaignPart> = {
+  storedHeroes: "party",
+  storedCombatants: "fight",
+  roundNumber: "fight",
+  currentTurnIndex: "fight",
+  turnStartedAt: "fight",
+  battleLog: "fight",
+  conditionRules: "rules",
+};
+
+/** The campaign and part a storage key belongs to, or null for anything else. */
+function stampedPart(key: string): { campaignId: string; part: CampaignPart } | null {
+  const match = key.match(/^campaign:([a-z0-9-]+):(.+)$/);
+  const part = PART_OF[match ? match[2] : key];
+  return part ? { campaignId: match ? match[1] : DEFAULT_CAMPAIGN_ID, part } : null;
+}
+
+/** When each part of a campaign last changed here, 0 for a part never recorded. */
+export function getCampaignStamps(campaignId: string): CampaignStamps {
+  const stored = readJSON<Partial<Record<CampaignPart, unknown>> | null>(campaignKey("changeStamps", campaignId), null);
+  const at = (value: unknown) => (typeof value === "number" && Number.isFinite(value) && value > 0 ? value : 0);
+  return { party: at(stored?.party), fight: at(stored?.fight), rules: at(stored?.rules) };
+}
+
+/** Record when a part last changed. The bridge sets dmOS's time on what it writes. */
+export function setCampaignStamp(campaignId: string, part: CampaignPart, at: number): void {
+  try {
+    localStorage.setItem(
+      campaignKey("changeStamps", campaignId),
+      JSON.stringify({ ...getCampaignStamps(campaignId), [part]: at }),
+    );
+  } catch {
+    /* Full or blocked storage. The change itself already went in, or failed on its own. */
+  }
+}
+
+/** What a key holds now, for telling whether a write changes it. */
+function current(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Write to localStorage, converting a full-quota failure into a typed error
  * callers can catch and report. Any other failure is logged and swallowed so a
@@ -288,6 +353,8 @@ function isQuotaError(error: unknown): boolean {
  */
 export function writeKey(key: string, value: string): void {
   if (campaignMovedOn()) return;
+  const stamped = stampedPart(key);
+  const before = stamped ? current(key) : null;
   try {
     localStorage.setItem(key, value);
   } catch (error) {
@@ -297,7 +364,9 @@ export function writeKey(key: string, value: string): void {
       );
     }
     console.error(`Error writing ${key}:`, error);
+    return;
   }
+  if (stamped && before !== value) setCampaignStamp(stamped.campaignId, stamped.part, Date.now());
 }
 
 function readJSON<T>(key: string, fallback: T): T {
@@ -310,12 +379,18 @@ function readJSON<T>(key: string, fallback: T): T {
   }
 }
 
-function removeKey(key: string): void {
+/** Remove a key, stamping its campaign's part if it held anything. False if storage refused. */
+export function removeKey(key: string): boolean {
+  const stamped = stampedPart(key);
+  const held = stamped ? current(key) !== null : false;
   try {
     localStorage.removeItem(key);
   } catch (error) {
     console.error(`Error clearing ${key}:`, error);
+    return false;
   }
+  if (stamped && held) setCampaignStamp(stamped.campaignId, stamped.part, Date.now());
+  return true;
 }
 
 function readInt(key: string, fallback: number): number {

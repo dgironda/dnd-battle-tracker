@@ -16,7 +16,7 @@
  * make today's first crash look like a loop.
  */
 
-import { STORAGE_KEYS } from "./LocalStorage";
+import { removeKey, STORAGE_KEYS } from "./LocalStorage";
 
 const COUNT_KEY = "crashCount";
 
@@ -96,10 +96,9 @@ export function clearCurrentFight(): string[] {
   const removed: string[] = [];
   for (const key of FIGHT_KEYS) {
     try {
-      if (window.localStorage.getItem(key) !== null) {
-        window.localStorage.removeItem(key);
-        removed.push(key);
-      }
+      /* Through removeKey, so the campaign's fight is stamped as changed and
+         dmOS takes the cleared fight rather than putting the broken one back. */
+      if (window.localStorage.getItem(key) !== null && removeKey(key)) removed.push(key);
     } catch {
       /* One unreadable key should not stop the rest being cleared. */
     }

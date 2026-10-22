@@ -3,20 +3,24 @@
  *
  * dmOS runs on its own origin, so it can't read BattleTracker's storage. It
  * asks this page instead, which runs on BattleTracker's origin and so reads
- * and writes the real thing: BattleTracker stays the source of truth for the
- * party, and dmOS never keeps a copy of its own.
+ * and writes BattleTracker's copy.
+ *
+ * dmOS holds the real copy of each campaign's party, fight and rules, and
+ * carries everything between BattleTracker and players' sheets.
+ * BattleTracker's window inside dmOS works on its own copy, kept in step from
+ * here: getCampaignData and putCampaignData move a whole part (party, fight or
+ * rules) each way, and each part carries `at`, when it last changed. Newest
+ * wins, and a put older than what is here is refused. See utils/campaignData.ts.
  *
  * Messages are plain objects tagged `dmos: 1`:
  *   dmOS -> bridge  { dmos: 1, id, method, params }
  *   bridge -> dmOS  { dmos: 1, id, result } or { dmos: 1, id, error }
- *   bridge -> dmOS  { dmos: 1, event: "heroesChanged" | "battleChanged", campaignId }
- *   bridge -> dmOS  { dmos: 1, event: "paperChanged", campaignId }
+ *   bridge -> dmOS  { dmos: 1, event: "heroesChanged" | "battleChanged" | "rulesChanged", campaignId, at }
  *   bridge -> dmOS  { dmos: 1, event: "monstersChanged" }
  *
- * The initiative paper: getFightPaper hands dmOS the link to a campaign's
- * Battle Link page, for its linked sheets, and from then on this page keeps
- * that page up to date with the campaign's fight (utils/fightPapers.ts).
- * paperChanged means the link changed or stopped working; ask again.
+ * The initiative paper players see is worked out here, by Battle Link's own
+ * rule, from a fight dmOS hands over (toFightPaper); dmOS sends it on to the
+ * sheets. What players may see stays decided in one place.
  *
  * Damage from dmOS (jFight) goes through resolveDamage, the same rule the
  * tracker's own HP window uses, and is written to the battle log the same
@@ -54,7 +58,7 @@ import {
   conditionOptions,
 } from "./constants/Conditions";
 import { isAllowedOrigin } from "./utils/dmos";
-import { FightPapers } from "./utils/fightPapers";
+import { getCampaignData, putCampaignData, toFightPaper } from "./utils/campaignData";
 import { statBlockLink } from "./utils/links";
 import {
   campaignKey,
@@ -63,6 +67,7 @@ import {
   getCampaignBattle,
   getCampaignBattleLog,
   getCampaignHeroes,
+  getCampaignStamps,
   getMonsterAttacks,
   getMonsters,
   isCampaignId,
@@ -78,20 +83,19 @@ import {
   storeCampaignTurn,
   storeMonsterAttacks,
   storeMonsters,
+  type CampaignPart,
 } from "./utils/LocalStorage";
 import { planMonsterNames } from "./utils/monsterNaming";
 import { fetchSupporterState, type SupporterState } from "./utils/patreonSession";
 import { normalizeHero } from "./utils/roster";
 import { byInitiative, nextTurn, passTurn } from "./utils/turnOrder";
 
-/** Bumped when a method changes shape, so dmOS can tell what it's talking to. */
-export const BRIDGE_VERSION = 8;
-
-/** Tell dmOS something changed. Silent until dmOS has spoken to this page (see start). */
-let notify: (change: { event: string; campaignId?: string }) => void = () => {};
-
-/** Each campaign's initiative paper, for its linked sheets. */
-const papers = new FightPapers((campaignId) => notify({ event: "paperChanged", campaignId }));
+/**
+ * Bumped when a method changes shape, so dmOS can tell what it's talking to.
+ * 9: getCampaignData, putCampaignData, toFightPaper, and `at` on the change
+ * events. (8, never released, handed out a Battle Link URL instead.)
+ */
+export const BRIDGE_VERSION = 9;
 
 /** Open to everyone, so dmOS can tell a stranger what it is. */
 const OPEN_METHODS = new Set(["hello", "getSupporter"]);
@@ -245,12 +249,22 @@ const METHODS: Record<string, (params: Params) => unknown> = {
   getBattle: (params) => getCampaignBattle(campaignParam(params)),
 
   /**
-   * The link to the campaign's initiative paper (its Battle Link page), for
-   * its linked sheets: `{ url }`. Makes the campaign's room if it has none.
-   * From then on this page keeps the paper up to date with the fight, and
-   * sends paperChanged if the link changes.
+   * BattleTracker's copy of the campaign: `{ party, fight, rules }`, each part
+   * with `at`, when it last changed here (0 if that was never recorded).
    */
-  getFightPaper: (params) => ({ url: papers.share(campaignParam(params)) }),
+  getCampaignData: (params) => getCampaignData(campaignParam(params)),
+
+  /**
+   * dmOS's copy of any of the three parts, written here keeping dmOS's `at`.
+   * A part older than BattleTracker's is refused and comes back as `current`.
+   */
+  putCampaignData: (params) => putCampaignData(campaignParam(params), params),
+
+  /**
+   * The initiative paper for a fight dmOS hands over: Battle Link's view of
+   * it, by Battle Link's own rule for what players may see.
+   */
+  toFightPaper: (params) => toFightPaper(params),
 
   /**
    * Hit a combatant for `amount`, temp HP first, exactly as the tracker's HP
@@ -433,7 +447,6 @@ const METHODS: Record<string, (params: Params) => unknown> = {
   deleteCampaign: (params) => {
     const campaignId = campaignParam(params);
     if (campaignId === DEFAULT_CAMPAIGN_ID) throw new Error("The default campaign can't be deleted.");
-    papers.forget(campaignId);
     clearCampaign(campaignId);
     return null;
   },
@@ -444,12 +457,7 @@ export function handleRequest(method: unknown, params: unknown): { result: unkno
   const run = typeof method === "string" ? METHODS[method] : undefined;
   if (!run) return { error: `Unknown method ${String(method)}.` };
   try {
-    const result = run((params ?? {}) as Params);
-    /* Whatever dmOS just did to a campaign (a hit, End Turn) reaches its
-       paper. Cheap when it changed nothing players can see: that isn't sent. */
-    const campaignId = (params as Params | null)?.campaignId;
-    if (isCampaignId(campaignId)) papers.refresh(campaignId);
-    return { result };
+    return { result: run((params ?? {}) as Params) };
   } catch (error) {
     return { error: error instanceof Error ? error.message : String(error) };
   }
@@ -485,25 +493,86 @@ export function keyCampaign(key: string | null, baseKey: string): string | null 
 /** The keys that make up a fight, by their unprefixed names. */
 const BATTLE_KEYS = ["storedCombatants", "roundNumber", "currentTurnIndex", "battleLog"];
 
-/** What a change to `key` means to dmOS, if anything. */
-export function eventFor(key: string | null): { event: string; campaignId?: string } | null {
+/**
+ * What a change to `key` means to dmOS, if anything. A change to a campaign's
+ * party, fight or rules carries that part's `at`, so dmOS can tell whether
+ * BattleTracker's copy is now the newer one without asking for it.
+ */
+export function eventFor(key: string | null): { event: string; campaignId?: string; at?: number } | null {
   const heroes = keyCampaign(key, "storedHeroes");
-  if (heroes) return { event: "heroesChanged", campaignId: heroes };
+  if (heroes) return { event: "heroesChanged", campaignId: heroes, at: getCampaignStamps(heroes).party };
   for (const base of BATTLE_KEYS) {
     const battle = keyCampaign(key, base);
-    if (battle) return { event: "battleChanged", campaignId: battle };
+    if (battle) return { event: "battleChanged", campaignId: battle, at: getCampaignStamps(battle).fight };
   }
+  const rules = keyCampaign(key, "conditionRules");
+  if (rules) return { event: "rulesChanged", campaignId: rules, at: getCampaignStamps(rules).rules };
   if (key === MONSTER_ATTACKS_KEY || key === STORAGE_KEYS.monsters) return { event: "monstersChanged" };
   return null;
+}
+
+/** Which part each campaign event is about. */
+const PART_OF_EVENT: Record<string, CampaignPart> = {
+  heroesChanged: "party",
+  battleChanged: "fight",
+  rulesChanged: "rules",
+};
+
+/** How long to wait for the rest of a burst of writes before telling dmOS. */
+const SETTLE_MS = 50;
+
+/**
+ * Report changes made in BattleTracker itself (its window, or another tab) to
+ * dmOS, a burst at a time.
+ *
+ * One change in the tracker writes several keys: a turn writes the combatants,
+ * the round and whose turn it is, and each is stamped as it goes. This page
+ * hears of them one storage event at a time, and sees each key's new value only
+ * when that key's own event arrives. Reported at the first event, dmOS was
+ * told the stamp from before the change, and would have read a fight only half
+ * written. So a campaign's changes are gathered, and each part is reported
+ * once, a moment after the last write, with its stamp as it then stands.
+ *
+ * Exported for the tests, which hand it keys the way the storage event would.
+ */
+export function changeReporter(
+  post: (change: { event: string; campaignId?: string; at?: number }) => void,
+  settleMs = SETTLE_MS,
+): (key: string | null) => void {
+  const pending = new Map<string, { event: string; campaignId: string }>();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  const flush = () => {
+    timer = undefined;
+    for (const { event, campaignId } of pending.values()) {
+      post({ event, campaignId, at: getCampaignStamps(campaignId)[PART_OF_EVENT[event]] });
+    }
+    pending.clear();
+  };
+
+  return (key) => {
+    const change = eventFor(key);
+    if (change && !change.campaignId) {
+      // The monster library: one key, nothing to wait for.
+      post(change);
+      return;
+    }
+    if (change?.campaignId) {
+      pending.set(`${change.event} ${change.campaignId}`, { event: change.event, campaignId: change.campaignId });
+    } else if (!pending.size) {
+      return;
+    }
+    // Anything that arrives while a report waits (the stamps themselves, the
+    // next key of the fight) is more of the same burst.
+    clearTimeout(timer);
+    timer = setTimeout(flush, settleMs);
+  };
 }
 
 function start(): void {
   // Only meaningful inside dmOS's frame; opened on its own it does nothing.
   if (window.parent === window) return;
   let dmosOrigin: string | null = null;
-  notify = (change) => {
-    if (dmosOrigin) window.parent.postMessage({ dmos: 1, ...change }, dmosOrigin);
-  };
 
   window.addEventListener("message", (e: MessageEvent) => {
     if (e.source !== window.parent || !isAllowedOrigin(e.origin, import.meta.env.DEV)) return;
@@ -515,15 +584,10 @@ function start(): void {
   });
 
   // Edits made in BattleTracker itself (another tab, or its window in dmOS).
-  window.addEventListener("storage", (e) => {
-    const change = eventFor(e.key);
-    if (change) notify(change);
-    // The fight changed there, so its paper follows.
-    if (change?.event === "battleChanged" && change.campaignId) papers.refresh(change.campaignId);
-    // Shared afresh, or stopped, in the Battle Manager.
-    const room = keyCampaign(e.key, "playerRoomCode") ?? keyCampaign(e.key, "playerRoomKey");
-    if (room) papers.roomChanged(room);
+  const report = changeReporter((change) => {
+    if (dmosOrigin) window.parent.postMessage({ dmos: 1, ...change }, dmosOrigin);
   });
+  window.addEventListener("storage", (e) => report(e.key));
 }
 
 if (typeof window !== "undefined") start();
