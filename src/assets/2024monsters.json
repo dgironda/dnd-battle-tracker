@@ -11,7 +11,8 @@
     "wis": 17,
     "cha": 12,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "4"
   },
   {
     "name": "Aarakocra Skirmisher",
@@ -25,7 +26,8 @@
     "wis": 12,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Aberrant Cultist",
@@ -39,7 +41,8 @@
     "wis": 18,
     "cha": 15,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "8"
   },
   {
     "name": "Aberrant Spirit",
@@ -67,7 +70,8 @@
     "wis": 15,
     "cha": 18,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "10"
   },
   {
     "name": "Abominable Yeti",
@@ -81,7 +85,8 @@
     "wis": 13,
     "cha": 9,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "9"
   },
   {
     "name": "Adult Black Dragon",
@@ -95,7 +100,8 @@
     "wis": 13,
     "cha": 19,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "14"
   },
   {
     "name": "Adult Blue Dragon",
@@ -109,7 +115,8 @@
     "wis": 15,
     "cha": 20,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "16"
   },
   {
     "name": "Adult Brass Dragon",
@@ -123,7 +130,8 @@
     "wis": 13,
     "cha": 17,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "13"
   },
   {
     "name": "Adult Bronze Dragon",
@@ -137,7 +145,8 @@
     "wis": 15,
     "cha": 20,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "15"
   },
   {
     "name": "Adult Copper Dragon",
@@ -151,7 +160,8 @@
     "wis": 15,
     "cha": 18,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "14"
   },
   {
     "name": "Adult Gold Dragon",
@@ -165,7 +175,8 @@
     "wis": 15,
     "cha": 24,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "17"
   },
   {
     "name": "Adult Green Dragon",
@@ -179,7 +190,8 @@
     "wis": 15,
     "cha": 18,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "15"
   },
   {
     "name": "Adult Red Dragon",
@@ -193,7 +205,8 @@
     "wis": 13,
     "cha": 23,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "17"
   },
   {
     "name": "Adult Silver Dragon",
@@ -207,7 +220,8 @@
     "wis": 13,
     "cha": 22,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "16"
   },
   {
     "name": "Adult White Dragon",
@@ -221,7 +235,8 @@
     "wis": 12,
     "cha": 12,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "13"
   },
   {
     "name": "Air Elemental",
@@ -235,7 +250,8 @@
     "wis": 10,
     "cha": 6,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "5"
   },
   {
     "name": "Allosaurus",
@@ -249,7 +265,8 @@
     "wis": 12,
     "cha": 5,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "2"
   },
   {
     "name": "Ancient Black Dragon",
@@ -263,7 +280,8 @@
     "wis": 15,
     "cha": 22,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "21"
   },
   {
     "name": "Ancient Blue Dragon",
@@ -277,7 +295,8 @@
     "wis": 17,
     "cha": 25,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "23"
   },
   {
     "name": "Ancient Brass Dragon",
@@ -291,7 +310,8 @@
     "wis": 15,
     "cha": 22,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "20"
   },
   {
     "name": "Ancient Bronze Dragon",
@@ -305,7 +325,8 @@
     "wis": 17,
     "cha": 25,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "22"
   },
   {
     "name": "Ancient Copper Dragon",
@@ -319,7 +340,8 @@
     "wis": 17,
     "cha": 22,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "21"
   },
   {
     "name": "Ancient Gold Dragon",
@@ -333,7 +355,8 @@
     "wis": 17,
     "cha": 28,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "24"
   },
   {
     "name": "Ancient Green Dragon",
@@ -347,7 +370,8 @@
     "wis": 17,
     "cha": 22,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "22"
   },
   {
     "name": "Ancient Red Dragon",
@@ -361,7 +385,8 @@
     "wis": 15,
     "cha": 27,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "24"
   },
   {
     "name": "Ancient Silver Dragon",
@@ -375,7 +400,8 @@
     "wis": 15,
     "cha": 26,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "23"
   },
   {
     "name": "Ancient White Dragon",
@@ -389,7 +415,8 @@
     "wis": 13,
     "cha": 18,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "20"
   },
   {
     "name": "Animal Lord",
@@ -403,7 +430,8 @@
     "wis": 23,
     "cha": 22,
     "pp": 0,
-    "init": 7
+    "init": 7,
+    "cr": "20"
   },
   {
     "name": "Animated Armor",
@@ -417,7 +445,8 @@
     "wis": 3,
     "cha": 1,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1"
   },
   {
     "name": "Animated Broom",
@@ -431,7 +460,8 @@
     "wis": 5,
     "cha": 1,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/4"
   },
   {
     "name": "Animated Flying Sword",
@@ -445,7 +475,8 @@
     "wis": 5,
     "cha": 1,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Animated Object",
@@ -473,7 +504,8 @@
     "wis": 3,
     "cha": 1,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Ankheg",
@@ -487,7 +519,8 @@
     "wis": 13,
     "cha": 6,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "2"
   },
   {
     "name": "Ankylosaurus",
@@ -501,7 +534,8 @@
     "wis": 12,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "3"
   },
   {
     "name": "Ape",
@@ -515,7 +549,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/2"
   },
   {
     "name": "Arcanaloth",
@@ -529,7 +564,8 @@
     "wis": 16,
     "cha": 17,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "12"
   },
   {
     "name": "Arch-hag",
@@ -543,7 +579,8 @@
     "wis": 19,
     "cha": 25,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "21"
   },
   {
     "name": "Archelon",
@@ -557,7 +594,8 @@
     "wis": 14,
     "cha": 6,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "4"
   },
   {
     "name": "Archmage",
@@ -571,7 +609,8 @@
     "wis": 15,
     "cha": 16,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "12"
   },
   {
     "name": "Archpriest",
@@ -585,7 +624,8 @@
     "wis": 21,
     "cha": 14,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "12"
   },
   {
     "name": "Assassin",
@@ -599,7 +639,8 @@
     "wis": 11,
     "cha": 10,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "8"
   },
   {
     "name": "Avatar of Death",
@@ -627,7 +668,8 @@
     "wis": 10,
     "cha": 6,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "0"
   },
   {
     "name": "Awakened Tree",
@@ -641,7 +683,8 @@
     "wis": 10,
     "cha": 7,
     "pp": 0,
-    "init": -2
+    "init": -2,
+    "cr": "2"
   },
   {
     "name": "Axe Beak",
@@ -655,7 +698,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/4"
   },
   {
     "name": "Azer Pyromancer",
@@ -669,7 +713,8 @@
     "wis": 18,
     "cha": 13,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "6"
   },
   {
     "name": "Azer Sentinel",
@@ -683,7 +728,8 @@
     "wis": 13,
     "cha": 10,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "2"
   },
   {
     "name": "Baboon",
@@ -697,7 +743,8 @@
     "wis": 12,
     "cha": 6,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "0"
   },
   {
     "name": "Badger",
@@ -711,7 +758,8 @@
     "wis": 12,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "0"
   },
   {
     "name": "Balor",
@@ -725,7 +773,8 @@
     "wis": 16,
     "cha": 22,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "19"
   },
   {
     "name": "Bandit",
@@ -739,7 +788,8 @@
     "wis": 10,
     "cha": 10,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/8"
   },
   {
     "name": "Bandit Captain",
@@ -753,7 +803,8 @@
     "wis": 11,
     "cha": 14,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "2"
   },
   {
     "name": "Bandit Crime Lord",
@@ -767,7 +818,8 @@
     "wis": 14,
     "cha": 15,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "11"
   },
   {
     "name": "Bandit Deceiver",
@@ -781,7 +833,8 @@
     "wis": 12,
     "cha": 16,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "7"
   },
   {
     "name": "Banshee",
@@ -795,7 +848,8 @@
     "wis": 11,
     "cha": 17,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "4"
   },
   {
     "name": "Barbed Devil",
@@ -809,7 +863,8 @@
     "wis": 14,
     "cha": 14,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "5"
   },
   {
     "name": "Barlgura",
@@ -823,7 +878,8 @@
     "wis": 14,
     "cha": 9,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "5"
   },
   {
     "name": "Basilisk",
@@ -837,7 +893,8 @@
     "wis": 8,
     "cha": 7,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "3"
   },
   {
     "name": "Bat",
@@ -851,7 +908,8 @@
     "wis": 12,
     "cha": 4,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "0"
   },
   {
     "name": "Bearded Devil",
@@ -865,7 +923,8 @@
     "wis": 11,
     "cha": 14,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Beast of the Land",
@@ -921,7 +980,8 @@
     "wis": 14,
     "cha": 12,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "11"
   },
   {
     "name": "Beholder",
@@ -935,7 +995,8 @@
     "wis": 15,
     "cha": 17,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "13"
   },
   {
     "name": "Beholder Zombie",
@@ -949,7 +1010,8 @@
     "wis": 8,
     "cha": 5,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "5"
   },
   {
     "name": "Berserker",
@@ -963,7 +1025,8 @@
     "wis": 11,
     "cha": 9,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "2"
   },
   {
     "name": "Berserker Commander",
@@ -977,7 +1040,8 @@
     "wis": 14,
     "cha": 9,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "8"
   },
   {
     "name": "Bestial Spirit",
@@ -1005,7 +1069,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Black Dragon Wyrmling",
@@ -1019,7 +1084,8 @@
     "wis": 11,
     "cha": 13,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Black Pudding",
@@ -1033,7 +1099,8 @@
     "wis": 6,
     "cha": 1,
     "pp": 0,
-    "init": -3
+    "init": -3,
+    "cr": "4"
   },
   {
     "name": "Blink Dog",
@@ -1047,7 +1114,8 @@
     "wis": 13,
     "cha": 11,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/4"
   },
   {
     "name": "Blob of Annihilation",
@@ -1061,7 +1129,8 @@
     "wis": 16,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "23"
   },
   {
     "name": "Blood Hawk",
@@ -1075,7 +1144,8 @@
     "wis": 14,
     "cha": 5,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/8"
   },
   {
     "name": "Blue Dragon Wyrmling",
@@ -1089,7 +1159,8 @@
     "wis": 11,
     "cha": 15,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "3"
   },
   {
     "name": "Blue Slaad",
@@ -1103,7 +1174,8 @@
     "wis": 7,
     "cha": 9,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "7"
   },
   {
     "name": "Boar",
@@ -1117,7 +1189,8 @@
     "wis": 9,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/4"
   },
   {
     "name": "Bone Devil",
@@ -1131,7 +1204,8 @@
     "wis": 14,
     "cha": 16,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "9"
   },
   {
     "name": "Bone Naga",
@@ -1145,7 +1219,8 @@
     "wis": 15,
     "cha": 15,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "4"
   },
   {
     "name": "Brass Dragon Wyrmling",
@@ -1159,7 +1234,8 @@
     "wis": 11,
     "cha": 13,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1"
   },
   {
     "name": "Brazen Gorgon",
@@ -1173,7 +1249,8 @@
     "wis": 14,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "9"
   },
   {
     "name": "Bronze Dragon Wyrmling",
@@ -1187,7 +1264,8 @@
     "wis": 11,
     "cha": 15,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "2"
   },
   {
     "name": "Brown Bear",
@@ -1201,7 +1279,8 @@
     "wis": 13,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1"
   },
   {
     "name": "Bugbear Stalker",
@@ -1215,7 +1294,8 @@
     "wis": 12,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Bugbear Warrior",
@@ -1229,7 +1309,8 @@
     "wis": 11,
     "cha": 9,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Bulette",
@@ -1243,7 +1324,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "5"
   },
   {
     "name": "Bulette Pup",
@@ -1257,7 +1339,8 @@
     "wis": 10,
     "cha": 4,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "2"
   },
   {
     "name": "Bullywug Bog Sage",
@@ -1271,7 +1354,8 @@
     "wis": 16,
     "cha": 12,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "4"
   },
   {
     "name": "Bullywug Warrior",
@@ -1285,7 +1369,8 @@
     "wis": 10,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Cambion",
@@ -1299,7 +1384,8 @@
     "wis": 12,
     "cha": 16,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "5"
   },
   {
     "name": "Camel",
@@ -1313,7 +1399,8 @@
     "wis": 11,
     "cha": 5,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "1/8"
   },
   {
     "name": "Carrion Crawler",
@@ -1327,7 +1414,8 @@
     "wis": 12,
     "cha": 5,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "2"
   },
   {
     "name": "Cat",
@@ -1341,7 +1429,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "0"
   },
   {
     "name": "Celestial Spirit",
@@ -1369,7 +1458,8 @@
     "wis": 13,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Centaur Warden",
@@ -1383,7 +1473,8 @@
     "wis": 18,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "7"
   },
   {
     "name": "Chain Devil",
@@ -1397,7 +1488,8 @@
     "wis": 12,
     "cha": 14,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "8"
   },
   {
     "name": "Chasme",
@@ -1411,7 +1503,8 @@
     "wis": 14,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "6"
   },
   {
     "name": "Chimera",
@@ -1425,7 +1518,8 @@
     "wis": 14,
     "cha": 10,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "6"
   },
   {
     "name": "Chuul",
@@ -1439,7 +1533,8 @@
     "wis": 11,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "4"
   },
   {
     "name": "Clay Golem",
@@ -1453,7 +1548,8 @@
     "wis": 8,
     "cha": 1,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "9"
   },
   {
     "name": "Cloaker",
@@ -1467,7 +1563,8 @@
     "wis": 14,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "8"
   },
   {
     "name": "Cloud Giant",
@@ -1481,7 +1578,8 @@
     "wis": 16,
     "cha": 16,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "9"
   },
   {
     "name": "Cockatrice",
@@ -1495,7 +1593,8 @@
     "wis": 13,
     "cha": 5,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Cockatrice Regent",
@@ -1509,7 +1608,8 @@
     "wis": 16,
     "cha": 5,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "8"
   },
   {
     "name": "Colossus",
@@ -1523,7 +1623,8 @@
     "wis": 11,
     "cha": 8,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "25"
   },
   {
     "name": "Commoner",
@@ -1537,7 +1638,8 @@
     "wis": 10,
     "cha": 10,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "0"
   },
   {
     "name": "Constrictor Snake",
@@ -1551,7 +1653,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Construct Spirit",
@@ -1579,7 +1682,8 @@
     "wis": 11,
     "cha": 13,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1"
   },
   {
     "name": "Couatl",
@@ -1593,7 +1697,8 @@
     "wis": 20,
     "cha": 18,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "4"
   },
   {
     "name": "Crab",
@@ -1607,7 +1712,8 @@
     "wis": 8,
     "cha": 2,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "0"
   },
   {
     "name": "Crawling Claw",
@@ -1621,7 +1727,8 @@
     "wis": 10,
     "cha": 4,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "0"
   },
   {
     "name": "Crocodile",
@@ -1635,7 +1742,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/2"
   },
   {
     "name": "Cultist",
@@ -1649,7 +1757,8 @@
     "wis": 11,
     "cha": 10,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/8"
   },
   {
     "name": "Cultist Fanatic",
@@ -1663,7 +1772,8 @@
     "wis": 14,
     "cha": 13,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Cultist Hierophant",
@@ -1677,7 +1787,8 @@
     "wis": 16,
     "cha": 20,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "10"
   },
   {
     "name": "Cyclops Oracle",
@@ -1691,7 +1802,8 @@
     "wis": 18,
     "cha": 10,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "10"
   },
   {
     "name": "Cyclops Sentry",
@@ -1705,7 +1817,8 @@
     "wis": 6,
     "cha": 10,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "6"
   },
   {
     "name": "Dao",
@@ -1719,7 +1832,8 @@
     "wis": 13,
     "cha": 18,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "11"
   },
   {
     "name": "Darkmantle",
@@ -1733,7 +1847,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Death Cultist",
@@ -1747,7 +1862,8 @@
     "wis": 16,
     "cha": 14,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "8"
   },
   {
     "name": "Death Dog",
@@ -1761,7 +1877,8 @@
     "wis": 13,
     "cha": 6,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Death Knight",
@@ -1775,7 +1892,8 @@
     "wis": 16,
     "cha": 18,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "17"
   },
   {
     "name": "Death Knight Aspirant",
@@ -1789,7 +1907,8 @@
     "wis": 12,
     "cha": 16,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "11"
   },
   {
     "name": "Death Slaad",
@@ -1803,7 +1922,8 @@
     "wis": 10,
     "cha": 19,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "10"
   },
   {
     "name": "Death Tyrant",
@@ -1817,7 +1937,8 @@
     "wis": 15,
     "cha": 19,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "14"
   },
   {
     "name": "Deer",
@@ -1831,7 +1952,8 @@
     "wis": 14,
     "cha": 5,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "0"
   },
   {
     "name": "Demilich",
@@ -1845,7 +1967,8 @@
     "wis": 17,
     "cha": 20,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "18"
   },
   {
     "name": "Deva",
@@ -1859,7 +1982,8 @@
     "wis": 20,
     "cha": 20,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "10"
   },
   {
     "name": "Dire Wolf",
@@ -1873,7 +1997,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Dire Worg",
@@ -1887,7 +2012,8 @@
     "wis": 16,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "10"
   },
   {
     "name": "Displacer Beast",
@@ -1901,7 +2027,8 @@
     "wis": 12,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Djinni",
@@ -1915,7 +2042,8 @@
     "wis": 16,
     "cha": 20,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "11"
   },
   {
     "name": "Doppelganger",
@@ -1929,7 +2057,8 @@
     "wis": 12,
     "cha": 14,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "3"
   },
   {
     "name": "Dracolich",
@@ -1943,7 +2072,8 @@
     "wis": 15,
     "cha": 21,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "17"
   },
   {
     "name": "Draconic Spirit",
@@ -1971,7 +2101,8 @@
     "wis": 11,
     "cha": 7,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/4"
   },
   {
     "name": "Dragon Turtle",
@@ -1985,7 +2116,8 @@
     "wis": 12,
     "cha": 12,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "17"
   },
   {
     "name": "Dretch",
@@ -1999,7 +2131,8 @@
     "wis": 8,
     "cha": 3,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/4"
   },
   {
     "name": "Drider",
@@ -2013,7 +2146,8 @@
     "wis": 16,
     "cha": 12,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "6"
   },
   {
     "name": "Druid",
@@ -2027,7 +2161,8 @@
     "wis": 16,
     "cha": 11,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "2"
   },
   {
     "name": "Dryad",
@@ -2041,7 +2176,8 @@
     "wis": 15,
     "cha": 18,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1"
   },
   {
     "name": "Dust Mephit",
@@ -2055,7 +2191,8 @@
     "wis": 11,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/2"
   },
   {
     "name": "Eagle",
@@ -2069,7 +2206,8 @@
     "wis": 14,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "0"
   },
   {
     "name": "Earth Elemental",
@@ -2083,7 +2221,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "5"
   },
   {
     "name": "Efreeti",
@@ -2097,7 +2236,8 @@
     "wis": 15,
     "cha": 19,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "11"
   },
   {
     "name": "Elemental Cataclysm",
@@ -2111,7 +2251,8 @@
     "wis": 14,
     "cha": 9,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "22"
   },
   {
     "name": "Elemental Cultist",
@@ -2125,7 +2266,8 @@
     "wis": 18,
     "cha": 12,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "8"
   },
   {
     "name": "Elemental Spirit",
@@ -2153,7 +2295,8 @@
     "wis": 11,
     "cha": 6,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "4"
   },
   {
     "name": "Elk",
@@ -2167,7 +2310,8 @@
     "wis": 10,
     "cha": 6,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/4"
   },
   {
     "name": "Empyrean",
@@ -2181,7 +2325,8 @@
     "wis": 22,
     "cha": 27,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "23"
   },
   {
     "name": "Empyrean Iota",
@@ -2195,7 +2340,8 @@
     "wis": 16,
     "cha": 16,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Erinyes",
@@ -2209,7 +2355,8 @@
     "wis": 14,
     "cha": 18,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "12"
   },
   {
     "name": "Ettercap",
@@ -2223,7 +2370,8 @@
     "wis": 12,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Ettin",
@@ -2237,7 +2385,8 @@
     "wis": 10,
     "cha": 8,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "4"
   },
   {
     "name": "Faerie Dragon Adult",
@@ -2251,7 +2400,8 @@
     "wis": 12,
     "cha": 14,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "2"
   },
   {
     "name": "Faerie Dragon Youth",
@@ -2265,7 +2415,8 @@
     "wis": 12,
     "cha": 14,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1"
   },
   {
     "name": "Fey Spirit",
@@ -2293,7 +2444,8 @@
     "wis": 18,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "8"
   },
   {
     "name": "Fiendish Spirit",
@@ -2321,7 +2473,8 @@
     "wis": 10,
     "cha": 7,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "5"
   },
   {
     "name": "Fire Giant",
@@ -2335,7 +2488,8 @@
     "wis": 14,
     "cha": 13,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "9"
   },
   {
     "name": "Flameskull",
@@ -2349,7 +2503,8 @@
     "wis": 10,
     "cha": 11,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "4"
   },
   {
     "name": "Flaming Skeleton",
@@ -2363,7 +2518,8 @@
     "wis": 15,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Flesh Golem",
@@ -2377,7 +2533,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "5"
   },
   {
     "name": "Flumph",
@@ -2391,7 +2548,8 @@
     "wis": 14,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/8"
   },
   {
     "name": "Flying Snake",
@@ -2405,7 +2563,8 @@
     "wis": 12,
     "cha": 5,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/8"
   },
   {
     "name": "Fomorian",
@@ -2419,7 +2578,8 @@
     "wis": 14,
     "cha": 6,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "8"
   },
   {
     "name": "Frog",
@@ -2433,7 +2593,8 @@
     "wis": 8,
     "cha": 3,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "0"
   },
   {
     "name": "Frost Giant",
@@ -2447,7 +2608,8 @@
     "wis": 10,
     "cha": 12,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "8"
   },
   {
     "name": "Galeb Duhr",
@@ -2461,7 +2623,8 @@
     "wis": 12,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "6"
   },
   {
     "name": "Gargoyle",
@@ -2475,7 +2638,8 @@
     "wis": 11,
     "cha": 7,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "2"
   },
   {
     "name": "Gas Spore Fungus",
@@ -2489,7 +2653,8 @@
     "wis": 1,
     "cha": 1,
     "pp": 0,
-    "init": -5
+    "init": -5,
+    "cr": "1/2"
   },
   {
     "name": "Gelatinous Cube",
@@ -2503,7 +2668,8 @@
     "wis": 6,
     "cha": 1,
     "pp": 0,
-    "init": -4
+    "init": -4,
+    "cr": "2"
   },
   {
     "name": "Ghast",
@@ -2517,7 +2683,8 @@
     "wis": 10,
     "cha": 8,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "2"
   },
   {
     "name": "Ghast Gravecaller",
@@ -2531,7 +2698,8 @@
     "wis": 14,
     "cha": 8,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "6"
   },
   {
     "name": "Ghost",
@@ -2545,7 +2713,8 @@
     "wis": 12,
     "cha": 17,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "4"
   },
   {
     "name": "Ghoul",
@@ -2559,7 +2728,8 @@
     "wis": 10,
     "cha": 6,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Giant Ape",
@@ -2573,7 +2743,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "7"
   },
   {
     "name": "Giant Axe Beak",
@@ -2587,7 +2758,8 @@
     "wis": 12,
     "cha": 5,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "5"
   },
   {
     "name": "Giant Badger",
@@ -2601,7 +2773,8 @@
     "wis": 12,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/4"
   },
   {
     "name": "Giant Bat",
@@ -2615,7 +2788,8 @@
     "wis": 12,
     "cha": 6,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/4"
   },
   {
     "name": "Giant Boar",
@@ -2629,7 +2803,8 @@
     "wis": 7,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "2"
   },
   {
     "name": "Giant Centipede",
@@ -2643,7 +2818,8 @@
     "wis": 7,
     "cha": 3,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Giant Constrictor Snake",
@@ -2657,7 +2833,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Giant Crab",
@@ -2671,7 +2848,8 @@
     "wis": 9,
     "cha": 3,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/8"
   },
   {
     "name": "Giant Crocodile",
@@ -2685,7 +2863,8 @@
     "wis": 10,
     "cha": 7,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "5"
   },
   {
     "name": "Giant Eagle",
@@ -2699,7 +2878,8 @@
     "wis": 14,
     "cha": 10,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1"
   },
   {
     "name": "Giant Elk",
@@ -2713,7 +2893,8 @@
     "wis": 14,
     "cha": 10,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "2"
   },
   {
     "name": "Giant Fire Beetle",
@@ -2727,7 +2908,8 @@
     "wis": 7,
     "cha": 3,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "0"
   },
   {
     "name": "Giant Fly",
@@ -2741,7 +2923,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "0"
   },
   {
     "name": "Giant Frog",
@@ -2755,7 +2938,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/4"
   },
   {
     "name": "Giant Goat",
@@ -2769,7 +2953,8 @@
     "wis": 12,
     "cha": 6,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Giant Hyena",
@@ -2783,7 +2968,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Giant Insect",
@@ -2811,7 +2997,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/4"
   },
   {
     "name": "Giant Octopus",
@@ -2825,7 +3012,8 @@
     "wis": 10,
     "cha": 4,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1"
   },
   {
     "name": "Giant Owl",
@@ -2839,7 +3027,8 @@
     "wis": 14,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Giant Rat",
@@ -2853,7 +3042,8 @@
     "wis": 10,
     "cha": 4,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/8"
   },
   {
     "name": "Giant Scorpion",
@@ -2867,7 +3057,8 @@
     "wis": 9,
     "cha": 3,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "3"
   },
   {
     "name": "Giant Seahorse",
@@ -2881,7 +3072,8 @@
     "wis": 12,
     "cha": 5,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Giant Shark",
@@ -2895,7 +3087,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "5"
   },
   {
     "name": "Giant Spider",
@@ -2909,7 +3102,8 @@
     "wis": 11,
     "cha": 4,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1"
   },
   {
     "name": "Giant Squid",
@@ -2923,7 +3117,8 @@
     "wis": 11,
     "cha": 4,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "6"
   },
   {
     "name": "Giant Toad",
@@ -2937,7 +3132,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1"
   },
   {
     "name": "Giant Venomous Snake",
@@ -2951,7 +3147,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "1/4"
   },
   {
     "name": "Giant Vulture",
@@ -2965,7 +3162,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1"
   },
   {
     "name": "Giant Wasp",
@@ -2979,7 +3177,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/2"
   },
   {
     "name": "Giant Weasel",
@@ -2993,7 +3192,8 @@
     "wis": 12,
     "cha": 5,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/8"
   },
   {
     "name": "Giant Wolf Spider",
@@ -3007,7 +3207,8 @@
     "wis": 12,
     "cha": 4,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/4"
   },
   {
     "name": "Gibbering Mouther",
@@ -3021,7 +3222,8 @@
     "wis": 10,
     "cha": 6,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "2"
   },
   {
     "name": "Githyanki Dracomancer",
@@ -3035,7 +3237,8 @@
     "wis": 16,
     "cha": 18,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "16"
   },
   {
     "name": "Githyanki Knight",
@@ -3049,7 +3252,8 @@
     "wis": 14,
     "cha": 15,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "8"
   },
   {
     "name": "Githyanki Warrior",
@@ -3063,7 +3267,8 @@
     "wis": 13,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Githzerai Monk",
@@ -3077,7 +3282,8 @@
     "wis": 14,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Githzerai Psion",
@@ -3091,7 +3297,8 @@
     "wis": 18,
     "cha": 14,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "12"
   },
   {
     "name": "Githzerai Zerth",
@@ -3105,7 +3312,8 @@
     "wis": 17,
     "cha": 12,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "6"
   },
   {
     "name": "Glabrezu",
@@ -3119,7 +3327,8 @@
     "wis": 17,
     "cha": 16,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "9"
   },
   {
     "name": "Gladiator",
@@ -3133,7 +3342,8 @@
     "wis": 12,
     "cha": 15,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "5"
   },
   {
     "name": "Gnoll Demoniac",
@@ -3147,7 +3357,8 @@
     "wis": 15,
     "cha": 17,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "8"
   },
   {
     "name": "Gnoll Fang of Yeenoghu",
@@ -3161,7 +3372,8 @@
     "wis": 11,
     "cha": 13,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "4"
   },
   {
     "name": "Gnoll Pack Lord",
@@ -3175,7 +3387,8 @@
     "wis": 11,
     "cha": 9,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Gnoll Warrior",
@@ -3189,7 +3402,8 @@
     "wis": 10,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Goat",
@@ -3203,7 +3417,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "0"
   },
   {
     "name": "Goblin Boss",
@@ -3217,7 +3432,8 @@
     "wis": 8,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Goblin Hexer",
@@ -3231,7 +3447,8 @@
     "wis": 10,
     "cha": 10,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "3"
   },
   {
     "name": "Goblin Minion",
@@ -3245,7 +3462,8 @@
     "wis": 8,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/8"
   },
   {
     "name": "Goblin Warrior",
@@ -3259,7 +3477,8 @@
     "wis": 8,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Gold Dragon Wyrmling",
@@ -3273,7 +3492,8 @@
     "wis": 11,
     "cha": 16,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Gorgon",
@@ -3287,7 +3507,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "5"
   },
   {
     "name": "Goristro",
@@ -3301,7 +3522,8 @@
     "wis": 13,
     "cha": 14,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "17"
   },
   {
     "name": "Graveyard Revenant",
@@ -3315,7 +3537,8 @@
     "wis": 16,
     "cha": 18,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "7"
   },
   {
     "name": "Gray Ooze",
@@ -3329,7 +3552,8 @@
     "wis": 6,
     "cha": 2,
     "pp": 0,
-    "init": -2
+    "init": -2,
+    "cr": "1/2"
   },
   {
     "name": "Gray Slaad",
@@ -3343,7 +3567,8 @@
     "wis": 8,
     "cha": 18,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "9"
   },
   {
     "name": "Green Dragon Wyrmling",
@@ -3357,7 +3582,8 @@
     "wis": 11,
     "cha": 13,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "2"
   },
   {
     "name": "Green Hag",
@@ -3371,7 +3597,8 @@
     "wis": 14,
     "cha": 14,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "3"
   },
   {
     "name": "Green Slaad",
@@ -3385,7 +3612,8 @@
     "wis": 8,
     "cha": 18,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "8"
   },
   {
     "name": "Grell",
@@ -3399,7 +3627,8 @@
     "wis": 11,
     "cha": 9,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Grick",
@@ -3413,7 +3642,8 @@
     "wis": 14,
     "cha": 5,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Grick Ancient",
@@ -3427,7 +3657,8 @@
     "wis": 14,
     "cha": 9,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "7"
   },
   {
     "name": "Griffon",
@@ -3441,7 +3672,8 @@
     "wis": 13,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Grimlock",
@@ -3455,7 +3687,8 @@
     "wis": 8,
     "cha": 6,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/4"
   },
   {
     "name": "Guard",
@@ -3469,7 +3702,8 @@
     "wis": 11,
     "cha": 10,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/8"
   },
   {
     "name": "Guard Captain",
@@ -3483,7 +3717,8 @@
     "wis": 14,
     "cha": 13,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "4"
   },
   {
     "name": "Guardian Naga",
@@ -3497,7 +3732,8 @@
     "wis": 19,
     "cha": 18,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "10"
   },
   {
     "name": "Gulthias Blight",
@@ -3511,7 +3747,8 @@
     "wis": 18,
     "cha": 12,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "16"
   },
   {
     "name": "Half-Dragon",
@@ -3525,7 +3762,8 @@
     "wis": 15,
     "cha": 14,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "5"
   },
   {
     "name": "Harpy",
@@ -3539,7 +3777,8 @@
     "wis": 10,
     "cha": 13,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1"
   },
   {
     "name": "Haunting Revenant",
@@ -3553,7 +3792,8 @@
     "wis": 18,
     "cha": 20,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "10"
   },
   {
     "name": "Hawk",
@@ -3567,7 +3807,8 @@
     "wis": 14,
     "cha": 6,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "0"
   },
   {
     "name": "Hell Hound",
@@ -3581,7 +3822,8 @@
     "wis": 13,
     "cha": 6,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "3"
   },
   {
     "name": "Helmed Horror",
@@ -3595,7 +3837,8 @@
     "wis": 10,
     "cha": 10,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "4"
   },
   {
     "name": "Hezrou",
@@ -3609,7 +3852,8 @@
     "wis": 12,
     "cha": 13,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "8"
   },
   {
     "name": "Hill Giant",
@@ -3623,7 +3867,8 @@
     "wis": 9,
     "cha": 6,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "5"
   },
   {
     "name": "Hippogriff",
@@ -3637,7 +3882,8 @@
     "wis": 12,
     "cha": 8,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1"
   },
   {
     "name": "Hippopotamus",
@@ -3651,7 +3897,8 @@
     "wis": 12,
     "cha": 4,
     "pp": 0,
-    "init": -2
+    "init": -2,
+    "cr": "4"
   },
   {
     "name": "Hobgoblin Captain",
@@ -3665,7 +3912,8 @@
     "wis": 10,
     "cha": 13,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Hobgoblin Warlord",
@@ -3679,7 +3927,8 @@
     "wis": 11,
     "cha": 15,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "6"
   },
   {
     "name": "Hobgoblin Warrior",
@@ -3693,7 +3942,8 @@
     "wis": 10,
     "cha": 9,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Homunculus",
@@ -3707,7 +3957,8 @@
     "wis": 10,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "0"
   },
   {
     "name": "Hook Horror",
@@ -3721,7 +3972,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "3"
   },
   {
     "name": "Horned Devil",
@@ -3735,7 +3987,8 @@
     "wis": 16,
     "cha": 18,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "11"
   },
   {
     "name": "Hunter Shark",
@@ -3749,7 +4002,8 @@
     "wis": 10,
     "cha": 4,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Hydra",
@@ -3763,7 +4017,8 @@
     "wis": 10,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "8"
   },
   {
     "name": "Hyena",
@@ -3777,7 +4032,8 @@
     "wis": 12,
     "cha": 5,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "0"
   },
   {
     "name": "Ice Devil",
@@ -3791,7 +4047,8 @@
     "wis": 15,
     "cha": 18,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "14"
   },
   {
     "name": "Ice Mephit",
@@ -3805,7 +4062,8 @@
     "wis": 11,
     "cha": 12,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Imp",
@@ -3819,7 +4077,8 @@
     "wis": 12,
     "cha": 14,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1"
   },
   {
     "name": "Incubus",
@@ -3833,7 +4092,8 @@
     "wis": 12,
     "cha": 20,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "4"
   },
   {
     "name": "Intellect Devourer",
@@ -3847,7 +4107,8 @@
     "wis": 11,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Invisible Stalker",
@@ -3861,7 +4122,8 @@
     "wis": 15,
     "cha": 11,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "6"
   },
   {
     "name": "Iron Golem",
@@ -3875,7 +4137,8 @@
     "wis": 11,
     "cha": 1,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "16"
   },
   {
     "name": "Jackal",
@@ -3889,7 +4152,8 @@
     "wis": 12,
     "cha": 6,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "0"
   },
   {
     "name": "Jackalwere",
@@ -3903,7 +4167,8 @@
     "wis": 11,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/2"
   },
   {
     "name": "Juvenile Shadow Dragon",
@@ -3917,7 +4182,8 @@
     "wis": 11,
     "cha": 15,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "4"
   },
   {
     "name": "Kenku",
@@ -3931,7 +4197,8 @@
     "wis": 10,
     "cha": 10,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/4"
   },
   {
     "name": "Killer Whale",
@@ -3945,7 +4212,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Knight",
@@ -3959,7 +4227,8 @@
     "wis": 11,
     "cha": 15,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "3"
   },
   {
     "name": "Kobold Warrior",
@@ -3973,7 +4242,8 @@
     "wis": 7,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/8"
   },
   {
     "name": "Kraken",
@@ -3987,7 +4257,8 @@
     "wis": 18,
     "cha": 20,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "23"
   },
   {
     "name": "Kuo-toa",
@@ -4001,7 +4272,8 @@
     "wis": 10,
     "cha": 8,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/4"
   },
   {
     "name": "Kuo-toa Archpriest",
@@ -4015,7 +4287,8 @@
     "wis": 16,
     "cha": 14,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "6"
   },
   {
     "name": "Kuo-toa Monitor",
@@ -4029,7 +4302,8 @@
     "wis": 14,
     "cha": 11,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "3"
   },
   {
     "name": "Kuo-toa Whip",
@@ -4043,7 +4317,8 @@
     "wis": 14,
     "cha": 11,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1"
   },
   {
     "name": "Lacedon Ghoul",
@@ -4057,7 +4332,8 @@
     "wis": 10,
     "cha": 6,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Lamia",
@@ -4071,7 +4347,8 @@
     "wis": 15,
     "cha": 16,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "4"
   },
   {
     "name": "Larva",
@@ -4085,7 +4362,8 @@
     "wis": 10,
     "cha": 2,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "0"
   },
   {
     "name": "Lemure",
@@ -4099,7 +4377,8 @@
     "wis": 11,
     "cha": 3,
     "pp": 0,
-    "init": -3
+    "init": -3,
+    "cr": "0"
   },
   {
     "name": "Lich",
@@ -4113,7 +4392,8 @@
     "wis": 14,
     "cha": 16,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "21"
   },
   {
     "name": "Lion",
@@ -4127,7 +4407,8 @@
     "wis": 12,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Lizard",
@@ -4141,7 +4422,8 @@
     "wis": 8,
     "cha": 3,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "0"
   },
   {
     "name": "Lizardfolk Geomancer",
@@ -4155,7 +4437,8 @@
     "wis": 15,
     "cha": 8,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "2"
   },
   {
     "name": "Lizardfolk Sovereign",
@@ -4169,7 +4452,8 @@
     "wis": 11,
     "cha": 15,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "4"
   },
   {
     "name": "Mage",
@@ -4183,7 +4467,8 @@
     "wis": 12,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "6"
   },
   {
     "name": "Mage Apprentice",
@@ -4197,7 +4482,8 @@
     "wis": 13,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Magma Mephit",
@@ -4211,7 +4497,8 @@
     "wis": 10,
     "cha": 10,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Magmin",
@@ -4225,7 +4512,8 @@
     "wis": 11,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/2"
   },
   {
     "name": "Mammoth",
@@ -4239,7 +4527,8 @@
     "wis": 11,
     "cha": 6,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "6"
   },
   {
     "name": "Manes",
@@ -4253,7 +4542,8 @@
     "wis": 8,
     "cha": 4,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "1/8"
   },
   {
     "name": "Manes Vaporspawn",
@@ -4267,7 +4557,8 @@
     "wis": 8,
     "cha": 3,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1"
   },
   {
     "name": "Manticore",
@@ -4281,7 +4572,8 @@
     "wis": 12,
     "cha": 8,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "3"
   },
   {
     "name": "Marid",
@@ -4295,7 +4587,8 @@
     "wis": 17,
     "cha": 18,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "11"
   },
   {
     "name": "Marilith",
@@ -4309,7 +4602,8 @@
     "wis": 16,
     "cha": 20,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "16"
   },
   {
     "name": "Mastiff",
@@ -4323,7 +4617,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/8"
   },
   {
     "name": "Medusa",
@@ -4337,7 +4632,8 @@
     "wis": 13,
     "cha": 15,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "6"
   },
   {
     "name": "Merfolk Skirmisher",
@@ -4351,7 +4647,8 @@
     "wis": 14,
     "cha": 12,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/8"
   },
   {
     "name": "Merfolk Wavebender",
@@ -4365,7 +4662,8 @@
     "wis": 19,
     "cha": 15,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "6"
   },
   {
     "name": "Merrow",
@@ -4379,7 +4677,8 @@
     "wis": 10,
     "cha": 9,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Mezzoloth",
@@ -4393,7 +4692,8 @@
     "wis": 14,
     "cha": 10,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "5"
   },
   {
     "name": "Mimic",
@@ -4407,7 +4707,8 @@
     "wis": 13,
     "cha": 8,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "2"
   },
   {
     "name": "Mind Flayer",
@@ -4421,7 +4722,8 @@
     "wis": 17,
     "cha": 17,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "7"
   },
   {
     "name": "Mind Flayer Arcanist",
@@ -4435,7 +4737,8 @@
     "wis": 17,
     "cha": 17,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "11"
   },
   {
     "name": "Minotaur of Baphomet",
@@ -4449,7 +4752,8 @@
     "wis": 16,
     "cha": 9,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "3"
   },
   {
     "name": "Minotaur Skeleton",
@@ -4463,7 +4767,8 @@
     "wis": 8,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "2"
   },
   {
     "name": "Modron Duodrone",
@@ -4477,7 +4782,8 @@
     "wis": 10,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/4"
   },
   {
     "name": "Modron Monodrone",
@@ -4491,7 +4797,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/8"
   },
   {
     "name": "Modron Pentadrone",
@@ -4505,7 +4812,8 @@
     "wis": 10,
     "cha": 13,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Modron Quadrone",
@@ -4519,7 +4827,8 @@
     "wis": 10,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Modron Tridrone",
@@ -4533,7 +4842,8 @@
     "wis": 10,
     "cha": 9,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Mud Mephit",
@@ -4547,7 +4857,8 @@
     "wis": 11,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/4"
   },
   {
     "name": "Mule",
@@ -4561,7 +4872,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/8"
   },
   {
     "name": "Mummy",
@@ -4575,7 +4887,8 @@
     "wis": 12,
     "cha": 12,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "3"
   },
   {
     "name": "Mummy Lord",
@@ -4589,7 +4902,8 @@
     "wis": 19,
     "cha": 16,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "15"
   },
   {
     "name": "Myconid Adult",
@@ -4603,7 +4917,8 @@
     "wis": 13,
     "cha": 7,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/2"
   },
   {
     "name": "Myconid Sovereign",
@@ -4617,7 +4932,8 @@
     "wis": 15,
     "cha": 10,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "2"
   },
   {
     "name": "Myconid Spore Servant",
@@ -4631,7 +4947,8 @@
     "wis": 6,
     "cha": 1,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1"
   },
   {
     "name": "Myconid Sprout",
@@ -4645,7 +4962,8 @@
     "wis": 11,
     "cha": 5,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "0"
   },
   {
     "name": "Nalfeshnee",
@@ -4659,7 +4977,8 @@
     "wis": 12,
     "cha": 15,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "13"
   },
   {
     "name": "Needle Blight",
@@ -4673,7 +4992,8 @@
     "wis": 8,
     "cha": 3,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/4"
   },
   {
     "name": "Night Hag",
@@ -4687,7 +5007,8 @@
     "wis": 14,
     "cha": 16,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "5"
   },
   {
     "name": "Nightmare",
@@ -4701,7 +5022,8 @@
     "wis": 13,
     "cha": 15,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Noble",
@@ -4715,7 +5037,8 @@
     "wis": 14,
     "cha": 16,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/8"
   },
   {
     "name": "Noble Prodigy",
@@ -4729,7 +5052,8 @@
     "wis": 14,
     "cha": 19,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "10"
   },
   {
     "name": "Nothic",
@@ -4743,7 +5067,8 @@
     "wis": 10,
     "cha": 8,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "2"
   },
   {
     "name": "Nycaloth",
@@ -4757,7 +5082,8 @@
     "wis": 10,
     "cha": 15,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "9"
   },
   {
     "name": "Ochre Jelly",
@@ -4771,7 +5097,8 @@
     "wis": 6,
     "cha": 1,
     "pp": 0,
-    "init": -2
+    "init": -2,
+    "cr": "2"
   },
   {
     "name": "Octopus",
@@ -4785,7 +5112,8 @@
     "wis": 10,
     "cha": 4,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "0"
   },
   {
     "name": "Ogre",
@@ -4799,7 +5127,8 @@
     "wis": 7,
     "cha": 7,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "2"
   },
   {
     "name": "Ogre Zombie",
@@ -4813,7 +5142,8 @@
     "wis": 6,
     "cha": 5,
     "pp": 0,
-    "init": -2
+    "init": -2,
+    "cr": "2"
   },
   {
     "name": "Ogrillon Ogre",
@@ -4827,7 +5157,8 @@
     "wis": 9,
     "cha": 10,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1"
   },
   {
     "name": "Oni",
@@ -4841,7 +5172,8 @@
     "wis": 12,
     "cha": 15,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "7"
   },
   {
     "name": "Otherworldly Steed",
@@ -4869,7 +5201,8 @@
     "wis": 13,
     "cha": 6,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "5"
   },
   {
     "name": "Owl",
@@ -4883,7 +5216,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "0"
   },
   {
     "name": "Owlbear",
@@ -4897,7 +5231,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "3"
   },
   {
     "name": "Panther",
@@ -4911,7 +5246,8 @@
     "wis": 14,
     "cha": 7,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/4"
   },
   {
     "name": "Pegasus",
@@ -4925,7 +5261,8 @@
     "wis": 15,
     "cha": 13,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Performer",
@@ -4939,7 +5276,8 @@
     "wis": 14,
     "cha": 16,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/2"
   },
   {
     "name": "Performer Legend",
@@ -4953,7 +5291,8 @@
     "wis": 16,
     "cha": 20,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "10"
   },
   {
     "name": "Performer Maestro",
@@ -4967,7 +5306,8 @@
     "wis": 14,
     "cha": 19,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "6"
   },
   {
     "name": "Peryton",
@@ -4981,7 +5321,8 @@
     "wis": 12,
     "cha": 10,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "2"
   },
   {
     "name": "Phase Spider",
@@ -4995,7 +5336,8 @@
     "wis": 10,
     "cha": 6,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "3"
   },
   {
     "name": "Piercer",
@@ -5009,7 +5351,8 @@
     "wis": 7,
     "cha": 3,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Piranha",
@@ -5023,7 +5366,8 @@
     "wis": 7,
     "cha": 2,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "0"
   },
   {
     "name": "Pirate",
@@ -5037,7 +5381,8 @@
     "wis": 12,
     "cha": 14,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1"
   },
   {
     "name": "Pirate Admiral",
@@ -5051,7 +5396,8 @@
     "wis": 14,
     "cha": 19,
     "pp": 0,
-    "init": 6
+    "init": 6,
+    "cr": "12"
   },
   {
     "name": "Pirate Captain",
@@ -5065,7 +5411,8 @@
     "wis": 14,
     "cha": 17,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "6"
   },
   {
     "name": "Pit Fiend",
@@ -5079,7 +5426,8 @@
     "wis": 18,
     "cha": 24,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "20"
   },
   {
     "name": "Pixie",
@@ -5093,7 +5441,8 @@
     "wis": 14,
     "cha": 15,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "1/4"
   },
   {
     "name": "Pixie Wonderbringer",
@@ -5107,7 +5456,8 @@
     "wis": 14,
     "cha": 18,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "5"
   },
   {
     "name": "Planetar",
@@ -5121,7 +5471,8 @@
     "wis": 22,
     "cha": 25,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "16"
   },
   {
     "name": "Plesiosaurus",
@@ -5135,7 +5486,8 @@
     "wis": 12,
     "cha": 5,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Polar Bear",
@@ -5149,7 +5501,8 @@
     "wis": 13,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Poltergeist",
@@ -5163,7 +5516,8 @@
     "wis": 10,
     "cha": 14,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Pony",
@@ -5177,7 +5531,8 @@
     "wis": 11,
     "cha": 7,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/8"
   },
   {
     "name": "Priest",
@@ -5191,7 +5546,8 @@
     "wis": 16,
     "cha": 13,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "2"
   },
   {
     "name": "Priest Acolyte",
@@ -5205,7 +5561,8 @@
     "wis": 14,
     "cha": 11,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/4"
   },
   {
     "name": "Primeval Owlbear",
@@ -5219,7 +5576,8 @@
     "wis": 15,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "7"
   },
   {
     "name": "Pseudodragon",
@@ -5233,7 +5591,8 @@
     "wis": 12,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Psychic Gray Ooze",
@@ -5247,7 +5606,8 @@
     "wis": 6,
     "cha": 2,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "1"
   },
   {
     "name": "Pteranodon",
@@ -5261,7 +5621,8 @@
     "wis": 9,
     "cha": 5,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Purple Worm",
@@ -5275,7 +5636,8 @@
     "wis": 8,
     "cha": 4,
     "pp": 0,
-    "init": -2
+    "init": -2,
+    "cr": "15"
   },
   {
     "name": "Quaggoth",
@@ -5289,7 +5651,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "2"
   },
   {
     "name": "Quaggoth Thonot",
@@ -5303,7 +5666,8 @@
     "wis": 14,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "3"
   },
   {
     "name": "Quasit",
@@ -5317,7 +5681,8 @@
     "wis": 10,
     "cha": 10,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1"
   },
   {
     "name": "Questing Knight",
@@ -5331,7 +5696,8 @@
     "wis": 12,
     "cha": 18,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "12"
   },
   {
     "name": "Rakshasa",
@@ -5345,7 +5711,8 @@
     "wis": 16,
     "cha": 20,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "13"
   },
   {
     "name": "Rat",
@@ -5359,7 +5726,8 @@
     "wis": 10,
     "cha": 4,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "0"
   },
   {
     "name": "Raven",
@@ -5373,7 +5741,8 @@
     "wis": 13,
     "cha": 6,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "0"
   },
   {
     "name": "Red Dragon Wyrmling",
@@ -5387,7 +5756,8 @@
     "wis": 11,
     "cha": 15,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "4"
   },
   {
     "name": "Red Slaad",
@@ -5401,7 +5771,8 @@
     "wis": 6,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "5"
   },
   {
     "name": "Reef Shark",
@@ -5415,7 +5786,8 @@
     "wis": 10,
     "cha": 4,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/2"
   },
   {
     "name": "Remorhaz",
@@ -5429,7 +5801,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "11"
   },
   {
     "name": "Revenant",
@@ -5443,7 +5816,8 @@
     "wis": 16,
     "cha": 18,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "5"
   },
   {
     "name": "Rhinoceros",
@@ -5457,7 +5831,8 @@
     "wis": 12,
     "cha": 6,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "2"
   },
   {
     "name": "Riding Horse",
@@ -5471,7 +5846,8 @@
     "wis": 11,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/4"
   },
   {
     "name": "Roc",
@@ -5485,7 +5861,8 @@
     "wis": 10,
     "cha": 9,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "11"
   },
   {
     "name": "Roper",
@@ -5499,7 +5876,8 @@
     "wis": 16,
     "cha": 6,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "5"
   },
   {
     "name": "Rust Monster",
@@ -5513,7 +5891,8 @@
     "wis": 13,
     "cha": 6,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Saber-Toothed Tiger",
@@ -5527,7 +5906,8 @@
     "wis": 12,
     "cha": 8,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "2"
   },
   {
     "name": "Sahuagin Baron",
@@ -5541,7 +5921,8 @@
     "wis": 13,
     "cha": 17,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "5"
   },
   {
     "name": "Sahuagin Priest",
@@ -5555,7 +5936,8 @@
     "wis": 14,
     "cha": 13,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "2"
   },
   {
     "name": "Sahuagin Warrior",
@@ -5569,7 +5951,8 @@
     "wis": 13,
     "cha": 9,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/2"
   },
   {
     "name": "Salamander",
@@ -5583,7 +5966,8 @@
     "wis": 10,
     "cha": 12,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "5"
   },
   {
     "name": "Salamander Fire Snake",
@@ -5597,7 +5981,8 @@
     "wis": 10,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Salamander Inferno Master",
@@ -5611,7 +5996,8 @@
     "wis": 10,
     "cha": 20,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "15"
   },
   {
     "name": "Satyr",
@@ -5625,7 +6011,8 @@
     "wis": 10,
     "cha": 14,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/2"
   },
   {
     "name": "Satyr Revelmaster",
@@ -5639,7 +6026,8 @@
     "wis": 14,
     "cha": 17,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "6"
   },
   {
     "name": "Scarecrow",
@@ -5653,7 +6041,8 @@
     "wis": 10,
     "cha": 13,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1"
   },
   {
     "name": "Scorpion",
@@ -5667,7 +6056,8 @@
     "wis": 8,
     "cha": 2,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "0"
   },
   {
     "name": "Scout",
@@ -5681,7 +6071,8 @@
     "wis": 13,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/2"
   },
   {
     "name": "Scout Captain",
@@ -5695,7 +6086,8 @@
     "wis": 15,
     "cha": 11,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "3"
   },
   {
     "name": "Sea Hag",
@@ -5709,7 +6101,8 @@
     "wis": 12,
     "cha": 13,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "2"
   },
   {
     "name": "Seahorse",
@@ -5723,7 +6116,8 @@
     "wis": 10,
     "cha": 2,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "0"
   },
   {
     "name": "Shadow",
@@ -5737,7 +6131,8 @@
     "wis": 10,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/2"
   },
   {
     "name": "Shadow Demon",
@@ -5751,7 +6146,8 @@
     "wis": 13,
     "cha": 14,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "4"
   },
   {
     "name": "Shadow Dragon",
@@ -5765,7 +6161,8 @@
     "wis": 12,
     "cha": 18,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "13"
   },
   {
     "name": "Shambling Mound",
@@ -5779,7 +6176,8 @@
     "wis": 10,
     "cha": 5,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "5"
   },
   {
     "name": "Shield Guardian",
@@ -5793,7 +6191,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "7"
   },
   {
     "name": "Shrieker Fungus",
@@ -5807,7 +6206,8 @@
     "wis": 3,
     "cha": 1,
     "pp": 0,
-    "init": -5
+    "init": -5,
+    "cr": "0"
   },
   {
     "name": "Silver Dragon Wyrmling",
@@ -5821,7 +6221,8 @@
     "wis": 11,
     "cha": 15,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "2"
   },
   {
     "name": "Skeleton",
@@ -5835,7 +6236,8 @@
     "wis": 8,
     "cha": 5,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/4"
   },
   {
     "name": "Slaad Tadpole",
@@ -5849,7 +6251,8 @@
     "wis": 5,
     "cha": 3,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/8"
   },
   {
     "name": "Smoke Mephit",
@@ -5863,7 +6266,8 @@
     "wis": 10,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Solar",
@@ -5877,7 +6281,8 @@
     "wis": 25,
     "cha": 30,
     "pp": 0,
-    "init": 6
+    "init": 6,
+    "cr": "21"
   },
   {
     "name": "Spectator",
@@ -5891,7 +6296,8 @@
     "wis": 14,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Specter",
@@ -5905,7 +6311,8 @@
     "wis": 10,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Sphinx of Lore",
@@ -5919,7 +6326,8 @@
     "wis": 18,
     "cha": 18,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "11"
   },
   {
     "name": "Sphinx of Secrets",
@@ -5933,7 +6341,8 @@
     "wis": 18,
     "cha": 18,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "8"
   },
   {
     "name": "Sphinx of Valor",
@@ -5947,7 +6356,8 @@
     "wis": 23,
     "cha": 18,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "17"
   },
   {
     "name": "Sphinx of Wonder",
@@ -5961,7 +6371,8 @@
     "wis": 12,
     "cha": 11,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1"
   },
   {
     "name": "Spider",
@@ -5975,7 +6386,8 @@
     "wis": 10,
     "cha": 2,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "0"
   },
   {
     "name": "Spined Devil",
@@ -5989,7 +6401,8 @@
     "wis": 14,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "2"
   },
   {
     "name": "Spirit Naga",
@@ -6003,7 +6416,8 @@
     "wis": 15,
     "cha": 16,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "8"
   },
   {
     "name": "Sprite",
@@ -6017,7 +6431,8 @@
     "wis": 13,
     "cha": 11,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "1/4"
   },
   {
     "name": "Spy",
@@ -6031,7 +6446,8 @@
     "wis": 14,
     "cha": 16,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Spy Master",
@@ -6045,7 +6461,8 @@
     "wis": 16,
     "cha": 16,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "10"
   },
   {
     "name": "Steam Mephit",
@@ -6059,7 +6476,8 @@
     "wis": 10,
     "cha": 12,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/4"
   },
   {
     "name": "Stirge",
@@ -6073,7 +6491,8 @@
     "wis": 8,
     "cha": 6,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/8"
   },
   {
     "name": "Stone Giant",
@@ -6087,7 +6506,8 @@
     "wis": 12,
     "cha": 9,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "7"
   },
   {
     "name": "Stone Golem",
@@ -6101,7 +6521,8 @@
     "wis": 11,
     "cha": 1,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "10"
   },
   {
     "name": "Storm Giant",
@@ -6115,7 +6536,8 @@
     "wis": 20,
     "cha": 18,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "13"
   },
   {
     "name": "Succubus",
@@ -6129,7 +6551,8 @@
     "wis": 12,
     "cha": 20,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "4"
   },
   {
     "name": "Swarm of Bats",
@@ -6143,7 +6566,8 @@
     "wis": 12,
     "cha": 4,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Swarm of Crawling Claws",
@@ -6157,7 +6581,8 @@
     "wis": 10,
     "cha": 4,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Swarm of Dretches",
@@ -6171,7 +6596,8 @@
     "wis": 8,
     "cha": 3,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "4"
   },
   {
     "name": "Swarm of Insects",
@@ -6185,7 +6611,8 @@
     "wis": 7,
     "cha": 1,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Swarm of Larvae",
@@ -6199,7 +6626,8 @@
     "wis": 12,
     "cha": 2,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1"
   },
   {
     "name": "Swarm of Lemures",
@@ -6213,7 +6641,8 @@
     "wis": 12,
     "cha": 3,
     "pp": 0,
-    "init": -2
+    "init": -2,
+    "cr": "3"
   },
   {
     "name": "Swarm of Piranhas",
@@ -6227,7 +6656,8 @@
     "wis": 7,
     "cha": 2,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1"
   },
   {
     "name": "Swarm of Rats",
@@ -6241,7 +6671,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/4"
   },
   {
     "name": "Swarm of Ravens",
@@ -6255,7 +6686,8 @@
     "wis": 12,
     "cha": 6,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Swarm of Stirges",
@@ -6269,7 +6701,8 @@
     "wis": 8,
     "cha": 6,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "2"
   },
   {
     "name": "Swarm of Venomous Snakes",
@@ -6283,7 +6716,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "2"
   },
   {
     "name": "Tarrasque",
@@ -6297,7 +6731,8 @@
     "wis": 11,
     "cha": 11,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "30"
   },
   {
     "name": "Thri-kreen Marauder",
@@ -6311,7 +6746,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1"
   },
   {
     "name": "Thri-kreen Psion",
@@ -6325,7 +6761,8 @@
     "wis": 12,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "8"
   },
   {
     "name": "Tiger",
@@ -6339,7 +6776,8 @@
     "wis": 12,
     "cha": 8,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1"
   },
   {
     "name": "Tough",
@@ -6353,7 +6791,8 @@
     "wis": 10,
     "cha": 11,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Tough Boss",
@@ -6367,7 +6806,8 @@
     "wis": 10,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "4"
   },
   {
     "name": "Treant",
@@ -6381,7 +6821,8 @@
     "wis": 16,
     "cha": 12,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "9"
   },
   {
     "name": "Tree Blight",
@@ -6395,7 +6836,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "7"
   },
   {
     "name": "Triceratops",
@@ -6409,7 +6851,8 @@
     "wis": 11,
     "cha": 5,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "5"
   },
   {
     "name": "Troglodyte",
@@ -6423,7 +6866,8 @@
     "wis": 10,
     "cha": 6,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/4"
   },
   {
     "name": "Troll",
@@ -6437,7 +6881,8 @@
     "wis": 9,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "5"
   },
   {
     "name": "Troll Limb",
@@ -6451,7 +6896,8 @@
     "wis": 9,
     "cha": 1,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Twig Blight",
@@ -6465,7 +6911,8 @@
     "wis": 8,
     "cha": 3,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/8"
   },
   {
     "name": "Tyrannosaurus Rex",
@@ -6479,7 +6926,8 @@
     "wis": 12,
     "cha": 9,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "8"
   },
   {
     "name": "Ultroloth",
@@ -6493,7 +6941,8 @@
     "wis": 15,
     "cha": 18,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "13"
   },
   {
     "name": "Umber Hulk",
@@ -6507,7 +6956,8 @@
     "wis": 10,
     "cha": 10,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "5"
   },
   {
     "name": "Undead Spirit",
@@ -6535,7 +6985,8 @@
     "wis": 17,
     "cha": 16,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "5"
   },
   {
     "name": "Vampire",
@@ -6549,7 +7000,8 @@
     "wis": 15,
     "cha": 18,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "13"
   },
   {
     "name": "Vampire Familiar",
@@ -6563,7 +7015,8 @@
     "wis": 10,
     "cha": 14,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "3"
   },
   {
     "name": "Vampire Nightbringer",
@@ -6577,7 +7030,8 @@
     "wis": 14,
     "cha": 15,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "8"
   },
   {
     "name": "Vampire Spawn",
@@ -6591,7 +7045,8 @@
     "wis": 10,
     "cha": 12,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "5"
   },
   {
     "name": "Vampire Umbral Lord",
@@ -6605,7 +7060,8 @@
     "wis": 16,
     "cha": 21,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "15"
   },
   {
     "name": "Venomous Snake",
@@ -6619,7 +7075,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/8"
   },
   {
     "name": "Vine Blight",
@@ -6633,7 +7090,8 @@
     "wis": 10,
     "cha": 3,
     "pp": 0,
-    "init": -1
+    "init": -1,
+    "cr": "1/2"
   },
   {
     "name": "Violet Fungus",
@@ -6647,7 +7105,8 @@
     "wis": 3,
     "cha": 1,
     "pp": 0,
-    "init": -5
+    "init": -5,
+    "cr": "1/4"
   },
   {
     "name": "Violet Fungus Necrohulk",
@@ -6661,7 +7120,8 @@
     "wis": 14,
     "cha": 10,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "7"
   },
   {
     "name": "Vrock",
@@ -6675,7 +7135,8 @@
     "wis": 13,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "6"
   },
   {
     "name": "Vulture",
@@ -6689,7 +7150,8 @@
     "wis": 12,
     "cha": 4,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "0"
   },
   {
     "name": "Warhorse",
@@ -6703,7 +7165,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Warhorse Skeleton",
@@ -6717,7 +7180,8 @@
     "wis": 8,
     "cha": 5,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Warrior Commander",
@@ -6731,7 +7195,8 @@
     "wis": 16,
     "cha": 14,
     "pp": 0,
-    "init": 5
+    "init": 5,
+    "cr": "10"
   },
   {
     "name": "Warrior Infantry",
@@ -6745,7 +7210,8 @@
     "wis": 11,
     "cha": 8,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "1/8"
   },
   {
     "name": "Warrior Veteran",
@@ -6759,7 +7225,8 @@
     "wis": 11,
     "cha": 10,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "3"
   },
   {
     "name": "Water Elemental",
@@ -6773,7 +7240,8 @@
     "wis": 10,
     "cha": 8,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "5"
   },
   {
     "name": "Water Weird",
@@ -6787,7 +7255,8 @@
     "wis": 10,
     "cha": 10,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "3"
   },
   {
     "name": "Weasel",
@@ -6801,7 +7270,8 @@
     "wis": 12,
     "cha": 3,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "0"
   },
   {
     "name": "Werebear",
@@ -6815,7 +7285,8 @@
     "wis": 12,
     "cha": 12,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "5"
   },
   {
     "name": "Wereboar",
@@ -6829,7 +7300,8 @@
     "wis": 11,
     "cha": 8,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "4"
   },
   {
     "name": "Wererat",
@@ -6843,7 +7315,8 @@
     "wis": 10,
     "cha": 8,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "2"
   },
   {
     "name": "Weretiger",
@@ -6857,7 +7330,8 @@
     "wis": 13,
     "cha": 11,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "4"
   },
   {
     "name": "Werewolf",
@@ -6871,7 +7345,8 @@
     "wis": 11,
     "cha": 10,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "White Dragon Wyrmling",
@@ -6885,7 +7360,8 @@
     "wis": 10,
     "cha": 11,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "2"
   },
   {
     "name": "Wight",
@@ -6899,7 +7375,8 @@
     "wis": 13,
     "cha": 15,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Will-o'-Wisp",
@@ -6913,7 +7390,8 @@
     "wis": 14,
     "cha": 11,
     "pp": 0,
-    "init": 9
+    "init": 9,
+    "cr": "2"
   },
   {
     "name": "Winged Kobold",
@@ -6927,7 +7405,8 @@
     "wis": 7,
     "cha": 8,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "1/4"
   },
   {
     "name": "Winter Wolf",
@@ -6941,7 +7420,8 @@
     "wis": 12,
     "cha": 8,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "3"
   },
   {
     "name": "Wolf",
@@ -6955,7 +7435,8 @@
     "wis": 12,
     "cha": 6,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "1/4"
   },
   {
     "name": "Worg",
@@ -6969,7 +7450,8 @@
     "wis": 11,
     "cha": 8,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1/2"
   },
   {
     "name": "Wraith",
@@ -6983,7 +7465,8 @@
     "wis": 14,
     "cha": 15,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "5"
   },
   {
     "name": "Wyvern",
@@ -6997,7 +7480,8 @@
     "wis": 12,
     "cha": 6,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "6"
   },
   {
     "name": "Xorn",
@@ -7011,7 +7495,8 @@
     "wis": 10,
     "cha": 11,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "5"
   },
   {
     "name": "Yeti",
@@ -7025,7 +7510,8 @@
     "wis": 12,
     "cha": 7,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "3"
   },
   {
     "name": "Yochlol",
@@ -7039,7 +7525,8 @@
     "wis": 15,
     "cha": 17,
     "pp": 0,
-    "init": 4
+    "init": 4,
+    "cr": "10"
   },
   {
     "name": "Young Black Dragon",
@@ -7053,7 +7540,8 @@
     "wis": 11,
     "cha": 15,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "7"
   },
   {
     "name": "Young Blue Dragon",
@@ -7067,7 +7555,8 @@
     "wis": 13,
     "cha": 17,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "9"
   },
   {
     "name": "Young Brass Dragon",
@@ -7081,7 +7570,8 @@
     "wis": 11,
     "cha": 15,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "6"
   },
   {
     "name": "Young Bronze Dragon",
@@ -7095,7 +7585,8 @@
     "wis": 13,
     "cha": 17,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "8"
   },
   {
     "name": "Young Copper Dragon",
@@ -7109,7 +7600,8 @@
     "wis": 13,
     "cha": 15,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "7"
   },
   {
     "name": "Young Gold Dragon",
@@ -7123,7 +7615,8 @@
     "wis": 13,
     "cha": 20,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "10"
   },
   {
     "name": "Young Green Dragon",
@@ -7137,7 +7630,8 @@
     "wis": 13,
     "cha": 15,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "8"
   },
   {
     "name": "Young Red Dragon",
@@ -7151,7 +7645,8 @@
     "wis": 11,
     "cha": 19,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "10"
   },
   {
     "name": "Young Remorhaz",
@@ -7165,7 +7660,8 @@
     "wis": 10,
     "cha": 4,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "5"
   },
   {
     "name": "Young Silver Dragon",
@@ -7179,7 +7675,8 @@
     "wis": 11,
     "cha": 19,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "9"
   },
   {
     "name": "Young White Dragon",
@@ -7193,7 +7690,8 @@
     "wis": 11,
     "cha": 12,
     "pp": 0,
-    "init": 0
+    "init": 0,
+    "cr": "6"
   },
   {
     "name": "Yuan-ti Abomination",
@@ -7207,7 +7705,8 @@
     "wis": 18,
     "cha": 15,
     "pp": 0,
-    "init": 3
+    "init": 3,
+    "cr": "7"
   },
   {
     "name": "Yuan-ti Infiltrator",
@@ -7221,7 +7720,8 @@
     "wis": 14,
     "cha": 12,
     "pp": 0,
-    "init": 1
+    "init": 1,
+    "cr": "1"
   },
   {
     "name": "Yuan-ti Malison (Type 1)",
@@ -7235,7 +7735,8 @@
     "wis": 16,
     "cha": 12,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Yuan-ti Malison (Type 2)",
@@ -7249,7 +7750,8 @@
     "wis": 16,
     "cha": 12,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Yuan-ti Malison (Type 3)",
@@ -7263,7 +7765,8 @@
     "wis": 16,
     "cha": 12,
     "pp": 0,
-    "init": 2
+    "init": 2,
+    "cr": "3"
   },
   {
     "name": "Zombie",
@@ -7277,6 +7780,7 @@
     "wis": 6,
     "cha": 5,
     "pp": 0,
-    "init": -2
+    "init": -2,
+    "cr": "1/4"
   }
 ]
