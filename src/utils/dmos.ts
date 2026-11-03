@@ -17,6 +17,17 @@ export function isAllowedOrigin(origin: string, dev: boolean): boolean {
   return DMOS_ORIGINS.includes(origin) || (dev && LOCAL_ORIGIN.test(origin));
 }
 
+/**
+ * Sheets borrows the sign-in too, for patrons' characters to follow their
+ * login, but only to come back to: it never talks to the bridge.
+ */
+const SHEETS_ORIGINS = ["https://sheets.simulacrumtechnologies.com"];
+
+/** Where a borrowed sign-in may send the tab back to: dmOS, or Sheets. */
+export function isSignInReturn(origin: string, dev: boolean): boolean {
+  return isAllowedOrigin(origin, dev) || SHEETS_ORIGINS.includes(origin);
+}
+
 /** Where a sign-in dmOS started keeps its way home while the tab is at Patreon. */
 const RETURN_KEY = "dmosSignInReturn";
 
@@ -28,7 +39,7 @@ const RETURN_KEY = "dmosSignInReturn";
 export function rememberDmosReturn(params: URLSearchParams, dev: boolean): boolean {
   if (params.get("signin") !== "dmos") return false;
   const to = params.get("return") ?? "";
-  if (!isAllowedOrigin(to, dev)) return false;
+  if (!isSignInReturn(to, dev)) return false;
   try {
     sessionStorage.setItem(RETURN_KEY, to);
     return true;
@@ -42,7 +53,7 @@ export function takeDmosReturn(dev: boolean): string | null {
   try {
     const to = sessionStorage.getItem(RETURN_KEY);
     sessionStorage.removeItem(RETURN_KEY);
-    return to && isAllowedOrigin(to, dev) ? to : null;
+    return to && isSignInReturn(to, dev) ? to : null;
   } catch {
     return null;
   }

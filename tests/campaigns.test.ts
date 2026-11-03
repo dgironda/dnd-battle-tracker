@@ -12,7 +12,7 @@ import {
 import { answer, eventFor, handleRequest } from '../src/bridge';
 import { conditionChoices, conditionDescriptionsFor } from '../src/utils/conditionRules';
 import { conditionOptions } from '../src/constants/Conditions';
-import { isAllowedOrigin, rememberDmosReturn, takeDmosReturn } from '../src/utils/dmos';
+import { isAllowedOrigin, isSignInReturn, rememberDmosReturn, takeDmosReturn } from '../src/utils/dmos';
 
 function memoryStorage() {
   const map = new Map<string, string>();
@@ -157,6 +157,10 @@ describe('dmOS bridge', () => {
   it('answers only dmOS, and local pages while developing', () => {
     expect(isAllowedOrigin('https://dmos.simulacrumtechnologies.com', false)).toBe(true);
     expect(isAllowedOrigin('http://localhost:5180', false)).toBe(false);
+    // Sheets may come back from a sign-in, but never talk to the bridge.
+    expect(isAllowedOrigin('https://sheets.simulacrumtechnologies.com', false)).toBe(false);
+    expect(isSignInReturn('https://sheets.simulacrumtechnologies.com', false)).toBe(true);
+    expect(isSignInReturn('https://evil.example', false)).toBe(false);
     expect(isAllowedOrigin('http://localhost:5180', true)).toBe(true);
     expect(isAllowedOrigin('https://evil.example', true)).toBe(false);
   });
