@@ -4,6 +4,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { GlobalProvider } from '../src/hooks/optionsContext';
 import PlayerLinkProvider from '../src/components/PlayerLinkProvider';
 import App from '../src/App';
+import { BattlePrompt } from '../src/components/BattleTracker/BattlePrompt';
 import { inDmos } from '../src/utils/dmos';
 
 /* The Patreon check goes to the server; a supporter is what dmOS has. */
@@ -99,5 +100,30 @@ describe('the rail', () => {
     fireEvent.keyDown(window, { key: 'r' });
 
     expect(await screen.findByText(/Save Current Battle/i)).toBeInTheDocument();
+  });
+});
+
+/* Before there's anything to fight with, the page says where to add it. In
+   dmOS that's dmOS's own apps, since BattleTracker's managers aren't shown. */
+describe('the empty-roster prompt', () => {
+  const prompt = (heroCount: number, monsterCount: number) => {
+    const { container, unmount } = render(<BattlePrompt heroCount={heroCount} monsterCount={monsterCount} />);
+    const text = container.textContent;
+    unmount();
+    return text;
+  };
+
+  it('points at the managers outside dmOS', () => {
+    expect(prompt(1, 0)).toBe('Please add a Monster with the Monster Manager.');
+    expect(prompt(0, 0)).toBe('Please add a Hero and a Monster with the Managers.');
+    expect(prompt(0, 1)).toBe('Please add a Hero with the Hero Manager.');
+  });
+
+  it('points at the Bestiary for monsters in dmOS', () => {
+    window.history.replaceState({}, '', '/?host=dmos');
+
+    expect(prompt(1, 0)).toBe('Please add a Monster with the Bestiary.');
+    expect(prompt(0, 0)).toBe('Please add a Hero with the Hero Manager and a Monster with the Bestiary.');
+    expect(prompt(0, 1)).toBe('Please add a Hero with the Hero Manager.');
   });
 });
