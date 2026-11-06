@@ -508,17 +508,6 @@ sup {
   height: fit-content;
 }
 
-#preBattleCombatants tbody {
-  /* No ground of its own: the window is a banner now and the rows are tinted
-     against it in fixes/modal-windows.css. A solid fill here put the window's
-     cream ink on white, where it could not be read at all. */
-  background-color: transparent;
-}
-
-#preBattleCombatants thead {
-  font-size: 1.3rem;
-}
-
 #buttonResetCombat {
   aspect-ratio: 1/1;
   align-self: flex-end;

@@ -18,7 +18,6 @@ import { track } from "../../utils/telemetry";
 import { usePlayerLinkContext } from "../../hooks/usePlayerLink";
 import { toPlayerView } from "../../utils/playerView";
 import { ConditionReminder } from "./ConditionReminder";
-import SBPopup from "./SBPopup";
 import { EditBattleDialog } from "./EditBattleDialog";
 import { BattleLogDialog } from "./BattleLogDialog";
 import { useTurnFlow } from "./useTurnFlow";
@@ -29,6 +28,7 @@ import { BattlePrompt } from "./BattlePrompt";
 import { useConditionReminder } from "./useConditionReminder";
 import { conditionDescriptionsFor, useConditionRules } from "../../utils/conditionRules";
 import { useHpWindow } from "./useHpWindow";
+import { EndBattleButton } from "./EndBattleButton";
 
 /**
  * What the right-hand side of the page is for, right now.
@@ -76,7 +76,6 @@ const BattleTracker: React.FC = () => {
   const [isBattleLogOpen, setIsBattleLogOpen] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingConditions, setEditingConditions] = useState<string | null>(null);
-  const [isSBPopupOpen, setIsSBPopupOpen] = useState(false);
   /* Seeded from storage so the timer survives a reload: the round number and
      the turn pointer already did, and a timer that alone forgot where it was
      read as the timer being broken. */
@@ -203,12 +202,6 @@ const BattleTracker: React.FC = () => {
     getCurrentBattle: useCallback(() => battleRef.current, []),
   });
 
-  const handleSBContinue = () => {
-    setIsSBPopupOpen(false);
-    setLastRun(Date.now());
-    handleStartBattle();
-  };
-
   /** Everyone out, and the battle back to not having started. */
   const clearBattle = useCallback(() => {
     if (battleRef.current.combatants > 0) {
@@ -254,19 +247,22 @@ const BattleTracker: React.FC = () => {
 
       {battleStage !== "prompt" && (
         <div id="battleControls" className={battleStage === "ready" ? "isSolo" : undefined}>
-          <button
-            title="Start a new Battle"
-            id="buttonStartBattle"
-            aria-label="Start the battle"
-            onClick={() => {
-              if (combatants.length > 0) {
-                setIsSBPopupOpen(true);
-              } else {
+          {/* One fight at a time: while it runs, the ribbon's place is the way
+              out of it, and Start the Battle comes back once it has ended.
+              Starting over a running fight used to replace it after a popup. */}
+          {battleStage === "running" ? (
+            <EndBattleButton onEnd={clearBattle} />
+          ) : (
+            <button
+              title="Start a new Battle"
+              id="buttonStartBattle"
+              aria-label="Start the battle"
+              onClick={() => {
                 setLastRun(Date.now());
                 handleStartBattle();
-              }
-            }}
-          />
+              }}
+            />
+          )}
         </div>
       )}
 
@@ -390,12 +386,6 @@ const BattleTracker: React.FC = () => {
       {isBattleLogOpen && (
         <BattleLogDialog log={battleLog} onClose={() => setIsBattleLogOpen(false)} />
       )}
-
-      <SBPopup
-        isOpen={isSBPopupOpen}
-        onCancel={() => setIsSBPopupOpen(false)}
-        onContinue={handleSBContinue}
-      />
     </>
   );
 };

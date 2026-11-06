@@ -397,6 +397,9 @@
       width: min(100%, 17rem) !important;
     }
 
+    /* End Battle is the same drawn button as these two, not a ribbon, so it
+       takes their width rather than the ribbon's. */
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonEndBattle,
     #page:has(#mastheadToggle[aria-expanded="false"]) #buttonEditBattle,
     #page:has(#mastheadToggle[aria-expanded="false"]) #buttonBattleLog {
       width: min(100%, 21rem);
@@ -487,6 +490,7 @@
       width: min(84vw, 15rem) !important;
     }
 
+    #page:has(#mastheadToggle[aria-expanded="false"]) #buttonEndBattle,
     #page:has(#mastheadToggle[aria-expanded="false"]) #buttonEditBattle,
     #page:has(#mastheadToggle[aria-expanded="false"]) #buttonBattleLog {
       width: min(84vw, 15rem);
