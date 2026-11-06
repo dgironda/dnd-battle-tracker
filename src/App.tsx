@@ -21,6 +21,7 @@ import ConsentBanner from "./components/ConsentBanner";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import BTLogo from "./assets/draftsvgs_v2/logo.svg";
 import Backdrop from "./utils/backdrop";
+import { inDmos } from "./utils/dmos";
 
 const HeroManager = lazy(() => import("./components/HeroManager/HeroManager"));
 const MonsterManager = lazy(() => import("./components/MonsterManager/MonsterManager"));
@@ -45,13 +46,81 @@ const PANEL_BUTTONS: {
   /* The keyboard shortcut, shown on the button the way v.0.3.1 did — the SVG
      art carries the name but had no room for the hint, so it was lost. */
   key?: string;
+  /* Kept in a dmOS window. dmOS has its own of the others (Hero Manager,
+     Bestiary and the rest), so there the rail is down to this one. */
+  inDmos?: true;
 }[] = [
   { panel: "about", id: "aboutButton", label: "About and instructions", title: "Instructions and credits" },
   { panel: "hero", id: "heroManagerButton", label: "Hero Manager", title: "Add, Update, and Delete Heroes", key: "w" },
   { panel: "monster", id: "monsterManagerButton", label: "Monster Manager", title: "Add, Update, and Delete Monsters", key: "e" },
   { panel: "battle", id: "battleManagerButton", label: "Battle Manager", title: "Save and Load Battles", key: "r" },
-  { panel: "options", id: "optionsButton", label: "Options", title: "Options and settings" },
+  { panel: "options", id: "optionsButton", label: "Options", title: "Options and settings", inDmos: true },
 ];
+
+/** Whether a rail button shows: all of them, but in dmOS only the ones kept there. */
+const inRail = (keptInDmos: true | undefined, insideDmos: boolean) => !insideDmos || keptInDmos === true;
+
+/** One of the rail's buttons, whose label is the artwork it carries. */
+function PanelButton({
+  id,
+  label,
+  title,
+  shortcut,
+  open,
+  onClick,
+}: {
+  id: string;
+  label: string;
+  title: string;
+  shortcut?: string;
+  open: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      id={id}
+      className="panelButton"
+      title={shortcut ? `${title} (${shortcut})` : title}
+      aria-label={open ? `Close ${label}` : label}
+      aria-expanded={open}
+      onClick={onClick}
+    >
+      {shortcut && (
+        /* The letter is drawn art (key_*.svg); the character stays
+           in the DOM as the alt text the image replaces. */
+        <span className="panelButtonKey" data-key={shortcut} aria-hidden="true">
+          {shortcut}
+        </span>
+      )}
+    </button>
+  );
+}
+
+/** The foot of the rail: the Patreon note, or thanks for supporting, and the ad tower. */
+function RailFoot({ isSupporter, onSupport }: { isSupporter: boolean; onSupport: () => void }) {
+  return (
+    <>
+      <div id="patreonLink">
+        {!isSupporter ? (
+          <button onClick={onSupport}>Support us on Patreon!</button>
+        ) : (
+          <div>
+            <p>✅ Thank you for your support!</p>{" "}
+            <p>
+              Don&apos;t forget to join our{" "}
+              <a href={DISCORD_URL} target="_blank" rel="noreferrer">
+                Discord Community
+              </a>
+              .
+            </p>
+          </div>
+        )}
+      </div>
+
+      <AdSlot slot="tower" isSupporter={isSupporter} onSupport={onSupport} />
+    </>
+  );
+}
 
 function App() {
   const [openPanel, setOpenPanel] = useState<PanelName | null>(null);
@@ -60,6 +129,11 @@ function App() {
      `#page:has(#mastheadToggle[aria-expanded="false"])` — so this state does
      not have to be threaded up to #page, which is rendered in main.tsx. */
   const [mastheadOpen, setMastheadOpen] = useState(true);
+  /* In a dmOS window the rail is down to the gear: no logo, no managers, no
+     support note or ad. The managers' panels still open from their keys (W, E
+     and R), which keeps the Battle Manager in reach; dmOS has nothing for
+     saving and loading battles. See also fixes/in-dmos.css. */
+  const [insideDmos] = useState(inDmos);
   const { settings } = useGlobalContext();
   const handleClosePanel = () => setOpenPanel(null);
   const [isPortrait, setIsPortrait] = useState(window.matchMedia("(orientation: portrait)").matches);
@@ -203,7 +277,7 @@ function App() {
           )}
 
           <div id="header">
-            <img id="logo" src={BTLogo} alt="BattleTracker" />
+            {!insideDmos && <img id="logo" src={BTLogo} alt="BattleTracker" />}
 
             {/* Folds the masthead away — logo, the four managers, the support
                 note, Start the Battle, Edit Battle and the log — so the roster
@@ -224,24 +298,18 @@ function App() {
 
             <Backdrop isOpen={openPanel !== null} onClick={handleClosePanel} />
 
-            {PANEL_BUTTONS.map(({ panel, id, label, title, key }) => (
+            {PANEL_BUTTONS.map(({ panel, id, label, title, key, inDmos: keptInDmos }) => (
               <Fragment key={panel}>
-                <button
-                  id={id}
-                  className="panelButton"
-                  title={key ? `${title} (${key})` : title}
-                  aria-label={openPanel === panel ? `Close ${label}` : label}
-                  aria-expanded={openPanel === panel}
-                  onClick={() => togglePanel(panel)}
-                >
-                  {key && (
-                    /* The letter is drawn art (key_*.svg); the character stays
-                       in the DOM as the alt text the image replaces. */
-                    <span className="panelButtonKey" data-key={key} aria-hidden="true">
-                      {key}
-                    </span>
-                  )}
-                </button>
+                {inRail(keptInDmos, insideDmos) && (
+                  <PanelButton
+                    id={id}
+                    label={label}
+                    title={title}
+                    shortcut={key}
+                    open={openPanel === panel}
+                    onClick={() => togglePanel(panel)}
+                  />
+                )}
                 {openPanel === panel && (
                   /* One panel throwing should cost that panel, not the fight
                      behind it — so each gets its own boundary, named after the
@@ -270,24 +338,7 @@ function App() {
               </button>
             )}
 
-            <div id="patreonLink">
-              {!isSupporter ? (
-                <button onClick={handlePatreonLogin}>Support us on Patreon!</button>
-              ) : (
-                <div>
-                  <p>✅ Thank you for your support!</p>{" "}
-                  <p>
-                    Don&apos;t forget to join our{" "}
-                    <a href={DISCORD_URL} target="_blank" rel="noreferrer">
-                      Discord Community
-                    </a>
-                    .
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <AdSlot slot="tower" isSupporter={isSupporter} onSupport={handlePatreonLogin} />
+            {!insideDmos && <RailFoot isSupporter={isSupporter} onSupport={handlePatreonLogin} />}
           </div>
 
           <AdSlot slot="banner" isSupporter={isSupporter} onSupport={handlePatreonLogin} />

@@ -12,6 +12,24 @@
 const DMOS_ORIGINS = ["https://dmos.simulacrumtechnologies.com"];
 const LOCAL_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 
+/**
+ * Whether this page is BattleTracker running in a dmOS window.
+ *
+ * Being framed at all says so: BattleTracker's headers let only dmOS frame it
+ * (frame-ancestors in public/_headers). `?host=dmos` says the same on purpose,
+ * to see the dmOS layout in an ordinary tab.
+ */
+export function inDmos(): boolean {
+  try {
+    if (new URLSearchParams(window.location.search).get("host") === "dmos") return true;
+    return window.self !== window.top;
+  } catch {
+    /* A page the browser won't even let compare itself with the top window
+       is a framed one. */
+    return true;
+  }
+}
+
 /** Only dmOS may ask; any local origin may too while developing. */
 export function isAllowedOrigin(origin: string, dev: boolean): boolean {
   return DMOS_ORIGINS.includes(origin) || (dev && LOCAL_ORIGIN.test(origin));

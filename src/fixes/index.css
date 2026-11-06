@@ -62,3 +62,5 @@
 @import "./gate-unavailable.css";
 @import "./patreon-rail-button.css";
 @import "./privacy-panel.css";
+/* Last: BattleTracker in a dmOS window, where the rail is down to the gear. */
+@import "./in-dmos.css";

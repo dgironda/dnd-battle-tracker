@@ -13,6 +13,7 @@ import PlayerLinkProvider from "./components/PlayerLinkProvider";
 import { installNumberFieldSelection } from "./utils/numberFields";
 import { CampaignBadge } from "./components/CampaignBadge";
 import { reloadOnCampaignSwitch } from "./utils/LocalStorage";
+import { inDmos } from "./utils/dmos";
 
 /* Every number field in the app opens with its number selected — see
    numberFields.ts. Installed once, for the life of the page. */
@@ -21,6 +22,10 @@ installNumberFieldSelection();
 /* dmOS can switch campaign from another frame; the page follows by reloading,
    since everything it holds belongs to the old one. See utils/LocalStorage. */
 reloadOnCampaignSwitch();
+/* In a dmOS window the side rail is down to the gear (App.tsx), and the page
+   lays itself out for that: fixes/in-dmos.css. Marked before the first paint,
+   so the rail never shows and then goes. */
+if (inDmos()) document.documentElement.dataset.host = "dmos";
 
 /* Analytics runs only for somebody who has said yes: posthog-js is not even
    downloaded before that, and in dev or without a key there is nothing to

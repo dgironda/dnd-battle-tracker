@@ -1,0 +1,20 @@
+/* ==========================================================================
+   INSIDE dmOS
+
+   dmOS shows BattleTracker in a window of its own, beside its own Hero
+   Manager, Bestiary and the rest, so there the rail is down to the gear:
+   App.tsx leaves the rest out, and main.tsx marks the page (inDmos() in
+   utils/dmos.ts). The rail's column narrows to fit the gear, and the tracker
+   takes the room it leaves.
+
+   Scoped to dmOS: the page everyone else sees is exactly as it was.
+   ========================================================================== */
+
+@media (orientation: landscape) {
+  /* The gear and the margin it sits in, on both sides: 0.55 + 2.6 + 0.55rem
+     (gfx.css and index.css). Outweighs the wider column the ad tower asks for
+     in index.css, which a dmOS window never shows anyway. */
+  :root[data-host="dmos"] #page {
+    grid-template-columns: 3.7rem auto minmax(0, 1fr);
+  }
+}
