@@ -123,7 +123,7 @@ function campaignParam(params: Params): string {
 const text = (value: unknown, max: number) => (typeof value === "string" ? value.slice(0, max) : "");
 
 /** Attacks as dmOS sent them, cut down to the fields an Attack has. */
-export function cleanAttacks(value: unknown): Attack[] {
+function cleanAttacks(value: unknown): Attack[] {
   if (!Array.isArray(value)) return [];
   return value.slice(0, 30).flatMap((a) => {
     if (!a || typeof a !== "object" || typeof a.id !== "string" || !a.id) return [];
@@ -484,7 +484,7 @@ export async function answer(
 }
 
 /** Which campaign a storage key holds `baseKey` for, or null if it isn't that key. */
-export function keyCampaign(key: string | null, baseKey: string): string | null {
+function keyCampaign(key: string | null, baseKey: string): string | null {
   if (key === campaignKey(baseKey, DEFAULT_CAMPAIGN_ID)) return DEFAULT_CAMPAIGN_ID;
   const match = key?.match(/^campaign:([a-z0-9-]+):(.+)$/);
   return match && match[2] === baseKey ? match[1] : null;
