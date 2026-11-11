@@ -131,6 +131,11 @@ export function CombatantRow({
     >
       <td role="cell" className={`combatantName ${underlineVariant(combatant.id)}`} style={underlineStyle(combatant.id)}>
         {isCurrent && <span className="currentTurnIndicator" aria-hidden="true" />}
+        {combatant.noTurn && (
+          <span className="combatantNoTurn" title="A hero's ally with no turn of its own: it acts on its hero's turn, or not at all">
+            no turn
+          </span>
+        )}
 
         {combatant.type === "hero" ? (
           // hero may be undefined if they were deleted mid-battle;

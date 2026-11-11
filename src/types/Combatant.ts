@@ -39,5 +39,13 @@ export interface Combatant {
   stats?: string;
   hp?: number;
   notes?: string;
+
+  /**
+   * A hero's ally, put in the fight by dmOS from the player's sheet (an Echo
+   * Knight's echo, a ranger's companion, a familiar, a summon): that hero's id.
+   */
+  owner?: string;
+  /** Takes no turn of its own (an echo; a companion acting on its hero's turn): skipped when the turn passes, still hit and healed. */
+  noTurn?: boolean;
 }
 

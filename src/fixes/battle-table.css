@@ -567,3 +567,15 @@
   text-align: center;
   padding: 0;
 }
+
+/* A hero's ally that takes no turn (an echo, a companion): a small tag by its name. */
+#battleTracker .combatantName .combatantNoTurn {
+  float: right;
+  margin-left: 0.4em;
+  padding: 0 0.35em;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  font-size: 0.7em;
+  font-style: italic;
+  opacity: 0.7;
+}

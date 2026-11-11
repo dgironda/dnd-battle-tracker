@@ -37,7 +37,8 @@ export function nextTurn(
   sorted: readonly Combatant[],
   current: number,
 ): { index: number; isNewRound: boolean } | null {
-  const living = sorted.flatMap((c, i) => (c.conditions.includes("Dead") ? [] : [i]));
+  // The dead have no turn; nor does an ally that acts on its hero's (noTurn).
+  const living = sorted.flatMap((c, i) => (c.conditions.includes("Dead") || c.noTurn ? [] : [i]));
   if (living.length === 0) return null;
   const waiting = living.find((i) => i !== current && !hasActed(sorted[i]));
   return { index: waiting ?? living[0], isNewRound: waiting === undefined };
