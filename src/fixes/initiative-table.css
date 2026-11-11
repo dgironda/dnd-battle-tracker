@@ -177,6 +177,12 @@
   text-align: center;
 }
 
+/* A player's own roll from dmDM: ringed, so the DM can tell it from one they typed. */
+.initTotal input.is-from-player {
+  box-shadow: inset 0 0 0 2px var(--color-hl2, #b8860b);
+  font-weight: 700;
+}
+
 .initTotal input::placeholder {
   color: var(--panel-ink-soft);
   font-style: italic;

@@ -85,6 +85,7 @@ import {
   storeMonsters,
   type CampaignPart,
 } from "./utils/LocalStorage";
+import { putRolls, readRollsParam, readTable, TABLE_KEY } from "./utils/initiativeCall";
 import { planMonsterNames } from "./utils/monsterNaming";
 import { fetchSupporterState, type SupporterState } from "./utils/patreonSession";
 import { normalizeHero } from "./utils/roster";
@@ -94,8 +95,9 @@ import { byInitiative, nextTurn, passTurn } from "./utils/turnOrder";
  * Bumped when a method changes shape, so dmOS can tell what it's talking to.
  * 9: getCampaignData, putCampaignData, toFightPaper, and `at` on the change
  * events. (8, never released, handed out a Battle Link URL instead.)
+ * 10: the initiativeTable event, and setInitiativeRolls.
  */
-export const BRIDGE_VERSION = 9;
+export const BRIDGE_VERSION = 10;
 
 /** Open to everyone, so dmOS can tell a stranger what it is. */
 const OPEN_METHODS = new Set(["hello", "getSupporter"]);
@@ -345,6 +347,17 @@ const METHODS: Record<string, (params: Params) => unknown> = {
    * passTurn), logging a new round and any readied action that lapses.
    * Returns the battle as it now stands.
    */
+  /**
+   * Players' initiative totals from dmDM, by hero id, for the campaign's open
+   * initiative table: it fills them into the boxes the DM hasn't typed in.
+   */
+  setInitiativeRolls: (params) => {
+    const rolls = readRollsParam(params.rolls);
+    if (!rolls) throw new Error("rolls must map hero ids to whole-number totals.");
+    putRolls(campaignParam(params), rolls);
+    return null;
+  },
+
   endTurn: (params) => {
     const campaignId = campaignParam(params);
     const battle = getCampaignBattle(campaignId);
@@ -587,7 +600,12 @@ function start(): void {
   const report = changeReporter((change) => {
     if (dmosOrigin) window.parent.postMessage({ dmos: 1, ...change }, dmosOrigin);
   });
-  window.addEventListener("storage", (e) => report(e.key));
+  window.addEventListener("storage", (e) => {
+    // The initiative table opening or closing: at once, so dmOS can ask the party while it's up.
+    const table = e.key === TABLE_KEY ? readTable() : null;
+    if (table && dmosOrigin) window.parent.postMessage({ dmos: 1, event: "initiativeTable", ...table }, dmosOrigin);
+    else report(e.key);
+  });
 }
 
 if (typeof window !== "undefined") start();

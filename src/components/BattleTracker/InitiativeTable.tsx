@@ -9,6 +9,7 @@ import {
 import InitIcon from "../../assets/draftsvgs_v2/icon_init.svg";
 import { baseMonsterName } from "../../utils/monsterNaming";
 import { formatModifier, parseInitiative, rollInitiative } from "../../utils/initiative";
+import { usePlayerRolls } from "./usePlayerRolls";
 
 /** One combatant waiting on an initiative. */
 export interface InitiativeEntry {
@@ -55,6 +56,7 @@ export function InitiativeTable({ groups, onSubmit, onCancel }: InitiativeTableP
   const entries = useMemo(() => groups.flat(), [groups]);
   const [values, setValues] = useState<Record<string, string>>({});
   const startRef = useRef<HTMLButtonElement>(null);
+  const players = usePlayerRolls(entries, setValues);
 
   /* Escape backs out of starting the battle, as it does from the single
      prompt. A click outside does not: here it would throw away a whole
@@ -75,12 +77,14 @@ export function InitiativeTable({ groups, onSubmit, onCancel }: InitiativeTableP
   const isBlank = (id: string) => parseInitiative(raw(id)) === null;
   const blanks = entries.filter((e) => isBlank(e.id)).length;
 
-  const setAll = (ids: string[], value: string) =>
+  const setAll = (ids: string[], value: string) => {
+    players.takeOver(ids);
     setValues((prev) => {
       const next = { ...prev };
       for (const id of ids) next[id] = value;
       return next;
     });
+  };
 
   /* The dice are rolled out here rather than inside a state update, because
      an update can run twice and would roll twice. */
@@ -140,6 +144,8 @@ export function InitiativeTable({ groups, onSubmit, onCancel }: InitiativeTableP
           value={raw(entry.id)}
           placeholder="–"
           aria-label={`Initiative for ${entry.name}`}
+          className={players.isFromPlayer(entry.id) ? "is-from-player" : undefined}
+          title={players.isFromPlayer(entry.id) ? "Rolled by the player in dmDM" : undefined}
           onChange={(e) => setAll([entry.id], e.target.value)}
           onKeyDown={onEnter(index + 1, entry.id)}
           autoFocus={index === 0}
