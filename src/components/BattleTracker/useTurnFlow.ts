@@ -89,15 +89,28 @@ export function useTurnFlow({
     }
   }, [activeCombatant, patchCombatant]);
 
-  // Advance turn when action, bonus, and move are all checked
+  // Advance turn when action, bonus, and move are all checked. Not for an
+  // ally's ticks: it never holds a turn to end (see below).
   useEffect(() => {
     if (!activeCombatant || hpWindowOpen) return;
-    if (activeCombatant.conditions.includes("Dead")) return;
+    if (activeCombatant.conditions.includes("Dead") || activeCombatant.noTurn) return;
 
     if (activeCombatant.action && activeCombatant.bonus && activeCombatant.move) {
       handleNextTurn();
     }
   }, [activeCombatant, hpWindowOpen, handleNextTurn]);
+
+  /* An ally that acts on its hero's turn (noTurn) never holds one. When the
+     turn lands on one anyway (it sorts first as the fight starts, or whoever
+     was acting is taken out and it slides into their place), pass it straight
+     on, by the rule Next Turn uses: nextTurn skips allies. Unless nobody is
+     left who can take it, when passing would only restart the timer. The
+     condition reminder and the death-save window skip allies too, so neither
+     comes up for the moment the turn rests on one. */
+  useEffect(() => {
+    if (!activeCombatant?.noTurn || hpWindowOpen) return;
+    if (nextTurn(sortedCombatants, safeTurnIndex)) handleNextTurn();
+  }, [activeCombatant, hpWindowOpen, sortedCombatants, safeTurnIndex, handleNextTurn]);
 
   /* Unchecking a box hands the turn back to that combatant, when they come
      before whoever is acting: the DM taking a turn back to put it right.
@@ -106,7 +119,10 @@ export function useTurnFlow({
      to the first combatant with ANY box clear, on every change to the fight,
      so somebody arriving above the active combatant with their boxes still
      clear (a newcomer, or a corrected total) took the turn mid-way through
-     someone else's. They wait for it to end now; see handleNextTurn. */
+     someone else's. They wait for it to end now; see handleNextTurn.
+
+     Never to an ally with no turn of its own (noTurn): its boxes record what
+     it spent on its hero's turn, and putting one right isn't taking a turn. */
   const lastSeen = useRef<Combatant[] | null>(null);
   useEffect(() => {
     const before = lastSeen.current;
@@ -119,6 +135,7 @@ export function useTurnFlow({
       return (
         old !== undefined &&
         !c.conditions.includes("Dead") &&
+        !c.noTurn &&
         ((old.action && !c.action) || (old.bonus && !c.bonus) || (old.move && !c.move))
       );
     });

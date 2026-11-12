@@ -29,9 +29,10 @@ export function useHpWindow({ combatants, activeCombatant, totalTurns, patchComb
     [combatants, hpModalId]
   );
 
-  // Auto-open HP modal for death saves
+  // Auto-open HP modal for death saves. Not for an ally with no turn of its own
+  // (noTurn): no turn starts for it, and useTurnFlow passes the turn straight on.
   useEffect(() => {
-    if (!activeCombatant || hpModalCombatant !== null) return;
+    if (!activeCombatant || activeCombatant.noTurn || hpModalCombatant !== null) return;
     if (processedTurnRef.current === totalTurns) return;
 
     if (activeCombatant.conditions.includes("Death Saves")) {

@@ -21,7 +21,9 @@ export function useConditionReminder(activeCombatant: Combatant | undefined) {
   const activeConditionCount = activeCombatant?.conditions.length ?? 0;
   useEffect(() => {
     const current = activeCombatantRef.current;
-    if (!current || activeConditionCount === 0) {
+    /* Not for an ally with no turn of its own (noTurn): the turn only rests on
+       one for a moment before useTurnFlow passes it on. */
+    if (!current || current.noTurn || activeConditionCount === 0) {
       setReminderOpen(false);
       return;
     }
