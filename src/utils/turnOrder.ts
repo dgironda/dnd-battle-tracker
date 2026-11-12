@@ -44,6 +44,9 @@ export function nextTurn(
   return { index: waiting ?? living[0], isNewRound: waiting === undefined };
 }
 
+/** Whose turn begins with `nextId`'s: theirs, and that of an ally of theirs with no turn of its own. */
+const startsTurn = (c: Combatant, nextId: string): boolean => c.id === nextId || (c.noTurn === true && c.owner === nextId);
+
 /**
  * The fight once the turn has passed to `nextId`, sorted by initiative.
  *
@@ -51,8 +54,9 @@ export function nextTurn(
  * on entering a turn: the marks are the DM's record of the round, and stepping
  * back and forward through it must not wipe them. A reaction refreshes at the
  * start of its owner's turn and only then, and a readied action lapses with it,
- * since nothing lets it be carried past your own turn. The dead are left as
- * they are.
+ * since nothing lets it be carried past your own turn. An ally with no turn of
+ * its own (a companion acting on its hero's) refreshes with its hero. The dead
+ * are left as they are.
  */
 export function passTurn(combatants: readonly Combatant[], nextId: string, isNewRound: boolean): Combatant[] {
   return combatants
@@ -60,7 +64,7 @@ export function passTurn(combatants: readonly Combatant[], nextId: string, isNew
       if (c.conditions.includes("Dead")) return c;
       let next = c;
       if (isNewRound) next = { ...next, action: false, bonus: false, move: false };
-      if (c.id === nextId) {
+      if (startsTurn(c, nextId)) {
         next = { ...next, reaction: false };
         if (next.conditions.includes(READIED_CONDITION)) {
           next = { ...next, conditions: next.conditions.filter((x) => x !== READIED_CONDITION) };
