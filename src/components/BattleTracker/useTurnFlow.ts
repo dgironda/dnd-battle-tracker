@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import type { Combatant } from "../../types/index";
 import { READIED_CONDITION } from "../../constants/Conditions";
 import { DEVMODE } from "../../utils/devmode";
-import { nextTurn, passTurn } from "../../utils/turnOrder";
+import { nextTurn, passTurn, readiedLapsing } from "../../utils/turnOrder";
 import type { useCombat } from "./CombatContext";
 
 type Combat = ReturnType<typeof useCombat>;
@@ -60,17 +60,16 @@ export function useTurnFlow({
 
     /* A readied action is held for a trigger "before the start of your next
        turn", so the chip comes off at exactly the moment the reaction refreshes
-       (passTurn). Read out here, and logged after the update, because the
+       (passTurn): on whoever's turn starts, and on an ally of theirs with no
+       turn of its own. Read out here, and logged after the update, because the
        updater runs twice under StrictMode and a log entry is a side effect. */
     const startingTurn = sortedCombatants[nextIndex];
-    const readiedExpired = startingTurn.conditions.includes(READIED_CONDITION);
+    const lapsing = readiedLapsing(sortedCombatants, startingTurn.id);
 
     setCombatants((prev) => passTurn(prev, startingTurn.id, isNewRound));
 
-    /* The log says why the chip went, since nobody clicked it off. */
-    if (readiedExpired) {
-      logEvent("condition-off", startingTurn.name, { detail: READIED_CONDITION });
-    }
+    /* The log says why each chip went, since nobody clicked it off. */
+    for (const c of lapsing) logEvent("condition-off", c.name, { detail: READIED_CONDITION });
 
     setCurrentTurnIndex(nextIndex);
     if (isNewRound) setRoundNumber(roundNumber + 1);

@@ -89,7 +89,7 @@ import { putRolls, readRollsParam, readTable, TABLE_KEY } from "./utils/initiati
 import { planMonsterNames } from "./utils/monsterNaming";
 import { fetchSupporterState, type SupporterState } from "./utils/patreonSession";
 import { normalizeHero } from "./utils/roster";
-import { byInitiative, nextTurn, passTurn } from "./utils/turnOrder";
+import { byInitiative, nextTurn, passTurn, readiedLapsing } from "./utils/turnOrder";
 
 /**
  * Bumped when a method changes shape, so dmOS can tell what it's talking to.
@@ -372,8 +372,8 @@ const METHODS: Record<string, (params: Params) => unknown> = {
     const round = turn.isNewRound ? battle.round + 1 : battle.round;
     let log: LogEntry[] = getCampaignBattleLog(campaignId);
     if (turn.isNewRound) log = appendEntry(log, makeEntry("round", "", round));
-    if (starting.conditions.includes(READIED_CONDITION)) {
-      log = appendEntry(log, makeEntry("condition-off", starting.name, round, { detail: READIED_CONDITION }));
+    for (const c of readiedLapsing(acted, starting.id)) {
+      log = appendEntry(log, makeEntry("condition-off", c.name, round, { detail: READIED_CONDITION }));
     }
     const combatants = passTurn(acted, starting.id, turn.isNewRound);
     storeCampaignTurn(campaignId, { combatants, round, turnIndex: turn.index, startedAt: Date.now() });

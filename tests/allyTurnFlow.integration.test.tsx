@@ -118,6 +118,10 @@ const endTurn = (id: string) => {
   tick(id, 'move');
 };
 
+const stored = () => JSON.parse(memory.getItem('storedCombatants')!) as Combatant[];
+const storedLog = () =>
+  JSON.parse(memory.getItem('battleLog') ?? '[]') as { kind: string; who: string; detail?: string }[];
+
 const whoseTurn = () => document.querySelector('.isCurrentTurn .combatantNameText')?.textContent ?? '';
 const order = () =>
   [...document.querySelectorAll('#battleTracker tbody .combatantNameText')].map((n) => n.textContent);
@@ -218,6 +222,27 @@ describe("an ally with no turn of its own", () => {
 
     await waitFor(() => expect(whoseTurn()).toBe('Qwint'));
     expect(screen.queryByRole('dialog', { name: 'Change HP for Echo' })).toBeNull();
+  });
+
+  it("logs its readied action lapsing with its hero's turn, as well as the hero's", async () => {
+    seed([
+      combatant('af-a', 'Aldric', 20),
+      combatant('af-q', 'Qwint', 15, { conditions: ['Ready'] }),
+      ally('af-w', 'Wolf', 15, 'af-q', { conditions: ['Ready'] }),
+    ]);
+    await renderFight();
+    endTurn('af-a');
+    await waitFor(() => expect(whoseTurn()).toBe('Qwint'));
+
+    /* Both chips go as Qwint's turn starts, and nobody clicked either off, so
+       the log says why for each. */
+    await waitFor(() =>
+      expect(storedLog().filter((e) => e.kind === 'condition-off')).toMatchObject([
+        { who: 'Qwint', detail: 'Ready' },
+        { who: 'Wolf', detail: 'Ready' },
+      ]),
+    );
+    expect(stored().map((c) => c.conditions)).toEqual([[], [], []]);
   });
 
   it('keeps the turn, and leaves the clock alone, when nobody else can take it', async () => {

@@ -300,6 +300,23 @@ describe('dmOS bridge: ending turns', () => {
     expect(log()).toMatchObject([{ kind: 'condition-off', detail: 'Ready' }]);
   });
 
+  it("logs a companion's readied action lapsing with its hero's turn, as well as the hero's", () => {
+    seed(
+      [
+        fighter('a', 20),
+        fighter('b', 15, { conditions: ['Ready'] }),
+        fighter('b~wolf', 15, { owner: 'b', noTurn: true, conditions: ['Ready'] }),
+      ],
+      0,
+    );
+    handleRequest('endTurn', { campaignId: 'default' });
+    expect(stored().map((c) => c.conditions)).toEqual([[], [], []]);
+    expect(log()).toMatchObject([
+      { kind: 'condition-off', who: 'b', detail: 'Ready' },
+      { kind: 'condition-off', who: 'b~wolf', detail: 'Ready' },
+    ]);
+  });
+
   it('leaves the whole fight in one snapshot, for a tracker open in another tab', () => {
     seed([fighter('a', 20), fighter('b', 15)], 0);
     handleRequest('endTurn', { campaignId: 'default' });

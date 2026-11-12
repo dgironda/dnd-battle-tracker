@@ -76,6 +76,18 @@ export function passTurn(combatants: readonly Combatant[], nextId: string, isNew
 }
 
 /**
+ * Whose readied action lapses as `nextId`'s turn starts: the same ones passTurn
+ * takes the chip off, so them and an ally of theirs with no turn of its own.
+ * Read before passing the turn, so the log can say why each chip went, since
+ * nobody clicked it off. Shared by Next Turn and the dmOS bridge's endTurn.
+ */
+export function readiedLapsing(combatants: readonly Combatant[], nextId: string): Combatant[] {
+  return combatants.filter(
+    (c) => !c.conditions.includes("Dead") && startsTurn(c, nextId) && c.conditions.includes(READIED_CONDITION),
+  );
+}
+
+/**
  * Where the turn belongs once the fight has changed from `before` to `after`:
  * on whoever was acting, wherever the change has moved them. If they are not
  * in `after` at all, the position is left where it was for the caller to deal
