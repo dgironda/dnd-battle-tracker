@@ -8,7 +8,8 @@ Read this instead of rediscovering the setup.
 npm test                     # vitest run   (~18 s, 59 files, ~490 tests)
 npx vitest run tests/initiative.test.ts
 npm run lint
-npx fallow dead-code         # fallow isn't a devDependency here; dmOS and Sheets have it
+npm run fallow               # dead code, dupes, complexity vs the two fallow-*-baseline.json files
+npm run fallow:changed       # fallow audit: only files changed since the base branch
 ```
 
 `npm test` does not typecheck. Run `npx tsc -b` too when you change types.
@@ -33,4 +34,4 @@ jsdom startup is most of the run (about 20 s of environment time spread over wor
 
 ## Known state (2026-11-13)
 
-- fallow dead code: clean (`.fallowrc.jsonc` exists, from the merged `fallow` branch). fallow health reports 25 findings and 8 duplicate groups, but this repo has no baseline or npm script for it yet.
+- fallow dead code: clean. Health (25 findings) and dupes (8 groups) baselines saved 2026-11-13, so `npm run fallow` fails only on new growth. Run `npm run fallow:changed` whenever BattleTracker code changed.

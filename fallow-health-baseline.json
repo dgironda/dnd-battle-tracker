@@ -1,0 +1,141 @@
+{
+  "kind": "health",
+  "finding_counts": {
+    "functions/api/patreon/health.ts": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "src/App.tsx": {
+      "complexity_high": {
+        "count": 1
+      },
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "src/bridge.ts": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "src/components/BattleManager/BattleManager.tsx": {
+      "complexity_moderate": {
+        "count": 1
+      },
+      "crap_high": {
+        "count": 1
+      },
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "src/components/BattleManager/BattlePhotoThumbnail.tsx": {
+      "complexity_moderate": {
+        "count": 1
+      }
+    },
+    "src/components/BattleTracker/BattleTracker.tsx": {
+      "complexity_critical": {
+        "count": 1
+      },
+      "crap_critical": {
+        "count": 1
+      }
+    },
+    "src/components/BattleTracker/CombatContext.tsx": {
+      "complexity_high": {
+        "count": 1
+      }
+    },
+    "src/components/BattleTracker/CombatantRow.tsx": {
+      "complexity_high": {
+        "count": 1
+      }
+    },
+    "src/components/BattleTracker/ConditionMark.tsx": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "src/components/BattleTracker/HeroStatBlockHover.tsx": {
+      "complexity_moderate": {
+        "count": 1
+      }
+    },
+    "src/components/BattleTracker/InitiativeTable.tsx": {
+      "complexity_moderate": {
+        "count": 1
+      }
+    },
+    "src/components/BattleTracker/useHeroEditsReachFight.ts": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "src/components/ErrorNotice.tsx": {
+      "complexity_high": {
+        "count": 1
+      },
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "src/hooks/useStartBattle.ts": {
+      "complexity_high": {
+        "count": 1
+      },
+      "crap_high": {
+        "count": 1
+      },
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "src/utils/dmg-heal.tsx": {
+      "complexity_moderate": {
+        "count": 1
+      }
+    },
+    "src/utils/encounterShare.ts": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "src/utils/monsterShareURL.ts": {
+      "crap_moderate": {
+        "count": 1
+      }
+    },
+    "src/utils/notify.tsx": {
+      "complexity_moderate": {
+        "count": 1
+      }
+    },
+    "src/utils/roster.ts": {
+      "complexity_moderate": {
+        "count": 2
+      }
+    },
+    "tools/add-challenge-ratings.mjs": {
+      "crap_high": {
+        "count": 1
+      }
+    },
+    "tools/generate-hand-art.mjs": {
+      "complexity_critical": {
+        "count": 1
+      },
+      "crap_critical": {
+        "count": 1
+      }
+    }
+  },
+  "runtime_coverage_findings": [],
+  "target_keys": [
+    "src/components/BattleTracker/BattleTracker.tsx:complexity",
+    "src/components/BattleTracker/CombatContext.tsx:complexity",
+    "src/utils/initiativeCall.ts:high impact",
+    "src/utils/roomProtocol.ts:high impact"
+  ]
+}

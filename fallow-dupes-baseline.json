@@ -1,0 +1,33 @@
+{
+  "kind": "dupes",
+  "clone_groups": [
+    "src/fixes/drawn-buttons.css:56-97|src/fixes/rest-of-the-buttons.css:21-59",
+    "src/components/BattleTracker/InitiativeDialog.tsx:19-36|src/components/BattleTracker/InitiativeTable.tsx:59-76",
+    "src/fixes/cross-mark.css:25-30|src/fixes/cross-mark.css:89-94",
+    "src/fixes/about.css:21-40|src/fixes/options.css:17-37",
+    "src/components/Tour.tsx:121-126|src/components/Tour.tsx:142-147|src/components/Tour.tsx:154-159",
+    "src/fixes/edit-battle.css:52-67|src/fixes/saved-battle-photos.css:128-143",
+    "src/fixes/drawn-buttons.css:230-247|src/fixes/drawn-buttons.css:32-54",
+    "src/components/Tour.tsx:121-128|src/components/Tour.tsx:142-149"
+  ],
+  "clone_fingerprints": [
+    "dup:a20132c6:2",
+    "dup:ab2900c6:2",
+    "dup:97888f89:2",
+    "dup:f5549c68:2",
+    "dup:6779d87c:3",
+    "dup:65222d9d:2",
+    "dup:12b10e3b:2",
+    "dup:b2ffaf5f:2"
+  ],
+  "normalized_clone_fingerprints": [
+    "dup:d1e2bad2:2",
+    "dup:9f1ecc62:2",
+    "dup:1e5ba36d:2",
+    "dup:c0193700:2",
+    "dup:6dbe7f0e:3",
+    "dup:047e6d7d:2",
+    "dup:9e5b450d:2",
+    "dup:b3440034:2"
+  ]
+}
