@@ -1,6 +1,14 @@
-import '@testing-library/jest-dom/vitest';
 import { afterEach } from 'vitest';
-import { cleanup } from '@testing-library/react';
+
+/* Only the jsdom tests (the ones with a `@vitest-environment jsdom` docblock)
+   render anything. Loading Testing Library into the plain node tests too cost
+   every one of them its import time for nothing. */
+const inDom = typeof document !== 'undefined';
+if (inDom) {
+  await import('@testing-library/jest-dom/vitest');
+  const { cleanup } = await import('@testing-library/react');
+  afterEach(() => cleanup());
+}
 
 /* jsdom does not implement matchMedia, and the app assumes it does — App.tsx
    reads orientation from it, and the stat panels ask it whether the layout is
@@ -22,9 +30,3 @@ if (typeof window !== 'undefined' && typeof window.matchMedia !== 'function') {
       dispatchEvent: () => false,
     }) as unknown as MediaQueryList;
 }
-
-afterEach(() => {
-  if (typeof document !== 'undefined') {
-    cleanup();
-  }
-});

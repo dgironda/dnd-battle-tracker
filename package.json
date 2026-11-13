@@ -18,7 +18,9 @@
 		"test": "vitest run",
 		"deploy": "npm run build && wrangler pages deploy",
 		"deploy:rooms": "wrangler deploy -c workers/battle-rooms/wrangler.jsonc",
-		"cf-typegen": "wrangler types"
+		"cf-typegen": "wrangler types",
+		"fallow": "fallow --health-baseline fallow-health-baseline.json --dupes-baseline fallow-dupes-baseline.json",
+		"fallow:changed": "fallow audit"
 	},
 	"dependencies": {
 		"driver.js": "^1.4.0",
@@ -38,6 +40,7 @@
 		"eslint": "^9.33.0",
 		"eslint-plugin-react-hooks": "^5.2.0",
 		"eslint-plugin-react-refresh": "^0.4.20",
+		"fallow": "^3.42.0",
 		"globals": "^16.3.0",
 		"jsdom": "^29.1.1",
 		"typescript": "~5.8.3",

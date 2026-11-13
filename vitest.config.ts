@@ -24,6 +24,5 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['./tests/setupTests.ts'],
     include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
-    environmentMatchGlobs: [['tests/**/*.rtl.test.ts', 'jsdom']],
   },
 });
