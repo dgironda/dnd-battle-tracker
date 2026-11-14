@@ -68,3 +68,22 @@ export function hitAtZero(
   if (!next.includes('Dead')) next.push('Dead');
   return { deathsaves: [], conditions: next, dead };
 }
+
+/**
+ * A hit on a combatant, as the HP window deals it: temp HP first; a hero
+ * already dying takes failed death saves instead (hitAtZero); a hero who just
+ * dropped starts a fresh set of saves. Every hit is kept as `lastHit`.
+ * `result` is the plain damage maths, for the battle log.
+ */
+export function hitCombatant(target: Combatant, amount: number, crit: boolean): { updated: Combatant; result: ReturnType<typeof resolveDamage> } {
+  const lastHit = stampHit(amount, crit);
+  const dying = target.conditions.includes('Death Saves');
+  const result = resolveDamage(amount, target.currHp, target.tHp, target.conditions, target.type);
+  if (target.type === 'hero' && target.currHp === 0 && dying) {
+    const down = hitAtZero(amount, crit, target.maxHp, target.deathsaves ?? [], target.conditions);
+    return { updated: { ...target, conditions: down.conditions, deathsaves: down.deathsaves, lastHit }, result };
+  }
+  const dropped = result.conditions.includes('Death Saves') && !dying;
+  const updated = { ...target, currHp: result.newHp, tHp: result.newtHp, conditions: result.conditions, ...(dropped ? { deathsaves: [] } : {}), lastHit };
+  return { updated, result };
+}

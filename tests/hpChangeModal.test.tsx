@@ -52,6 +52,7 @@ function defaultCallbacks() {
     onSubmit: vi.fn(),
     onUpdateBoth: vi.fn(),
     onUpdateDeathSaves: vi.fn(),
+    onHit: vi.fn(),
     onClose: vi.fn(),
     updateCombatant: vi.fn(),
   };
@@ -161,5 +162,22 @@ describe('HpChangeModal', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Success' }));
     expect(cbs.onUpdateDeathSaves).toHaveBeenCalledWith([true]);
+  });
+  it('a crit on a dying hero fails two death saves, and every hit is reported as dealt', () => {
+    const cbs = renderModal({ conditions: ['Death Saves'], currentHp: 0, maxHp: 20, deathsaves: [true] });
+    fireEvent.click(screen.getByRole('button', { name: 'Crit' }));
+    fireEvent.change(screen.getByPlaceholderText('Enter amount'), { target: { value: '5' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Take Crit Damage' }));
+    expect(cbs.onHit).toHaveBeenCalledWith(5, true);
+    expect(cbs.onUpdateDeathSaves).toHaveBeenCalledWith([true, false, false]);
+    expect(cbs.onClose).not.toHaveBeenCalled();
+  });
+
+  it('a hit of their maximum or more kills a dying hero', () => {
+    const cbs = renderModal({ conditions: ['Death Saves'], currentHp: 0, maxHp: 20, deathsaves: [] });
+    fireEvent.change(screen.getByPlaceholderText('Enter amount'), { target: { value: '20' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Take Damage' }));
+    expect(cbs.onUpdateBoth).toHaveBeenCalledWith(0, 0, ['Dead']);
+    expect(cbs.onClose).toHaveBeenCalled();
   });
 });

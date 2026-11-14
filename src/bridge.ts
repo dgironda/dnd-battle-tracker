@@ -45,7 +45,7 @@
 import { READIED_CONDITION } from "./constants/Conditions";
 import type { Attack, Hero, Monster } from "./types/index";
 import { appendEntry, makeEntry, type LogEntry } from "./utils/battleLog";
-import { hitAtZero, resolveDamage, stampHit } from "./utils/damage";
+import { hitCombatant } from "./utils/damage";
 import {
   cleanConditionRules,
   getCampaignConditionRules,
@@ -284,22 +284,7 @@ const METHODS: Record<string, (params: Params) => unknown> = {
     const target = battle.combatants.find((c) => c.id === params.targetId);
     if (!target) throw new Error("That combatant isn't in the battle.");
 
-    const crit = params.crit === true;
-    const lastHit = stampHit(amount, crit);
-    const atZero = target.type === "hero" && target.currHp === 0 && target.conditions.includes("Death Saves");
-    const down = atZero ? hitAtZero(amount, crit, target.maxHp, target.deathsaves ?? [], target.conditions) : null;
-    const result = resolveDamage(amount, target.currHp, target.tHp, target.conditions, target.type);
-    const updated = down
-      ? { ...target, conditions: down.conditions, deathsaves: down.deathsaves, lastHit }
-      : {
-          ...target,
-          currHp: result.newHp,
-          tHp: result.newtHp,
-          conditions: result.conditions,
-          // A hero who just dropped starts a fresh set of death saves, as in the HP window.
-          ...(result.conditions.includes("Death Saves") && !target.conditions.includes("Death Saves") ? { deathsaves: [] } : {}),
-          lastHit,
-        };
+    const { updated, result } = hitCombatant(target, amount, params.crit === true);
     storeCampaignCombatants(campaignId, battle.combatants.map((c) => (c.id === target.id ? updated : c)));
 
     let log: LogEntry[] = getCampaignBattleLog(campaignId);
