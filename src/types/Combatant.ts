@@ -47,5 +47,11 @@ export interface Combatant {
   owner?: string;
   /** Takes no turn of its own (an echo; a companion acting on its hero's turn): skipped when the turn passes, still hit and healed. */
   noTurn?: boolean;
+  /**
+   * The last hit taken, as dealt (before temp HP and 0), and when (ms). dmOS
+   * passes it to a linked sheet with the vitals, so a hit on a hero already at
+   * 0 still counts there as a failed death save (two on a crit). See stampHit.
+   */
+  lastHit?: { amount: number; crit: boolean; at: number };
 }
 

@@ -243,8 +243,8 @@ describe('the initiative paper', () => {
 });
 
 describe('the bridge', () => {
-  it("is version 10 (the initiative table's messages), and still no longer hands out a Battle Link URL", () => {
-    expect(BRIDGE_VERSION).toBe(10);
+  it("is version 11 (applyDamage's crit, and every hit kept as lastHit), and still no longer hands out a Battle Link URL", () => {
+    expect(BRIDGE_VERSION).toBe(11);
     expect(handleRequest('getFightPaper', { campaignId: 'ember-keep' })).toEqual({
       error: 'Unknown method getFightPaper.',
     });

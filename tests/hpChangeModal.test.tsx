@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { HpChangeModal } from '../src/utils/dmg-heal';
 import type { Combatant } from '../src/types/index';
 
@@ -52,6 +52,7 @@ function defaultCallbacks() {
     onSubmit: vi.fn(),
     onUpdateBoth: vi.fn(),
     onUpdateDeathSaves: vi.fn(),
+    onHit: vi.fn(),
     onClose: vi.fn(),
     updateCombatant: vi.fn(),
   };
@@ -161,5 +162,39 @@ describe('HpChangeModal', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Success' }));
     expect(cbs.onUpdateDeathSaves).toHaveBeenCalledWith([true]);
+  });
+  it('a crit on a dying hero fails two death saves, and every hit is reported as dealt', () => {
+    const cbs = renderModal({ conditions: ['Death Saves'], currentHp: 0, maxHp: 20, deathsaves: [true] });
+    fireEvent.click(screen.getByRole('button', { name: 'Crit' }));
+    fireEvent.change(screen.getByPlaceholderText('Enter amount'), { target: { value: '5' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Take Crit Damage' }));
+    expect(cbs.onHit).toHaveBeenCalledWith(5, true);
+    expect(cbs.onUpdateDeathSaves).toHaveBeenCalledWith([true, false, false]);
+    expect(cbs.onClose).not.toHaveBeenCalled();
+  });
+
+  it('a hit of their maximum or more kills a dying hero', () => {
+    const cbs = renderModal({ conditions: ['Death Saves'], currentHp: 0, maxHp: 20, deathsaves: [] });
+    fireEvent.change(screen.getByPlaceholderText('Enter amount'), { target: { value: '20' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Take Damage' }));
+    expect(cbs.onUpdateBoth).toHaveBeenCalledWith(0, 0, ['Dead']);
+    expect(cbs.onClose).toHaveBeenCalled();
+  });
+  it('matches the sheet: massive damage on the drop, temp HP soaking a hit at 0, a stable hero dying again', () => {
+    const hitFor = (amount: string, over: Parameters<typeof renderModal>[0]) => {
+      const cbs = renderModal({ maxHp: 20, ...over });
+      fireEvent.change(screen.getByPlaceholderText('Enter amount'), { target: { value: amount } });
+      fireEvent.click(screen.getByRole('button', { name: 'Take Damage' }));
+      cleanup();
+      return cbs;
+    };
+    const massive = hitFor('25', { type: 'hero', currentHp: 5, tHp: 0, conditions: [] });
+    expect(massive.onUpdateBoth).toHaveBeenCalledWith(0, 0, ['Dead']);
+    const soaked = hitFor('6', { currentHp: 0, tHp: 6, conditions: ['Death Saves'], deathsaves: [] });
+    expect(soaked.onSubmit).toHaveBeenCalledWith(0, 0);
+    expect(soaked.onUpdateDeathSaves).not.toHaveBeenCalledWith([false]);
+    const stable = hitFor('2', { type: 'hero', currentHp: 0, tHp: 0, conditions: [], deathsaves: [true, true, true, false] });
+    expect(stable.onUpdateDeathSaves).toHaveBeenCalledWith([false, false]);
+    expect(stable.onUpdateBoth).toHaveBeenCalledWith(0, 0, ['Death Saves']);
   });
 });

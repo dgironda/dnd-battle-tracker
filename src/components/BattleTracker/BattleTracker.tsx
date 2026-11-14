@@ -5,6 +5,7 @@ import {
   conditionDescriptionsTwentyFourteen,
 } from "../../constants/Conditions";
 import { HpChangeModal } from "../../utils/dmg-heal";
+import { stampHit } from "../../utils/damage";
 import { getTurnStart, storeTurnStart, STORAGE_KEYS, type BattleSync } from "../../utils/LocalStorage";
 import { useHeroes } from "../../hooks/useHeroes";
 import { useMonsters } from "../../hooks/useMonsters";
@@ -367,6 +368,9 @@ const BattleTracker: React.FC = () => {
           }}
           onUpdateDeathSaves={(saves) => {
             patchCombatant(hpModalCombatant.id, { deathsaves: saves });
+          }}
+          onHit={(amount, crit) => {
+            patchCombatant(hpModalCombatant.id, { lastHit: stampHit(amount, crit) });
           }}
           onClose={() => closeHpWindow(handleNextTurn)}
         />
