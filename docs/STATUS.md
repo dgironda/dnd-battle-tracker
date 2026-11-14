@@ -9,7 +9,6 @@ Read at the start of a session; update before you finish. Newest first, one line
 ## In flight
 
 - 2026-11-14 · branch `claude/project-thread-o996j0`: CLAUDE.md orientation, `docs/MAP.md`, this file, and blocked reads of the bestiaries. Not merged yet.
-- 2026-11-14 · branch `claude/project-thread-yuyijr`: CLAUDE.md "before you start" (pull first, TESTING.md, dmDM naming). Not merged yet.
 
 ## Old branches
 
