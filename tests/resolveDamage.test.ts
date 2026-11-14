@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveDamage } from '../src/utils/damage';
+import { hitAtZero, resolveDamage, stampHit } from '../src/utils/damage';
 
 /**
  * Regression coverage for the damage maths that used to be written out three
@@ -72,5 +72,25 @@ describe('resolveDamage', () => {
     const r = resolveDamage(1, 10, 0, ['Prone'], 'hero');
     expect(r.conditions).toEqual(['Prone']);
     expect(r.changed).toBe(false);
+  });
+});
+
+describe('hitAtZero', () => {
+  it('fails one death save, or two on a crit, and three failures is death', () => {
+    expect(hitAtZero(3, false, 20, [true], ['Death Saves'])).toEqual({ deathsaves: [true, false], conditions: ['Death Saves'], dead: false });
+    expect(hitAtZero(3, true, 20, [false], ['Death Saves', 'Prone'])).toEqual({ deathsaves: [], conditions: ['Prone', 'Dead'], dead: true });
+  });
+
+  it('kills outright at the maximum hit points, not one below', () => {
+    expect(hitAtZero(19, false, 20, [], ['Death Saves']).dead).toBe(false);
+    expect(hitAtZero(20, false, 20, [], ['Death Saves']).dead).toBe(true);
+  });
+});
+
+describe('stampHit', () => {
+  it('keeps a hit as a whole number from 0 to 9999 (what dmOS accepts), with when', () => {
+    expect(stampHit(7.8, true, 5)).toEqual({ amount: 7, crit: true, at: 5 });
+    expect(stampHit(-2, false, 5).amount).toBe(0);
+    expect(stampHit(50_000, false, 5).amount).toBe(9999);
   });
 });

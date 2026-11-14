@@ -4,8 +4,25 @@ import { EditableCell } from '../utils/Utils';
 import { ConcentrationCheckModal } from './concentrationCheck';
 import { useGlobalContext } from '../hooks/optionsContext';
 import { notify } from './notify';
-import { resolveDamage } from './damage';
+import { hitCombatant } from './damage';
 import TempHpIcon from '../assets/draftsvgs_v2/icon_temphp.svg';
+
+const DAMAGE_LABEL: Record<string, string> = { true: 'Take Crit Damage', false: 'Take Damage' };
+
+/** Crit: marks the next hit a critical one (two failed death saves for a hero at 0). Beige off, red on. */
+function CritToggle({ crit, onToggle }: { crit: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      className={`drawnBtn hpChangeModalCritButton${crit ? ' isRed' : ''}`}
+      aria-pressed={crit}
+      title="A critical hit: two failed death saves for a hero at 0 HP"
+      onClick={onToggle}
+    >
+      Crit
+    </button>
+  );
+}
 
 interface HpChangeModalProps {
   combatant: Combatant;
@@ -19,6 +36,8 @@ interface HpChangeModalProps {
   onSubmit: (newHp: number, newtHp: number) => void;
   onUpdateBoth: (newHp: number, newtHp: number, newConditions: string[]) => void;
   onUpdateDeathSaves: (saves: boolean[]) => void;
+  /** Every hit, as dealt (before temp HP and 0), even one that changes no hit points. */
+  onHit?: (amount: number, crit: boolean) => void;
   onClose: () => void;
   updateCombatant: (
     combatantId: string,
@@ -39,16 +58,20 @@ export function HpChangeModal({
   onSubmit,
   onUpdateBoth,
   onUpdateDeathSaves,
+  onHit = () => {},
   onClose,
   updateCombatant,
 }: HpChangeModalProps) {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
+  const [crit, setCrit] = useState(false);
   const [showConcentrationCheck, setShowConcentrationCheck] = useState(false);
   const [concentrationDC, setConcentrationDC] = useState(10);
   const { settings } = useGlobalContext();
   const isConcentrating = conditions.includes('Concentrating');
   const isDying = conditions.includes('Death Saves');
+  /** At 0 and still in it (dying, or a stable hero): a hit is a failed death save, not lost hit points. */
+  const atZero = currentHp === 0 && !conditions.includes('Dead') && (isDying || type === 'hero');
   const [editingField, setEditingField] = useState<string | null>(null);
 
   const addDeathSaveSuccess = () => {
@@ -100,26 +123,51 @@ export function HpChangeModal({
     return value;
   };
 
+  /** The hit's outcome by the shared rule (hitCombatant), from what this window shows. */
+  const hitOutcome = (damage: number) =>
+    hitCombatant({ ...combatant, currHp: currentHp, maxHp, tHp, conditions, deathsaves, type }, damage, crit).updated;
+
+  const announceDeath = (after: Combatant) => {
+    if (after.conditions.includes('Dead') && !conditions.includes('Dead')) {
+      notify(`${combatantName} has died.`, { title: 'Death', tone: 'danger' });
+    }
+  };
+
   /** Commit a damage result and close. Shared by all three damage paths. */
   const commitDamage = (damage: number, dropConcentration: boolean) => {
-    const result = resolveDamage(damage, currentHp, tHp, conditions, type);
+    onHit(damage, crit);
+    const after = hitOutcome(damage);
     const finalConditions = dropConcentration
-      ? result.conditions.filter(c => c !== 'Concentrating')
-      : result.conditions;
+      ? after.conditions.filter(c => c !== 'Concentrating')
+      : after.conditions;
 
-    // A hero who just dropped starts a fresh set of death saves.
-    if (finalConditions.includes('Death Saves') && !conditions.includes('Death Saves')) {
-      onUpdateDeathSaves([]);
-    }
+    // A hero who just dropped starts a fresh set of death saves (or none, dead).
+    if (after.deathsaves !== deathsaves) onUpdateDeathSaves(after.deathsaves);
 
     if (finalConditions.length !== conditions.length || dropConcentration) {
-      onUpdateBoth(result.newHp, result.newtHp, finalConditions);
+      onUpdateBoth(after.currHp, after.tHp, finalConditions);
     } else {
-      onSubmit(result.newHp, result.newtHp);
+      onSubmit(after.currHp, after.tHp);
     }
+    announceDeath(after);
 
     setShowConcentrationCheck(false);
     onClose();
+  };
+
+  /**
+   * Already at 0 (dying or stable): temp HP soaks the hit first; what gets
+   * through is a failed death save (two on a crit), a stable hero starts dying
+   * again, and a hit of at least their maximum hit points kills them.
+   */
+  const hitWhileDown = (damageAmount: number) => {
+    onHit(damageAmount, crit);
+    const after = hitOutcome(damageAmount);
+    onUpdateDeathSaves(after.deathsaves);
+    if (after.conditions !== conditions) onUpdateBoth(after.currHp, after.tHp, after.conditions);
+    else if (after.tHp !== tHp) onSubmit(after.currHp, after.tHp);
+    announceDeath(after);
+    if (after.conditions.includes('Dead')) onClose();
   };
 
   const handleDamage = () => {
@@ -130,9 +178,8 @@ export function HpChangeModal({
       return;
     }
 
-    // Already down: a hit on a dying creature is a failed death save.
-    if (currentHp === 0 && isDying) {
-      addDeathSaveFailure();
+    if (atZero) {
+      hitWhileDown(damageAmount);
       return;
     }
 
@@ -314,8 +361,9 @@ export function HpChangeModal({
         {error && <p className="errorMsg">{error}</p>}
 
         <div className="hpChangeModalButtonBox">
+          <CritToggle crit={crit} onToggle={() => setCrit(!crit)} />
           <button onClick={handleDamage} className="hpChangeModalDmgButton">
-            Take Damage
+            {DAMAGE_LABEL[String(crit)]}
           </button>
           <button onClick={handleHeal} className="hpChangeModalHealButton">
             Heal

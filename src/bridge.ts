@@ -45,7 +45,7 @@
 import { READIED_CONDITION } from "./constants/Conditions";
 import type { Attack, Hero, Monster } from "./types/index";
 import { appendEntry, makeEntry, type LogEntry } from "./utils/battleLog";
-import { resolveDamage } from "./utils/damage";
+import { hitCombatant } from "./utils/damage";
 import {
   cleanConditionRules,
   getCampaignConditionRules,
@@ -97,7 +97,7 @@ import { byInitiative, nextTurn, passTurn, readiedLapsing } from "./utils/turnOr
  * events. (8, never released, handed out a Battle Link URL instead.)
  * 10: the initiativeTable event, and setInitiativeRolls.
  */
-export const BRIDGE_VERSION = 10;
+export const BRIDGE_VERSION = 11;
 
 /** Open to everyone, so dmOS can tell a stranger what it is. */
 const OPEN_METHODS = new Set(["hello", "getSupporter"]);
@@ -271,7 +271,10 @@ const METHODS: Record<string, (params: Params) => unknown> = {
   /**
    * Hit a combatant for `amount`, temp HP first, exactly as the tracker's HP
    * window would, and log it. `note` says what did it ("Longsword, slashing,
-   * from Kessa"). Returns the combatant as they now stand.
+   * from Kessa"). `crit`: a critical hit. A hit on a hero already at 0 is a
+   * failed death save (two on a crit, dead at their maximum or more), as in
+   * the HP window. Every hit is kept as the combatant's `lastHit`, so dmOS can
+   * pass it to a linked sheet. Returns the combatant as they now stand.
    */
   applyDamage: (params) => {
     const campaignId = campaignParam(params);
@@ -281,8 +284,7 @@ const METHODS: Record<string, (params: Params) => unknown> = {
     const target = battle.combatants.find((c) => c.id === params.targetId);
     if (!target) throw new Error("That combatant isn't in the battle.");
 
-    const result = resolveDamage(amount, target.currHp, target.tHp, target.conditions, target.type);
-    const updated = { ...target, currHp: result.newHp, tHp: result.newtHp, conditions: result.conditions };
+    const { updated, result } = hitCombatant(target, amount, params.crit === true);
     storeCampaignCombatants(campaignId, battle.combatants.map((c) => (c.id === target.id ? updated : c)));
 
     let log: LogEntry[] = getCampaignBattleLog(campaignId);

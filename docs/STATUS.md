@@ -8,6 +8,7 @@ Read at the start of a session; update before you finish. Newest first, one line
 
 ## In flight
 
+- 2026-11-14 · PR (damage at 0, with dmOS #8 and Sheets #10): a hit on a hero at 0 is a failed death save (two on a crit), in the HP window (new Crit toggle) and bridge `applyDamage` (new `crit` param, bridge v11), by the sheet's 5e rules in one place, `hitCombatant` (utils/damage.ts): massive damage on the drop (left over past 0 ≥ max HP) or at 0 kills; at 0, temp HP soaks first and only what gets through counts; a stable hero hit starts dying again (successes cleared). Every hit is kept as `Combatant.lastHit {amount, crit, at}`, which dmOS sends to the sheet. Tested (bridge and HP window). Left: HpChangeModal cognitive complexity 21 (warning).
 - 2026-11-14 · branch `claude/project-thread-o996j0`: CLAUDE.md orientation, `docs/MAP.md`, this file, and blocked reads of the bestiaries. Not merged yet.
 
 ## Old branches
