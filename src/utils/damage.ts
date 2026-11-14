@@ -35,3 +35,36 @@ export function resolveDamage(
     changed: next.length !== conditions.length,
   };
 }
+
+/** The most damage one hit can say it did (dmOS's protocol MAX_HIT). */
+const MAX_HIT = 9999;
+
+/**
+ * A hit as it was dealt, before temp HP and 0 took their share, stamped with
+ * when (ms). It sits on the combatant (Combatant.lastHit) so dmOS can pass it
+ * to a linked sheet with the vitals it changed: a hit on a hero already at 0
+ * changes no hit points, and is still a failed death save there.
+ */
+export function stampHit(amount: number, crit: boolean, at = Date.now()): { amount: number; crit: boolean; at: number } {
+  return { amount: Math.min(Math.max(0, Math.trunc(amount)), MAX_HIT), crit, at };
+}
+
+/**
+ * Damage to a hero already at 0 and dying: one failed death save, two for a
+ * crit, and dead outright when the hit is at least their maximum hit points
+ * (or the failures reach three). Returns the death saves and conditions after.
+ */
+export function hitAtZero(
+  damage: number,
+  crit: boolean,
+  maxHp: number,
+  deathsaves: boolean[],
+  conditions: string[]
+): { deathsaves: boolean[]; conditions: string[]; dead: boolean } {
+  const saves = [...deathsaves, ...(crit ? [false, false] : [false])];
+  const dead = damage >= maxHp || saves.filter((s) => s === false).length >= 3;
+  if (!dead) return { deathsaves: saves, conditions, dead };
+  const next = conditions.filter((c) => c !== 'Death Saves');
+  if (!next.includes('Dead')) next.push('Dead');
+  return { deathsaves: [], conditions: next, dead };
+}

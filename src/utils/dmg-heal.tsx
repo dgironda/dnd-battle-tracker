@@ -4,8 +4,25 @@ import { EditableCell } from '../utils/Utils';
 import { ConcentrationCheckModal } from './concentrationCheck';
 import { useGlobalContext } from '../hooks/optionsContext';
 import { notify } from './notify';
-import { resolveDamage } from './damage';
+import { hitAtZero, resolveDamage } from './damage';
 import TempHpIcon from '../assets/draftsvgs_v2/icon_temphp.svg';
+
+const DAMAGE_LABEL: Record<string, string> = { true: 'Take Crit Damage', false: 'Take Damage' };
+
+/** Crit: marks the next hit a critical one (two failed death saves for a hero at 0). Beige off, red on. */
+function CritToggle({ crit, onToggle }: { crit: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      className={`drawnBtn hpChangeModalCritButton${crit ? ' isRed' : ''}`}
+      aria-pressed={crit}
+      title="A critical hit: two failed death saves for a hero at 0 HP"
+      onClick={onToggle}
+    >
+      Crit
+    </button>
+  );
+}
 
 interface HpChangeModalProps {
   combatant: Combatant;
@@ -19,6 +36,8 @@ interface HpChangeModalProps {
   onSubmit: (newHp: number, newtHp: number) => void;
   onUpdateBoth: (newHp: number, newtHp: number, newConditions: string[]) => void;
   onUpdateDeathSaves: (saves: boolean[]) => void;
+  /** Every hit, as dealt (before temp HP and 0), even one that changes no hit points. */
+  onHit?: (amount: number, crit: boolean) => void;
   onClose: () => void;
   updateCombatant: (
     combatantId: string,
@@ -39,11 +58,13 @@ export function HpChangeModal({
   onSubmit,
   onUpdateBoth,
   onUpdateDeathSaves,
+  onHit = () => {},
   onClose,
   updateCombatant,
 }: HpChangeModalProps) {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
+  const [crit, setCrit] = useState(false);
   const [showConcentrationCheck, setShowConcentrationCheck] = useState(false);
   const [concentrationDC, setConcentrationDC] = useState(10);
   const { settings } = useGlobalContext();
@@ -102,6 +123,7 @@ export function HpChangeModal({
 
   /** Commit a damage result and close. Shared by all three damage paths. */
   const commitDamage = (damage: number, dropConcentration: boolean) => {
+    onHit(damage, crit);
     const result = resolveDamage(damage, currentHp, tHp, conditions, type);
     const finalConditions = dropConcentration
       ? result.conditions.filter(c => c !== 'Concentrating')
@@ -122,6 +144,23 @@ export function HpChangeModal({
     onClose();
   };
 
+  /**
+   * Already down: a hit on a dying creature is a failed death save (two on a
+   * crit), and one of at least their maximum hit points kills them.
+   */
+  const hitWhileDown = (damageAmount: number) => {
+    onHit(damageAmount, crit);
+    const after = hitAtZero(damageAmount, crit, maxHp, deathsaves, conditions);
+    if (!after.dead) {
+      onUpdateDeathSaves(after.deathsaves);
+      return;
+    }
+    onUpdateBoth(currentHp, tHp, after.conditions);
+    onUpdateDeathSaves([]);
+    notify(`${combatantName} has died.`, { title: 'Death', tone: 'danger' });
+    onClose();
+  };
+
   const handleDamage = () => {
     const damageAmount = parseAmount();
     if (damageAmount === null) return;
@@ -130,9 +169,8 @@ export function HpChangeModal({
       return;
     }
 
-    // Already down: a hit on a dying creature is a failed death save.
     if (currentHp === 0 && isDying) {
-      addDeathSaveFailure();
+      hitWhileDown(damageAmount);
       return;
     }
 
@@ -314,8 +352,9 @@ export function HpChangeModal({
         {error && <p className="errorMsg">{error}</p>}
 
         <div className="hpChangeModalButtonBox">
+          <CritToggle crit={crit} onToggle={() => setCrit(!crit)} />
           <button onClick={handleDamage} className="hpChangeModalDmgButton">
-            Take Damage
+            {DAMAGE_LABEL[String(crit)]}
           </button>
           <button onClick={handleHeal} className="hpChangeModalHealButton">
             Heal

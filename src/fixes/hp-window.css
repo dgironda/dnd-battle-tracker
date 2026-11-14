@@ -253,3 +253,10 @@
   flex: 1 1 0;
   margin: 0;
 }
+
+/* Crit: a small toggle beside Take Damage, beige off and red on, so the next
+   hit counts as a critical one (two failed death saves for a hero at 0). */
+.hpChangeModalInner .hpChangeModalButtonBox > .hpChangeModalCritButton {
+  flex: 0 0 auto;
+  min-width: 4.5em;
+}
