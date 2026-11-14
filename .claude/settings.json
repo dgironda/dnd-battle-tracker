@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./src/assets/2014monsters.json)",
+      "Read(./src/assets/2024monsters.json)",
+      "Read(./worker-configuration.d.ts)",
+      "Read(./package-lock.json)"
+    ]
+  }
+}

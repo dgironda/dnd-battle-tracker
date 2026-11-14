@@ -20,7 +20,8 @@
 		"deploy:rooms": "wrangler deploy -c workers/battle-rooms/wrangler.jsonc",
 		"cf-typegen": "wrangler types",
 		"fallow": "fallow --health-baseline fallow-health-baseline.json --dupes-baseline fallow-dupes-baseline.json",
-		"fallow:changed": "fallow audit"
+		"fallow:changed": "fallow audit",
+		"map": "node tools/map.mjs"
 	},
 	"dependencies": {
 		"driver.js": "^1.4.0",

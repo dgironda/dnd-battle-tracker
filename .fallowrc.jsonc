@@ -11,6 +11,13 @@
      being read. */
   "entry": ["tools/*.mjs"],
 
+  /* Tools run by hand (releasing, drawing, the source map). A score that
+     weighs complexity against test coverage means nothing for them, so only
+     the plain complexity limits apply, as in dmOS and Sheets. */
+  "health": {
+    "thresholdOverrides": [{ "files": ["tools/**"], "maxCrap": 100000 }]
+  },
+
   /* worker-configuration.d.ts is written by `wrangler types` (npm run
      cf-typegen) and repeats the same Workers declarations for every
      compatibility flag it covers. It made up 13 of the 25 duplicate groups,
