@@ -69,21 +69,43 @@ export function hitAtZero(
   return { deathsaves: [], conditions: next, dead };
 }
 
+/** Conditions with Death Saves swapped for Dead. */
+const killed = (conditions: string[]): string[] => [...conditions.filter((c) => c !== 'Death Saves' && c !== 'Dead'), 'Dead'];
+
 /**
- * A hit on a combatant, as the HP window deals it: temp HP first; a hero
- * already dying takes failed death saves instead (hitAtZero); a hero who just
- * dropped starts a fresh set of saves. Every hit is kept as `lastHit`.
- * `result` is the plain damage maths, for the battle log.
+ * A hit on a hero already at 0 (dying, or stable): temp HP soaks it first,
+ * and only what gets through counts. A stable hero starts dying again, their
+ * successes cleared, then takes the failure (hitAtZero).
+ */
+function hitHeroAtZero(target: Combatant, amount: number, crit: boolean, newtHp: number): Partial<Combatant> {
+  const through = amount - (target.tHp - newtHp);
+  if (through <= 0) return { tHp: newtHp };
+  const dying = target.conditions.includes('Death Saves');
+  const saves = (target.deathsaves ?? []).filter((s) => dying || s === false);
+  const down = hitAtZero(through, crit, target.maxHp, saves, dying ? target.conditions : [...target.conditions, 'Death Saves']);
+  return { tHp: newtHp, conditions: down.conditions, deathsaves: down.deathsaves };
+}
+
+/**
+ * A hit on a combatant, as the HP window and dmOS deal it: temp HP first. A
+ * hero already at 0 takes failed death saves instead (hitHeroAtZero). A hero
+ * who drops starts a fresh set of saves, or dies outright when the damage
+ * left over past 0 is at least their maximum (massive damage). Every hit is
+ * kept as `lastHit`. `result` is the plain damage maths, for the battle log.
  */
 export function hitCombatant(target: Combatant, amount: number, crit: boolean): { updated: Combatant; result: ReturnType<typeof resolveDamage> } {
   const lastHit = stampHit(amount, crit);
-  const dying = target.conditions.includes('Death Saves');
   const result = resolveDamage(amount, target.currHp, target.tHp, target.conditions, target.type);
-  if (target.type === 'hero' && target.currHp === 0 && dying) {
-    const down = hitAtZero(amount, crit, target.maxHp, target.deathsaves ?? [], target.conditions);
-    return { updated: { ...target, conditions: down.conditions, deathsaves: down.deathsaves, lastHit }, result };
+  const alive = !target.conditions.includes('Dead');
+  const hero = target.type === 'hero' && alive;
+  // A monster the DM gave death saves to is dying the same way.
+  if (target.currHp === 0 && (hero || (alive && target.conditions.includes('Death Saves')))) {
+    return { updated: { ...target, ...hitHeroAtZero(target, amount, crit, result.newtHp), lastHit }, result };
   }
-  const dropped = result.conditions.includes('Death Saves') && !dying;
-  const updated = { ...target, currHp: result.newHp, tHp: result.newtHp, conditions: result.conditions, ...(dropped ? { deathsaves: [] } : {}), lastHit };
-  return { updated, result };
+  const leftover = amount - (target.tHp - result.newtHp) - target.currHp;
+  const massive = hero && result.newHp === 0 && leftover >= target.maxHp;
+  const dropped = result.conditions.includes('Death Saves') && !target.conditions.includes('Death Saves');
+  const conditions = massive ? killed(result.conditions) : result.conditions;
+  const saves = massive || dropped ? { deathsaves: [] } : {};
+  return { updated: { ...target, currHp: result.newHp, tHp: result.newtHp, conditions, ...saves, lastHit }, result };
 }
