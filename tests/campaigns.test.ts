@@ -252,6 +252,23 @@ describe('dmOS bridge: battles and attacks', () => {
     });
   });
 
+  it('matches the sheet: massive damage on the drop kills, temp HP soaks a hit at 0, a stable hero starts dying again', () => {
+    const hero = (id: string, over: object) => ({ ...combatant(id, 'hero', 0), maxHp: 20, ...over });
+    seedBattle('default', [
+      hero('h1', { currHp: 5 }),
+      hero('h2', { tHp: 6, conditions: ['Death Saves'], deathsaves: [] }),
+      hero('h3', { conditions: [], deathsaves: [true, true, true, false] }),
+    ]);
+    const hit = (targetId: string, amount: number) => (handleRequest('applyDamage', { campaignId: 'default', targetId, amount }) as { result: object }).result;
+    expect(hit('h1', 24)).toMatchObject({ currHp: 0, conditions: ['Death Saves'] });
+    seedBattle('default', [hero('h1', { currHp: 5 })]);
+    expect(hit('h1', 25)).toMatchObject({ currHp: 0, conditions: ['Dead'], deathsaves: [] });
+    seedBattle('default', [hero('h2', { tHp: 6, conditions: ['Death Saves'], deathsaves: [] }), hero('h3', { conditions: [], deathsaves: [true, true, true, false] })]);
+    expect(hit('h2', 6)).toMatchObject({ tHp: 0, deathsaves: [] });
+    expect(hit('h2', 3)).toMatchObject({ deathsaves: [false] });
+    expect(hit('h3', 2)).toMatchObject({ conditions: ['Death Saves'], deathsaves: [false, false] });
+  });
+
   it('refuses damage to nobody, or of nothing sensible', () => {
     seedBattle('default', [combatant('g1', 'monster', 7)]);
     expect(handleRequest('applyDamage', { campaignId: 'default', targetId: 'nope', amount: 3 })).toHaveProperty('error');
