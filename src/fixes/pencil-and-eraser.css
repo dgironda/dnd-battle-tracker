@@ -76,27 +76,38 @@
    change back to an arrow in the margin around the drawn box, which is most of
    the cell. Setting only the overlay — as this first did — meant the whole
    thing worked on a phone and did nothing at all on a desktop. */
-#battleTracker td:has(> input[type="checkbox"]:not(:checked):not(:disabled)),
+/* The :has() cells get rules of their own: a browser without :has() (Firefox
+   before 121) drops a whole selector list it can't read, the plain ones too. */
 #battleTracker td > input[type="checkbox"]:not(:checked):not(:disabled),
 #battleTracker td > input[type="checkbox"]:not(:checked):not(:disabled) ~ .checkOverlay,
-.managerCheck:has(> input[type="checkbox"]:not(:checked)),
 .managerCheck > input[type="checkbox"]:not(:checked) {
   cursor: var(--cursor-pencil), pointer;
 }
 
-#battleTracker td:has(> input[type="checkbox"]:checked:not(:disabled)),
+#battleTracker td:has(> input[type="checkbox"]:not(:checked):not(:disabled)),
+.managerCheck:has(> input[type="checkbox"]:not(:checked)) {
+  cursor: var(--cursor-pencil), pointer;
+}
+
 #battleTracker td > input[type="checkbox"]:checked:not(:disabled),
 #battleTracker td > input[type="checkbox"]:checked:not(:disabled) ~ .checkOverlay,
-.managerCheck:has(> input[type="checkbox"]:checked),
 .managerCheck > input[type="checkbox"]:checked {
+  cursor: var(--cursor-eraser), pointer;
+}
+
+#battleTracker td:has(> input[type="checkbox"]:checked:not(:disabled)),
+.managerCheck:has(> input[type="checkbox"]:checked) {
   cursor: var(--cursor-eraser), pointer;
 }
 
 /* Dead and dying combatants have their action economy locked; offering either
    tool there would promise something the click will not do. */
-#battleTracker td:has(> input[type="checkbox"]:disabled),
 #battleTracker td > input[type="checkbox"]:disabled,
 #battleTracker td > input[type="checkbox"]:disabled ~ .checkOverlay {
+  cursor: not-allowed;
+}
+
+#battleTracker td:has(> input[type="checkbox"]:disabled) {
   cursor: not-allowed;
 }
 
