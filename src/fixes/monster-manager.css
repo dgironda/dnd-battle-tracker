@@ -125,10 +125,14 @@
    out with an empty ::before laid over its cell. (::before, so ::after stays
    free for something drawn inside the button itself.) */
 @media (hover: none) {
-  #heroAddManage td:has(> .setEditingField),
-  #monsterAddManage td:has(> .setEditingField),
   #heroAddManage .heroStat,
   #monsterAddManage .heroStat {
+    position: relative;
+  }
+
+  /* Its own rule: a browser without :has() drops a whole list it can't read. */
+  #heroAddManage td:has(> .setEditingField),
+  #monsterAddManage td:has(> .setEditingField) {
     position: relative;
   }
 
